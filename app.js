@@ -1750,10 +1750,31 @@ function configurarAuthListener() {
   });
 }
 
+
+function configurarDelegacaoGlobalModulos() {
+  document.addEventListener("click", function(evento) {
+    const botaoModulo = evento.target.closest("#tela-painel-projeto [data-modulo]");
+
+    if (!botaoModulo) {
+      return;
+    }
+
+    evento.preventDefault();
+    evento.stopPropagation();
+
+    const modulo = botaoModulo.dataset.modulo;
+
+    if (modulo) {
+      abrirModulo(modulo);
+    }
+  }, true);
+}
+
 function prepararAplicacao() {
   configurarBotoesFixos();
   configurarEnterNosCampos();
   configurarAuthListener();
+  configurarDelegacaoGlobalModulos();
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
