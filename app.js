@@ -683,23 +683,45 @@ function abrirModulo(modulo) {
 
   definirMenuModulo(modulo);
 
+  const area = elemento("area-modulo");
+  if (area) {
+    area.style.display = "block";
+    area.style.width = "100%";
+    area.style.gridColumn = "1 / -1";
+  }
+
   if (modulo === "integrantes") {
     carregarIntegrantes();
+    rolarParaModulo();
     return;
   }
 
   if (modulo === "musicas") {
     carregarMusicas();
+    rolarParaModulo();
     return;
   }
 
   if (modulo === "repertorios") {
     carregarRepertorios();
+    rolarParaModulo();
     return;
   }
 
   if (modulo === "eventos") {
     carregarEventos();
+    rolarParaModulo();
+    return;
+  }
+}
+
+function rolarParaModulo() {
+  const area = elemento("area-modulo");
+
+  if (area) {
+    setTimeout(function() {
+      area.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
   }
 }
 
@@ -1751,30 +1773,10 @@ function configurarAuthListener() {
 }
 
 
-function configurarDelegacaoGlobalModulos() {
-  document.addEventListener("click", function(evento) {
-    const botaoModulo = evento.target.closest("#tela-painel-projeto [data-modulo]");
-
-    if (!botaoModulo) {
-      return;
-    }
-
-    evento.preventDefault();
-    evento.stopPropagation();
-
-    const modulo = botaoModulo.dataset.modulo;
-
-    if (modulo) {
-      abrirModulo(modulo);
-    }
-  }, true);
-}
-
 function prepararAplicacao() {
   configurarBotoesFixos();
   configurarEnterNosCampos();
   configurarAuthListener();
-  configurarDelegacaoGlobalModulos();
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
