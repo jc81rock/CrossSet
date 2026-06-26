@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repertório Fácil</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <main class="app">
+
+    <section id="tela-login" class="tela tela-ativa">
+      <div class="card-login">
+        <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+
+        <h1>Entrar</h1>
+        <p>Acesse seus projetos musicais, repertórios e agenda.</p>
+
+        <button class="botao-google" onclick="entrarComGoogle()">
+          Entrar com Google
+        </button>
+
+        <div class="divisor">
+          <span></span>
+          <p>ou</p>
+          <span></span>
+        </div>
+
+        <input type="email" placeholder="E-mail" />
+        <input type="password" placeholder="Senha" />
+
+        <button class="botao-principal" onclick="mostrarTela('tela-projetos')">
+          Entrar
+        </button>
+
+        <button class="botao-link" onclick="mostrarTela('tela-cadastro')">
+          Criar conta
+        </button>
+      </div>
+    </section>
+
+    <section id="tela-cadastro" class="tela">
+      <div class="card-login">
+        <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+
+        <h1>Criar Conta</h1>
+        <p>Preencha seus dados para começar.</p>
+
+        <input id="cadastro-nome" type="text" placeholder="Nome completo" />
+        <input id="cadastro-cidade" type="text" placeholder="Cidade" />
+        <input id="cadastro-email" type="email" placeholder="E-mail" />
+        <input id="cadastro-senha" type="password" placeholder="Senha" />
+        <input id="cadastro-repetir-senha" type="password" placeholder="Repetir senha" />
+
+        <button class="botao-principal" onclick="validarCadastro()">
+          Criar conta
+        </button>
+
+        <div id="mensagem-cadastro" class="mensagem-cadastro"></div>
+
+        <button class="botao-link" onclick="mostrarTela('tela-login')">
+          Voltar
+        </button>
+      </div>
+    </section>
+
+    <section id="tela-projetos" class="tela">
+      <div class="container">
+
+        <header class="topo">
+          <div class="topo-logo">
+            <img src="logo.png" alt="Repertório Fácil" />
+            <div>
+              <h1>Meus Projetos</h1>
+              <p id="nome-usuario">Olá</p>
+            </div>
+          </div>
+
+          <button class="botao-sair" onclick="sair()">Sair</button>
+        </header>
+
+        <section class="banner">
+          <div>
+            <h2>Organize seus repertórios</h2>
+            <p>Crie projetos, cadastre integrantes e monte repertórios para shows, ensaios e eventos.</p>
+          </div>
+
+          <button class="botao-novo" onclick="mostrarTela('tela-novo-projeto')">
+            Novo Projeto
+          </button>
+        </section>
+
+        <section class="grid-projetos">
+
+          <div class="card-projeto card-criar" onclick="mostrarTela('tela-novo-projeto')">
+            <div class="icone-mais">+</div>
+            <h3>Criar novo projeto</h3>
+            <p>Cadastre uma nova banda ou projeto musical.</p>
+          </div>
+
+          <div class="card-projeto">
+            <span class="tag">Banda</span>
+            <h3>Cicranos Rock</h3>
+            <p>Clássicos do pop/rock nacional e internacional.</p>
+
+            <div class="detalhes">
+              <span>Diadema - SP</span>
+              <span>5 integrantes</span>
+            </div>
+
+            <button class="botao-card">Acessar projeto</button>
+          </div>
+
+        </section>
+
+        <nav class="menu-inferior">
+          <button>Início</button>
+          <button class="ativo">Projetos</button>
+          <button>Agenda</button>
+          <button>Perfil</button>
+        </nav>
+
+      </div>
+    </section>
+
+    <section id="tela-novo-projeto" class="tela">
+      <div class="card-login">
+        <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+
+        <h1>Novo Projeto</h1>
+        <p>Preencha os dados principais do projeto.</p>
+
+        <input type="text" placeholder="Nome do projeto" />
+
+        <select>
+          <option value="">Tipo</option>
+          <option>Banda</option>
+          <option>Dupla</option>
+          <option>Trio</option>
+          <option>Ministério</option>
+          <option>Coral</option>
+          <option>Outro</option>
+        </select>
+
+        <input type="text" placeholder="Estilo musical" />
+        <input type="text" placeholder="Cidade" />
+        <input type="text" placeholder="Estado (UF)" />
+
+        <button class="botao-principal">
+          Criar Projeto
+        </button>
+
+        <button class="botao-link" onclick="mostrarTela('tela-projetos')">
+          Cancelar
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
