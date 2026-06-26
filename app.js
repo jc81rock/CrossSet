@@ -829,7 +829,7 @@ async function carregarIntegrantes() {
         display: grid;
         gap: 6px;
         font-size: 13px;
-        color: #555;
+        color: #e5e7eb;
       }
 
       .form-integrantes input,
@@ -875,10 +875,11 @@ async function carregarIntegrantes() {
       }
 
       .item-integrante {
-        border: 1px solid rgba(0, 0, 0, .08);
+        border: 1px solid rgba(255, 255, 255, .16);
         border-radius: 14px;
-        padding: 12px;
-        background: rgba(255, 255, 255, .7);
+        padding: 14px;
+        background: #1f2937;
+        color: #f9fafb;
       }
 
       .item-integrante-topo {
@@ -893,12 +894,12 @@ async function carregarIntegrantes() {
         height: 42px;
         min-width: 42px;
         border-radius: 50%;
-        background: #e9e9e9;
+        background: #6d28d9;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 800;
-        color: #555;
+        color: #ffffff;
       }
 
       .dados-integrante {
@@ -906,23 +907,41 @@ async function carregarIntegrantes() {
       }
 
       .dados-integrante h4 {
-        margin: 0 0 4px;
+        margin: 0 0 6px;
+        color: #ffffff;
+        font-size: 17px;
       }
 
       .dados-integrante p {
-        margin: 2px 0;
+        margin: 3px 0;
         font-size: 13px;
+        color: #d1d5db;
+      }
+
+      .dados-integrante strong {
+        color: #f3f4f6;
       }
 
       .tag-admin {
         display: inline-block;
-        margin-top: 6px;
-        padding: 3px 8px;
+        margin-top: 8px;
+        padding: 4px 9px;
         border-radius: 999px;
         font-size: 12px;
         font-weight: 700;
-        background: #111;
-        color: #fff;
+        background: #7c3aed;
+        color: #ffffff;
+      }
+
+      .tag-integrante {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #374151;
+        color: #e5e7eb;
       }
 
       .botoes-item-integrante {
@@ -941,13 +960,13 @@ async function carregarIntegrantes() {
       }
 
       .btn-editar-integrante {
-        background: #eeeeee;
-        color: #111;
+        background: #e5e7eb;
+        color: #111827;
       }
 
       .btn-excluir-integrante {
-        background: #ffe1e1;
-        color: #8a0000;
+        background: #fee2e2;
+        color: #991b1b;
       }
 
       @media (max-width: 820px) {
@@ -991,20 +1010,13 @@ async function carregarIntegrantes() {
             </label>
           </div>
 
-          <div class="linha-form-integrantes">
-            <label>
-              Administrador
-              <select id="integrante-administrador">
-                <option value="false">Não</option>
-                <option value="true">Sim</option>
-              </select>
-            </label>
-
-            <label>
-              Ordem de exibição
-              <input id="integrante-ordem" type="number" min="0" step="1" placeholder="0" />
-            </label>
-          </div>
+          <label>
+            Administrador
+            <select id="integrante-administrador">
+              <option value="false">Não</option>
+              <option value="true">Sim</option>
+            </select>
+          </label>
 
           <label>
             E-mail
@@ -1014,11 +1026,6 @@ async function carregarIntegrantes() {
           <label>
             Telefone
             <input id="integrante-telefone" type="tel" placeholder="(00) 00000-0000" />
-          </label>
-
-          <label>
-            Foto
-            <input id="integrante-foto" type="text" placeholder="Preparado para receber URL da foto futuramente" />
           </label>
 
           <div class="acoes-integrante">
@@ -1042,7 +1049,6 @@ async function carregarIntegrantes() {
           <label>
             Ordenar por
             <select id="ordenar-integrantes">
-              <option value="ordem">Ordem de exibição</option>
               <option value="nome">Nome</option>
               <option value="funcao">Função</option>
               <option value="instrumento">Instrumento</option>
@@ -1099,7 +1105,6 @@ async function buscarIntegrantes() {
     .from(REPERTORIO_FACIL.tabelas.integrantes)
     .select("*")
     .eq("projeto_id", projetoId)
-    .order("ordem_exibicao", { ascending: true })
     .order("nome", { ascending: true });
 
   if (error) {
@@ -1114,7 +1119,7 @@ async function buscarIntegrantes() {
 function renderizarListaIntegrantes() {
   const lista = elemento("lista-integrantes");
   const busca = limparTexto(elemento("busca-integrantes")?.value).toLowerCase();
-  const ordem = elemento("ordenar-integrantes")?.value || "ordem";
+  const ordem = elemento("ordenar-integrantes")?.value || "nome";
 
   if (!lista) {
     return;
@@ -1154,7 +1159,7 @@ function renderizarListaIntegrantes() {
       return compararTexto(a.instrumento, b.instrumento) || compararTexto(a.nome, b.nome);
     }
 
-    return Number(a.ordem_exibicao || 0) - Number(b.ordem_exibicao || 0) || compararTexto(a.nome, b.nome);
+    return compararTexto(a.nome, b.nome);
   });
 
   if (itens.length === 0) {
@@ -1176,8 +1181,7 @@ function renderizarListaIntegrantes() {
             <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
             <p><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")}</p>
             <p><strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
-            <p><strong>Ordem:</strong> ${escaparHtml(item.ordem_exibicao ?? 0)}</p>
-            ${item.administrador ? `<span class="tag-admin">Administrador</span>` : ""}
+            ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
           </div>
 
           <div class="botoes-item-integrante">
@@ -1213,9 +1217,7 @@ function obterDadosFormularioIntegrante() {
     instrumento: limparTexto(elemento("integrante-instrumento")?.value),
     administrador: elemento("integrante-administrador")?.value === "true",
     email: limparTexto(elemento("integrante-email")?.value),
-    telefone: limparTexto(elemento("integrante-telefone")?.value),
-    foto_url: limparTexto(elemento("integrante-foto")?.value),
-    ordem_exibicao: Number(limparTexto(elemento("integrante-ordem")?.value) || 0)
+    telefone: limparTexto(elemento("integrante-telefone")?.value)
   };
 }
 
@@ -1230,8 +1232,6 @@ function preencherFormularioIntegrante(item) {
   elemento("integrante-administrador").value = item.administrador ? "true" : "false";
   elemento("integrante-email").value = item.email || "";
   elemento("integrante-telefone").value = item.telefone || "";
-  elemento("integrante-foto").value = item.foto_url || "";
-  elemento("integrante-ordem").value = item.ordem_exibicao ?? 0;
 
   const titulo = elemento("titulo-form-integrante");
   const botaoSalvar = elemento("btn-salvar-integrante");
@@ -1260,9 +1260,7 @@ function limparFormularioIntegrante() {
     "integrante-funcao",
     "integrante-instrumento",
     "integrante-email",
-    "integrante-telefone",
-    "integrante-foto",
-    "integrante-ordem"
+    "integrante-telefone"
   ].forEach(function(id) {
     const campo = elemento(id);
 
@@ -1324,9 +1322,7 @@ async function salvarIntegrante() {
     instrumento: dados.instrumento,
     administrador: dados.administrador,
     email: dados.email,
-    telefone: dados.telefone,
-    foto_url: dados.foto_url,
-    ordem_exibicao: dados.ordem_exibicao
+    telefone: dados.telefone
   };
 
   let resultado;
