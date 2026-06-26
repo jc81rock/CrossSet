@@ -1,3 +1,5 @@
+const URL_APP = "https://jc81rock.github.io/RepertorioFacilNovo/";
+
 function mostrarTela(idTela) {
   const telas = document.querySelectorAll(".tela");
 
@@ -64,15 +66,24 @@ function validarCadastro() {
 }
 
 async function entrarComGoogle() {
-  const { error } = await supabaseClient.auth.signInWithOAuth({
+  const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: "https://jc81rock.github.io/RepertorioFacilNovo/"
+      redirectTo: URL_APP,
+      skipBrowserRedirect: true,
+      queryParams: {
+        prompt: "select_account"
+      }
     }
   });
 
   if (error) {
     alert("Erro ao entrar com Google: " + error.message);
+    return;
+  }
+
+  if (data && data.url) {
+    window.location.href = data.url;
   }
 }
 
