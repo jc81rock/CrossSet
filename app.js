@@ -17,7 +17,9 @@ let appState = {
   sessao: null,
   telaAtual: "tela-login",
   historico: [],
-  projetoAtual: null
+  projetoAtual: null,
+  integrantes: [],
+  integranteEditandoId: null
 };
 
 function sb() {
@@ -769,76 +771,623 @@ function montarListaModulo(titulo, itens, renderItem) {
 }
 
 async function carregarIntegrantes() {
+  const area = elemento("area-modulo");
   const projetoId = obterProjetoAtualId();
 
-  limparAreaModulo();
+  if (!area) {
+    return;
+  }
 
-  montarFormularioModulo(
-    "Novo integrante",
-    "Cadastre um músico ou administrador do projeto.",
-    [
-      { id: "integrante-nome", placeholder: "Nome do integrante" },
-      { id: "integrante-funcao", placeholder: "Função" },
-      { id: "integrante-email", placeholder: "E-mail", tipo: "email" }
-    ],
-    "Salvar integrante",
-    criarIntegrante
-  );
+  if (!projetoId) {
+    area.innerHTML = `
+      <div class="card-projeto">
+        <h3>Projeto não encontrado</h3>
+        <p>Volte para Meus Projetos e acesse o projeto novamente.</p>
+      </div>
+    `;
+    return;
+  }
 
+  area.innerHTML = `
+    <style>
+      .modulo-integrantes {
+        display: grid;
+        grid-template-columns: minmax(280px, 380px) 1fr;
+        gap: 18px;
+        width: 100%;
+      }
+
+      .form-integrantes {
+        display: grid;
+        gap: 10px;
+      }
+
+      .form-integrantes label,
+      .filtros-integrantes label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: #555;
+      }
+
+      .form-integrantes input,
+      .form-integrantes select,
+      .filtros-integrantes input,
+      .filtros-integrantes select {
+        width: 100%;
+      }
+
+      .linha-form-integrantes {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .acoes-integrante {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .botao-secundario-modulo {
+        border: 0;
+        border-radius: 12px;
+        padding: 11px 14px;
+        cursor: pointer;
+        background: #eeeeee;
+        color: #222;
+        font-weight: 700;
+      }
+
+      .filtros-integrantes {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 10px;
+        margin: 10px 0 14px;
+      }
+
+      .lista-integrantes {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item-integrante {
+        border: 1px solid rgba(0, 0, 0, .08);
+        border-radius: 14px;
+        padding: 12px;
+        background: rgba(255, 255, 255, .7);
+      }
+
+      .item-integrante-topo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .foto-integrante-placeholder {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        background: #e9e9e9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #555;
+      }
+
+      .dados-integrante {
+        flex: 1;
+      }
+
+      .dados-integrante h4 {
+        margin: 0 0 4px;
+      }
+
+      .dados-integrante p {
+        margin: 2px 0;
+        font-size: 13px;
+      }
+
+      .tag-admin {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #111;
+        color: #fff;
+      }
+
+      .botoes-item-integrante {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .botoes-item-integrante button {
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .btn-editar-integrante {
+        background: #eeeeee;
+        color: #111;
+      }
+
+      .btn-excluir-integrante {
+        background: #ffe1e1;
+        color: #8a0000;
+      }
+
+      @media (max-width: 820px) {
+        .modulo-integrantes,
+        .linha-form-integrantes,
+        .filtros-integrantes {
+          grid-template-columns: 1fr;
+        }
+
+        .item-integrante-topo {
+          flex-direction: column;
+        }
+
+        .botoes-item-integrante {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+
+    <div class="modulo-integrantes">
+      <div class="card-projeto">
+        <span class="tag">Cadastro</span>
+        <h3 id="titulo-form-integrante">Novo integrante</h3>
+        <p>Cadastre músicos, funções, instrumentos e administradores do projeto.</p>
+
+        <div class="form-integrantes">
+          <label>
+            Nome
+            <input id="integrante-nome" type="text" placeholder="Nome do integrante" />
+          </label>
+
+          <div class="linha-form-integrantes">
+            <label>
+              Função
+              <input id="integrante-funcao" type="text" placeholder="Ex: Vocalista" />
+            </label>
+
+            <label>
+              Instrumento
+              <input id="integrante-instrumento" type="text" placeholder="Ex: Guitarra" />
+            </label>
+          </div>
+
+          <div class="linha-form-integrantes">
+            <label>
+              Administrador
+              <select id="integrante-administrador">
+                <option value="false">Não</option>
+                <option value="true">Sim</option>
+              </select>
+            </label>
+
+            <label>
+              Ordem de exibição
+              <input id="integrante-ordem" type="number" min="0" step="1" placeholder="0" />
+            </label>
+          </div>
+
+          <label>
+            E-mail
+            <input id="integrante-email" type="email" placeholder="email@exemplo.com" />
+          </label>
+
+          <label>
+            Telefone
+            <input id="integrante-telefone" type="tel" placeholder="(00) 00000-0000" />
+          </label>
+
+          <label>
+            Foto
+            <input id="integrante-foto" type="text" placeholder="Preparado para receber URL da foto futuramente" />
+          </label>
+
+          <div class="acoes-integrante">
+            <button class="botao-card" id="btn-salvar-integrante" type="button">Salvar integrante</button>
+            <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-projeto">
+        <span class="tag">Lista</span>
+        <h3>Integrantes cadastrados</h3>
+        <p>Pesquise, ordene, edite ou exclua integrantes deste projeto.</p>
+
+        <div class="filtros-integrantes">
+          <label>
+            Pesquisar
+            <input id="busca-integrantes" type="text" placeholder="Buscar por nome, função, instrumento, e-mail ou telefone" />
+          </label>
+
+          <label>
+            Ordenar por
+            <select id="ordenar-integrantes">
+              <option value="ordem">Ordem de exibição</option>
+              <option value="nome">Nome</option>
+              <option value="funcao">Função</option>
+              <option value="instrumento">Instrumento</option>
+              <option value="administrador">Administrador primeiro</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="lista-integrantes" class="lista-integrantes">
+          <p>Carregando integrantes...</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  appState.integranteEditandoId = null;
+  configurarEventosIntegrantes();
+  await buscarIntegrantes();
+}
+
+function configurarEventosIntegrantes() {
+  const botaoSalvar = elemento("btn-salvar-integrante");
+  const botaoCancelar = elemento("btn-cancelar-integrante");
+  const busca = elemento("busca-integrantes");
+  const ordenar = elemento("ordenar-integrantes");
+
+  if (botaoSalvar) {
+    botaoSalvar.addEventListener("click", salvarIntegrante);
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.addEventListener("click", limparFormularioIntegrante);
+  }
+
+  if (busca) {
+    busca.addEventListener("input", renderizarListaIntegrantes);
+  }
+
+  if (ordenar) {
+    ordenar.addEventListener("change", renderizarListaIntegrantes);
+  }
+}
+
+async function buscarIntegrantes() {
   const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const lista = elemento("lista-integrantes");
+
+  if (!cliente || !projetoId || !lista) {
+    return;
+  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.integrantes)
     .select("*")
     .eq("projeto_id", projetoId)
-    .order("created_at", { ascending: false });
+    .order("ordem_exibicao", { ascending: true })
+    .order("nome", { ascending: true });
 
   if (error) {
-    montarListaModulo("Integrantes cadastrados", [], function() {
-      return "";
-    });
+    lista.innerHTML = `<p>Erro ao carregar integrantes: ${escaparHtml(error.message)}</p>`;
     return;
   }
 
-  montarListaModulo("Integrantes cadastrados", data || [], function(item) {
+  appState.integrantes = data || [];
+  renderizarListaIntegrantes();
+}
+
+function renderizarListaIntegrantes() {
+  const lista = elemento("lista-integrantes");
+  const busca = limparTexto(elemento("busca-integrantes")?.value).toLowerCase();
+  const ordem = elemento("ordenar-integrantes")?.value || "ordem";
+
+  if (!lista) {
+    return;
+  }
+
+  let itens = [...(appState.integrantes || [])];
+
+  if (busca) {
+    itens = itens.filter(function(item) {
+      const texto = [
+        item.nome,
+        item.funcao,
+        item.instrumento,
+        item.email,
+        item.telefone,
+        item.administrador ? "administrador sim" : "administrador não"
+      ].join(" ").toLowerCase();
+
+      return texto.includes(busca);
+    });
+  }
+
+  itens.sort(function(a, b) {
+    if (ordem === "administrador") {
+      return Number(b.administrador === true) - Number(a.administrador === true) || compararTexto(a.nome, b.nome);
+    }
+
+    if (ordem === "nome") {
+      return compararTexto(a.nome, b.nome);
+    }
+
+    if (ordem === "funcao") {
+      return compararTexto(a.funcao, b.funcao) || compararTexto(a.nome, b.nome);
+    }
+
+    if (ordem === "instrumento") {
+      return compararTexto(a.instrumento, b.instrumento) || compararTexto(a.nome, b.nome);
+    }
+
+    return Number(a.ordem_exibicao || 0) - Number(b.ordem_exibicao || 0) || compararTexto(a.nome, b.nome);
+  });
+
+  if (itens.length === 0) {
+    lista.innerHTML = `<p>Nenhum integrante encontrado.</p>`;
+    return;
+  }
+
+  lista.innerHTML = itens.map(function(item) {
+    const inicial = escaparHtml((item.nome || "?").trim().charAt(0).toUpperCase() || "?");
+
     return `
-      <p>
-        <strong>${escaparHtml(item.nome || "Sem nome")}</strong><br>
-        ${escaparHtml(item.funcao || "Sem função")}
-        ${item.email ? " • " + escaparHtml(item.email) : ""}
-      </p>
+      <div class="item-integrante">
+        <div class="item-integrante-topo">
+          <div class="foto-integrante-placeholder">${inicial}</div>
+
+          <div class="dados-integrante">
+            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+            <p><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")}</p>
+            <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
+            <p><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")}</p>
+            <p><strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
+            <p><strong>Ordem:</strong> ${escaparHtml(item.ordem_exibicao ?? 0)}</p>
+            ${item.administrador ? `<span class="tag-admin">Administrador</span>` : ""}
+          </div>
+
+          <div class="botoes-item-integrante">
+            <button class="btn-editar-integrante" type="button" data-editar-integrante="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-excluir-integrante" type="button" data-excluir-integrante="${escaparHtml(item.id)}">Excluir</button>
+          </div>
+        </div>
+      </div>
     `;
+  }).join("");
+
+  lista.querySelectorAll("[data-editar-integrante]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      editarIntegrante(botao.dataset.editarIntegrante);
+    });
+  });
+
+  lista.querySelectorAll("[data-excluir-integrante]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      excluirIntegrante(botao.dataset.excluirIntegrante);
+    });
   });
 }
 
-async function criarIntegrante() {
+function compararTexto(a, b) {
+  return limparTexto(a).localeCompare(limparTexto(b), "pt-BR", { sensitivity: "base" });
+}
+
+function obterDadosFormularioIntegrante() {
+  return {
+    nome: limparTexto(elemento("integrante-nome")?.value),
+    funcao: limparTexto(elemento("integrante-funcao")?.value),
+    instrumento: limparTexto(elemento("integrante-instrumento")?.value),
+    administrador: elemento("integrante-administrador")?.value === "true",
+    email: limparTexto(elemento("integrante-email")?.value),
+    telefone: limparTexto(elemento("integrante-telefone")?.value),
+    foto_url: limparTexto(elemento("integrante-foto")?.value),
+    ordem_exibicao: Number(limparTexto(elemento("integrante-ordem")?.value) || 0)
+  };
+}
+
+function preencherFormularioIntegrante(item) {
+  if (!item) {
+    return;
+  }
+
+  elemento("integrante-nome").value = item.nome || "";
+  elemento("integrante-funcao").value = item.funcao || "";
+  elemento("integrante-instrumento").value = item.instrumento || "";
+  elemento("integrante-administrador").value = item.administrador ? "true" : "false";
+  elemento("integrante-email").value = item.email || "";
+  elemento("integrante-telefone").value = item.telefone || "";
+  elemento("integrante-foto").value = item.foto_url || "";
+  elemento("integrante-ordem").value = item.ordem_exibicao ?? 0;
+
+  const titulo = elemento("titulo-form-integrante");
+  const botaoSalvar = elemento("btn-salvar-integrante");
+  const botaoCancelar = elemento("btn-cancelar-integrante");
+
+  if (titulo) {
+    titulo.textContent = "Editar integrante";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar alterações";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "inline-block";
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function limparFormularioIntegrante() {
+  appState.integranteEditandoId = null;
+
+  [
+    "integrante-nome",
+    "integrante-funcao",
+    "integrante-instrumento",
+    "integrante-email",
+    "integrante-telefone",
+    "integrante-foto",
+    "integrante-ordem"
+  ].forEach(function(id) {
+    const campo = elemento(id);
+
+    if (campo) {
+      campo.value = "";
+    }
+  });
+
+  const administrador = elemento("integrante-administrador");
+  const titulo = elemento("titulo-form-integrante");
+  const botaoSalvar = elemento("btn-salvar-integrante");
+  const botaoCancelar = elemento("btn-cancelar-integrante");
+
+  if (administrador) {
+    administrador.value = "false";
+  }
+
+  if (titulo) {
+    titulo.textContent = "Novo integrante";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar integrante";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "none";
+  }
+}
+
+async function salvarIntegrante() {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  const nome = limparTexto(elemento("integrante-nome")?.value);
-  const funcao = limparTexto(elemento("integrante-funcao")?.value);
-  const email = limparTexto(elemento("integrante-email")?.value);
+  if (!cliente || !projetoId) {
+    return;
+  }
 
-  if (!nome) {
+  const dados = obterDadosFormularioIntegrante();
+
+  if (!dados.nome) {
     alert("Informe o nome do integrante.");
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const payload = {
+    projeto_id: projetoId,
+    usuario_id: usuario.id,
+    nome: dados.nome,
+    funcao: dados.funcao,
+    instrumento: dados.instrumento,
+    administrador: dados.administrador,
+    email: dados.email,
+    telefone: dados.telefone,
+    foto_url: dados.foto_url,
+    ordem_exibicao: dados.ordem_exibicao
+  };
+
+  let resultado;
+
+  if (appState.integranteEditandoId) {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .update(payload)
+      .eq("id", appState.integranteEditandoId)
+      .eq("projeto_id", projetoId)
+      .eq("usuario_id", usuario.id);
+  } else {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .insert(payload);
+  }
+
+  if (resultado.error) {
+    alert("Erro ao salvar integrante: " + resultado.error.message);
+    return;
+  }
+
+  limparFormularioIntegrante();
+  await buscarIntegrantes();
+}
+
+function editarIntegrante(id) {
+  const item = (appState.integrantes || []).find(function(integrante) {
+    return integrante.id === id;
+  });
+
+  if (!item) {
+    alert("Integrante não encontrado.");
+    return;
+  }
+
+  appState.integranteEditandoId = id;
+  preencherFormularioIntegrante(item);
+}
+
+async function excluirIntegrante(id) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !id || !projetoId) {
+    return;
+  }
+
+  const confirmar = confirm("Excluir este integrante?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
     return;
   }
 
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.integrantes)
-    .insert({
-      projeto_id: projetoId,
-      nome: nome,
-      funcao: funcao,
-      email: email
-    });
+    .delete()
+    .eq("id", id)
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id);
 
   if (error) {
-    alert("Erro ao salvar integrante: " + error.message);
+    alert("Erro ao excluir integrante: " + error.message);
     return;
   }
 
-  carregarIntegrantes();
+  if (appState.integranteEditandoId === id) {
+    limparFormularioIntegrante();
+  }
+
+  await buscarIntegrantes();
+}
+
+async function criarIntegrante() {
+  await salvarIntegrante();
 }
 
 async function carregarMusicas() {
