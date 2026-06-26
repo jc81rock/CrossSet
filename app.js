@@ -1,15 +1,7 @@
 "use strict";
 
-/*
-  Repertório Fácil
-  app.js revisado
-  Versão corrigida para substituir o app.js atual.
-*/
-
 const REPERTORIO_FACIL = {
   urlApp: "https://jc81rock.github.io/RepertorioFacilNovo/",
-  supabaseUrl: "https://hfpvbsoaszenrfjzbbjt.supabase.co",
-  supabaseKey: "sb_publishable_KUlqpOD-RqTCtt16TvwA8g_jLtYDsU_",
   tabelas: {
     projetos: "projetos",
     integrantes: "integrantes",
@@ -25,65 +17,36 @@ let appState = {
   sessao: null,
   telaAtual: "tela-login",
   historico: [],
-  projetoAtual: null,
-  carregando: false
+  projetoAtual: null
 };
 
-function obterSupabase() {
+function sb() {
   if (typeof supabaseClient !== "undefined" && supabaseClient) {
     return supabaseClient;
   }
 
-  if (typeof supabase !== "undefined" && supabase.createClient) {
-    window.supabaseClient = supabase.createClient(
-      REPERTORIO_FACIL.supabaseUrl,
-      REPERTORIO_FACIL.supabaseKey,
-      {
-        auth: {
-          persistSession: true,
-          autoRefreshToken: true,
-          detectSessionInUrl: true
-        }
-      }
-    );
-
-    return window.supabaseClient;
-  }
-
-  console.error("Supabase não carregado.");
+  alert("Supabase não carregado.");
   return null;
-}
-
-function sb() {
-  return obterSupabase();
 }
 
 function elemento(id) {
   return document.getElementById(id);
 }
 
-function selecionar(seletor) {
-  return document.querySelector(seletor);
-}
-
-function selecionarTodos(seletor) {
-  return Array.from(document.querySelectorAll(seletor));
-}
-
-function textoSeguro(valor, padrao = "") {
+function limparTexto(valor) {
   if (valor === null || valor === undefined) {
-    return padrao;
+    return "";
   }
 
-  return String(valor);
-}
-
-function limparTexto(valor) {
-  return textoSeguro(valor).trim();
+  return String(valor).trim();
 }
 
 function escaparHtml(valor) {
-  return textoSeguro(valor)
+  if (valor === null || valor === undefined) {
+    return "";
+  }
+
+  return String(valor)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -95,20 +58,56 @@ function normalizarUF(valor) {
   return limparTexto(valor).toUpperCase().slice(0, 2);
 }
 
-function definirCarregando(status) {
-  appState.carregando = status;
+function mostrarTela(idTela, opcoes = {}) {
+  const telaSelecionada = elemento(idTela);
 
-  selecionarTodos("button").forEach(function(botao) {
-    if (botao.dataset.manterAtivo === "true") {
-      return;
-    }
+  if (!telaSelecionada) {
+    console.warn("Tela não encontrada:", idTela);
+    return;
+  }
 
-    botao.disabled = status;
+  const telaAnterior = appState.telaAtual;
+
+  document.querySelectorAll(".tela").forEach(function(tela) {
+    tela.classList.remove("tela-ativa");
   });
+
+  telaSelecionada.classList.add("tela-ativa");
+  appState.telaAtual = idTela;
+
+  if (opcoes.registrar !== false && telaAnterior !== idTela) {
+    appState.historico.push(telaAnterior);
+  }
+
+  if (idTela === "tela-projetos") {
+    carregarProjetos();
+  }
+
+  if (idTela === "tela-painel-projeto") {
+    carregarPainelProjeto();
+  }
 }
 
-function alertaErro(mensagem) {
-  alert(mensagem || "Ocorreu um erro.");
+function obterNomeUsuario(usuario) {
+  if (!usuario) {
+    return "Usuário";
+  }
+
+  return (
+    usuario.user_metadata?.full_name ||
+    usuario.user_metadata?.name ||
+    usuario.user_metadata?.nome ||
+    usuario.email ||
+    "Usuário"
+  );
+}
+
+function preencherUsuario(usuario) {
+  const campo = elemento("nome-usuario");
+
+  if (campo && usuario) {
+    campo.textContent = "Olá, " + obterNomeUsuario(usuario);
+  }
 }
 
 function mostrarMensagemCadastro(tipo, texto) {
@@ -143,30 +142,6 @@ function limparCampos(container) {
   });
 }
 
-function obterNomeUsuario(usuario) {
-  if (!usuario) {
-    return "Usuário";
-  }
-
-  return (
-    usuario.user_metadata?.full_name ||
-    usuario.user_metadata?.name ||
-    usuario.user_metadata?.nome ||
-    usuario.email ||
-    "Usuário"
-  );
-}
-
-function preencherUsuario(usuario) {
-  const nomeUsuario = elemento("nome-usuario");
-
-  if (!nomeUsuario || !usuario) {
-    return;
-  }
-
-  nomeUsuario.textContent = "Olá, " + obterNomeUsuario(usuario);
-}
-
 function salvarProjetoAtual(projeto) {
   appState.projetoAtual = projeto || null;
 
@@ -185,84 +160,6 @@ function obterProjetoAtualId() {
   return localStorage.getItem("projeto_atual");
 }
 
-function telaExiste(idTela) {
-  return Boolean(elemento(idTela));
-}
-
-function registrarHistorico(idTela) {
-  if (!idTela) {
-    return;
-  }
-
-  if (idTela === appState.telaAtual) {
-    return;
-  }
-
-  const ultimaTela = appState.historico[appState.historico.length - 1];
-
-  if (ultimaTela !== idTela) {
-    appState.historico.push(idTela);
-  }
-
-  if (appState.historico.length > 30) {
-    appState.historico.shift();
-  }
-}
-
-function mostrarTela(idTela, opcoes = {}) {
-  if (!idTela || !telaExiste(idTela)) {
-    console.warn("Tela não encontrada:", idTela);
-    return;
-  }
-
-  const telaAnterior = appState.telaAtual;
-
-  selecionarTodos(".tela").forEach(function(tela) {
-    tela.classList.remove("tela-ativa");
-  });
-
-  const telaSelecionada = elemento(idTela);
-
-  if (telaSelecionada) {
-    telaSelecionada.classList.add("tela-ativa");
-  }
-
-  appState.telaAtual = idTela;
-
-  if (opcoes.registrar !== false && telaAnterior !== idTela) {
-    registrarHistorico(telaAnterior);
-  }
-
-  if (idTela === "tela-projetos") {
-    carregarProjetos();
-  }
-
-  if (idTela === "tela-painel-projeto") {
-    carregarPainelProjeto();
-  }
-}
-
-function voltarTela() {
-  if (appState.historico.length === 0) {
-    if (appState.usuario) {
-      mostrarTela("tela-projetos", { registrar: false });
-    } else {
-      mostrarTela("tela-login", { registrar: false });
-    }
-
-    return;
-  }
-
-  const telaAnterior = appState.historico.pop();
-
-  if (!telaAnterior || !telaExiste(telaAnterior)) {
-    voltarTela();
-    return;
-  }
-
-  mostrarTela(telaAnterior, { registrar: false });
-}
-
 async function verificarSessao() {
   const cliente = sb();
 
@@ -273,35 +170,26 @@ async function verificarSessao() {
 
   const { data, error } = await cliente.auth.getSession();
 
-  if (error) {
-    console.error(error);
+  if (error || !data.session) {
     appState.sessao = null;
     appState.usuario = null;
     mostrarTela("tela-login", { registrar: false });
     return;
   }
 
-  appState.sessao = data.session || null;
-  appState.usuario = data.session?.user || null;
+  appState.sessao = data.session;
+  appState.usuario = data.session.user;
 
-  if (appState.usuario) {
-    preencherUsuario(appState.usuario);
-    mostrarTela("tela-projetos", { registrar: false });
-    return;
-  }
-
-  mostrarTela("tela-login", { registrar: false });
+  preencherUsuario(appState.usuario);
+  mostrarTela("tela-projetos", { registrar: false });
 }
 
 async function entrarComGoogle() {
   const cliente = sb();
 
   if (!cliente) {
-    alertaErro("Supabase não carregado.");
     return;
   }
-
-  definirCarregando(true);
 
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
@@ -314,10 +202,8 @@ async function entrarComGoogle() {
     }
   });
 
-  definirCarregando(false);
-
   if (error) {
-    alertaErro("Erro ao entrar com Google: " + error.message);
+    alert("Erro ao entrar com Google: " + error.message);
     return;
   }
 
@@ -330,7 +216,6 @@ async function entrarComEmail() {
   const cliente = sb();
 
   if (!cliente) {
-    alertaErro("Supabase não carregado.");
     return;
   }
 
@@ -338,31 +223,24 @@ async function entrarComEmail() {
   const senha = limparTexto(elemento("login-senha")?.value);
 
   if (!email || !senha) {
-    alertaErro("Preencha e-mail e senha.");
+    alert("Preencha e-mail e senha.");
     return;
   }
-
-  definirCarregando(true);
 
   const { data, error } = await cliente.auth.signInWithPassword({
     email: email,
     password: senha
   });
 
-  definirCarregando(false);
-
   if (error) {
-    alertaErro("Erro ao entrar: " + error.message);
+    alert("Erro ao entrar: " + error.message);
     return;
   }
 
   appState.sessao = data.session || null;
   appState.usuario = data.user || data.session?.user || null;
 
-  if (appState.usuario) {
-    preencherUsuario(appState.usuario);
-  }
-
+  preencherUsuario(appState.usuario);
   mostrarTela("tela-projetos");
 }
 
@@ -370,7 +248,6 @@ async function validarCadastro() {
   const cliente = sb();
 
   if (!cliente) {
-    alertaErro("Supabase não carregado.");
     return;
   }
 
@@ -407,17 +284,10 @@ async function validarCadastro() {
     return;
   }
 
-  if (!repetirSenha) {
-    mostrarMensagemCadastro("erro", "Repita sua senha.");
-    return;
-  }
-
   if (senha !== repetirSenha) {
     mostrarMensagemCadastro("erro", "As senhas não coincidem.");
     return;
   }
-
-  definirCarregando(true);
 
   const { error } = await cliente.auth.signUp({
     email: email,
@@ -430,8 +300,6 @@ async function validarCadastro() {
       }
     }
   });
-
-  definirCarregando(false);
 
   if (error) {
     mostrarMensagemCadastro("erro", "Erro ao criar conta: " + error.message);
@@ -456,20 +324,13 @@ async function sair() {
   localStorage.removeItem("projeto_atual");
 
   mostrarTela("tela-login", { registrar: false });
-}/* ============================================================
-   PROJETOS
-============================================================ */
+}
 
 async function carregarProjetos() {
-  const grid = document.querySelector(".grid-projetos");
-
-  if (!grid) {
-    return;
-  }
-
+  const grid = elemento("lista-projetos") || document.querySelector(".grid-projetos");
   const cliente = sb();
 
-  if (!cliente) {
+  if (!grid || !cliente) {
     return;
   }
 
@@ -495,15 +356,12 @@ async function carregarProjetos() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
-
     grid.innerHTML = `
       <div class="card-projeto">
         <h3>Erro ao carregar</h3>
         <p>${escaparHtml(error.message)}</p>
       </div>
     `;
-
     return;
   }
 
@@ -511,15 +369,13 @@ async function carregarProjetos() {
 }
 
 function montarListaProjetos(lista) {
-  const grid = document.querySelector(".grid-projetos");
+  const grid = elemento("lista-projetos") || document.querySelector(".grid-projetos");
 
   if (!grid) {
     return;
   }
 
-  grid.innerHTML = "";
-
-  grid.innerHTML += `
+  grid.innerHTML = `
     <div class="card-projeto card-criar" id="novoProjetoCard">
       <div class="icone-mais">+</div>
       <h3>Criar novo projeto</h3>
@@ -540,9 +396,7 @@ function montarListaProjetos(lista) {
     grid.innerHTML += `
       <div class="card-projeto">
         <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
-
         <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
-
         <p>${escaparHtml(projeto.estilo || "Sem estilo informado")}</p>
 
         <div class="detalhes">
@@ -553,18 +407,14 @@ function montarListaProjetos(lista) {
           <span>Projeto cadastrado</span>
         </div>
 
-        <button
-          class="botao-card abrir-projeto"
-          type="button"
-          data-id="${escaparHtml(projeto.id)}"
-        >
+        <button class="botao-card abrir-projeto" type="button" data-id="${escaparHtml(projeto.id)}">
           Acessar projeto
         </button>
       </div>
     `;
   });
 
-  const cardNovo = document.getElementById("novoProjetoCard");
+  const cardNovo = elemento("novoProjetoCard");
 
   if (cardNovo) {
     cardNovo.addEventListener("click", function() {
@@ -583,7 +433,6 @@ async function criarProjeto() {
   const cliente = sb();
 
   if (!cliente) {
-    alertaErro("Supabase não carregado.");
     return;
   }
 
@@ -606,8 +455,6 @@ async function criarProjeto() {
     return;
   }
 
-  definirCarregando(true);
-
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.projetos)
     .insert({
@@ -620,8 +467,6 @@ async function criarProjeto() {
     })
     .select()
     .single();
-
-  definirCarregando(false);
 
   if (error) {
     alert("Erro ao criar projeto: " + error.message);
@@ -636,13 +481,7 @@ async function criarProjeto() {
 async function acessarProjeto(id) {
   const cliente = sb();
 
-  if (!cliente) {
-    alertaErro("Supabase não carregado.");
-    return;
-  }
-
-  if (!id) {
-    alert("Projeto não encontrado.");
+  if (!cliente || !id) {
     return;
   }
 
@@ -662,10 +501,7 @@ async function acessarProjeto(id) {
 }
 
 function abrirPainelProjeto() {
-  if (!telaExiste("tela-painel-projeto")) {
-    garantirTelasInternas();
-  }
-
+  garantirTelasInternas();
   mostrarTela("tela-painel-projeto");
 }
 
@@ -676,8 +512,8 @@ function carregarPainelProjeto() {
     return;
   }
 
-  const nome = document.getElementById("titulo-projeto");
-  const subtitulo = document.getElementById("subtitulo-projeto");
+  const nome = elemento("titulo-projeto");
+  const subtitulo = elemento("subtitulo-projeto");
 
   if (nome) {
     nome.textContent = projeto.nome || "Projeto";
@@ -692,62 +528,9 @@ function carregarPainelProjeto() {
   }
 }
 
-async function excluirProjeto(id) {
-  if (!confirm("Excluir este projeto?")) {
-    return;
-  }
-
-  const cliente = sb();
-
-  if (!cliente) {
-    alertaErro("Supabase não carregado.");
-    return;
-  }
-
-  const { error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    alert("Erro ao excluir projeto: " + error.message);
-    return;
-  }
-
-  if (obterProjetoAtualId() === id) {
-    salvarProjetoAtual(null);
-  }
-
-  carregarProjetos();
-}
-
-async function atualizarProjeto(id, dados) {
-  const cliente = sb();
-
-  if (!cliente) {
-    alertaErro("Supabase não carregado.");
-    return;
-  }
-
-  const { error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .update(dados)
-    .eq("id", id);
-
-  if (error) {
-    alert("Erro ao atualizar projeto: " + error.message);
-    return;
-  }
-
-  carregarProjetos();
-}
-
-/* ============================================================
-   TELAS INTERNAS
-============================================================ */
-
 function garantirTelasInternas() {
-  if (telaExiste("tela-painel-projeto")) {
+  if (elemento("tela-painel-projeto")) {
+    configurarEventosPainelProjeto();
     return;
   }
 
@@ -758,7 +541,6 @@ function garantirTelasInternas() {
   }
 
   const tela = document.createElement("section");
-
   tela.id = "tela-painel-projeto";
   tela.className = "tela";
 
@@ -832,11 +614,11 @@ function garantirTelasInternas() {
 }
 
 function configurarEventosPainelProjeto() {
-  const botaoVoltarProjetos = document.getElementById("btn-voltar-projetos");
+  const botaoVoltar = elemento("btn-voltar-projetos");
 
-  if (botaoVoltarProjetos && !botaoVoltarProjetos.dataset.configurado) {
-    botaoVoltarProjetos.dataset.configurado = "true";
-    botaoVoltarProjetos.addEventListener("click", function() {
+  if (botaoVoltar && !botaoVoltar.dataset.configurado) {
+    botaoVoltar.dataset.configurado = "true";
+    botaoVoltar.addEventListener("click", function() {
       mostrarTela("tela-projetos");
     });
   }
@@ -847,39 +629,31 @@ function configurarEventosPainelProjeto() {
     }
 
     botao.dataset.configurado = "true";
-
     botao.addEventListener("click", function() {
       abrirModulo(botao.dataset.modulo);
     });
   });
 
-  const menuInicio = document.getElementById("menu-projeto-inicio");
+  const menuInicio = elemento("menu-projeto-inicio");
 
   if (menuInicio && !menuInicio.dataset.configurado) {
     menuInicio.dataset.configurado = "true";
-
     menuInicio.addEventListener("click", function() {
       limparAreaModulo();
 
-      document
-        .querySelectorAll("#tela-painel-projeto .menu-inferior button")
-        .forEach(function(botao) {
-          botao.classList.remove("ativo");
-        });
+      document.querySelectorAll("#tela-painel-projeto .menu-inferior button").forEach(function(botao) {
+        botao.classList.remove("ativo");
+      });
 
       menuInicio.classList.add("ativo");
     });
   }
-}/* ============================================================
-   MÓDULOS INTERNOS
-============================================================ */
+}
 
 function definirMenuModulo(modulo) {
-  document
-    .querySelectorAll("#tela-painel-projeto .menu-inferior button")
-    .forEach(function(botao) {
-      botao.classList.remove("ativo");
-    });
+  document.querySelectorAll("#tela-painel-projeto .menu-inferior button").forEach(function(botao) {
+    botao.classList.remove("ativo");
+  });
 
   const botao = document.querySelector(
     "#tela-painel-projeto .menu-inferior button[data-modulo='" + modulo + "']"
@@ -891,7 +665,7 @@ function definirMenuModulo(modulo) {
 }
 
 function limparAreaModulo() {
-  const area = document.getElementById("area-modulo");
+  const area = elemento("area-modulo");
 
   if (area) {
     area.innerHTML = "";
@@ -924,12 +698,11 @@ function abrirModulo(modulo) {
 
   if (modulo === "eventos") {
     carregarEventos();
-    return;
   }
 }
 
 function montarFormularioModulo(titulo, descricao, campos, botaoTexto, callback) {
-  const area = document.getElementById("area-modulo");
+  const area = elemento("area-modulo");
 
   if (!area) {
     return;
@@ -943,26 +716,13 @@ function montarFormularioModulo(titulo, descricao, campos, botaoTexto, callback)
   `;
 
   campos.forEach(function(campo) {
-    if (campo.tipo === "select") {
-      html += `
-        <select id="${escaparHtml(campo.id)}">
-          <option value="">${escaparHtml(campo.placeholder)}</option>
-          ${(campo.opcoes || [])
-            .map(function(opcao) {
-              return `<option value="${escaparHtml(opcao)}">${escaparHtml(opcao)}</option>`;
-            })
-            .join("")}
-        </select>
-      `;
-    } else {
-      html += `
-        <input
-          id="${escaparHtml(campo.id)}"
-          type="${escaparHtml(campo.tipo || "text")}"
-          placeholder="${escaparHtml(campo.placeholder)}"
-        />
-      `;
-    }
+    html += `
+      <input
+        id="${escaparHtml(campo.id)}"
+        type="${escaparHtml(campo.tipo || "text")}"
+        placeholder="${escaparHtml(campo.placeholder)}"
+      />
+    `;
   });
 
   html += `
@@ -974,7 +734,7 @@ function montarFormularioModulo(titulo, descricao, campos, botaoTexto, callback)
 
   area.innerHTML = html;
 
-  const botao = document.getElementById("btn-salvar-modulo");
+  const botao = elemento("btn-salvar-modulo");
 
   if (botao) {
     botao.addEventListener("click", callback);
@@ -982,7 +742,7 @@ function montarFormularioModulo(titulo, descricao, campos, botaoTexto, callback)
 }
 
 function montarListaModulo(titulo, itens, renderItem) {
-  const area = document.getElementById("area-modulo");
+  const area = elemento("area-modulo");
 
   if (!area) {
     return;
@@ -1005,7 +765,6 @@ function montarListaModulo(titulo, itens, renderItem) {
   }
 
   html += `</div>`;
-
   area.innerHTML = html;
 }
 
@@ -1018,29 +777,15 @@ async function carregarIntegrantes() {
     "Novo integrante",
     "Cadastre um músico ou administrador do projeto.",
     [
-      {
-        id: "integrante-nome",
-        placeholder: "Nome do integrante"
-      },
-      {
-        id: "integrante-funcao",
-        placeholder: "Função"
-      },
-      {
-        id: "integrante-email",
-        placeholder: "E-mail",
-        tipo: "email"
-      }
+      { id: "integrante-nome", placeholder: "Nome do integrante" },
+      { id: "integrante-funcao", placeholder: "Função" },
+      { id: "integrante-email", placeholder: "E-mail", tipo: "email" }
     ],
     "Salvar integrante",
     criarIntegrante
   );
 
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.integrantes)
@@ -1049,7 +794,6 @@ async function carregarIntegrantes() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
     montarListaModulo("Integrantes cadastrados", [], function() {
       return "";
     });
@@ -1069,20 +813,11 @@ async function carregarIntegrantes() {
 
 async function criarIntegrante() {
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
-
   const projetoId = obterProjetoAtualId();
+
   const nome = limparTexto(elemento("integrante-nome")?.value);
   const funcao = limparTexto(elemento("integrante-funcao")?.value);
   const email = limparTexto(elemento("integrante-email")?.value);
-
-  if (!projetoId) {
-    alert("Abra um projeto primeiro.");
-    return;
-  }
 
   if (!nome) {
     alert("Informe o nome do integrante.");
@@ -1115,33 +850,16 @@ async function carregarMusicas() {
     "Nova música",
     "Cadastre músicas para montar repertórios.",
     [
-      {
-        id: "musica-nome",
-        placeholder: "Nome da música"
-      },
-      {
-        id: "musica-artista",
-        placeholder: "Artista / banda"
-      },
-      {
-        id: "musica-tom",
-        placeholder: "Tom"
-      },
-      {
-        id: "musica-bpm",
-        placeholder: "BPM",
-        tipo: "number"
-      }
+      { id: "musica-nome", placeholder: "Nome da música" },
+      { id: "musica-artista", placeholder: "Artista / banda" },
+      { id: "musica-tom", placeholder: "Tom" },
+      { id: "musica-bpm", placeholder: "BPM", tipo: "number" }
     ],
     "Salvar música",
     criarMusica
   );
 
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
@@ -1150,7 +868,6 @@ async function carregarMusicas() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
     montarListaModulo("Músicas cadastradas", [], function() {
       return "";
     });
@@ -1171,21 +888,12 @@ async function carregarMusicas() {
 
 async function criarMusica() {
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
-
   const projetoId = obterProjetoAtualId();
+
   const nome = limparTexto(elemento("musica-nome")?.value);
   const artista = limparTexto(elemento("musica-artista")?.value);
   const tom = limparTexto(elemento("musica-tom")?.value);
   const bpm = limparTexto(elemento("musica-bpm")?.value);
-
-  if (!projetoId) {
-    alert("Abra um projeto primeiro.");
-    return;
-  }
 
   if (!nome) {
     alert("Informe o nome da música.");
@@ -1208,9 +916,7 @@ async function criarMusica() {
   }
 
   carregarMusicas();
-}/* ============================================================
-   REPERTÓRIOS
-============================================================ */
+}
 
 async function carregarRepertorios() {
   const projetoId = obterProjetoAtualId();
@@ -1221,24 +927,14 @@ async function carregarRepertorios() {
     "Novo repertório",
     "Crie uma lista de músicas para show, ensaio ou evento.",
     [
-      {
-        id: "repertorio-nome",
-        placeholder: "Nome do repertório"
-      },
-      {
-        id: "repertorio-observacoes",
-        placeholder: "Observações"
-      }
+      { id: "repertorio-nome", placeholder: "Nome do repertório" },
+      { id: "repertorio-observacoes", placeholder: "Observações" }
     ],
     "Salvar repertório",
     criarRepertorio
   );
 
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.repertorios)
@@ -1247,7 +943,6 @@ async function carregarRepertorios() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error(error);
     montarListaModulo("Repertórios cadastrados", [], function() {
       return "";
     });
@@ -1266,19 +961,10 @@ async function carregarRepertorios() {
 
 async function criarRepertorio() {
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
-
   const projetoId = obterProjetoAtualId();
+
   const nome = limparTexto(elemento("repertorio-nome")?.value);
   const observacoes = limparTexto(elemento("repertorio-observacoes")?.value);
-
-  if (!projetoId) {
-    alert("Abra um projeto primeiro.");
-    return;
-  }
 
   if (!nome) {
     alert("Informe o nome do repertório.");
@@ -1301,10 +987,6 @@ async function criarRepertorio() {
   carregarRepertorios();
 }
 
-/* ============================================================
-   EVENTOS
-============================================================ */
-
 async function carregarEventos() {
   const projetoId = obterProjetoAtualId();
 
@@ -1314,33 +996,16 @@ async function carregarEventos() {
     "Novo evento",
     "Cadastre shows, ensaios e compromissos do projeto.",
     [
-      {
-        id: "evento-nome",
-        placeholder: "Nome do evento"
-      },
-      {
-        id: "evento-data",
-        placeholder: "Data",
-        tipo: "date"
-      },
-      {
-        id: "evento-local",
-        placeholder: "Local"
-      },
-      {
-        id: "evento-observacoes",
-        placeholder: "Observações"
-      }
+      { id: "evento-nome", placeholder: "Nome do evento" },
+      { id: "evento-data", placeholder: "Data", tipo: "date" },
+      { id: "evento-local", placeholder: "Local" },
+      { id: "evento-observacoes", placeholder: "Observações" }
     ],
     "Salvar evento",
     criarEvento
   );
 
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.eventos)
@@ -1349,7 +1014,6 @@ async function carregarEventos() {
     .order("data_evento", { ascending: true });
 
   if (error) {
-    console.error(error);
     montarListaModulo("Eventos cadastrados", [], function() {
       return "";
     });
@@ -1369,21 +1033,12 @@ async function carregarEventos() {
 
 async function criarEvento() {
   const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
-
   const projetoId = obterProjetoAtualId();
+
   const nome = limparTexto(elemento("evento-nome")?.value);
   const dataEvento = limparTexto(elemento("evento-data")?.value);
   const local = limparTexto(elemento("evento-local")?.value);
   const observacoes = limparTexto(elemento("evento-observacoes")?.value);
-
-  if (!projetoId) {
-    alert("Abra um projeto primeiro.");
-    return;
-  }
 
   if (!nome) {
     alert("Informe o nome do evento.");
@@ -1408,24 +1063,43 @@ async function criarEvento() {
   carregarEventos();
 }
 
-/* ============================================================
-   EVENTOS FIXOS DA INTERFACE
-============================================================ */
+async function restaurarProjetoAtual() {
+  const id = obterProjetoAtualId();
+
+  if (!id) {
+    return;
+  }
+
+  const cliente = sb();
+
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    localStorage.removeItem("projeto_atual");
+    return;
+  }
+
+  salvarProjetoAtual(data);
+}
 
 function configurarBotoesFixos() {
-  const botaoGoogle = document.getElementById("btn-google");
+  const botaoGoogle = elemento("btn-google");
 
   if (botaoGoogle) {
     botaoGoogle.addEventListener("click", entrarComGoogle);
   }
 
-  const botaoLogin = document.getElementById("btn-login-email");
+  const botaoLogin = elemento("btn-login-email");
 
   if (botaoLogin) {
     botaoLogin.addEventListener("click", entrarComEmail);
   }
 
-  const botaoCriarProjeto = document.getElementById("btn-criar-projeto");
+  const botaoCriarProjeto = elemento("btn-criar-projeto");
 
   if (botaoCriarProjeto) {
     botaoCriarProjeto.addEventListener("click", criarProjeto);
@@ -1438,41 +1112,37 @@ function configurarBotoesFixos() {
       return;
     }
 
-    if (acao.includes("mostrarTela('tela-cadastro')")) {
-      item.removeAttribute("onclick");
+    item.removeAttribute("onclick");
+
+    if (acao.includes("tela-cadastro")) {
       item.addEventListener("click", function() {
         mostrarTela("tela-cadastro");
       });
     }
 
-    if (acao.includes("mostrarTela('tela-login')")) {
-      item.removeAttribute("onclick");
+    if (acao.includes("tela-login")) {
       item.addEventListener("click", function() {
         mostrarTela("tela-login");
       });
     }
 
-    if (acao.includes("mostrarTela('tela-projetos')")) {
-      item.removeAttribute("onclick");
+    if (acao.includes("tela-projetos")) {
       item.addEventListener("click", function() {
         mostrarTela("tela-projetos");
       });
     }
 
-    if (acao.includes("mostrarTela('tela-novo-projeto')")) {
-      item.removeAttribute("onclick");
+    if (acao.includes("tela-novo-projeto")) {
       item.addEventListener("click", function() {
         mostrarTela("tela-novo-projeto");
       });
     }
 
-    if (acao.includes("validarCadastro()")) {
-      item.removeAttribute("onclick");
+    if (acao.includes("validarCadastro")) {
       item.addEventListener("click", validarCadastro);
     }
 
-    if (acao.includes("sair()")) {
-      item.removeAttribute("onclick");
+    if (acao.includes("sair")) {
       item.addEventListener("click", sair);
     }
   });
@@ -1480,8 +1150,8 @@ function configurarBotoesFixos() {
 
 function configurarEnterNosCampos() {
   const campos = [
-    document.getElementById("login-email"),
-    document.getElementById("login-senha")
+    elemento("login-email"),
+    elemento("login-senha")
   ];
 
   campos.forEach(function(campo) {
@@ -1531,33 +1201,6 @@ function configurarAuthListener() {
   });
 }
 
-async function restaurarProjetoAtual() {
-  const id = obterProjetoAtualId();
-
-  if (!id) {
-    return;
-  }
-
-  const cliente = sb();
-
-  if (!cliente) {
-    return;
-  }
-
-  const { data, error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) {
-    localStorage.removeItem("projeto_atual");
-    return;
-  }
-
-  salvarProjetoAtual(data);
-}
-
 function prepararAplicacao() {
   configurarBotoesFixos();
   configurarEnterNosCampos();
@@ -1566,6 +1209,7 @@ function prepararAplicacao() {
 
 document.addEventListener("DOMContentLoaded", async function() {
   prepararAplicacao();
+
   await verificarSessao();
   await restaurarProjetoAtual();
 });
