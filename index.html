@@ -30,7 +30,7 @@
         <input id="login-email" type="email" placeholder="E-mail" />
         <input id="login-senha" type="password" placeholder="Senha" />
 
-        <button class="botao-principal" onclick="mostrarTela('tela-projetos')">
+        <button id="btn-login-email" class="botao-principal">
           Entrar
         </button>
 
@@ -91,27 +91,12 @@
           </button>
         </section>
 
-        <section class="grid-projetos">
-
+        <section class="grid-projetos" id="lista-projetos">
           <div class="card-projeto card-criar" onclick="mostrarTela('tela-novo-projeto')">
             <div class="icone-mais">+</div>
             <h3>Criar novo projeto</h3>
             <p>Cadastre uma nova banda ou projeto musical.</p>
           </div>
-
-          <div class="card-projeto">
-            <span class="tag">Banda</span>
-            <h3>Cicranos Rock</h3>
-            <p>Clássicos do pop/rock nacional e internacional.</p>
-
-            <div class="detalhes">
-              <span>Diadema - SP</span>
-              <span>5 integrantes</span>
-            </div>
-
-            <button class="botao-card">Acessar projeto</button>
-          </div>
-
         </section>
 
         <nav class="menu-inferior">
@@ -131,9 +116,9 @@
         <h1>Novo Projeto</h1>
         <p>Preencha os dados principais do projeto.</p>
 
-        <input type="text" placeholder="Nome do projeto" />
+        <input id="projeto-nome" type="text" placeholder="Nome do projeto" />
 
-        <select>
+        <select id="projeto-tipo">
           <option value="">Tipo</option>
           <option>Banda</option>
           <option>Dupla</option>
@@ -143,11 +128,11 @@
           <option>Outro</option>
         </select>
 
-        <input type="text" placeholder="Estilo musical" />
-        <input type="text" placeholder="Cidade" />
-        <input type="text" placeholder="Estado (UF)" />
+        <input id="projeto-estilo" type="text" placeholder="Estilo musical" />
+        <input id="projeto-cidade" type="text" placeholder="Cidade" />
+        <input id="projeto-estado" type="text" placeholder="Estado (UF)" maxlength="2" />
 
-        <button class="botao-principal">
+        <button id="btn-criar-projeto" class="botao-principal">
           Criar Projeto
         </button>
 
