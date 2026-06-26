@@ -341,9 +341,18 @@ async function carregarProjetos() {
     </div>
   `;
 
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.projetos)
     .select("*")
+    .eq("usuario_id", usuario.id)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -438,9 +447,18 @@ async function criarProjeto() {
     return;
   }
 
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.projetos)
     .insert({
+      usuario_id: usuario.id,
       nome: nome,
       tipo: tipo,
       estilo: estilo,
