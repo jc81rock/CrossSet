@@ -120,6 +120,37 @@ function preencherUsuario(usuario) {
   }
 }
 
+
+function obterChaveBoasVindas(usuario) {
+  const identificador = usuario?.id || usuario?.email || "anonimo";
+  return "repertorio_facil_boas_vindas_" + identificador;
+}
+
+function boasVindasJaConcluida(usuario) {
+  return localStorage.getItem(obterChaveBoasVindas(usuario)) === "true";
+}
+
+function marcarBoasVindasConcluida(usuario) {
+  localStorage.setItem(obterChaveBoasVindas(usuario), "true");
+}
+
+function abrirTelaInicialAutenticada(usuario, opcoes = {}) {
+  if (!boasVindasJaConcluida(usuario)) {
+    mostrarTela("tela-boas-vindas", { registrar: false });
+    return;
+  }
+
+  mostrarTela("tela-projetos", opcoes);
+}
+
+function concluirBoasVindas() {
+  if (appState.usuario) {
+    marcarBoasVindasConcluida(appState.usuario);
+  }
+
+  mostrarTela("tela-projetos", { registrar: false });
+}
+
 function mostrarMensagemCadastro(tipo, texto) {
   const mensagem = elemento("mensagem-cadastro");
 
@@ -191,7 +222,7 @@ async function verificarSessao() {
   appState.usuario = data.session.user;
 
   preencherUsuario(appState.usuario);
-  mostrarTela("tela-projetos", { registrar: false });
+  abrirTelaInicialAutenticada(appState.usuario, { registrar: false });
 }
 
 async function entrarComGoogle() {
@@ -251,7 +282,7 @@ async function entrarComEmail() {
   appState.usuario = data.user || data.session?.user || null;
 
   preencherUsuario(appState.usuario);
-  mostrarTela("tela-projetos");
+  abrirTelaInicialAutenticada(appState.usuario);
 }
 
 async function validarCadastro() {
@@ -4139,6 +4170,13 @@ function configurarBotoesFixos() {
     botaoCriarProjeto.addEventListener("click", criarProjeto);
   }
 
+  const botaoComecarBoasVindas = elemento("btn-comecar-boas-vindas");
+
+  if (botaoComecarBoasVindas) {
+    botaoComecarBoasVindas.addEventListener("click", concluirBoasVindas);
+  }
+
+
   document.querySelectorAll("[onclick]").forEach(function(item) {
     const acao = item.getAttribute("onclick");
 
@@ -4366,9 +4404,10 @@ function configurarAuthListener() {
 
       if (
         appState.telaAtual === "tela-login" ||
-        appState.telaAtual === "tela-cadastro"
+        appState.telaAtual === "tela-cadastro" ||
+        appState.telaAtual === "tela-boas-vindas"
       ) {
-        mostrarTela("tela-projetos", { registrar: false });
+        abrirTelaInicialAutenticada(session.user, { registrar: false });
       }
     }
 
