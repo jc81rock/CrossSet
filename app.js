@@ -2594,9 +2594,9 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
         </div>
 
         <div class="botoes-musica-repertorio">
-          <button class="btn-subir-musica" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">Subir</button>
-          <button class="btn-descer-musica" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">Descer</button>
-          <button class="btn-remover-musica-repertorio" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">Remover</button>
+          <button class="btn-subir-musica" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">⬆ Antes</button>
+          <button class="btn-descer-musica" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">⬇ Depois</button>
+          <button class="btn-remover-musica-repertorio" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">🗑 Remover</button>
         </div>
       </div>
     `;
@@ -2806,16 +2806,19 @@ async function obterMusicasDoRepertorioParaPDF(repertorioId) {
 }
 
 function abrirJanelaImpressaoRepertorio(html) {
-  const janela = window.open("", "_blank");
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const janela = window.open(url, "_blank");
 
   if (!janela) {
+    URL.revokeObjectURL(url);
     alert("O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente novamente.");
     return;
   }
 
-  janela.document.open();
-  janela.document.write(html);
-  janela.document.close();
+  setTimeout(function() {
+    URL.revokeObjectURL(url);
+  }, 60000);
 }
 
 async function gerarPDFDoRepertorio(repertorioId) {
