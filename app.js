@@ -557,61 +557,63 @@ function garantirTelasInternas() {
   tela.innerHTML = `
     <style>
       .grid-modulos-painel {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(190px, 1fr)) !important;
+        gap: 12px !important;
         align-items: stretch;
+        width: 100%;
       }
 
       .grid-modulos-painel .card-projeto {
-        min-height: 210px;
-        padding: 22px;
+        min-height: 165px !important;
+        padding: 16px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        gap: 10px;
+        gap: 8px;
       }
 
       .grid-modulos-painel .tag {
         align-self: flex-start;
-        font-size: 12px;
-        padding: 6px 12px;
+        font-size: 11px !important;
+        padding: 5px 10px !important;
       }
 
       .grid-modulos-painel h3 {
-        font-size: 24px;
-        margin: 6px 0 0;
-        line-height: 1.1;
+        font-size: 21px !important;
+        margin: 2px 0 0 !important;
+        line-height: 1.08;
       }
 
       .grid-modulos-painel p {
-        font-size: 15px;
-        line-height: 1.35;
-        margin: 0;
+        font-size: 13px !important;
+        line-height: 1.28 !important;
+        margin: 0 !important;
       }
 
       .grid-modulos-painel .botao-card {
-        min-height: 42px;
-        padding: 10px 14px;
-        font-size: 15px;
+        min-height: 34px !important;
+        padding: 7px 10px !important;
+        font-size: 13px !important;
         margin-top: auto;
+        border-radius: 12px;
       }
 
-      @media (max-width: 1180px) {
+      @media (max-width: 980px) {
         .grid-modulos-painel {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
+          grid-template-columns: repeat(3, minmax(180px, 1fr)) !important;
         }
       }
 
-      @media (max-width: 860px) {
+      @media (max-width: 760px) {
         .grid-modulos-painel {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
+          grid-template-columns: repeat(2, minmax(160px, 1fr)) !important;
         }
       }
 
-      @media (max-width: 560px) {
+      @media (max-width: 520px) {
         .grid-modulos-painel {
-          grid-template-columns: 1fr;
+          grid-template-columns: 1fr !important;
         }
       }
     </style>
@@ -1312,14 +1314,6 @@ function preencherFormularioIntegrante(item) {
 
   if (botaoSalvar) {
     botaoSalvar.textContent = "Salvar alterações";
-  }
-
-  if (botaoCompartilhar) {
-    botaoCompartilhar.style.display = "inline-block";
-  }
-
-  if (botaoGerarPdf) {
-    botaoGerarPdf.style.display = "inline-block";
   }
 
   if (botaoCancelar) {
@@ -4207,6 +4201,155 @@ function configurarEnterNosCampos() {
   });
 }
 
+function configurarNavegacaoEnterGlobal() {
+  if (window.__repertorioFacilEnterGlobalConfigurado) {
+    return;
+  }
+
+  window.__repertorioFacilEnterGlobalConfigurado = true;
+
+  document.addEventListener("keydown", function(evento) {
+    if (evento.key !== "Enter" || evento.isComposing) {
+      return;
+    }
+
+    const campoAtual = evento.target;
+
+    if (!campoAtual || !campoAtual.matches || !campoAtual.matches("input, select, textarea")) {
+      return;
+    }
+
+    if (campoAtual.id === "login-email" || campoAtual.id === "login-senha") {
+      return;
+    }
+
+    const tag = campoAtual.tagName.toLowerCase();
+
+    if (tag === "textarea") {
+      if (evento.ctrlKey || evento.metaKey) {
+        evento.preventDefault();
+        acionarBotaoSalvarDoFormulario(campoAtual);
+      }
+
+      return;
+    }
+
+    evento.preventDefault();
+
+    if (evento.shiftKey) {
+      focarCampoAnterior(campoAtual);
+      return;
+    }
+
+    focarProximoCampoOuSalvar(campoAtual);
+  });
+}
+
+function obterControlesDoFormulario(campo) {
+  const container =
+    campo.closest(".form-integrantes") ||
+    campo.closest(".form-musicas") ||
+    campo.closest(".form-repertorios") ||
+    campo.closest(".form-eventos") ||
+    campo.closest(".card-login") ||
+    campo.closest(".card-projeto");
+
+  if (!container) {
+    return [];
+  }
+
+  return Array.from(container.querySelectorAll("input, select, textarea")).filter(function(controle) {
+    if (controle.disabled || controle.readOnly) {
+      return false;
+    }
+
+    const estilo = window.getComputedStyle(controle);
+
+    if (estilo.display === "none" || estilo.visibility === "hidden") {
+      return false;
+    }
+
+    if (controle.offsetParent === null && estilo.position !== "fixed") {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+function focarProximoCampoOuSalvar(campoAtual) {
+  const controles = obterControlesDoFormulario(campoAtual);
+  const indiceAtual = controles.indexOf(campoAtual);
+
+  if (indiceAtual === -1) {
+    return;
+  }
+
+  const proximoCampo = controles[indiceAtual + 1];
+
+  if (proximoCampo) {
+    proximoCampo.focus();
+
+    if (typeof proximoCampo.select === "function" && proximoCampo.tagName.toLowerCase() !== "select") {
+      proximoCampo.select();
+    }
+
+    return;
+  }
+
+  acionarBotaoSalvarDoFormulario(campoAtual);
+}
+
+function focarCampoAnterior(campoAtual) {
+  const controles = obterControlesDoFormulario(campoAtual);
+  const indiceAtual = controles.indexOf(campoAtual);
+
+  if (indiceAtual <= 0) {
+    return;
+  }
+
+  const campoAnterior = controles[indiceAtual - 1];
+
+  if (campoAnterior) {
+    campoAnterior.focus();
+
+    if (typeof campoAnterior.select === "function" && campoAnterior.tagName.toLowerCase() !== "select") {
+      campoAnterior.select();
+    }
+  }
+}
+
+function acionarBotaoSalvarDoFormulario(campo) {
+  const container =
+    campo.closest(".form-integrantes") ||
+    campo.closest(".form-musicas") ||
+    campo.closest(".form-repertorios") ||
+    campo.closest(".form-eventos") ||
+    campo.closest(".card-login") ||
+    campo.closest(".card-projeto");
+
+  if (!container) {
+    return;
+  }
+
+  const botaoSalvar =
+    container.querySelector("#btn-salvar-integrante") ||
+    container.querySelector("#btn-salvar-musica") ||
+    container.querySelector("#btn-salvar-repertorio") ||
+    container.querySelector("#btn-salvar-evento") ||
+    container.querySelector("#btn-criar-projeto") ||
+    container.querySelector("#btn-login-email") ||
+    container.querySelector("button[id*='salvar']") ||
+    container.querySelector("button.botao-card") ||
+    container.querySelector("button.botao-principal");
+
+  if (botaoSalvar && !botaoSalvar.disabled) {
+    botaoSalvar.click();
+  }
+}
+
+
+
 function configurarAuthListener() {
   const cliente = sb();
 
@@ -4246,6 +4389,7 @@ function prepararAplicacao() {
   configurarBotoesFixos();
   configurarEnterNosCampos();
   configurarAuthListener();
+  configurarNavegacaoEnterGlobal();
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
