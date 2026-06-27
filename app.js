@@ -8,7 +8,8 @@ const REPERTORIO_FACIL = {
     musicas: "musicas",
     repertorios: "repertorios",
     repertorioMusicas: "repertorio_musicas",
-    eventos: "eventos"
+    eventos: "eventos",
+    convites: "convites_projeto"
   }
 };
 
@@ -27,7 +28,8 @@ let appState = {
   repertorioMontandoId: null,
   repertorioMusicas: [],
   eventos: [],
-  eventoEditandoId: null
+  eventoEditandoId: null,
+  conviteAtual: null
 };
 
 function sb() {
@@ -170,6 +172,33 @@ function obterProjetoAtualId() {
   return localStorage.getItem("projeto_atual");
 }
 
+function obterCodigoConviteDaURL() {
+  const params = new URLSearchParams(window.location.search);
+  const codigo = limparTexto(params.get("convite"));
+
+  if (codigo) {
+    return codigo;
+  }
+
+  const hash = window.location.hash || "";
+  const match = hash.match(/convite=([^&]+)/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function obterCodigoConvitePendente() {
+  return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
+}
+
+function limparConvitePendente() {
+  localStorage.removeItem("convite_pendente");
+
+  if (window.location.search.includes("convite=")) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("convite");
+    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+  }
+}
+
 async function verificarSessao() {
   const cliente = sb();
 
@@ -204,7 +233,7 @@ async function entrarComGoogle() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp,
+      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -251,6 +280,14 @@ async function entrarComEmail() {
   appState.usuario = data.user || data.session?.user || null;
 
   preencherUsuario(appState.usuario);
+
+  const codigoConvite = obterCodigoConvitePendente();
+  if (codigoConvite) {
+    localStorage.setItem("convite_pendente", codigoConvite);
+    await carregarConvitePublico(codigoConvite);
+    return;
+  }
+
   mostrarTela("tela-projetos");
 }
 
@@ -299,7 +336,7 @@ async function validarCadastro() {
     return;
   }
 
-  const { error } = await cliente.auth.signUp({
+  const { data, error } = await cliente.auth.signUp({
     email: email,
     password: senha,
     options: {
@@ -313,6 +350,21 @@ async function validarCadastro() {
 
   if (error) {
     mostrarMensagemCadastro("erro", "Erro ao criar conta: " + error.message);
+    return;
+  }
+
+  const codigoConvite = obterCodigoConvitePendente();
+
+  if (codigoConvite && data && data.session) {
+    appState.sessao = data.session;
+    appState.usuario = data.session.user;
+    preencherUsuario(appState.usuario);
+    await carregarConvitePublico(codigoConvite);
+    return;
+  }
+
+  if (codigoConvite) {
+    mostrarMensagemCadastro("sucesso", "Conta criada com sucesso. Faça login para aceitar o convite.");
     return;
   }
 
@@ -1093,6 +1145,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="botao-card" id="btn-salvar-integrante" type="button">Salvar integrante</button>
+            <button class="botao-secundario-modulo" id="btn-convidar-integrante" type="button">Convidar por WhatsApp</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -1135,6 +1188,7 @@ async function carregarIntegrantes() {
 function configurarEventosIntegrantes() {
   const botaoSalvar = elemento("btn-salvar-integrante");
   const botaoCancelar = elemento("btn-cancelar-integrante");
+  const botaoConvidar = elemento("btn-convidar-integrante");
   const busca = elemento("busca-integrantes");
   const ordenar = elemento("ordenar-integrantes");
 
@@ -1144,6 +1198,10 @@ function configurarEventosIntegrantes() {
 
   if (botaoCancelar) {
     botaoCancelar.addEventListener("click", limparFormularioIntegrante);
+  }
+
+  if (botaoConvidar) {
+    botaoConvidar.addEventListener("click", gerarConviteIntegrante);
   }
 
   if (busca) {
@@ -1469,6 +1527,312 @@ async function excluirIntegrante(id) {
 
 async function criarIntegrante() {
   await salvarIntegrante();
+}
+
+function gerarCodigoConvite() {
+  const parteTempo = Date.now().toString(36).toUpperCase();
+  const parteAleatoria = Math.random().toString(36).slice(2, 8).toUpperCase();
+  return (parteAleatoria + parteTempo).slice(0, 12);
+}
+
+async function gerarConviteIntegrante() {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !projetoId) {
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const projeto = appState.projetoAtual || {};
+  const codigo = gerarCodigoConvite();
+  const nomeAdmin = obterNomeUsuario(usuario);
+  const nomeProjeto = projeto.nome || "Projeto musical";
+
+  const payload = {
+    projeto_id: projetoId,
+    codigo: codigo,
+    status: "pendente",
+    papel: "integrante",
+    criado_por: usuario.id,
+    criado_por_nome: nomeAdmin,
+    projeto_nome: nomeProjeto
+  };
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.convites)
+    .insert(payload);
+
+  if (error) {
+    alert("Erro ao gerar convite: " + error.message);
+    return;
+  }
+
+  const link = REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigo);
+  const mensagem = [
+    "🎵 Convite para participar de um projeto musical",
+    "",
+    "Olá!",
+    "",
+    "Você foi convidado por " + nomeAdmin + " para participar do projeto " + nomeProjeto + " no Repertório Fácil.",
+    "",
+    "Ao aceitar este convite, você fará parte do projeto e terá acesso aos repertórios, eventos, músicas e demais informações compartilhadas pela equipe.",
+    "",
+    "Clique no link abaixo para aceitar o convite:",
+    link,
+    "",
+    "Se você ainda não possui uma conta, poderá criá-la gratuitamente durante o processo.",
+    "",
+    "Nos vemos no projeto! 🎸"
+  ].join("\n");
+
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: "Convite Repertório Fácil",
+        text: mensagem,
+        url: link
+      });
+      return;
+    }
+  } catch (erroCompartilhar) {
+    console.warn("Compartilhamento cancelado ou indisponível.", erroCompartilhar);
+  }
+
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(mensagem);
+    } catch (erroClipboard) {
+      console.warn("Não foi possível copiar automaticamente.", erroClipboard);
+    }
+  }
+
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensagem), "_blank");
+  alert("Convite gerado. A mensagem também foi copiada para você enviar no WhatsApp.");
+}
+
+function garantirTelaConvite() {
+  if (elemento("tela-convite")) {
+    return;
+  }
+
+  const app = document.querySelector(".app");
+
+  if (!app) {
+    return;
+  }
+
+  const tela = document.createElement("section");
+  tela.id = "tela-convite";
+  tela.className = "tela";
+
+  tela.innerHTML = `
+    <div class="card-login" style="max-width:620px;">
+      <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+      <span class="tag">Convite</span>
+      <h1 id="convite-titulo">Convite para projeto musical</h1>
+      <p id="convite-descricao">Carregando convite...</p>
+
+      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
+
+      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
+
+      <button class="botao-link" id="btn-voltar-login-convite" type="button">
+        Voltar para o login
+      </button>
+    </div>
+  `;
+
+  app.appendChild(tela);
+
+  const voltar = elemento("btn-voltar-login-convite");
+  if (voltar) {
+    voltar.addEventListener("click", function() {
+      mostrarTela("tela-login", { registrar: false });
+    });
+  }
+}
+
+async function carregarConvitePublico(codigo) {
+  const cliente = sb();
+
+  if (!cliente || !codigo) {
+    return;
+  }
+
+  garantirTelaConvite();
+  mostrarTela("tela-convite", { registrar: false });
+
+  const detalhes = elemento("convite-detalhes");
+  const descricao = elemento("convite-descricao");
+  const acoes = elemento("convite-acoes");
+
+  if (descricao) {
+    descricao.textContent = "Buscando informações do convite...";
+  }
+
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.convites)
+    .select("*")
+    .eq("codigo", codigo)
+    .single();
+
+  if (error || !data) {
+    if (descricao) {
+      descricao.textContent = "Convite não encontrado ou expirado.";
+    }
+    if (detalhes) {
+      detalhes.innerHTML = "";
+    }
+    if (acoes) {
+      acoes.innerHTML = `<button class="botao-principal" type="button" id="btn-ir-login-convite">Ir para o login</button>`;
+      elemento("btn-ir-login-convite")?.addEventListener("click", function() {
+        mostrarTela("tela-login", { registrar: false });
+      });
+    }
+    return;
+  }
+
+  appState.conviteAtual = data;
+  localStorage.setItem("convite_pendente", codigo);
+
+  if (descricao) {
+    descricao.textContent = "Você foi convidado para participar deste projeto no Repertório Fácil.";
+  }
+
+  if (detalhes) {
+    detalhes.innerHTML = `
+      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
+        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
+        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+        <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
+        <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
+        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Ao aceitar, você entrará automaticamente neste projeto.</p>
+      </div>
+    `;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (acoes) {
+    if (usuario) {
+      acoes.innerHTML = `
+        <button class="botao-principal" id="btn-aceitar-convite" type="button">Aceitar convite</button>
+      `;
+      elemento("btn-aceitar-convite")?.addEventListener("click", aceitarConviteAtual);
+    } else {
+      acoes.innerHTML = `
+        <button class="botao-principal" id="btn-login-gmail-convite" type="button">Entrar com Gmail e aceitar</button>
+        <button class="botao-secundario-modulo" id="btn-login-email-convite" type="button">Entrar com e-mail</button>
+        <button class="botao-link" id="btn-criar-conta-convite" type="button">Criar conta para aceitar</button>
+      `;
+      elemento("btn-login-gmail-convite")?.addEventListener("click", entrarComGoogle);
+      elemento("btn-login-email-convite")?.addEventListener("click", function() {
+        mostrarTela("tela-login", { registrar: false });
+      });
+      elemento("btn-criar-conta-convite")?.addEventListener("click", function() {
+        mostrarTela("tela-cadastro", { registrar: false });
+      });
+    }
+  }
+}
+
+async function aceitarConviteAtual() {
+  const cliente = sb();
+  const convite = appState.conviteAtual;
+
+  if (!cliente || !convite) {
+    return;
+  }
+
+  if (convite.status && convite.status !== "pendente") {
+    alert("Este convite já foi utilizado ou não está mais disponível.");
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    localStorage.setItem("convite_pendente", convite.codigo);
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const nomeUsuario = obterNomeUsuario(usuario);
+  const emailUsuario = usuario.email || "";
+  const projetoId = convite.projeto_id;
+
+  const { data: existente, error: erroBusca } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .select("id")
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id)
+    .maybeSingle();
+
+  if (erroBusca) {
+    alert("Erro ao verificar integrante: " + erroBusca.message);
+    return;
+  }
+
+  if (!existente) {
+    const { error: erroInserir } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .insert({
+        projeto_id: projetoId,
+        usuario_id: usuario.id,
+        nome: nomeUsuario,
+        funcao: "Integrante",
+        instrumento: "",
+        administrador: convite.papel === "administrador",
+        email: emailUsuario,
+        telefone: ""
+      });
+
+    if (erroInserir) {
+      alert("Erro ao aceitar convite: " + erroInserir.message);
+      return;
+    }
+  }
+
+  await cliente
+    .from(REPERTORIO_FACIL.tabelas.convites)
+    .update({
+      status: "aceito",
+      usado_em: new Date().toISOString(),
+      aceito_por: usuario.id
+    })
+    .eq("id", convite.id);
+
+  let projeto = null;
+  const { data: projetoData } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("*")
+    .eq("id", projetoId)
+    .maybeSingle();
+
+  projeto = projetoData || {
+    id: projetoId,
+    nome: convite.projeto_nome || "Projeto musical",
+    estilo: "Projeto musical",
+    cidade: "",
+    estado: ""
+  };
+
+  salvarProjetoAtual(projeto);
+  limparConvitePendente();
+  appState.conviteAtual = null;
+
+  alert("Convite aceito. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  abrirPainelProjeto();
 }
 
 async function carregarMusicas() {
@@ -1806,6 +2170,8 @@ function preencherFormularioMusica(item) {
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
   const botaoCancelar = elemento("btn-cancelar-musica");
+  const botaoCompartilhar = elemento("btn-compartilhar-musica");
+  const botaoGerarPdf = elemento("btn-gerar-pdf-musica");
 
   if (titulo) {
     titulo.textContent = "Editar música";
@@ -3896,6 +4262,8 @@ function preencherFormularioEvento(item) {
   const titulo = elemento("titulo-form-evento");
   const botaoSalvar = elemento("btn-salvar-evento");
   const botaoCancelar = elemento("btn-cancelar-evento");
+  const botaoCompartilhar = elemento("btn-compartilhar-evento");
+  const botaoGerarPdf = elemento("btn-gerar-pdf-evento");
 
   if (titulo) {
     titulo.textContent = "Editar evento";
@@ -4355,6 +4723,12 @@ function configurarAuthListener() {
       appState.usuario = session.user;
 
       preencherUsuario(session.user);
+
+      const codigoConvite = obterCodigoConvitePendente();
+      if (codigoConvite) {
+        carregarConvitePublico(codigoConvite);
+        return;
+      }
 
       if (
         appState.telaAtual === "tela-login" ||
