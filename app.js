@@ -207,6 +207,13 @@ async function verificarSessao() {
     return;
   }
 
+  const codigoConvite = obterCodigoConviteDaURL();
+  if (codigoConvite) {
+    localStorage.setItem("convite_pendente", codigoConvite);
+    await carregarConvitePublico(codigoConvite);
+    return;
+  }
+
   const { data, error } = await cliente.auth.getSession();
 
   if (error || !data.session) {
@@ -1556,6 +1563,24 @@ async function gerarConviteIntegrante() {
   const nomeAdmin = obterNomeUsuario(usuario);
   const nomeProjeto = projeto.nome || "Projeto musical";
 
+  const link = REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigo);
+  const mensagem = [
+    "🎵 Convite para participar do projeto " + nomeProjeto,
+    "",
+    "Olá!",
+    "",
+    nomeAdmin + " convidou você para entrar no projeto " + nomeProjeto + " pelo Repertório Fácil.",
+    "",
+    "Este convite é exclusivo para esse projeto. Ao aceitar, seus dados serão cadastrados diretamente dentro de " + nomeProjeto + ".",
+    "",
+    "Clique no link abaixo, preencha seu cadastro e aceite o convite:",
+    link,
+    "",
+    "Se você ainda não possui conta, poderá criá-la durante o processo.",
+    "",
+    "Nos vemos no projeto! 🎸"
+  ].join("\n");
+
   const payload = {
     projeto_id: projetoId,
     codigo: codigo,
@@ -1563,7 +1588,9 @@ async function gerarConviteIntegrante() {
     papel: "integrante",
     criado_por: usuario.id,
     criado_por_nome: nomeAdmin,
-    projeto_nome: nomeProjeto
+    projeto_nome: nomeProjeto,
+    link_convite: link,
+    mensagem: mensagem
   };
 
   const { error } = await cliente
@@ -1574,24 +1601,6 @@ async function gerarConviteIntegrante() {
     alert("Erro ao gerar convite: " + error.message);
     return;
   }
-
-  const link = REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigo);
-  const mensagem = [
-    "🎵 Convite para participar de um projeto musical",
-    "",
-    "Olá!",
-    "",
-    "Você foi convidado por " + nomeAdmin + " para participar do projeto " + nomeProjeto + " no Repertório Fácil.",
-    "",
-    "Ao aceitar este convite, você fará parte do projeto e terá acesso aos repertórios, eventos, músicas e demais informações compartilhadas pela equipe.",
-    "",
-    "Clique no link abaixo para aceitar o convite:",
-    link,
-    "",
-    "Se você ainda não possui uma conta, poderá criá-la gratuitamente durante o processo.",
-    "",
-    "Nos vemos no projeto! 🎸"
-  ].join("\n");
 
   try {
     if (navigator.share) {
@@ -1704,7 +1713,7 @@ async function carregarConvitePublico(codigo) {
   localStorage.setItem("convite_pendente", codigo);
 
   if (descricao) {
-    descricao.textContent = "Você foi convidado para participar deste projeto no Repertório Fácil.";
+    descricao.textContent = "Preencha seus dados para aceitar o convite. Este cadastro será vinculado somente ao projeto informado abaixo.";
   }
 
   if (detalhes) {
@@ -1714,7 +1723,7 @@ async function carregarConvitePublico(codigo) {
         <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
         <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
         <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
-        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Ao aceitar, você entrará automaticamente neste projeto.</p>
+        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Você não escolherá outro projeto: ao aceitar, seus dados serão salvos diretamente aqui.</p>
       </div>
     `;
   }
@@ -1732,7 +1741,7 @@ async function carregarConvitePublico(codigo) {
       acoes.innerHTML = `
         <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
           <h3 style="margin:0; color:#ffffff;">Criar cadastro e aceitar convite</h3>
-          <p style="margin:0; color:#d1d5db; font-size:13px;">Preencha seus dados. Ao finalizar, seu cadastro já entra automaticamente na lista de integrantes deste projeto.</p>
+          <p style="margin:0; color:#d1d5db; font-size:13px;">Preencha seus dados. Ao finalizar, seu cadastro entra automaticamente na lista de integrantes deste projeto: <strong>${escaparHtml(data.projeto_nome || 'Projeto musical')}</strong>.</p>
 
           <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
             Nome completo
