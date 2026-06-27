@@ -174,15 +174,36 @@ function obterProjetoAtualId() {
 
 function obterCodigoConviteDaURL() {
   const params = new URLSearchParams(window.location.search);
-  const codigo = limparTexto(params.get("convite"));
+  const codigoBusca = limparTexto(params.get("convite"));
 
-  if (codigo) {
-    return codigo;
+  if (codigoBusca) {
+    return codigoBusca;
   }
 
-  const hash = window.location.hash || "";
-  const match = hash.match(/convite=([^&]+)/);
-  return match ? decodeURIComponent(match[1]) : "";
+  const hashOriginal = window.location.hash || "";
+  const hashLimpo = hashOriginal.replace(/^#/, "").replace(/^\?/, "");
+
+  if (hashLimpo) {
+    const paramsHash = new URLSearchParams(hashLimpo);
+    const codigoHash = limparTexto(paramsHash.get("convite"));
+
+    if (codigoHash) {
+      return codigoHash;
+    }
+
+    const matchIgual = hashLimpo.match(/convite=([^&]+)/);
+    if (matchIgual) {
+      return decodeURIComponent(matchIgual[1]);
+    }
+
+    const matchRota = hashLimpo.match(/convite\/([^/?&]+)/);
+    if (matchRota) {
+      return decodeURIComponent(matchRota[1]);
+    }
+  }
+
+  const pathMatch = window.location.pathname.match(/convite\/([^/?&]+)/);
+  return pathMatch ? decodeURIComponent(pathMatch[1]) : "";
 }
 
 function obterCodigoConvitePendente() {
@@ -240,7 +261,7 @@ async function entrarComGoogle() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
+      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -1563,7 +1584,7 @@ async function gerarConviteIntegrante() {
   const nomeAdmin = obterNomeUsuario(usuario);
   const nomeProjeto = projeto.nome || "Projeto musical";
 
-  const link = REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigo);
+  const link = REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(codigo);
   const mensagem = [
     "🎵 Convite para participar do projeto " + nomeProjeto,
     "",
@@ -1841,7 +1862,7 @@ async function criarContaEAceitarConvite() {
     email: email,
     password: senha,
     options: {
-      emailRedirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
+      emailRedirectTo: REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(convite.codigo),
       data: {
         nome: nome,
         full_name: nome,
