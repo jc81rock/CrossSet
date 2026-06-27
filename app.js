@@ -1449,35 +1449,91 @@ async function carregarIntegrantes() {
     <style>
       .modulo-integrantes {
         display: grid;
-        grid-template-columns: minmax(280px, 380px) 1fr;
-        gap: 18px;
+        grid-template-columns: minmax(300px, 390px) 1fr;
+        gap: 16px;
         width: 100%;
+        align-items: start;
+      }
+
+      .cabecalho-modulo-integrantes {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,.10);
+        background: linear-gradient(135deg, rgba(122,92,255,.16), rgba(184,77,255,.12));
+      }
+
+      .cabecalho-modulo-integrantes h3 {
+        margin: 0 0 4px;
+        color: #ffffff;
+        font-size: 22px !important;
+      }
+
+      .cabecalho-modulo-integrantes p {
+        margin: 0;
+        color: #cfd8f6;
+        line-height: 1.35;
+      }
+
+      .icone-modulo-integrantes {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(122,92,255,.18);
+        border: 1px solid rgba(184,77,255,.25);
+        color: #d7ccff;
+      }
+
+      .icone-modulo-integrantes .material-symbols-rounded {
+        font-size: 28px;
+      }
+
+      .card-integrantes-form,
+      .card-integrantes-lista {
+        background: #07111f;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+        padding: 16px !important;
+        box-shadow: 0 16px 50px rgba(0,0,0,0.22);
+      }
+
+      .card-integrantes-form h3,
+      .card-integrantes-lista h3 {
+        font-size: 21px !important;
+        margin: 6px 0 6px !important;
+      }
+
+      .card-integrantes-form p,
+      .card-integrantes-lista p {
+        color: #c8d6f5;
+        margin-bottom: 12px !important;
       }
 
       .form-integrantes {
         display: grid;
-        gap: 10px;
+        gap: 9px;
       }
 
       .form-integrantes label,
       .filtros-integrantes label {
         display: grid;
         gap: 6px;
-        font-size: 13px;
+        font-size: 12px;
         color: #e5e7eb;
-      }
-
-      .form-integrantes input,
-      .form-integrantes select,
-      .filtros-integrantes input,
-      .filtros-integrantes select {
-        width: 100%;
       }
 
       .linha-form-integrantes {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 9px;
       }
 
       .acoes-integrante {
@@ -1488,12 +1544,12 @@ async function carregarIntegrantes() {
       }
 
       .botao-secundario-modulo {
-        border: 0;
-        border-radius: 12px;
-        padding: 11px 14px;
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 10px;
+        padding: 0 12px;
         cursor: pointer;
-        background: #eeeeee;
-        color: #222;
+        background: rgba(255,255,255,.08);
+        color: #ffffff;
         font-weight: 700;
       }
 
@@ -1506,30 +1562,37 @@ async function carregarIntegrantes() {
 
       .lista-integrantes {
         display: grid;
-        gap: 10px;
+        gap: 9px;
       }
 
       .item-integrante {
-        border: 1px solid rgba(255, 255, 255, .16);
-        border-radius: 14px;
-        padding: 14px;
-        background: #1f2937;
+        border: 1px solid rgba(255, 255, 255, .12);
+        border-radius: 15px;
+        padding: 12px !important;
+        background: rgba(255,255,255,.045);
         color: #f9fafb;
+        transition: border-color .18s ease, background .18s ease, transform .18s ease;
+      }
+
+      .item-integrante:hover {
+        border-color: rgba(184,77,255,.38);
+        background: rgba(122,92,255,.075);
+        transform: translateY(-1px);
       }
 
       .item-integrante-topo {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: 40px 1fr auto;
+        align-items: start;
         gap: 10px;
       }
 
       .foto-integrante-placeholder {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        border-radius: 50%;
-        background: #6d28d9;
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        border-radius: 14px !important;
+        background: linear-gradient(135deg, #7a5cff, #b84dff) !important;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1538,94 +1601,101 @@ async function carregarIntegrantes() {
       }
 
       .dados-integrante {
-        flex: 1;
+        min-width: 0;
       }
 
       .dados-integrante h4 {
-        margin: 0 0 6px;
+        margin: 0 0 5px;
         color: #ffffff;
-        font-size: 17px;
+        font-size: 16px !important;
+        line-height: 1.2;
       }
 
       .dados-integrante p {
-        margin: 3px 0;
-        font-size: 13px;
-        color: #d1d5db;
+        margin: 2px 0 !important;
+        font-size: 12px !important;
+        color: #c8d6f5;
+        line-height: 1.35 !important;
       }
 
       .dados-integrante strong {
         color: #f3f4f6;
       }
 
-      .tag-admin {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 4px 9px;
+      .tag-admin,
+      .tag-integrante {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-top: 7px;
+        padding: 5px 9px;
         border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-        background: #7c3aed;
-        color: #ffffff;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .03em;
+        text-transform: uppercase;
+      }
+
+      .tag-admin {
+        background: rgba(184,77,255,.18);
+        color: #e6d8ff;
+        border: 1px solid rgba(184,77,255,.34);
       }
 
       .tag-integrante {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 4px 9px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-        background: #374151;
-        color: #e5e7eb;
+        background: rgba(255,255,255,.07);
+        color: #d9e4ff;
+        border: 1px solid rgba(255,255,255,.12);
       }
 
-      .botoes-item-integrante {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
+      .vazio-integrantes {
+        padding: 14px;
+        border: 1px dashed rgba(255,255,255,.16);
+        border-radius: 14px;
+        color: #c8d6f5;
+        background: rgba(255,255,255,.035);
       }
 
-      .botoes-item-integrante button {
-        border: 0;
-        border-radius: 10px;
-        padding: 8px 10px;
-        cursor: pointer;
-        font-weight: 700;
-      }
-
-      .btn-editar-integrante {
-        background: #e5e7eb;
-        color: #111827;
-      }
-
-      .btn-excluir-integrante {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-      @media (max-width: 820px) {
+      @media (max-width: 860px) {
         .modulo-integrantes,
         .linha-form-integrantes,
         .filtros-integrantes {
           grid-template-columns: 1fr;
         }
 
+        .cabecalho-modulo-integrantes {
+          align-items: flex-start;
+        }
+
         .item-integrante-topo {
-          flex-direction: column;
+          grid-template-columns: 40px 1fr;
         }
 
         .botoes-item-integrante {
-          justify-content: flex-start;
+          grid-column: 1 / -1;
+          justify-content: flex-start !important;
+          margin-top: 4px;
         }
       }
     </style>
 
     <div class="modulo-integrantes">
-      <div class="card-projeto" id="card-form-repertorio">
+      <section class="cabecalho-modulo-integrantes">
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div class="icone-modulo-integrantes" aria-hidden="true">
+            <span class="material-symbols-rounded">groups</span>
+          </div>
+          <div>
+            <h3>Integrantes</h3>
+            <p>Cadastre, edite e organize os participantes deste projeto.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="card-integrantes-form" id="card-form-integrante">
         <span class="tag">Cadastro</span>
         <h3 id="titulo-form-integrante">Novo integrante</h3>
-        <p>Cadastre músicos, funções, instrumentos e administradores do projeto.</p>
+        <p>Informe os dados principais do músico ou participante.</p>
 
         <div class="form-integrantes">
           <label>
@@ -1670,7 +1740,7 @@ async function carregarIntegrantes() {
         </div>
       </div>
 
-      <div class="card-projeto">
+      <div class="card-integrantes-lista">
         <span class="tag">Lista</span>
         <h3>Integrantes cadastrados</h3>
         <p>Pesquise, ordene, edite ou exclua integrantes deste projeto.</p>
@@ -1703,7 +1773,6 @@ async function carregarIntegrantes() {
   configurarEventosIntegrantes();
   await buscarIntegrantes();
 }
-
 function configurarEventosIntegrantes() {
   const botaoSalvar = elemento("btn-salvar-integrante");
   const botaoCancelar = elemento("btn-cancelar-integrante");
