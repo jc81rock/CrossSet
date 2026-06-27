@@ -2202,7 +2202,7 @@ function preencherFormularioRepertorio(item) {
     botaoCancelar.style.display = "inline-block";
   }
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  rolarParaModulo();
 }
 
 function limparFormularioRepertorio() {
