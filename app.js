@@ -2051,6 +2051,7 @@ async function carregarRepertorios() {
       .btn-montar-repertorio,
       .btn-gerar-pdf-repertorio,
       .btn-compartilhar-repertorio,
+      .btn-mover-repertorio,
       .btn-subir-musica,
       .btn-descer-musica,
       .btn-adicionar-musica-repertorio {
@@ -2219,9 +2220,10 @@ function renderizarListaRepertorios() {
 
           <div class="botoes-item-repertorio">
             <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">Montar</button>
-            <button class="btn-gerar-pdf-repertorio" type="button" data-gerar-pdf-repertorio="${escaparHtml(item.id)}">Gerar PDF</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
             <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-mover-repertorio" type="button" data-mover-repertorio="${escaparHtml(item.id)}">Mover</button>
+            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
+            <button class="btn-gerar-pdf-repertorio" type="button" data-gerar-pdf-repertorio="${escaparHtml(item.id)}">PDF</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
         </div>
@@ -2232,6 +2234,12 @@ function renderizarListaRepertorios() {
   lista.querySelectorAll("[data-montar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       montarRepertorio(botao.dataset.montarRepertorio);
+    });
+  });
+
+  lista.querySelectorAll("[data-mover-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      montarRepertorio(botao.dataset.moverRepertorio);
     });
   });
 
