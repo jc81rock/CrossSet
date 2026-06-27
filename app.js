@@ -25,7 +25,9 @@ let appState = {
   repertorios: [],
   repertorioEditandoId: null,
   repertorioMontandoId: null,
-  repertorioMusicas: []
+  repertorioMusicas: [],
+  eventos: [],
+  eventoEditandoId: null
 };
 
 function sb() {
@@ -3031,79 +3033,683 @@ function fecharMontagemRepertorio() {
 }
 
 async function carregarEventos() {
+  const area = elemento("area-modulo");
   const projetoId = obterProjetoAtualId();
 
-  limparAreaModulo();
+  if (!area) {
+    return;
+  }
 
-  montarFormularioModulo(
-    "Novo evento",
-    "Cadastre shows, ensaios e compromissos do projeto.",
-    [
-      { id: "evento-nome", placeholder: "Nome do evento" },
-      { id: "evento-data", placeholder: "Data", tipo: "date" },
-      { id: "evento-local", placeholder: "Local" },
-      { id: "evento-observacoes", placeholder: "Observações" }
-    ],
-    "Salvar evento",
-    criarEvento
-  );
+  if (!projetoId) {
+    area.innerHTML = `
+      <div class="card-projeto">
+        <h3>Projeto não encontrado</h3>
+        <p>Volte para Meus Projetos e acesse o projeto novamente.</p>
+      </div>
+    `;
+    return;
+  }
 
+  area.innerHTML = `
+    <style>
+      .modulo-eventos {
+        display: grid;
+        grid-template-columns: minmax(280px, 420px) 1fr;
+        gap: 18px;
+        width: 100%;
+      }
+
+      .form-eventos,
+      .filtros-eventos {
+        display: grid;
+        gap: 10px;
+      }
+
+      .form-eventos label,
+      .filtros-eventos label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+
+      .form-eventos input,
+      .form-eventos select,
+      .form-eventos textarea,
+      .filtros-eventos input,
+      .filtros-eventos select {
+        width: 100%;
+      }
+
+      .form-eventos textarea {
+        min-height: 92px;
+        resize: vertical;
+      }
+
+      .linha-form-eventos {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .acoes-evento {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .lista-eventos {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item-evento {
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: 14px;
+        padding: 14px;
+        background: #1f2937;
+        color: #f9fafb;
+      }
+
+      .item-evento-topo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .item-evento-conteudo {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        flex: 1;
+      }
+
+      .icone-evento-placeholder {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        background: #6d28d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .dados-evento h4 {
+        margin: 0 0 6px;
+        color: #ffffff;
+        font-size: 17px;
+      }
+
+      .dados-evento p {
+        margin: 3px 0;
+        font-size: 13px;
+        color: #d1d5db;
+      }
+
+      .dados-evento strong {
+        color: #f3f4f6;
+      }
+
+      .tag-status-evento {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #374151;
+        color: #e5e7eb;
+      }
+
+      .tag-status-confirmado {
+        background: #166534;
+        color: #dcfce7;
+      }
+
+      .tag-status-cancelado {
+        background: #7f1d1d;
+        color: #fee2e2;
+      }
+
+      .tag-status-realizado {
+        background: #1e3a8a;
+        color: #dbeafe;
+      }
+
+      .botoes-item-evento {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .botoes-item-evento button {
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .btn-editar-evento {
+        background: #e5e7eb;
+        color: #111827;
+      }
+
+      .btn-excluir-evento {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      @media (max-width: 820px) {
+        .modulo-eventos,
+        .linha-form-eventos,
+        .filtros-eventos,
+        .item-evento-topo {
+          grid-template-columns: 1fr;
+          flex-direction: column;
+        }
+
+        .botoes-item-evento {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+
+    <div class="modulo-eventos">
+      <div class="card-projeto">
+        <span class="tag">Cadastro</span>
+        <h3 id="titulo-form-evento">Novo evento</h3>
+        <p>Cadastre shows, ensaios e compromissos do projeto.</p>
+
+        <div class="form-eventos">
+          <label>
+            Nome do evento
+            <input id="evento-nome" type="text" placeholder="Ex: Festa Pinga Óleo MC" />
+          </label>
+
+          <div class="linha-form-eventos">
+            <label>
+              Data
+              <input id="evento-data" type="date" />
+            </label>
+
+            <label>
+              Horário
+              <input id="evento-hora" type="time" />
+            </label>
+          </div>
+
+          <label>
+            Local
+            <input id="evento-local" type="text" placeholder="Ex: Águias do Sol MC" />
+          </label>
+
+          <div class="linha-form-eventos">
+            <label>
+              Cidade
+              <input id="evento-cidade" type="text" placeholder="Ex: Diadema" />
+            </label>
+
+            <label>
+              Estado (UF)
+              <input id="evento-estado" type="text" maxlength="2" placeholder="SP" />
+            </label>
+          </div>
+
+          <label>
+            Repertório
+            <select id="evento-repertorio">
+              <option value="">Sem repertório definido</option>
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select id="evento-status">
+              <option value="Agendado">Agendado</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Cancelado">Cancelado</option>
+              <option value="Realizado">Realizado</option>
+            </select>
+          </label>
+
+          <label>
+            Observações
+            <textarea id="evento-observacoes" placeholder="Ex: Chegar às 18h para passagem de som"></textarea>
+          </label>
+
+          <div class="acoes-evento">
+            <button class="botao-card" id="btn-salvar-evento" type="button">Salvar evento</button>
+            <button class="botao-secundario-modulo" id="btn-cancelar-evento" type="button" style="display:none;">Cancelar edição</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-projeto">
+        <span class="tag">Lista</span>
+        <h3>Eventos cadastrados</h3>
+        <p>Cadastre, edite ou exclua eventos do projeto.</p>
+
+        <div class="filtros-eventos">
+          <label>
+            Pesquisar
+            <input id="busca-eventos" type="text" placeholder="Buscar por evento, local, cidade, status ou repertório" />
+          </label>
+        </div>
+
+        <div id="lista-eventos" class="lista-eventos">
+          <p>Carregando eventos...</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  appState.eventoEditandoId = null;
+  configurarEventosModuloEventos();
+  await carregarRepertoriosParaEvento();
+  await buscarEventos();
+}
+
+function configurarEventosModuloEventos() {
+  const botaoSalvar = elemento("btn-salvar-evento");
+  const botaoCancelar = elemento("btn-cancelar-evento");
+  const busca = elemento("busca-eventos");
+
+  if (botaoSalvar) {
+    botaoSalvar.addEventListener("click", salvarEvento);
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.addEventListener("click", limparFormularioEvento);
+  }
+
+  if (busca) {
+    busca.addEventListener("input", renderizarListaEventos);
+  }
+}
+
+async function carregarRepertoriosParaEvento() {
   const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const select = elemento("evento-repertorio");
+
+  if (!cliente || !projetoId || !select) {
+    return;
+  }
+
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorios)
+    .select("id, nome")
+    .eq("projeto_id", projetoId)
+    .order("nome", { ascending: true });
+
+  if (error) {
+    select.innerHTML = `<option value="">Erro ao carregar repertórios</option>`;
+    return;
+  }
+
+  appState.repertorios = data || appState.repertorios || [];
+
+  select.innerHTML = `<option value="">Sem repertório definido</option>`;
+
+  (data || []).forEach(function(repertorio) {
+    select.innerHTML += `
+      <option value="${escaparHtml(repertorio.id)}">${escaparHtml(repertorio.nome || "Sem nome")}</option>
+    `;
+  });
+}
+
+async function buscarEventos() {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const lista = elemento("lista-eventos");
+
+  if (!cliente || !projetoId || !lista) {
+    return;
+  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.eventos)
     .select("*")
     .eq("projeto_id", projetoId)
-    .order("data_evento", { ascending: true });
+    .order("data_evento", { ascending: true })
+    .order("hora_evento", { ascending: true });
 
   if (error) {
-    montarListaModulo("Eventos cadastrados", [], function() {
-      return "";
-    });
+    lista.innerHTML = `<p>Erro ao carregar eventos: ${escaparHtml(error.message)}</p>`;
     return;
   }
 
-  montarListaModulo("Eventos cadastrados", data || [], function(item) {
+  appState.eventos = data || [];
+  renderizarListaEventos();
+}
+
+function obterNomeRepertorioPorId(id) {
+  if (!id) {
+    return "Sem repertório definido";
+  }
+
+  const repertorio = (appState.repertorios || []).find(function(item) {
+    return item.id === id;
+  });
+
+  return repertorio?.nome || "Repertório não encontrado";
+}
+
+function formatarDataBR(data) {
+  if (!data) {
+    return "Sem data";
+  }
+
+  const partes = String(data).split("-");
+
+  if (partes.length !== 3) {
+    return data;
+  }
+
+  return partes[2] + "/" + partes[1] + "/" + partes[0];
+}
+
+function renderizarListaEventos() {
+  const lista = elemento("lista-eventos");
+  const busca = limparTexto(elemento("busca-eventos")?.value).toLowerCase();
+
+  if (!lista) {
+    return;
+  }
+
+  let itens = [...(appState.eventos || [])];
+
+  if (busca) {
+    itens = itens.filter(function(item) {
+      const texto = [
+        item.nome,
+        item.local,
+        item.cidade,
+        item.estado,
+        item.status,
+        item.observacoes,
+        obterNomeRepertorioPorId(item.repertorio_id)
+      ].join(" ").toLowerCase();
+
+      return texto.includes(busca);
+    });
+  }
+
+  if (itens.length === 0) {
+    lista.innerHTML = `<p>Nenhum evento encontrado.</p>`;
+    return;
+  }
+
+  lista.innerHTML = itens.map(function(item) {
+    const status = item.status || "Agendado";
+    const classeStatus = status === "Confirmado"
+      ? "tag-status-confirmado"
+      : status === "Cancelado"
+        ? "tag-status-cancelado"
+        : status === "Realizado"
+          ? "tag-status-realizado"
+          : "";
+
     return `
-      <p>
-        <strong>${escaparHtml(item.nome || "Sem nome")}</strong><br>
-        ${escaparHtml(item.data_evento || "Sem data")}
-        ${item.local ? " • " + escaparHtml(item.local) : ""}
-      </p>
+      <div class="item-evento">
+        <div class="item-evento-topo">
+          <div class="item-evento-conteudo">
+            <div class="icone-evento-placeholder">📅</div>
+
+            <div class="dados-evento">
+              <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+              <p><strong>Data:</strong> ${escaparHtml(formatarDataBR(item.data_evento))}${item.hora_evento ? " • " + escaparHtml(item.hora_evento) : ""}</p>
+              <p><strong>Local:</strong> ${escaparHtml(item.local || "Não informado")}</p>
+              <p><strong>Cidade:</strong> ${escaparHtml(item.cidade || "Não informada")}${item.estado ? " - " + escaparHtml(item.estado) : ""}</p>
+              <p><strong>Repertório:</strong> ${escaparHtml(obterNomeRepertorioPorId(item.repertorio_id))}</p>
+              ${item.observacoes ? `<p><strong>Obs:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
+              <span class="tag-status-evento ${classeStatus}">${escaparHtml(status)}</span>
+            </div>
+          </div>
+
+          <div class="botoes-item-evento">
+            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">Excluir</button>
+          </div>
+        </div>
+      </div>
     `;
+  }).join("");
+
+  lista.querySelectorAll("[data-editar-evento]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      editarEvento(botao.dataset.editarEvento);
+    });
+  });
+
+  lista.querySelectorAll("[data-excluir-evento]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      excluirEvento(botao.dataset.excluirEvento);
+    });
   });
 }
 
-async function criarEvento() {
+function obterDadosFormularioEvento() {
+  return {
+    nome: limparTexto(elemento("evento-nome")?.value),
+    data_evento: limparTexto(elemento("evento-data")?.value),
+    hora_evento: limparTexto(elemento("evento-hora")?.value),
+    local: limparTexto(elemento("evento-local")?.value),
+    cidade: limparTexto(elemento("evento-cidade")?.value),
+    estado: normalizarUF(elemento("evento-estado")?.value),
+    repertorio_id: limparTexto(elemento("evento-repertorio")?.value),
+    status: limparTexto(elemento("evento-status")?.value) || "Agendado",
+    observacoes: limparTexto(elemento("evento-observacoes")?.value)
+  };
+}
+
+function preencherFormularioEvento(item) {
+  if (!item) {
+    return;
+  }
+
+  elemento("evento-nome").value = item.nome || "";
+  elemento("evento-data").value = item.data_evento || "";
+  elemento("evento-hora").value = item.hora_evento || "";
+  elemento("evento-local").value = item.local || "";
+  elemento("evento-cidade").value = item.cidade || "";
+  elemento("evento-estado").value = item.estado || "";
+  elemento("evento-repertorio").value = item.repertorio_id || "";
+  elemento("evento-status").value = item.status || "Agendado";
+  elemento("evento-observacoes").value = item.observacoes || "";
+
+  const titulo = elemento("titulo-form-evento");
+  const botaoSalvar = elemento("btn-salvar-evento");
+  const botaoCancelar = elemento("btn-cancelar-evento");
+
+  if (titulo) {
+    titulo.textContent = "Editar evento";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar alterações";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "inline-block";
+  }
+
+  const area = elemento("area-modulo");
+  if (area) {
+    area.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function limparFormularioEvento() {
+  appState.eventoEditandoId = null;
+
+  [
+    "evento-nome",
+    "evento-data",
+    "evento-hora",
+    "evento-local",
+    "evento-cidade",
+    "evento-estado",
+    "evento-observacoes"
+  ].forEach(function(id) {
+    const campo = elemento(id);
+    if (campo) {
+      campo.value = "";
+    }
+  });
+
+  const repertorio = elemento("evento-repertorio");
+  const status = elemento("evento-status");
+  const titulo = elemento("titulo-form-evento");
+  const botaoSalvar = elemento("btn-salvar-evento");
+  const botaoCancelar = elemento("btn-cancelar-evento");
+
+  if (repertorio) {
+    repertorio.value = "";
+  }
+
+  if (status) {
+    status.value = "Agendado";
+  }
+
+  if (titulo) {
+    titulo.textContent = "Novo evento";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar evento";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "none";
+  }
+}
+
+async function salvarEvento() {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  const nome = limparTexto(elemento("evento-nome")?.value);
-  const dataEvento = limparTexto(elemento("evento-data")?.value);
-  const local = limparTexto(elemento("evento-local")?.value);
-  const observacoes = limparTexto(elemento("evento-observacoes")?.value);
+  if (!cliente || !projetoId) {
+    return;
+  }
 
-  if (!nome) {
+  const dados = obterDadosFormularioEvento();
+
+  if (!dados.nome) {
     alert("Informe o nome do evento.");
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const payload = {
+    projeto_id: projetoId,
+    usuario_id: usuario.id,
+    nome: dados.nome,
+    data_evento: dados.data_evento || null,
+    hora_evento: dados.hora_evento || null,
+    local: dados.local,
+    cidade: dados.cidade,
+    estado: dados.estado,
+    repertorio_id: dados.repertorio_id || null,
+    status: dados.status,
+    observacoes: dados.observacoes
+  };
+
+  let resultado;
+
+  if (appState.eventoEditandoId) {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.eventos)
+      .update(payload)
+      .eq("id", appState.eventoEditandoId)
+      .eq("projeto_id", projetoId)
+      .eq("usuario_id", usuario.id);
+  } else {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.eventos)
+      .insert(payload);
+  }
+
+  if (resultado.error) {
+    alert("Erro ao salvar evento: " + resultado.error.message);
+    return;
+  }
+
+  limparFormularioEvento();
+  await buscarEventos();
+}
+
+function editarEvento(id) {
+  const item = (appState.eventos || []).find(function(evento) {
+    return evento.id === id;
+  });
+
+  if (!item) {
+    alert("Evento não encontrado.");
+    return;
+  }
+
+  appState.eventoEditandoId = id;
+  preencherFormularioEvento(item);
+}
+
+async function excluirEvento(id) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !id || !projetoId) {
+    return;
+  }
+
+  const confirmar = confirm("Excluir este evento?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
     return;
   }
 
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.eventos)
-    .insert({
-      projeto_id: projetoId,
-      nome: nome,
-      data_evento: dataEvento || null,
-      local: local,
-      observacoes: observacoes
-    });
+    .delete()
+    .eq("id", id)
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id);
 
   if (error) {
-    alert("Erro ao salvar evento: " + error.message);
+    alert("Erro ao excluir evento: " + error.message);
     return;
   }
 
-  carregarEventos();
+  if (appState.eventoEditandoId === id) {
+    limparFormularioEvento();
+  }
+
+  await buscarEventos();
+}
+
+async function criarEvento() {
+  await salvarEvento();
 }
 
 async function restaurarProjetoAtual() {
