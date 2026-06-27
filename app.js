@@ -1830,7 +1830,7 @@ async function carregarConvitePublico(codigo) {
           </label>
         </div>
 
-        <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Salvar cadastro e entrar no projeto</button>
+        <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Aceitar convite e entrar no projeto</button>
 
         <div class="divisor" style="margin:4px 0;">
           <span></span>
@@ -1984,6 +1984,12 @@ async function criarContaEAceitarConvite() {
     return;
   }
 
+  const botaoConvite = elemento("btn-criar-conta-aceitar-convite");
+  if (botaoConvite) {
+    botaoConvite.disabled = true;
+    botaoConvite.textContent = "Salvando cadastro...";
+  }
+
   const dadosPerfil = {
     nome: nome,
     funcao: funcao,
@@ -2015,6 +2021,10 @@ async function criarContaEAceitarConvite() {
   });
 
   if (cadastroError) {
+    if (botaoConvite) {
+      botaoConvite.disabled = false;
+      botaoConvite.textContent = "Aceitar convite e entrar no projeto";
+    }
     alert("Erro ao criar conta: " + cadastroError.message);
     return;
   }
@@ -2027,14 +2037,18 @@ async function criarContaEAceitarConvite() {
       password: senha
     });
 
-    if (loginError) {
-      localStorage.setItem("convite_pendente", convite.codigo);
-      alert("Conta criada. Entre com seu e-mail e senha para salvar o cadastro no projeto.");
-      mostrarTela("tela-login", { registrar: false });
-      return;
+    if (!loginError && loginData) {
+      usuario = loginData.user || loginData.session?.user || usuario;
     }
+  }
 
-    usuario = loginData.user || loginData.session?.user || usuario;
+  if (!usuario) {
+    if (botaoConvite) {
+      botaoConvite.disabled = false;
+      botaoConvite.textContent = "Aceitar convite e entrar no projeto";
+    }
+    alert("Não foi possível criar a conta. Tente novamente.");
+    return;
   }
 
   await aceitarConviteComUsuario(usuario, dadosPerfil);
@@ -2163,7 +2177,15 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   limparDadosConviteTemporario();
   appState.conviteAtual = null;
 
-  alert("Cadastro salvo. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, REPERTORIO_FACIL.urlApp + "#");
+    }
+  } catch (erroUrl) {
+    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
+  }
+
+  mostrarToast?.("Cadastro salvo. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
   abrirPainelProjeto();
 }
 
