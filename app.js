@@ -794,6 +794,8 @@ function carregarPainelProjeto() {
   const nome = elemento("titulo-projeto");
   const subtitulo = elemento("subtitulo-projeto");
   const papelBadge = elemento("papel-projeto-painel");
+  const heroTitulo = elemento("painel-hero-titulo");
+  const heroSubtitulo = elemento("painel-hero-subtitulo");
 
   if (nome) {
     nome.textContent = projeto.nome || "Projeto";
@@ -807,11 +809,86 @@ function carregarPainelProjeto() {
     subtitulo.textContent = estilo + (cidade ? " • " + cidade + estado : "");
   }
 
+  if (heroTitulo) {
+    heroTitulo.textContent = projeto.nome || "Projeto";
+  }
+
+  if (heroSubtitulo) {
+    const cidade = projeto.cidade || "";
+    const estado = projeto.estado ? " / " + projeto.estado : "";
+    const tipo = projeto.tipo || projeto.estilo || "Projeto musical";
+    heroSubtitulo.textContent = tipo + (cidade ? " • " + cidade + estado : "");
+  }
+
   if (papelBadge) {
     papelBadge.textContent = appState.papelProjetoAtual === "administrador" ? "Administrador" : "Integrante";
   }
 
   atualizarResumoPainelProjeto();
+  atualizarComunidadePainelProjeto();
+}
+
+function obterLinkComunidadeProjeto(projeto) {
+  if (!projeto) {
+    return "";
+  }
+
+  return limparTexto(
+    projeto.link_comunidade ||
+    projeto.comunidade_url ||
+    projeto.discord_url ||
+    projeto.whatsapp_url ||
+    projeto.telegram_url ||
+    projeto.link_grupo ||
+    ""
+  );
+}
+
+function identificarTipoComunidade(url) {
+  const texto = limparTexto(url).toLowerCase();
+
+  if (texto.includes("discord")) {
+    return { icone: "🟣", texto: "Discord" };
+  }
+
+  if (texto.includes("whatsapp") || texto.includes("wa.me")) {
+    return { icone: "🟢", texto: "WhatsApp" };
+  }
+
+  if (texto.includes("telegram") || texto.includes("t.me")) {
+    return { icone: "🔵", texto: "Telegram" };
+  }
+
+  return { icone: "💬", texto: "Comunidade" };
+}
+
+function atualizarComunidadePainelProjeto() {
+  const card = elemento("painel-card-comunidade");
+  const botao = elemento("btn-comunidade-projeto");
+  const titulo = elemento("titulo-comunidade-projeto");
+  const projeto = appState.projetoAtual;
+
+  if (!card || !botao || !projeto) {
+    return;
+  }
+
+  const link = obterLinkComunidadeProjeto(projeto);
+
+  if (!link) {
+    card.style.display = "none";
+    botao.removeAttribute("href");
+    return;
+  }
+
+  const tipo = identificarTipoComunidade(link);
+
+  card.style.display = "block";
+  botao.href = link;
+  botao.textContent = tipo.icone + " Entrar no grupo";
+
+  if (titulo) {
+    titulo.textContent = tipo.texto;
+  }
 }
 
 async function atualizarResumoPainelProjeto() {
@@ -994,6 +1071,70 @@ function garantirTelasInternas() {
         border-radius: 10px;
       }
 
+      .modulo-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .modulo-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, #33c4ff, #7a5cff);
+      }
+
+      .modulo-integrantes-card::before { background: linear-gradient(180deg, #33c4ff, #5f8cff); }
+      .modulo-musicas-card::before { background: linear-gradient(180deg, #7a5cff, #b84dff); }
+      .modulo-repertorios-card::before { background: linear-gradient(180deg, #33c4ff, #33ffe0); }
+      .modulo-eventos-card::before { background: linear-gradient(180deg, #35d07f, #33c4ff); }
+
+      .painel-comunidade {
+        margin-top: 14px;
+        background: #07111f;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 18px;
+        padding: 14px;
+        display: none;
+      }
+
+      .painel-comunidade-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .painel-comunidade h3 {
+        font-size: 17px;
+        margin: 0 0 4px;
+      }
+
+      .painel-comunidade p {
+        color: #aebee0;
+        font-size: 12px;
+        line-height: 1.35;
+        margin: 0;
+      }
+
+      .botao-comunidade {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+        padding: 0 12px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+
       .painel-em-breve {
         margin-top: 14px;
         background: #07111f;
@@ -1052,14 +1193,14 @@ function garantirTelasInternas() {
         </div>
 
         <button class="botao-sair" id="btn-voltar-projetos" type="button">
-          Voltar
+          Meus Projetos
         </button>
       </header>
 
       <section class="painel-projeto-hero">
         <div>
-          <h2>Gerenciar projeto</h2>
-          <p>Centralize integrantes, músicas, repertórios e eventos deste projeto.</p>
+          <h2 id="painel-hero-titulo">Projeto</h2>
+          <p id="painel-hero-subtitulo">Centralize integrantes, músicas, repertórios e eventos deste projeto.</p>
           <span id="papel-projeto-painel" class="painel-projeto-badge">Administrador</span>
         </div>
 
@@ -1072,43 +1213,49 @@ function garantirTelasInternas() {
       </section>
 
       <section class="grid-projetos grid-modulos-painel">
-        <div class="card-projeto">
+        <div class="card-projeto modulo-card modulo-integrantes-card">
           <div class="modulo-icone">👥</div>
           <span class="tag">Módulo</span>
           <h3>Integrantes</h3>
-          <p>Gerencie músicos, funções e permissões.</p>
+          <p>Cadastre músicos, funções e acessos.</p>
           <button class="botao-card" type="button" data-modulo="integrantes">Acessar</button>
         </div>
 
-        <div class="card-projeto">
+        <div class="card-projeto modulo-card modulo-musicas-card">
           <div class="modulo-icone">🎵</div>
           <span class="tag">Módulo</span>
           <h3>Músicas</h3>
-          <p>Cadastre músicas, tons, BPM e links.</p>
+          <p>Organize músicas, tons, BPM e links.</p>
           <button class="botao-card" type="button" data-modulo="musicas">Acessar</button>
         </div>
 
-        <div class="card-projeto">
+        <div class="card-projeto modulo-card modulo-repertorios-card">
           <div class="modulo-icone">📋</div>
           <span class="tag">Módulo</span>
           <h3>Repertórios</h3>
-          <p>Monte sequências para ensaios e shows.</p>
+          <p>Monte repertórios para ensaios e shows.</p>
           <button class="botao-card" type="button" data-modulo="repertorios">Acessar</button>
         </div>
 
-        <div class="card-projeto">
+        <div class="card-projeto modulo-card modulo-eventos-card">
           <div class="modulo-icone">📅</div>
           <span class="tag">Módulo</span>
           <h3>Eventos</h3>
-          <p>Organize datas, locais e repertórios usados.</p>
+          <p>Controle datas, locais e repertórios.</p>
           <button class="botao-card" type="button" data-modulo="eventos">Acessar</button>
         </div>
       </section>
 
-      <section class="painel-em-breve">
-        <h3>📌 Mural de Recados</h3>
-        <p>Em breve, os integrantes poderão deixar avisos e observações visíveis para todos do projeto.</p>
+      <section id="painel-card-comunidade" class="painel-comunidade">
+        <div class="painel-comunidade-topo">
+          <div>
+            <h3 id="titulo-comunidade-projeto">Comunidade</h3>
+            <p>Link opcional do grupo deste projeto.</p>
+          </div>
+          <a id="btn-comunidade-projeto" class="botao-comunidade" href="#" target="_blank" rel="noopener noreferrer">💬 Entrar no grupo</a>
+        </div>
       </section>
+
 
       <section id="area-modulo" class="grid-projetos" style="margin-top:18px;"></section>
 
@@ -1146,21 +1293,6 @@ function configurarEventosPainelProjeto() {
       abrirModulo(botao.dataset.modulo);
     });
   });
-
-  const menuInicio = elemento("menu-projeto-inicio");
-
-  if (menuInicio && !menuInicio.dataset.configurado) {
-    menuInicio.dataset.configurado = "true";
-    menuInicio.addEventListener("click", function() {
-      limparAreaModulo();
-
-      document.querySelectorAll("#tela-painel-projeto .menu-inferior button").forEach(function(botao) {
-        botao.classList.remove("ativo");
-      });
-
-      menuInicio.classList.add("ativo");
-    });
-  }
 }
 
 function definirMenuModulo(modulo) {
@@ -1191,8 +1323,6 @@ function abrirModulo(modulo) {
     mostrarTela("tela-projetos");
     return;
   }
-
-  definirMenuModulo(modulo);
 
   const area = elemento("area-modulo");
   if (area) {
