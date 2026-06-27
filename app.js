@@ -1250,7 +1250,11 @@ function preencherFormularioIntegrante(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "Alterar repertório";
+    botaoSalvar.textContent = "Salvar alterações";
+  }
+
+  if (botaoCompartilhar) {
+    botaoCompartilhar.style.display = "inline-block";
   }
 
   if (botaoGerarPdf) {
@@ -1977,7 +1981,7 @@ async function carregarRepertorios() {
       .item-musica-repertorio {
         border: 1px solid rgba(255, 255, 255, .16);
         border-radius: 14px;
-        padding: 14px;
+        padding: 12px;
         background: #1f2937;
         color: #f9fafb;
       }
@@ -2001,49 +2005,57 @@ async function carregarRepertorios() {
 
       .icone-repertorio-placeholder,
       .numero-musica-repertorio {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
         border-radius: 50%;
         background: #6d28d9;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 800;
+        font-size: 13px;
         color: #ffffff;
       }
 
       .dados-repertorio h4,
       .dados-musica-repertorio h4,
       .dados-biblioteca-musica h4 {
-        margin: 0 0 6px;
+        margin: 0 0 5px;
         color: #ffffff;
-        font-size: 17px;
+        font-size: 15px;
+        line-height: 1.2;
       }
 
       .dados-repertorio p,
       .dados-musica-repertorio p,
       .dados-biblioteca-musica p {
-        margin: 3px 0;
-        font-size: 13px;
+        margin: 2px 0;
+        font-size: 12px;
+        line-height: 1.25;
         color: #d1d5db;
       }
 
       .botoes-item-repertorio,
       .botoes-musica-repertorio {
         display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
+        gap: 5px;
+        flex-wrap: nowrap;
         justify-content: flex-end;
+        align-items: center;
       }
 
       .botoes-item-repertorio button,
       .botoes-musica-repertorio button,
       .btn-adicionar-musica-repertorio {
         border: 0;
-        border-radius: 10px;
-        padding: 8px 10px;
+        border-radius: 8px;
+        padding: 6px 8px;
+        min-height: 28px;
         cursor: pointer;
+        font-size: 12px;
+        line-height: 1;
+        white-space: nowrap;
         font-weight: 700;
       }
 
@@ -2120,7 +2132,8 @@ async function carregarRepertorios() {
 
           <div class="acoes-repertorio">
             <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
-            <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF do repertório</button>
+            <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">Compartilhar</button>
+            <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">PDF</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -2150,6 +2163,7 @@ async function carregarRepertorios() {
 function configurarEventosRepertorios() {
   const botaoSalvar = elemento("btn-salvar-repertorio");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
+  const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
 
   if (botaoSalvar) {
@@ -2158,6 +2172,13 @@ function configurarEventosRepertorios() {
 
   if (botaoCancelar) {
     botaoCancelar.addEventListener("click", limparFormularioRepertorio);
+  }
+
+  if (botaoCompartilhar) {
+    botaoCompartilhar.addEventListener("click", function() {
+      const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
+      compartilharRepertorio(id);
+    });
   }
 
   if (botaoGerarPdf) {
@@ -2219,41 +2240,13 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">Montar</button>
             <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-mover-repertorio" type="button" data-mover-repertorio="${escaparHtml(item.id)}">Mover</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
-            <button class="btn-gerar-pdf-repertorio" type="button" data-gerar-pdf-repertorio="${escaparHtml(item.id)}">PDF</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
         </div>
       </div>
     `;
   }).join("");
-
-  lista.querySelectorAll("[data-montar-repertorio]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      montarRepertorio(botao.dataset.montarRepertorio);
-    });
-  });
-
-  lista.querySelectorAll("[data-mover-repertorio]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      montarRepertorio(botao.dataset.moverRepertorio);
-    });
-  });
-
-  lista.querySelectorAll("[data-gerar-pdf-repertorio]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      gerarPDFDoRepertorio(botao.dataset.gerarPdfRepertorio);
-    });
-  });
-
-  lista.querySelectorAll("[data-compartilhar-repertorio]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      compartilharRepertorio(botao.dataset.compartilharRepertorio);
-    });
-  });
 
   lista.querySelectorAll("[data-editar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
@@ -2277,6 +2270,7 @@ function preencherFormularioRepertorio(item) {
   const campoObservacoes = elemento("repertorio-observacoes");
   const titulo = elemento("titulo-form-repertorio");
   const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
@@ -2313,6 +2307,7 @@ function limparFormularioRepertorio() {
   const campoObservacoes = elemento("repertorio-observacoes");
   const titulo = elemento("titulo-form-repertorio");
   const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
@@ -2332,6 +2327,10 @@ function limparFormularioRepertorio() {
     botaoSalvar.textContent = "Salvar repertório";
   }
 
+  if (botaoCompartilhar) {
+    botaoCompartilhar.style.display = "none";
+  }
+
   if (botaoGerarPdf) {
     botaoGerarPdf.style.display = "none";
   }
@@ -2339,6 +2338,8 @@ function limparFormularioRepertorio() {
   if (botaoCancelar) {
     botaoCancelar.style.display = "none";
   }
+
+  fecharMontagemRepertorio();
 }
 
 async function salvarRepertorio() {
@@ -2390,7 +2391,7 @@ async function criarRepertorio() {
   await salvarRepertorio();
 }
 
-function editarRepertorio(id) {
+async function editarRepertorio(id) {
   const item = (appState.repertorios || []).find(function(repertorio) {
     return repertorio.id === id;
   });
@@ -2401,7 +2402,10 @@ function editarRepertorio(id) {
   }
 
   appState.repertorioEditandoId = id;
+  appState.repertorioMontandoId = id;
   preencherFormularioRepertorio(item);
+  await carregarDadosMontagemRepertorio();
+  renderizarMontagemRepertorio();
 }
 
 async function excluirRepertorio(id) {
@@ -2540,9 +2544,9 @@ function renderizarMontagemRepertorio() {
   montagem.innerHTML = `
     <div class="titulo-montagem-repertorio">
       <span class="tag">Montagem</span>
-      <h3>Montar repertório</h3>
+      <h3>Editar repertório</h3>
       <p><strong>${escaparHtml(repertorio.nome || "Repertório")}</strong></p>
-      <p>Adicione músicas cadastradas, remova do repertório e altere a ordem.</p>
+      <p>Adicione músicas, altere a ordem e remova músicas deste repertório.</p>
     </div>
 
     <div class="montagem-repertorio-grid">
