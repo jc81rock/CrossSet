@@ -793,6 +793,7 @@ function carregarPainelProjeto() {
 
   const nome = elemento("titulo-projeto");
   const subtitulo = elemento("subtitulo-projeto");
+  const papelBadge = elemento("papel-projeto-painel");
 
   if (nome) {
     nome.textContent = projeto.nome || "Projeto";
@@ -802,10 +803,46 @@ function carregarPainelProjeto() {
     const cidade = projeto.cidade || "";
     const estado = projeto.estado ? " - " + projeto.estado : "";
     const estilo = projeto.estilo || "Projeto musical";
-    const papel = appState.papelProjetoAtual === "administrador" ? "Administrador" : "Integrante";
 
-    subtitulo.textContent = estilo + (cidade ? " • " + cidade + estado : "") + " • " + papel;
+    subtitulo.textContent = estilo + (cidade ? " • " + cidade + estado : "");
   }
+
+  if (papelBadge) {
+    papelBadge.textContent = appState.papelProjetoAtual === "administrador" ? "Administrador" : "Integrante";
+  }
+
+  atualizarResumoPainelProjeto();
+}
+
+async function atualizarResumoPainelProjeto() {
+  const projeto = appState.projetoAtual;
+
+  if (!projeto || !projeto.id) {
+    return;
+  }
+
+  const resumo = projeto.resumo || {
+    integrantes: await contarTabelaProjeto(REPERTORIO_FACIL.tabelas.projetoParticipantes, projeto.id),
+    musicas: await contarTabelaProjeto(REPERTORIO_FACIL.tabelas.musicas, projeto.id),
+    repertorios: await contarTabelaProjeto(REPERTORIO_FACIL.tabelas.repertorios, projeto.id),
+    eventos: await contarTabelaProjeto(REPERTORIO_FACIL.tabelas.eventos, projeto.id)
+  };
+
+  projeto.resumo = resumo;
+
+  const campos = {
+    "painel-total-integrantes": resumo.integrantes,
+    "painel-total-musicas": resumo.musicas,
+    "painel-total-repertorios": resumo.repertorios,
+    "painel-total-eventos": resumo.eventos
+  };
+
+  Object.keys(campos).forEach(function(id) {
+    const campo = elemento(id);
+    if (campo) {
+      campo.textContent = campos[id];
+    }
+  });
 }
 
 function garantirTelasInternas() {
@@ -826,64 +863,180 @@ function garantirTelasInternas() {
 
   tela.innerHTML = `
     <style>
+      #tela-painel-projeto {
+        background: #0d1b2f;
+      }
+
+      .painel-projeto-hero {
+        background: linear-gradient(135deg, rgba(51,196,255,0.16), rgba(122,92,255,0.22), rgba(184,77,255,0.14));
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 22px;
+        padding: 18px;
+        margin-bottom: 16px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .painel-projeto-hero h2 {
+        font-size: 28px;
+        line-height: 1.08;
+        margin: 0 0 6px;
+      }
+
+      .painel-projeto-hero p {
+        color: #dce6ff;
+        font-size: 13px;
+        line-height: 1.35;
+        margin: 0;
+      }
+
+      .painel-projeto-badge {
+        justify-self: start;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(122,92,255,0.20);
+        border: 1px solid rgba(122,92,255,0.40);
+        color: #d8d0ff;
+        font-size: 12px;
+        font-weight: 800;
+        margin-top: 10px;
+      }
+
+      .painel-resumo {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(82px, 1fr));
+        gap: 8px;
+        min-width: 330px;
+      }
+
+      .painel-resumo-item {
+        background: rgba(7,17,31,0.62);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 14px;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .painel-resumo-item strong {
+        display: block;
+        font-size: 20px;
+        line-height: 1;
+        margin: 4px 0;
+        color: #ffffff;
+      }
+
+      .painel-resumo-item span {
+        display: block;
+        font-size: 10px;
+        color: #aebee0;
+        font-weight: 700;
+      }
+
       .grid-modulos-painel {
         display: grid !important;
-        grid-template-columns: repeat(4, minmax(190px, 1fr)) !important;
+        grid-template-columns: repeat(4, minmax(170px, 1fr)) !important;
         gap: 12px !important;
         align-items: stretch;
         width: 100%;
       }
 
       .grid-modulos-painel .card-projeto {
-        min-height: 165px !important;
-        padding: 16px !important;
+        min-height: 150px !important;
+        padding: 15px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         gap: 8px;
       }
 
+      .modulo-icone {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(51,196,255,0.22), rgba(122,92,255,0.28));
+        border: 1px solid rgba(255,255,255,0.10);
+        font-size: 17px;
+      }
+
       .grid-modulos-painel .tag {
         align-self: flex-start;
-        font-size: 11px !important;
-        padding: 5px 10px !important;
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+        margin-bottom: 0 !important;
       }
 
       .grid-modulos-painel h3 {
-        font-size: 21px !important;
+        font-size: 20px !important;
         margin: 2px 0 0 !important;
         line-height: 1.08;
       }
 
       .grid-modulos-painel p {
-        font-size: 13px !important;
+        font-size: 12px !important;
         line-height: 1.28 !important;
         margin: 0 !important;
       }
 
       .grid-modulos-painel .botao-card {
-        min-height: 34px !important;
-        padding: 7px 10px !important;
-        font-size: 13px !important;
+        min-height: 32px !important;
+        height: 32px !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
         margin-top: auto;
-        border-radius: 12px;
+        border-radius: 10px;
+      }
+
+      .painel-em-breve {
+        margin-top: 14px;
+        background: #07111f;
+        border: 1px dashed rgba(255,255,255,0.16);
+        border-radius: 18px;
+        padding: 14px;
+      }
+
+      .painel-em-breve h3 {
+        font-size: 17px;
+        margin-bottom: 4px;
+      }
+
+      .painel-em-breve p {
+        color: #aebee0;
+        font-size: 12px;
+        line-height: 1.35;
+        margin: 0;
       }
 
       @media (max-width: 980px) {
-        .grid-modulos-painel {
-          grid-template-columns: repeat(3, minmax(180px, 1fr)) !important;
+        .painel-projeto-hero {
+          grid-template-columns: 1fr;
         }
-      }
 
-      @media (max-width: 760px) {
+        .painel-resumo {
+          min-width: 0;
+          width: 100%;
+        }
+
         .grid-modulos-painel {
           grid-template-columns: repeat(2, minmax(160px, 1fr)) !important;
         }
       }
 
-      @media (max-width: 520px) {
-        .grid-modulos-painel {
+      @media (max-width: 560px) {
+        .grid-modulos-painel,
+        .painel-resumo {
           grid-template-columns: 1fr !important;
+        }
+
+        .painel-projeto-hero h2 {
+          font-size: 24px;
         }
       }
     </style>
@@ -903,51 +1056,66 @@ function garantirTelasInternas() {
         </button>
       </header>
 
-      <section class="banner">
+      <section class="painel-projeto-hero">
         <div>
           <h2>Gerenciar projeto</h2>
-          <p>Cadastre integrantes, músicas, repertórios e eventos.</p>
+          <p>Centralize integrantes, músicas, repertórios e eventos deste projeto.</p>
+          <span id="papel-projeto-painel" class="painel-projeto-badge">Administrador</span>
+        </div>
+
+        <div class="painel-resumo" aria-label="Resumo do projeto">
+          <div class="painel-resumo-item"><span>Integrantes</span><strong id="painel-total-integrantes">0</strong><span>👥</span></div>
+          <div class="painel-resumo-item"><span>Músicas</span><strong id="painel-total-musicas">0</strong><span>🎵</span></div>
+          <div class="painel-resumo-item"><span>Repertórios</span><strong id="painel-total-repertorios">0</strong><span>📋</span></div>
+          <div class="painel-resumo-item"><span>Eventos</span><strong id="painel-total-eventos">0</strong><span>📅</span></div>
         </div>
       </section>
 
       <section class="grid-projetos grid-modulos-painel">
         <div class="card-projeto">
+          <div class="modulo-icone">👥</div>
           <span class="tag">Módulo</span>
           <h3>Integrantes</h3>
-          <p>Cadastre músicos, funções e administradores do projeto.</p>
-          <button class="botao-card" type="button" data-modulo="integrantes">Abrir</button>
+          <p>Gerencie músicos, funções e permissões.</p>
+          <button class="botao-card" type="button" data-modulo="integrantes">Acessar</button>
         </div>
 
         <div class="card-projeto">
+          <div class="modulo-icone">🎵</div>
           <span class="tag">Módulo</span>
           <h3>Músicas</h3>
-          <p>Cadastre músicas, tons, BPM, links e observações.</p>
-          <button class="botao-card" type="button" data-modulo="musicas">Abrir</button>
+          <p>Cadastre músicas, tons, BPM e links.</p>
+          <button class="botao-card" type="button" data-modulo="musicas">Acessar</button>
         </div>
 
         <div class="card-projeto">
+          <div class="modulo-icone">📋</div>
           <span class="tag">Módulo</span>
           <h3>Repertórios</h3>
-          <p>Monte sequências para shows, ensaios e apresentações.</p>
-          <button class="botao-card" type="button" data-modulo="repertorios">Abrir</button>
+          <p>Monte sequências para ensaios e shows.</p>
+          <button class="botao-card" type="button" data-modulo="repertorios">Acessar</button>
         </div>
 
         <div class="card-projeto">
+          <div class="modulo-icone">📅</div>
           <span class="tag">Módulo</span>
           <h3>Eventos</h3>
-          <p>Organize datas, locais, horários e repertórios usados.</p>
-          <button class="botao-card" type="button" data-modulo="eventos">Abrir</button>
+          <p>Organize datas, locais e repertórios usados.</p>
+          <button class="botao-card" type="button" data-modulo="eventos">Acessar</button>
         </div>
       </section>
 
-      <section id="area-modulo" class="grid-projetos" style="margin-top:24px;"></section>
+      <section class="painel-em-breve">
+        <h3>📌 Mural de Recados</h3>
+        <p>Em breve, os integrantes poderão deixar avisos e observações visíveis para todos do projeto.</p>
+      </section>
 
-      <nav class="menu-inferior">
-        <button id="menu-projeto-inicio" class="ativo" type="button">Início</button>
-        <button type="button" data-modulo="integrantes">Integrantes</button>
-        <button type="button" data-modulo="musicas">Músicas</button>
-        <button type="button" data-modulo="repertorios">Repertórios</button>
-        <button type="button" data-modulo="eventos">Eventos</button>
+      <section id="area-modulo" class="grid-projetos" style="margin-top:18px;"></section>
+
+      <nav class="menu-inferior menu-principal-projetos" aria-label="Menu principal">
+        <button class="ativo" type="button" data-menu-principal="projetos">Projetos</button>
+        <button type="button" data-menu-principal="agenda">Agenda</button>
+        <button type="button" data-menu-principal="perfil">Perfil</button>
       </nav>
     </div>
   `;
@@ -957,6 +1125,8 @@ function garantirTelasInternas() {
 }
 
 function configurarEventosPainelProjeto() {
+  configurarMenuPrincipal();
+
   const botaoVoltar = elemento("btn-voltar-projetos");
 
   if (botaoVoltar && !botaoVoltar.dataset.configurado) {
@@ -4768,7 +4938,7 @@ function acionarBotaoSalvarDoFormulario(campo) {
 
 
 function configurarMenuPrincipal() {
-  document.querySelectorAll("#tela-projetos [data-menu-principal]").forEach(function(botao) {
+  document.querySelectorAll("[data-menu-principal]").forEach(function(botao) {
     if (botao.dataset.configuradoMenuPrincipal) {
       return;
     }
@@ -4777,31 +4947,39 @@ function configurarMenuPrincipal() {
 
     botao.addEventListener("click", function() {
       const acao = botao.dataset.menuPrincipal;
-      const botaoProjetos = elemento("menu-projetos");
 
-      document.querySelectorAll("#tela-projetos [data-menu-principal]").forEach(function(item) {
+      document.querySelectorAll("[data-menu-principal]").forEach(function(item) {
         item.classList.remove("ativo");
       });
 
+      document.querySelectorAll("[data-menu-principal='" + acao + "']").forEach(function(item) {
+        item.classList.add("ativo");
+      });
+
       if (acao === "projetos") {
-        botao.classList.add("ativo");
         mostrarTela("tela-projetos", { registrar: false });
         return;
       }
 
       if (acao === "agenda") {
         alert("Agenda será liberada em uma próxima etapa.");
-        if (botaoProjetos) {
-          botaoProjetos.classList.add("ativo");
-        }
+        document.querySelectorAll("[data-menu-principal]").forEach(function(item) {
+          item.classList.remove("ativo");
+        });
+        document.querySelectorAll("[data-menu-principal='projetos']").forEach(function(item) {
+          item.classList.add("ativo");
+        });
         return;
       }
 
       if (acao === "perfil") {
         alert("Perfil será liberado em uma próxima etapa.");
-        if (botaoProjetos) {
-          botaoProjetos.classList.add("ativo");
-        }
+        document.querySelectorAll("[data-menu-principal]").forEach(function(item) {
+          item.classList.remove("ativo");
+        });
+        document.querySelectorAll("[data-menu-principal='projetos']").forEach(function(item) {
+          item.classList.add("ativo");
+        });
       }
     });
   });
