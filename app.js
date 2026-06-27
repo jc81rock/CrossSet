@@ -21,7 +21,9 @@ let appState = {
   integrantes: [],
   integranteEditandoId: null,
   musicas: [],
-  musicaEditandoId: null
+  musicaEditandoId: null,
+  repertorios: [],
+  repertorioEditandoId: null
 };
 
 function sb() {
@@ -1934,6 +1936,23 @@ async function carregarRepertorios() {
         resize: vertical;
       }
 
+      .acoes-repertorio {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .botao-secundario-modulo {
+        border: 0;
+        border-radius: 12px;
+        padding: 11px 14px;
+        cursor: pointer;
+        background: #eeeeee;
+        color: #222;
+        font-weight: 700;
+      }
+
       .lista-repertorios {
         display: grid;
         gap: 10px;
@@ -1950,7 +1969,15 @@ async function carregarRepertorios() {
       .item-repertorio-topo {
         display: flex;
         align-items: flex-start;
+        justify-content: space-between;
         gap: 12px;
+      }
+
+      .item-repertorio-conteudo {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        flex: 1;
       }
 
       .icone-repertorio-placeholder {
@@ -1978,9 +2005,42 @@ async function carregarRepertorios() {
         color: #d1d5db;
       }
 
+      .botoes-item-repertorio {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .botoes-item-repertorio button {
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .btn-editar-repertorio {
+        background: #e5e7eb;
+        color: #111827;
+      }
+
+      .btn-excluir-repertorio {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
       @media (max-width: 820px) {
         .modulo-repertorios {
           grid-template-columns: 1fr;
+        }
+
+        .item-repertorio-topo {
+          flex-direction: column;
+        }
+
+        .botoes-item-repertorio {
+          justify-content: flex-start;
         }
       }
     </style>
@@ -1988,7 +2048,7 @@ async function carregarRepertorios() {
     <div class="modulo-repertorios">
       <div class="card-projeto">
         <span class="tag">Cadastro</span>
-        <h3>Novo repertório</h3>
+        <h3 id="titulo-form-repertorio">Novo repertório</h3>
         <p>Crie uma lista para show, ensaio ou evento.</p>
 
         <div class="form-repertorios">
@@ -2002,14 +2062,17 @@ async function carregarRepertorios() {
             <textarea id="repertorio-observacoes" placeholder="Ex: Repertório usado no ano de 2026"></textarea>
           </label>
 
-          <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
+          <div class="acoes-repertorio">
+            <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
+            <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
+          </div>
         </div>
       </div>
 
       <div class="card-projeto">
         <span class="tag">Lista</span>
         <h3>Repertórios cadastrados</h3>
-        <p>Nesta primeira versão, vamos apenas salvar e listar repertórios.</p>
+        <p>Nesta versão, vamos salvar, listar, editar e excluir repertórios.</p>
 
         <div id="lista-repertorios" class="lista-repertorios">
           <p>Carregando repertórios...</p>
@@ -2018,13 +2081,22 @@ async function carregarRepertorios() {
     </div>
   `;
 
+  appState.repertorioEditandoId = null;
+  configurarEventosRepertorios();
+  await buscarRepertorios();
+}
+
+function configurarEventosRepertorios() {
   const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (botaoSalvar) {
-    botaoSalvar.addEventListener("click", criarRepertorio);
+    botaoSalvar.addEventListener("click", salvarRepertorio);
   }
 
-  await buscarRepertorios();
+  if (botaoCancelar) {
+    botaoCancelar.addEventListener("click", limparFormularioRepertorio);
+  }
 }
 
 async function buscarRepertorios() {
@@ -2047,17 +2119,20 @@ async function buscarRepertorios() {
     return;
   }
 
-  renderizarListaRepertorios(data || []);
+  appState.repertorios = data || [];
+  renderizarListaRepertorios();
 }
 
-function renderizarListaRepertorios(itens) {
+function renderizarListaRepertorios() {
   const lista = elemento("lista-repertorios");
 
   if (!lista) {
     return;
   }
 
-  if (!itens || itens.length === 0) {
+  const itens = appState.repertorios || [];
+
+  if (itens.length === 0) {
     lista.innerHTML = `<p>Nenhum repertório cadastrado ainda.</p>`;
     return;
   }
@@ -2066,18 +2141,101 @@ function renderizarListaRepertorios(itens) {
     return `
       <div class="item-repertorio">
         <div class="item-repertorio-topo">
-          <div class="icone-repertorio-placeholder">R</div>
-          <div class="dados-repertorio">
-            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-            <p>${escaparHtml(item.observacoes || "Sem observações")}</p>
+          <div class="item-repertorio-conteudo">
+            <div class="icone-repertorio-placeholder">R</div>
+            <div class="dados-repertorio">
+              <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+              <p>${escaparHtml(item.observacoes || "Sem observações")}</p>
+            </div>
+          </div>
+
+          <div class="botoes-item-repertorio">
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
         </div>
       </div>
     `;
   }).join("");
+
+  lista.querySelectorAll("[data-editar-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      editarRepertorio(botao.dataset.editarRepertorio);
+    });
+  });
+
+  lista.querySelectorAll("[data-excluir-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      excluirRepertorio(botao.dataset.excluirRepertorio);
+    });
+  });
 }
 
-async function criarRepertorio() {
+function preencherFormularioRepertorio(item) {
+  if (!item) {
+    return;
+  }
+
+  const campoNome = elemento("repertorio-nome");
+  const campoObservacoes = elemento("repertorio-observacoes");
+  const titulo = elemento("titulo-form-repertorio");
+  const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoCancelar = elemento("btn-cancelar-repertorio");
+
+  if (campoNome) {
+    campoNome.value = item.nome || "";
+  }
+
+  if (campoObservacoes) {
+    campoObservacoes.value = item.observacoes || "";
+  }
+
+  if (titulo) {
+    titulo.textContent = "Editar repertório";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar alterações";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "inline-block";
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function limparFormularioRepertorio() {
+  appState.repertorioEditandoId = null;
+
+  const campoNome = elemento("repertorio-nome");
+  const campoObservacoes = elemento("repertorio-observacoes");
+  const titulo = elemento("titulo-form-repertorio");
+  const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoCancelar = elemento("btn-cancelar-repertorio");
+
+  if (campoNome) {
+    campoNome.value = "";
+  }
+
+  if (campoObservacoes) {
+    campoObservacoes.value = "";
+  }
+
+  if (titulo) {
+    titulo.textContent = "Novo repertório";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar repertório";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "none";
+  }
+}
+
+async function salvarRepertorio() {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
@@ -2093,28 +2251,80 @@ async function criarRepertorio() {
     return;
   }
 
-  const { error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.repertorios)
-    .insert({
-      projeto_id: projetoId,
-      nome: nome,
-      observacoes: observacoes
-    });
+  const payload = {
+    projeto_id: projetoId,
+    nome: nome,
+    observacoes: observacoes
+  };
 
-  if (error) {
-    alert("Erro ao salvar repertório: " + error.message);
+  let resultado;
+
+  if (appState.repertorioEditandoId) {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorios)
+      .update(payload)
+      .eq("id", appState.repertorioEditandoId)
+      .eq("projeto_id", projetoId);
+  } else {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorios)
+      .insert(payload);
+  }
+
+  if (resultado.error) {
+    alert("Erro ao salvar repertório: " + resultado.error.message);
     return;
   }
 
-  const campoNome = elemento("repertorio-nome");
-  const campoObservacoes = elemento("repertorio-observacoes");
+  limparFormularioRepertorio();
+  await buscarRepertorios();
+}
 
-  if (campoNome) {
-    campoNome.value = "";
+async function criarRepertorio() {
+  await salvarRepertorio();
+}
+
+function editarRepertorio(id) {
+  const item = (appState.repertorios || []).find(function(repertorio) {
+    return repertorio.id === id;
+  });
+
+  if (!item) {
+    alert("Repertório não encontrado.");
+    return;
   }
 
-  if (campoObservacoes) {
-    campoObservacoes.value = "";
+  appState.repertorioEditandoId = id;
+  preencherFormularioRepertorio(item);
+}
+
+async function excluirRepertorio(id) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !id || !projetoId) {
+    return;
+  }
+
+  const confirmar = confirm("Excluir este repertório?");
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorios)
+    .delete()
+    .eq("id", id)
+    .eq("projeto_id", projetoId);
+
+  if (error) {
+    alert("Erro ao excluir repertório: " + error.message);
+    return;
+  }
+
+  if (appState.repertorioEditandoId === id) {
+    limparFormularioRepertorio();
   }
 
   await buscarRepertorios();
