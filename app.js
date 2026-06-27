@@ -2050,6 +2050,7 @@ async function carregarRepertorios() {
       .btn-editar-repertorio,
       .btn-montar-repertorio,
       .btn-gerar-pdf-repertorio,
+      .btn-compartilhar-repertorio,
       .btn-subir-musica,
       .btn-descer-musica,
       .btn-adicionar-musica-repertorio {
@@ -2219,6 +2220,7 @@ function renderizarListaRepertorios() {
           <div class="botoes-item-repertorio">
             <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">Montar</button>
             <button class="btn-gerar-pdf-repertorio" type="button" data-gerar-pdf-repertorio="${escaparHtml(item.id)}">Gerar PDF</button>
+            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
             <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
@@ -2236,6 +2238,12 @@ function renderizarListaRepertorios() {
   lista.querySelectorAll("[data-gerar-pdf-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       gerarPDFDoRepertorio(botao.dataset.gerarPdfRepertorio);
+    });
+  });
+
+  lista.querySelectorAll("[data-compartilhar-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      compartilharRepertorio(botao.dataset.compartilharRepertorio);
     });
   });
 
@@ -2823,6 +2831,205 @@ function abrirJanelaImpressaoRepertorio(html) {
   }, 60000);
 }
 
+function montarUrlCompartilhavel(tipo, id) {
+  const base = REPERTORIO_FACIL.urlApp || window.location.origin + window.location.pathname;
+  const separador = base.includes("?") ? "&" : "?";
+  return base + separador + tipo + "=" + encodeURIComponent(id || "");
+}
+
+async function copiarTextoCompartilhamento(texto) {
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    }
+  } catch (erro) {
+    // fallback abaixo
+  }
+
+  const campo = document.createElement("textarea");
+  campo.value = texto;
+  campo.setAttribute("readonly", "readonly");
+  campo.style.position = "fixed";
+  campo.style.left = "-9999px";
+  document.body.appendChild(campo);
+  campo.select();
+
+  let sucesso = false;
+  try {
+    sucesso = document.execCommand("copy");
+  } catch (erro) {
+    sucesso = false;
+  }
+
+  document.body.removeChild(campo);
+  return sucesso;
+}
+
+async function compartilharConteudo(titulo, texto, url) {
+  const conteudo = texto + (url ? "\n\nLink: " + url : "");
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: titulo,
+        text: texto,
+        url: url || REPERTORIO_FACIL.urlApp
+      });
+      return;
+    } catch (erro) {
+      // usuário cancelou ou navegador não compartilhou; usa fallback abaixo
+    }
+  }
+
+  const copiado = await copiarTextoCompartilhamento(conteudo);
+
+  if (copiado) {
+    const abrirWhatsapp = confirm("Link e texto copiados. Deseja abrir o WhatsApp para compartilhar?");
+
+    if (abrirWhatsapp) {
+      window.open("https://wa.me/?text=" + encodeURIComponent(conteudo), "_blank");
+    }
+  } else {
+    prompt("Copie o texto abaixo para compartilhar:", conteudo);
+  }
+}
+
+async function montarTextoCompartilhamentoRepertorio(repertorioId) {
+  const repertorio = (appState.repertorios || []).find(function(item) {
+    return item.id === repertorioId;
+  });
+
+  if (!repertorio) {
+    alert("Repertório não encontrado.");
+    return null;
+  }
+
+  const projeto = appState.projetoAtual || {};
+  const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
+  const linhas = [];
+
+  linhas.push("Repertório Fácil");
+  linhas.push("");
+  linhas.push("Projeto: " + (projeto.nome || "Projeto"));
+  linhas.push("Repertório: " + (repertorio.nome || "Repertório"));
+
+  if (repertorio.observacoes) {
+    linhas.push("Observações: " + repertorio.observacoes);
+  }
+
+  linhas.push("");
+  linhas.push("Músicas:");
+
+  if (itens.length === 0) {
+    linhas.push("Nenhuma música adicionada ainda.");
+  } else {
+    itens.forEach(function(item, indice) {
+      const musica = item.musica || {};
+      const numero = String(indice + 1).padStart(2, "0");
+      let linha = numero + ". " + (musica.nome || "Sem nome");
+
+      if (musica.artista) {
+        linha += " - " + musica.artista;
+      }
+
+      const detalhes = [];
+
+      if (musica.tom) {
+        detalhes.push("Tom: " + musica.tom);
+      }
+
+      if (musica.bpm) {
+        detalhes.push("BPM: " + musica.bpm);
+      }
+
+      if (detalhes.length > 0) {
+        linha += " (" + detalhes.join(" • ") + ")";
+      }
+
+      linhas.push(linha);
+    });
+  }
+
+  linhas.push("");
+  linhas.push("Total de músicas: " + itens.length);
+  linhas.push("Compartilhado pelo Repertório Fácil");
+
+  return linhas.join("\n");
+}
+
+async function compartilharRepertorio(repertorioId) {
+  const repertorio = (appState.repertorios || []).find(function(item) {
+    return item.id === repertorioId;
+  });
+
+  if (!repertorio) {
+    alert("Repertório não encontrado.");
+    return;
+  }
+
+  const texto = await montarTextoCompartilhamentoRepertorio(repertorioId);
+
+  if (!texto) {
+    return;
+  }
+
+  const url = montarUrlCompartilhavel("repertorio", repertorioId);
+  await compartilharConteudo("Repertório - " + (repertorio.nome || "Repertório"), texto, url);
+}
+
+function montarTextoCompartilhamentoEvento(evento) {
+  const projeto = appState.projetoAtual || {};
+  const linhas = [];
+
+  linhas.push("Repertório Fácil");
+  linhas.push("");
+  linhas.push("Projeto: " + (projeto.nome || "Projeto"));
+  linhas.push("Evento: " + (evento.nome || "Evento"));
+  linhas.push("Data: " + formatarDataBR(evento.data_evento));
+
+  if (evento.hora_evento) {
+    linhas.push("Horário: " + evento.hora_evento);
+  }
+
+  if (evento.local) {
+    linhas.push("Local: " + evento.local);
+  }
+
+  const localizacao = [evento.cidade, evento.estado].filter(Boolean).join(" - ");
+
+  if (localizacao) {
+    linhas.push("Cidade: " + localizacao);
+  }
+
+  linhas.push("Status: " + (evento.status || "Agendado"));
+  linhas.push("Repertório: " + obterNomeRepertorioPorId(evento.repertorio_id));
+
+  if (evento.observacoes) {
+    linhas.push("Observações: " + evento.observacoes);
+  }
+
+  linhas.push("");
+  linhas.push("Compartilhado pelo Repertório Fácil");
+
+  return linhas.join("\n");
+}
+
+async function compartilharEvento(eventoId) {
+  const evento = (appState.eventos || []).find(function(item) {
+    return item.id === eventoId;
+  });
+
+  if (!evento) {
+    alert("Evento não encontrado.");
+    return;
+  }
+
+  const texto = montarTextoCompartilhamentoEvento(evento);
+  const url = montarUrlCompartilhavel("evento", eventoId);
+  await compartilharConteudo("Evento - " + (evento.nome || "Evento"), texto, url);
+}
+
 async function gerarPDFDoRepertorio(repertorioId) {
   const repertorio = (appState.repertorios || []).find(function(item) {
     return item.id === repertorioId;
@@ -3196,7 +3403,8 @@ async function carregarEventos() {
         font-weight: 700;
       }
 
-      .btn-editar-evento {
+      .btn-editar-evento,
+      .btn-compartilhar-evento {
         background: #e5e7eb;
         color: #111827;
       }
@@ -3476,6 +3684,7 @@ function renderizarListaEventos() {
 
           <div class="botoes-item-evento">
             <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">Compartilhar</button>
             <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">Excluir</button>
           </div>
         </div>
@@ -3486,6 +3695,12 @@ function renderizarListaEventos() {
   lista.querySelectorAll("[data-editar-evento]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       editarEvento(botao.dataset.editarEvento);
+    });
+  });
+
+  lista.querySelectorAll("[data-compartilhar-evento]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      compartilharEvento(botao.dataset.compartilharEvento);
     });
   });
 
@@ -3851,160 +4066,10 @@ function configurarAuthListener() {
 }
 
 
-function configurarNavegacaoEnterGlobal() {
-  if (window.__repertorioFacilEnterGlobalConfigurado) {
-    return;
-  }
-
-  window.__repertorioFacilEnterGlobalConfigurado = true;
-
-  document.addEventListener("keydown", function(evento) {
-    if (evento.key !== "Enter" || evento.isComposing) {
-      return;
-    }
-
-    const campoAtual = evento.target;
-
-    if (!campoAtual || !campoAtual.matches || !campoAtual.matches("input, select, textarea")) {
-      return;
-    }
-
-    if (campoAtual.id === "login-email" || campoAtual.id === "login-senha") {
-      return;
-    }
-
-    const tag = campoAtual.tagName.toLowerCase();
-
-    if (tag === "textarea") {
-      if (evento.ctrlKey || evento.metaKey) {
-        evento.preventDefault();
-        acionarBotaoSalvarDoFormulario(campoAtual);
-      }
-
-      return;
-    }
-
-    evento.preventDefault();
-
-    if (evento.shiftKey) {
-      focarCampoAnterior(campoAtual);
-      return;
-    }
-
-    focarProximoCampoOuSalvar(campoAtual);
-  });
-}
-
-function obterControlesDoFormulario(campo) {
-  const container =
-    campo.closest(".form-integrantes") ||
-    campo.closest(".form-musicas") ||
-    campo.closest(".form-repertorios") ||
-    campo.closest(".form-eventos") ||
-    campo.closest(".card-login") ||
-    campo.closest(".card-projeto");
-
-  if (!container) {
-    return [];
-  }
-
-  return Array.from(container.querySelectorAll("input, select, textarea")).filter(function(controle) {
-    if (controle.disabled || controle.readOnly) {
-      return false;
-    }
-
-    const estilo = window.getComputedStyle(controle);
-
-    if (estilo.display === "none" || estilo.visibility === "hidden") {
-      return false;
-    }
-
-    if (controle.offsetParent === null && estilo.position !== "fixed") {
-      return false;
-    }
-
-    return true;
-  });
-}
-
-function focarProximoCampoOuSalvar(campoAtual) {
-  const controles = obterControlesDoFormulario(campoAtual);
-  const indiceAtual = controles.indexOf(campoAtual);
-
-  if (indiceAtual === -1) {
-    return;
-  }
-
-  const proximoCampo = controles[indiceAtual + 1];
-
-  if (proximoCampo) {
-    proximoCampo.focus();
-
-    if (typeof proximoCampo.select === "function" && proximoCampo.tagName.toLowerCase() !== "select") {
-      proximoCampo.select();
-    }
-
-    return;
-  }
-
-  acionarBotaoSalvarDoFormulario(campoAtual);
-}
-
-function focarCampoAnterior(campoAtual) {
-  const controles = obterControlesDoFormulario(campoAtual);
-  const indiceAtual = controles.indexOf(campoAtual);
-
-  if (indiceAtual <= 0) {
-    return;
-  }
-
-  const campoAnterior = controles[indiceAtual - 1];
-
-  if (campoAnterior) {
-    campoAnterior.focus();
-
-    if (typeof campoAnterior.select === "function" && campoAnterior.tagName.toLowerCase() !== "select") {
-      campoAnterior.select();
-    }
-  }
-}
-
-function acionarBotaoSalvarDoFormulario(campo) {
-  const container =
-    campo.closest(".form-integrantes") ||
-    campo.closest(".form-musicas") ||
-    campo.closest(".form-repertorios") ||
-    campo.closest(".form-eventos") ||
-    campo.closest(".card-login") ||
-    campo.closest(".card-projeto");
-
-  if (!container) {
-    return;
-  }
-
-  const botaoSalvar =
-    container.querySelector("#btn-salvar-integrante") ||
-    container.querySelector("#btn-salvar-musica") ||
-    container.querySelector("#btn-salvar-repertorio") ||
-    container.querySelector("#btn-salvar-evento") ||
-    container.querySelector("#btn-criar-projeto") ||
-    container.querySelector("#btn-login-email") ||
-    container.querySelector("button[id*='salvar']") ||
-    container.querySelector("button.botao-card") ||
-    container.querySelector("button.botao-principal");
-
-  if (botaoSalvar && !botaoSalvar.disabled) {
-    botaoSalvar.click();
-  }
-}
-
-
-
 function prepararAplicacao() {
   configurarBotoesFixos();
   configurarEnterNosCampos();
   configurarAuthListener();
-  configurarNavegacaoEnterGlobal();
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
