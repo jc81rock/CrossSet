@@ -1886,22 +1886,155 @@ async function criarMusica() {
 }
 
 async function carregarRepertorios() {
+  const area = elemento("area-modulo");
   const projetoId = obterProjetoAtualId();
 
-  limparAreaModulo();
+  if (!area) {
+    return;
+  }
 
-  montarFormularioModulo(
-    "Novo repertório",
-    "Crie uma lista de músicas para show, ensaio ou evento.",
-    [
-      { id: "repertorio-nome", placeholder: "Nome do repertório" },
-      { id: "repertorio-observacoes", placeholder: "Observações" }
-    ],
-    "Salvar repertório",
-    criarRepertorio
-  );
+  if (!projetoId) {
+    area.innerHTML = `
+      <div class="card-projeto">
+        <h3>Projeto não encontrado</h3>
+        <p>Volte para Meus Projetos e acesse o projeto novamente.</p>
+      </div>
+    `;
+    return;
+  }
 
+  area.innerHTML = `
+    <style>
+      .modulo-repertorios {
+        display: grid;
+        grid-template-columns: minmax(280px, 420px) 1fr;
+        gap: 18px;
+        width: 100%;
+      }
+
+      .form-repertorios {
+        display: grid;
+        gap: 10px;
+      }
+
+      .form-repertorios label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+
+      .form-repertorios input,
+      .form-repertorios textarea {
+        width: 100%;
+      }
+
+      .form-repertorios textarea {
+        min-height: 92px;
+        resize: vertical;
+      }
+
+      .lista-repertorios {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item-repertorio {
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: 14px;
+        padding: 14px;
+        background: #1f2937;
+        color: #f9fafb;
+      }
+
+      .item-repertorio-topo {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .icone-repertorio-placeholder {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        background: #6d28d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .dados-repertorio h4 {
+        margin: 0 0 6px;
+        color: #ffffff;
+        font-size: 17px;
+      }
+
+      .dados-repertorio p {
+        margin: 3px 0;
+        font-size: 13px;
+        color: #d1d5db;
+      }
+
+      @media (max-width: 820px) {
+        .modulo-repertorios {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+
+    <div class="modulo-repertorios">
+      <div class="card-projeto">
+        <span class="tag">Cadastro</span>
+        <h3>Novo repertório</h3>
+        <p>Crie uma lista para show, ensaio ou evento.</p>
+
+        <div class="form-repertorios">
+          <label>
+            Nome do repertório
+            <input id="repertorio-nome" type="text" placeholder="Ex: Cicranos Rock 2026" />
+          </label>
+
+          <label>
+            Observações
+            <textarea id="repertorio-observacoes" placeholder="Ex: Repertório usado no ano de 2026"></textarea>
+          </label>
+
+          <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
+        </div>
+      </div>
+
+      <div class="card-projeto">
+        <span class="tag">Lista</span>
+        <h3>Repertórios cadastrados</h3>
+        <p>Nesta primeira versão, vamos apenas salvar e listar repertórios.</p>
+
+        <div id="lista-repertorios" class="lista-repertorios">
+          <p>Carregando repertórios...</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const botaoSalvar = elemento("btn-salvar-repertorio");
+
+  if (botaoSalvar) {
+    botaoSalvar.addEventListener("click", criarRepertorio);
+  }
+
+  await buscarRepertorios();
+}
+
+async function buscarRepertorios() {
   const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const lista = elemento("lista-repertorios");
+
+  if (!cliente || !projetoId || !lista) {
+    return;
+  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.repertorios)
@@ -1910,25 +2043,47 @@ async function carregarRepertorios() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    montarListaModulo("Repertórios cadastrados", [], function() {
-      return "";
-    });
+    lista.innerHTML = `<p>Erro ao carregar repertórios: ${escaparHtml(error.message)}</p>`;
     return;
   }
 
-  montarListaModulo("Repertórios cadastrados", data || [], function(item) {
+  renderizarListaRepertorios(data || []);
+}
+
+function renderizarListaRepertorios(itens) {
+  const lista = elemento("lista-repertorios");
+
+  if (!lista) {
+    return;
+  }
+
+  if (!itens || itens.length === 0) {
+    lista.innerHTML = `<p>Nenhum repertório cadastrado ainda.</p>`;
+    return;
+  }
+
+  lista.innerHTML = itens.map(function(item) {
     return `
-      <p>
-        <strong>${escaparHtml(item.nome || "Sem nome")}</strong><br>
-        ${escaparHtml(item.observacoes || "Sem observações")}
-      </p>
+      <div class="item-repertorio">
+        <div class="item-repertorio-topo">
+          <div class="icone-repertorio-placeholder">R</div>
+          <div class="dados-repertorio">
+            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+            <p>${escaparHtml(item.observacoes || "Sem observações")}</p>
+          </div>
+        </div>
+      </div>
     `;
-  });
+  }).join("");
 }
 
 async function criarRepertorio() {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !projetoId) {
+    return;
+  }
 
   const nome = limparTexto(elemento("repertorio-nome")?.value);
   const observacoes = limparTexto(elemento("repertorio-observacoes")?.value);
@@ -1951,7 +2106,18 @@ async function criarRepertorio() {
     return;
   }
 
-  carregarRepertorios();
+  const campoNome = elemento("repertorio-nome");
+  const campoObservacoes = elemento("repertorio-observacoes");
+
+  if (campoNome) {
+    campoNome.value = "";
+  }
+
+  if (campoObservacoes) {
+    campoObservacoes.value = "";
+  }
+
+  await buscarRepertorios();
 }
 
 async function carregarEventos() {
