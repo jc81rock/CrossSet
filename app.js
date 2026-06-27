@@ -8,7 +8,8 @@ const REPERTORIO_FACIL = {
     musicas: "musicas",
     repertorios: "repertorios",
     repertorioMusicas: "repertorio_musicas",
-    eventos: "eventos"
+    eventos: "eventos",
+    projetoParticipantes: "projeto_participantes"
   }
 };
 
@@ -27,7 +28,9 @@ let appState = {
   repertorioMontandoId: null,
   repertorioMusicas: [],
   eventos: [],
-  eventoEditandoId: null
+  eventoEditandoId: null,
+  papelProjetoAtual: null,
+  participantesProjetos: []
 };
 
 function sb() {
@@ -183,8 +186,9 @@ function limparCampos(container) {
   });
 }
 
-function salvarProjetoAtual(projeto) {
+function salvarProjetoAtual(projeto, papel = null) {
   appState.projetoAtual = projeto || null;
+  appState.papelProjetoAtual = papel || projeto?.papel_usuario || null;
 
   if (projeto && projeto.id) {
     localStorage.setItem("projeto_atual", projeto.id);
@@ -391,10 +395,11 @@ async function carregarProjetos() {
   }
 
   const { data, error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes)
+    .select("id, projeto_id, usuario_id, papel, status, projetos(*)")
     .eq("usuario_id", usuario.id)
-    .order("created_at", { ascending: false });
+    .eq("status", "ativo")
+    .order("criado_em", { ascending: false });
 
   if (error) {
     grid.innerHTML = `
@@ -406,7 +411,63 @@ async function carregarProjetos() {
     return;
   }
 
-  montarListaProjetos(data || []);
+  const projetos = (data || [])
+    .filter(function(item) {
+      return item.projetos && item.projetos.id;
+    })
+    .map(function(item) {
+      return {
+        ...item.projetos,
+        papel_usuario: item.papel || "integrante",
+        participante_id: item.id
+      };
+    });
+
+  await preencherResumoProjetos(projetos);
+  appState.participantesProjetos = projetos;
+  montarListaProjetos(projetos);
+}
+
+async function contarTabelaProjeto(tabela, projetoId) {
+  const cliente = sb();
+
+  if (!cliente || !projetoId) {
+    return 0;
+  }
+
+  const { count, error } = await cliente
+    .from(tabela)
+    .select("id", { count: "exact", head: true })
+    .eq("projeto_id", projetoId);
+
+  if (error) {
+    console.warn("Erro ao contar", tabela, error.message);
+    return 0;
+  }
+
+  return count || 0;
+}
+
+async function preencherResumoProjetos(projetos) {
+  if (!Array.isArray(projetos) || projetos.length === 0) {
+    return;
+  }
+
+  await Promise.all(projetos.map(async function(projeto) {
+    const [integrantes, musicas, repertorios, eventos] = await Promise.all([
+      contarTabelaProjeto(REPERTORIO_FACIL.tabelas.projetoParticipantes, projeto.id),
+      contarTabelaProjeto(REPERTORIO_FACIL.tabelas.musicas, projeto.id),
+      contarTabelaProjeto(REPERTORIO_FACIL.tabelas.repertorios, projeto.id),
+      contarTabelaProjeto(REPERTORIO_FACIL.tabelas.eventos, projeto.id)
+    ]);
+
+    projeto.resumo = {
+      integrantes: integrantes,
+      musicas: musicas,
+      repertorios: repertorios,
+      eventos: eventos
+    };
+  }));
 }
 
 function montarListaProjetos(lista) {
@@ -434,18 +495,36 @@ function montarListaProjetos(lista) {
   }
 
   lista.forEach(function(projeto) {
+    const papel = projeto.papel_usuario === "administrador" ? "Administrador" : "Integrante";
+    const resumo = projeto.resumo || { integrantes: 0, musicas: 0, repertorios: 0, eventos: 0 };
+    const localidade = [projeto.cidade, projeto.estado].filter(Boolean).join(" - ");
+    const podeExcluir = projeto.papel_usuario === "administrador";
+
     grid.innerHTML += `
-      <div class="card-projeto">
-        <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
+      <div class="card-projeto card-projeto-listado">
+        <div class="topo-card-projeto">
+          <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
+          <button class="menu-card-projeto" type="button" data-menu-projeto="${escaparHtml(projeto.id)}" aria-label="Ações do projeto">⋮</button>
+        </div>
+
         <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
         <p>${escaparHtml(projeto.estilo || "Sem estilo informado")}</p>
 
-        <div class="detalhes">
-          <span>
-            ${escaparHtml(projeto.cidade || "")}
-            ${projeto.estado ? " - " + escaparHtml(projeto.estado) : ""}
-          </span>
-          <span>Projeto cadastrado</span>
+        <div class="detalhes detalhes-projeto-card">
+          ${localidade ? `<span>${escaparHtml(localidade)}</span>` : ""}
+          <span class="papel-projeto">${escaparHtml(papel)}</span>
+        </div>
+
+        <div class="resumo-projeto-card" aria-label="Resumo do projeto">
+          <span title="Participantes">👥 ${resumo.integrantes}</span>
+          <span title="Músicas">🎵 ${resumo.musicas}</span>
+          <span title="Repertórios">📋 ${resumo.repertorios}</span>
+          <span title="Eventos">📅 ${resumo.eventos}</span>
+        </div>
+
+        <div class="acoes-projeto-card" id="acoes-projeto-${escaparHtml(projeto.id)}">
+          <button type="button" data-sair-projeto="${escaparHtml(projeto.id)}">Sair do projeto</button>
+          ${podeExcluir ? `<button type="button" class="acao-perigo" data-excluir-projeto="${escaparHtml(projeto.id)}">Excluir projeto</button>` : ""}
         </div>
 
         <button class="botao-card abrir-projeto" type="button" data-id="${escaparHtml(projeto.id)}">
@@ -467,6 +546,45 @@ function montarListaProjetos(lista) {
     botao.addEventListener("click", function() {
       acessarProjeto(botao.dataset.id);
     });
+  });
+
+  document.querySelectorAll("[data-menu-projeto]").forEach(function(botao) {
+    botao.addEventListener("click", function(evento) {
+      evento.stopPropagation();
+      alternarMenuProjeto(botao.dataset.menuProjeto);
+    });
+  });
+
+  document.querySelectorAll("[data-sair-projeto]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      sairDoProjeto(botao.dataset.sairProjeto);
+    });
+  });
+
+  document.querySelectorAll("[data-excluir-projeto]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      excluirProjetoCompleto(botao.dataset.excluirProjeto);
+    });
+  });
+}
+
+function alternarMenuProjeto(projetoId) {
+  document.querySelectorAll(".acoes-projeto-card").forEach(function(menu) {
+    if (menu.id !== "acoes-projeto-" + projetoId) {
+      menu.classList.remove("ativo");
+    }
+  });
+
+  const menu = elemento("acoes-projeto-" + projetoId);
+
+  if (menu) {
+    menu.classList.toggle("ativo");
+  }
+}
+
+function obterProjetoDaLista(id) {
+  return (appState.participantesProjetos || []).find(function(projeto) {
+    return projeto.id === id;
   });
 }
 
@@ -514,8 +632,23 @@ async function criarProjeto() {
     return;
   }
 
+  const { error: erroParticipante } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes)
+    .insert({
+      projeto_id: data.id,
+      usuario_id: usuario.id,
+      email: usuario.email || "",
+      nome: obterNomeUsuario(usuario),
+      papel: "administrador",
+      status: "ativo"
+    });
+
+  if (erroParticipante) {
+    alert("Projeto criado, mas houve erro ao vincular o administrador: " + erroParticipante.message);
+  }
+
   limparCampos(elemento("tela-novo-projeto"));
-  salvarProjetoAtual(data);
+  salvarProjetoAtual({ ...data, papel_usuario: "administrador" }, "administrador");
   mostrarTela("tela-projetos");
 }
 
@@ -526,18 +659,30 @@ async function acessarProjeto(id) {
     return;
   }
 
-  const { data, error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
 
-  if (error) {
-    alert("Erro ao abrir projeto: " + error.message);
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
     return;
   }
 
-  salvarProjetoAtual(data);
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes)
+    .select("papel, status, projetos(*)")
+    .eq("projeto_id", id)
+    .eq("usuario_id", usuario.id)
+    .eq("status", "ativo")
+    .single();
+
+  if (error || !data || !data.projetos) {
+    alert("Você não possui acesso ativo a este projeto.");
+    localStorage.removeItem("projeto_atual");
+    carregarProjetos();
+    return;
+  }
+
+  salvarProjetoAtual({ ...data.projetos, papel_usuario: data.papel }, data.papel);
   abrirPainelProjeto();
 }
 
@@ -564,8 +709,9 @@ function carregarPainelProjeto() {
     const cidade = projeto.cidade || "";
     const estado = projeto.estado ? " - " + projeto.estado : "";
     const estilo = projeto.estilo || "Projeto musical";
+    const papel = appState.papelProjetoAtual === "administrador" ? "Administrador" : "Integrante";
 
-    subtitulo.textContent = estilo + (cidade ? " • " + cidade + estado : "");
+    subtitulo.textContent = estilo + (cidade ? " • " + cidade + estado : "") + " • " + papel;
   }
 }
 
@@ -4128,6 +4274,118 @@ async function criarEvento() {
   await salvarEvento();
 }
 
+
+async function sairDoProjeto(projetoId) {
+  const cliente = sb();
+  const projeto = obterProjetoDaLista(projetoId);
+
+  if (!cliente || !projetoId || !projeto) {
+    return;
+  }
+
+  const confirmar = confirm(
+    "Sair do projeto \"" + (projeto.nome || "Projeto") + "\"?\n\n" +
+    "Você perderá acesso a este projeto, mas os dados continuarão disponíveis para os demais participantes."
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes)
+    .update({ status: "saiu" })
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id);
+
+  if (error) {
+    alert("Erro ao sair do projeto: " + error.message);
+    return;
+  }
+
+  if (obterProjetoAtualId() === projetoId) {
+    salvarProjetoAtual(null);
+  }
+
+  await carregarProjetos();
+}
+
+async function excluirProjetoCompleto(projetoId) {
+  const cliente = sb();
+  const projeto = obterProjetoDaLista(projetoId);
+
+  if (!cliente || !projetoId || !projeto) {
+    return;
+  }
+
+  if (projeto.papel_usuario !== "administrador") {
+    alert("Apenas administradores podem excluir o projeto.");
+    return;
+  }
+
+  const digitado = prompt(
+    "Para excluir definitivamente este projeto, digite exatamente o nome:\n\n" +
+    (projeto.nome || "Projeto")
+  );
+
+  if (digitado !== projeto.nome) {
+    alert("Exclusão cancelada. O nome digitado não confere.");
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const { data: participante, error: erroPermissao } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes)
+    .select("papel")
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id)
+    .eq("status", "ativo")
+    .single();
+
+  if (erroPermissao || participante?.papel !== "administrador") {
+    alert("Não foi possível confirmar sua permissão de administrador.");
+    return;
+  }
+
+  await cliente.from(REPERTORIO_FACIL.tabelas.repertorioMusicas).delete().eq("projeto_id", projetoId);
+  await cliente.from(REPERTORIO_FACIL.tabelas.eventos).delete().eq("projeto_id", projetoId);
+  await cliente.from(REPERTORIO_FACIL.tabelas.repertorios).delete().eq("projeto_id", projetoId);
+  await cliente.from(REPERTORIO_FACIL.tabelas.musicas).delete().eq("projeto_id", projetoId);
+  await cliente.from(REPERTORIO_FACIL.tabelas.integrantes).delete().eq("projeto_id", projetoId);
+  await cliente.from(REPERTORIO_FACIL.tabelas.projetoParticipantes).delete().eq("projeto_id", projetoId);
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .delete()
+    .eq("id", projetoId);
+
+  if (error) {
+    alert("Erro ao excluir projeto: " + error.message);
+    return;
+  }
+
+  if (obterProjetoAtualId() === projetoId) {
+    salvarProjetoAtual(null);
+  }
+
+  await carregarProjetos();
+}
+
 async function restaurarProjetoAtual() {
   const id = obterProjetoAtualId();
 
@@ -4137,18 +4395,32 @@ async function restaurarProjetoAtual() {
 
   const cliente = sb();
 
-  const { data, error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", id)
-    .single();
+  if (!cliente) {
+    return;
+  }
 
-  if (error) {
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
     localStorage.removeItem("projeto_atual");
     return;
   }
 
-  salvarProjetoAtual(data);
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes)
+    .select("papel, status, projetos(*)")
+    .eq("projeto_id", id)
+    .eq("usuario_id", usuario.id)
+    .eq("status", "ativo")
+    .single();
+
+  if (error || !data || !data.projetos) {
+    localStorage.removeItem("projeto_atual");
+    return;
+  }
+
+  salvarProjetoAtual({ ...data.projetos, papel_usuario: data.papel }, data.papel);
 }
 
 function configurarBotoesFixos() {
