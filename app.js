@@ -1766,10 +1766,19 @@ function preencherFormularioMusica(item) {
 
   if (botaoSalvar) {
     botaoSalvar.textContent = "Salvar alterações";
+    botaoSalvar.style.display = "none";
+  }
+
+  if (botaoCompartilhar) {
+    botaoCompartilhar.style.display = "none";
+  }
+
+  if (botaoGerarPdf) {
+    botaoGerarPdf.style.display = "none";
   }
 
   if (botaoCancelar) {
-    botaoCancelar.style.display = "inline-block";
+    botaoCancelar.style.display = "none";
   }
 
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1952,11 +1961,27 @@ async function carregarRepertorios() {
       }
 
       .acoes-repertorio,
-      .acoes-musica-repertorio {
+      .acoes-musica-repertorio,
+      .acoes-edicao-repertorio {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
         margin-top: 4px;
+      }
+
+      .acoes-edicao-repertorio {
+        margin-top: 18px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255,255,255,.12);
+        align-items: center;
+      }
+
+      .acoes-edicao-repertorio .botao-card,
+      .acoes-edicao-repertorio .botao-secundario-modulo {
+        min-height: 34px;
+        padding: 0 14px;
+        font-size: 13px;
+        border-radius: 10px;
       }
 
       .botao-secundario-modulo {
@@ -2288,10 +2313,19 @@ function preencherFormularioRepertorio(item) {
 
   if (botaoSalvar) {
     botaoSalvar.textContent = "Salvar alterações";
+    botaoSalvar.style.display = "none";
+  }
+
+  if (botaoCompartilhar) {
+    botaoCompartilhar.style.display = "none";
+  }
+
+  if (botaoGerarPdf) {
+    botaoGerarPdf.style.display = "none";
   }
 
   if (botaoCancelar) {
-    botaoCancelar.style.display = "inline-block";
+    botaoCancelar.style.display = "none";
   }
 
   const area = elemento("area-modulo");
@@ -2325,6 +2359,7 @@ function limparFormularioRepertorio() {
 
   if (botaoSalvar) {
     botaoSalvar.textContent = "Salvar repertório";
+    botaoSalvar.style.display = "inline-block";
   }
 
   if (botaoCompartilhar) {
@@ -2571,6 +2606,13 @@ function renderizarMontagemRepertorio() {
         </div>
       </div>
     </div>
+
+    <div class="acoes-edicao-repertorio">
+      <button class="botao-card" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
+      <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">Compartilhar</button>
+      <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
+      <button class="botao-secundario-modulo" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
+    </div>
   `;
 
   configurarEventosMontagemRepertorio();
@@ -2627,9 +2669,33 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
 
 function configurarEventosMontagemRepertorio() {
   const busca = elemento("busca-musicas-repertorio");
+  const botaoSalvarEdicao = elemento("btn-salvar-repertorio-edicao");
+  const botaoCompartilharEdicao = elemento("btn-compartilhar-repertorio-edicao");
+  const botaoGerarPdfEdicao = elemento("btn-gerar-pdf-repertorio-edicao");
+  const botaoCancelarEdicao = elemento("btn-cancelar-repertorio-edicao");
 
   if (busca) {
     busca.addEventListener("input", renderizarMontagemRepertorio);
+  }
+
+  if (botaoSalvarEdicao) {
+    botaoSalvarEdicao.addEventListener("click", salvarRepertorio);
+  }
+
+  if (botaoCompartilharEdicao) {
+    botaoCompartilharEdicao.addEventListener("click", function() {
+      compartilharRepertorio(appState.repertorioEditandoId || appState.repertorioMontandoId);
+    });
+  }
+
+  if (botaoGerarPdfEdicao) {
+    botaoGerarPdfEdicao.addEventListener("click", function() {
+      gerarPDFDoRepertorio(appState.repertorioEditandoId || appState.repertorioMontandoId);
+    });
+  }
+
+  if (botaoCancelarEdicao) {
+    botaoCancelarEdicao.addEventListener("click", limparFormularioRepertorio);
   }
 
   document.querySelectorAll("[data-adicionar-musica-repertorio]").forEach(function(botao) {
@@ -3762,10 +3828,19 @@ function preencherFormularioEvento(item) {
 
   if (botaoSalvar) {
     botaoSalvar.textContent = "Salvar alterações";
+    botaoSalvar.style.display = "none";
+  }
+
+  if (botaoCompartilhar) {
+    botaoCompartilhar.style.display = "none";
+  }
+
+  if (botaoGerarPdf) {
+    botaoGerarPdf.style.display = "none";
   }
 
   if (botaoCancelar) {
-    botaoCancelar.style.display = "inline-block";
+    botaoCancelar.style.display = "none";
   }
 
   const area = elemento("area-modulo");
