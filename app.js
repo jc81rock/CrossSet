@@ -555,6 +555,67 @@ function garantirTelasInternas() {
   tela.className = "tela";
 
   tela.innerHTML = `
+    <style>
+      .grid-modulos-painel {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .grid-modulos-painel .card-projeto {
+        min-height: 210px;
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .grid-modulos-painel .tag {
+        align-self: flex-start;
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      .grid-modulos-painel h3 {
+        font-size: 24px;
+        margin: 6px 0 0;
+        line-height: 1.1;
+      }
+
+      .grid-modulos-painel p {
+        font-size: 15px;
+        line-height: 1.35;
+        margin: 0;
+      }
+
+      .grid-modulos-painel .botao-card {
+        min-height: 42px;
+        padding: 10px 14px;
+        font-size: 15px;
+        margin-top: auto;
+      }
+
+      @media (max-width: 1180px) {
+        .grid-modulos-painel {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 860px) {
+        .grid-modulos-painel {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 560px) {
+        .grid-modulos-painel {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+
     <div class="container">
       <header class="topo">
         <div class="topo-logo">
@@ -577,7 +638,7 @@ function garantirTelasInternas() {
         </div>
       </section>
 
-      <section class="grid-projetos">
+      <section class="grid-projetos grid-modulos-painel">
         <div class="card-projeto">
           <span class="tag">Módulo</span>
           <h3>Integrantes</h3>
