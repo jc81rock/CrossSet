@@ -307,40 +307,70 @@
       display: block !important;
     }
 
-    /* Tela Meus Projetos: remove duplicidade do card criar projeto */
+    /* Tela Meus Projetos: projetos alinhados e sem card duplicado */
     #lista-projetos {
       display: grid !important;
-      grid-template-columns: 1fr !important;
+      grid-template-columns: repeat(3, minmax(260px, 1fr)) !important;
       gap: 14px !important;
       width: 100% !important;
+      align-items: stretch !important;
     }
 
     #lista-projetos .projeto-item {
-      display: grid !important;
-      grid-template-columns: 1fr minmax(180px, 240px) !important;
-      align-items: center !important;
-      gap: 18px !important;
-      min-height: 132px !important;
-      padding: 18px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: space-between !important;
+      min-height: 248px !important;
+      height: 100% !important;
+      padding: 16px !important;
+      overflow: hidden !important;
+    }
+
+    #lista-projetos .projeto-item-conteudo {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 5px !important;
+      min-width: 0 !important;
+      flex: 1 !important;
     }
 
     #lista-projetos .projeto-item h3 {
-      font-size: 24px !important;
-      margin: 8px 0 6px !important;
+      font-size: 23px !important;
+      line-height: 1.05 !important;
+      margin: 8px 0 4px !important;
+      min-height: 50px !important;
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2 !important;
+      -webkit-box-orient: vertical !important;
+      overflow: hidden !important;
     }
 
     #lista-projetos .projeto-item p {
-      margin: 0 0 12px !important;
+      margin: 0 !important;
+      font-size: 13px !important;
+      line-height: 1.25 !important;
+    }
+
+    #lista-projetos .projeto-item .detalhes {
+      display: grid !important;
+      gap: 4px !important;
+      margin-top: 4px !important;
+      font-size: 13px !important;
+      color: #b9d2ff !important;
     }
 
     #lista-projetos .projeto-item .botao-card {
       width: 100% !important;
-      min-height: 38px !important;
-      height: 38px !important;
+      min-height: 36px !important;
+      height: 36px !important;
       font-size: 13px !important;
+      margin-top: 14px !important;
+      flex: 0 0 auto !important;
+      white-space: nowrap !important;
     }
 
     #lista-projetos .projeto-vazio {
+      grid-column: 1 / -1 !important;
       text-align: center !important;
       min-height: 150px !important;
       display: flex !important;
@@ -356,9 +386,25 @@
       margin-bottom: 10px !important;
     }
 
+    @media (min-width: 1250px) {
+      #lista-projetos {
+        grid-template-columns: repeat(3, minmax(280px, 1fr)) !important;
+      }
+    }
+
+    @media (max-width: 1020px) {
+      #lista-projetos {
+        grid-template-columns: repeat(2, minmax(260px, 1fr)) !important;
+      }
+    }
+
     @media (max-width: 720px) {
-      #lista-projetos .projeto-item {
+      #lista-projetos {
         grid-template-columns: 1fr !important;
+      }
+
+      #lista-projetos .projeto-item {
+        min-height: 220px !important;
       }
     }
 

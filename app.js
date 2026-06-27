@@ -411,7 +411,7 @@ function montarListaProjetos(lista) {
           <div class="detalhes">
             <span>
               ${escaparHtml(projeto.cidade || "")}
-              ${projeto.estado ? " - " + escaparHtml(projeto.estado) : ""}
+              ${projeto.estado ? " • " + escaparHtml(projeto.estado) : ""}
             </span>
             <span>Projeto cadastrado</span>
           </div>
