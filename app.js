@@ -27,8 +27,7 @@ let appState = {
   repertorioMontandoId: null,
   repertorioMusicas: [],
   eventos: [],
-  eventoEditandoId: null,
-  telaAntesSobre: null
+  eventoEditandoId: null
 };
 
 function sb() {
@@ -386,52 +385,44 @@ function montarListaProjetos(lista) {
     return;
   }
 
-  grid.innerHTML = `
-    <div class="card-projeto card-criar" id="novoProjetoCard">
-      <div class="icone-mais">+</div>
-      <h3>Criar novo projeto</h3>
-      <p>Cadastre uma nova banda ou projeto musical.</p>
-    </div>
-  `;
+  grid.innerHTML = "";
 
   if (lista.length === 0) {
-    grid.innerHTML += `
-      <div class="card-projeto">
-        <h3>Nenhum projeto cadastrado</h3>
-        <p>Clique em Novo Projeto para criar o primeiro.</p>
+    grid.innerHTML = `
+      <div class="card-projeto projeto-vazio">
+        <div class="icone-mais">+</div>
+        <h3>Você ainda não possui projetos.</h3>
+        <p>Clique em <strong>Novo Projeto</strong> para criar seu primeiro projeto musical.</p>
       </div>
     `;
+    return;
   }
+
+  const textoBotao = lista.length === 1 ? "Entrar no Projeto" : "Acessar Projeto";
 
   lista.forEach(function(projeto) {
     grid.innerHTML += `
-      <div class="card-projeto">
-        <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
-        <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
-        <p>${escaparHtml(projeto.estilo || "Sem estilo informado")}</p>
+      <div class="card-projeto projeto-item">
+        <div class="projeto-item-conteudo">
+          <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
+          <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
+          <p>${escaparHtml(projeto.estilo || "Sem estilo informado")}</p>
 
-        <div class="detalhes">
-          <span>
-            ${escaparHtml(projeto.cidade || "")}
-            ${projeto.estado ? " - " + escaparHtml(projeto.estado) : ""}
-          </span>
-          <span>Projeto cadastrado</span>
+          <div class="detalhes">
+            <span>
+              ${escaparHtml(projeto.cidade || "")}
+              ${projeto.estado ? " - " + escaparHtml(projeto.estado) : ""}
+            </span>
+            <span>Projeto cadastrado</span>
+          </div>
         </div>
 
         <button class="botao-card abrir-projeto" type="button" data-id="${escaparHtml(projeto.id)}">
-          Acessar projeto
+          ${textoBotao}
         </button>
       </div>
     `;
   });
-
-  const cardNovo = elemento("novoProjetoCard");
-
-  if (cardNovo) {
-    cardNovo.addEventListener("click", function() {
-      mostrarTela("tela-novo-projeto");
-    });
-  }
 
   document.querySelectorAll(".abrir-projeto").forEach(function(botao) {
     botao.addEventListener("click", function() {
@@ -4121,18 +4112,6 @@ async function restaurarProjetoAtual() {
   salvarProjetoAtual(data);
 }
 
-
-function abrirSobre() {
-  appState.telaAntesSobre = appState.telaAtual || "tela-login";
-  mostrarTela("tela-sobre");
-}
-
-function fecharSobre() {
-  const destino = appState.telaAntesSobre || (appState.usuario ? "tela-projetos" : "tela-login");
-  appState.telaAntesSobre = null;
-  mostrarTela(destino, { registrar: false });
-}
-
 function configurarBotoesFixos() {
   const botaoGoogle = elemento("btn-google");
 
@@ -4151,21 +4130,6 @@ function configurarBotoesFixos() {
   if (botaoCriarProjeto) {
     botaoCriarProjeto.addEventListener("click", criarProjeto);
   }
-
-
-  document.querySelectorAll("[data-abrir-sobre]").forEach(function(botao) {
-    if (!botao.dataset.configurado) {
-      botao.dataset.configurado = "true";
-      botao.addEventListener("click", abrirSobre);
-    }
-  });
-
-  [elemento("btn-voltar-sobre"), elemento("btn-voltar-sobre-baixo")].forEach(function(botao) {
-    if (botao && !botao.dataset.configurado) {
-      botao.dataset.configurado = "true";
-      botao.addEventListener("click", fecharSobre);
-    }
-  });
 
   document.querySelectorAll("[onclick]").forEach(function(item) {
     const acao = item.getAttribute("onclick");
@@ -4198,10 +4162,6 @@ function configurarBotoesFixos() {
       item.addEventListener("click", function() {
         mostrarTela("tela-novo-projeto");
       });
-    }
-
-    if (acao.includes("tela-sobre")) {
-      item.addEventListener("click", abrirSobre);
     }
 
     if (acao.includes("validarCadastro")) {
