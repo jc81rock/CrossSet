@@ -1819,9 +1819,13 @@ function renderizarListaIntegrantes() {
             ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
           </div>
 
-          <div class="botoes-item-integrante">
-            <button class="btn-editar-integrante" type="button" data-editar-integrante="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-excluir-integrante" type="button" data-excluir-integrante="${escaparHtml(item.id)}">Excluir</button>
+          <div class="botoes-item-integrante acoes-icones">
+            <button class="botao-icone-acao btn-editar-integrante" type="button" data-editar-integrante="${escaparHtml(item.id)}" title="Editar" aria-label="Editar integrante">
+              <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+            </button>
+            <button class="botao-icone-acao acao-excluir btn-excluir-integrante" type="button" data-excluir-integrante="${escaparHtml(item.id)}" title="Excluir" aria-label="Excluir integrante">
+              <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2334,9 +2338,13 @@ function renderizarListaMusicas() {
             <p><strong>BPM:</strong> ${escaparHtml(item.bpm || "Não informado")}</p>
           </div>
 
-          <div class="botoes-item-musica">
-            <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">Excluir</button>
+          <div class="botoes-item-musica acoes-icones">
+            <button class="botao-icone-acao btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}" title="Editar" aria-label="Editar música">
+              <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+            </button>
+            <button class="botao-icone-acao acao-excluir btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}" title="Excluir" aria-label="Excluir música">
+              <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2884,10 +2892,19 @@ function renderizarListaRepertorios() {
             </div>
           </div>
 
-          <div class="botoes-item-repertorio">
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
+          <div class="botoes-item-repertorio acoes-icones">
+            <button class="botao-icone-acao btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}" title="Editar" aria-label="Editar repertório">
+              <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+            </button>
+            <button class="botao-icone-acao btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}" title="Compartilhar" aria-label="Compartilhar repertório">
+              <span class="material-symbols-rounded" aria-hidden="true">share</span>
+            </button>
+            <button class="botao-icone-acao btn-gerar-pdf-repertorio" type="button" data-gerar-pdf-repertorio="${escaparHtml(item.id)}" title="Gerar PDF" aria-label="Gerar PDF do repertório">
+              <span class="material-symbols-rounded" aria-hidden="true">picture_as_pdf</span>
+            </button>
+            <button class="botao-icone-acao acao-excluir btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}" title="Excluir" aria-label="Excluir repertório">
+              <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2903,6 +2920,12 @@ function renderizarListaRepertorios() {
   lista.querySelectorAll("[data-compartilhar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       compartilharRepertorio(botao.dataset.compartilharRepertorio);
+    });
+  });
+
+  lista.querySelectorAll("[data-gerar-pdf-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      gerarPDFDoRepertorio(botao.dataset.gerarPdfRepertorio);
     });
   });
 
@@ -4407,10 +4430,16 @@ function renderizarListaEventos() {
             </div>
           </div>
 
-          <div class="botoes-item-evento">
-            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">Compartilhar</button>
-            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">Excluir</button>
+          <div class="botoes-item-evento acoes-icones">
+            <button class="botao-icone-acao btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}" title="Editar" aria-label="Editar evento">
+              <span class="material-symbols-rounded" aria-hidden="true">edit</span>
+            </button>
+            <button class="botao-icone-acao btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}" title="Compartilhar" aria-label="Compartilhar evento">
+              <span class="material-symbols-rounded" aria-hidden="true">share</span>
+            </button>
+            <button class="botao-icone-acao acao-excluir btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}" title="Excluir" aria-label="Excluir evento">
+              <span class="material-symbols-rounded" aria-hidden="true">delete</span>
+            </button>
           </div>
         </div>
       </div>

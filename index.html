@@ -6,7 +6,8 @@
 
   <title>Repertório Fácil</title>
 
-  <link rel="stylesheet" href="style.css?v=20" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,0,0" />
+  <link rel="stylesheet" href="style.css?v=21" />
 
   <style>
     /* Polimento geral da interface - Repertório Fácil v1.0 */
@@ -306,6 +307,90 @@
       object-fit: contain !important;
       display: block !important;
     }
+
+
+    /* Padrão oficial de ações rápidas por ícones */
+    .acoes-icones,
+    .botoes-item-integrante.acoes-icones,
+    .botoes-item-musica.acoes-icones,
+    .botoes-item-repertorio.acoes-icones,
+    .botoes-item-evento.acoes-icones {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 7px !important;
+      flex-wrap: nowrap !important;
+    }
+
+    .botao-icone-acao,
+    .botoes-item-integrante .botao-icone-acao,
+    .botoes-item-musica .botao-icone-acao,
+    .botoes-item-repertorio .botao-icone-acao,
+    .botoes-item-evento .botao-icone-acao {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
+      min-height: 34px !important;
+      padding: 0 !important;
+      border-radius: 11px !important;
+      border: 1px solid rgba(180, 77, 255, .28) !important;
+      background: rgba(122, 92, 255, .10) !important;
+      color: #d7ccff !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease, color .18s ease !important;
+    }
+
+    .botao-icone-acao:hover,
+    .botao-icone-acao:focus-visible {
+      background: linear-gradient(135deg, #7a5cff, #b84dff) !important;
+      border-color: rgba(255,255,255,.25) !important;
+      color: #ffffff !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .botao-icone-acao.acao-excluir {
+      border-color: rgba(255, 110, 110, .26) !important;
+      color: #ffc7c7 !important;
+      background: rgba(255, 110, 110, .08) !important;
+    }
+
+    .botao-icone-acao.acao-excluir:hover,
+    .botao-icone-acao.acao-excluir:focus-visible {
+      background: rgba(255, 80, 80, .22) !important;
+      color: #ffffff !important;
+    }
+
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+
+    @media (max-width: 820px) {
+      .acoes-icones,
+      .botoes-item-integrante.acoes-icones,
+      .botoes-item-musica.acoes-icones,
+      .botoes-item-repertorio.acoes-icones,
+      .botoes-item-evento.acoes-icones {
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+      }
+    }
+
   </style>
 
 
@@ -393,6 +478,90 @@
         font-size: 26px !important;
       }
     }
+
+
+    /* Padrão oficial de ações rápidas por ícones */
+    .acoes-icones,
+    .botoes-item-integrante.acoes-icones,
+    .botoes-item-musica.acoes-icones,
+    .botoes-item-repertorio.acoes-icones,
+    .botoes-item-evento.acoes-icones {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 7px !important;
+      flex-wrap: nowrap !important;
+    }
+
+    .botao-icone-acao,
+    .botoes-item-integrante .botao-icone-acao,
+    .botoes-item-musica .botao-icone-acao,
+    .botoes-item-repertorio .botao-icone-acao,
+    .botoes-item-evento .botao-icone-acao {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
+      min-height: 34px !important;
+      padding: 0 !important;
+      border-radius: 11px !important;
+      border: 1px solid rgba(180, 77, 255, .28) !important;
+      background: rgba(122, 92, 255, .10) !important;
+      color: #d7ccff !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease, color .18s ease !important;
+    }
+
+    .botao-icone-acao:hover,
+    .botao-icone-acao:focus-visible {
+      background: linear-gradient(135deg, #7a5cff, #b84dff) !important;
+      border-color: rgba(255,255,255,.25) !important;
+      color: #ffffff !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .botao-icone-acao.acao-excluir {
+      border-color: rgba(255, 110, 110, .26) !important;
+      color: #ffc7c7 !important;
+      background: rgba(255, 110, 110, .08) !important;
+    }
+
+    .botao-icone-acao.acao-excluir:hover,
+    .botao-icone-acao.acao-excluir:focus-visible {
+      background: rgba(255, 80, 80, .22) !important;
+      color: #ffffff !important;
+    }
+
+    .material-symbols-rounded {
+      font-family: 'Material Symbols Rounded';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    }
+
+    @media (max-width: 820px) {
+      .acoes-icones,
+      .botoes-item-integrante.acoes-icones,
+      .botoes-item-musica.acoes-icones,
+      .botoes-item-repertorio.acoes-icones,
+      .botoes-item-evento.acoes-icones {
+        justify-content: flex-start !important;
+        flex-wrap: wrap !important;
+      }
+    }
+
   </style>
 
 </head>
