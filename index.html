@@ -268,6 +268,44 @@
       display: inline-block;
       flex: 0 0 auto;
     }
+
+
+    /* Ajuste visual da tela de login */
+    #tela-login .logo-login,
+    #tela-cadastro .logo-login,
+    #tela-novo-projeto .logo-login {
+      width: 112px !important;
+      height: auto !important;
+      max-height: none !important;
+      object-fit: contain !important;
+      display: block !important;
+      margin: 0 auto 14px !important;
+    }
+
+    #tela-login .botao-google {
+      min-height: 44px !important;
+      height: 44px !important;
+      padding: 0 18px !important;
+      font-size: 16px !important;
+      border-radius: 14px !important;
+      gap: 10px !important;
+    }
+
+    #tela-login .icone-gmail {
+      width: 24px !important;
+      height: 24px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex: 0 0 24px !important;
+    }
+
+    #tela-login .icone-gmail img {
+      width: 24px !important;
+      height: 24px !important;
+      object-fit: contain !important;
+      display: block !important;
+    }
   </style>
 </head>
 <body>
@@ -283,13 +321,7 @@
 
         <button id="btn-google" class="botao-google" type="button">
           <span class="icone-gmail" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="22" height="22" xmlns="http://www.w3.org/2000/svg">
-              <path fill="#EA4335" d="M3 6.5A2.5 2.5 0 0 1 5.5 4h13A2.5 2.5 0 0 1 21 6.5v11A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5v-11Z"/>
-              <path fill="#FFFFFF" d="M5.5 6h13c.28 0 .5.22.5.5v.76l-7 5.02-7-5.02V6.5c0-.28.22-.5.5-.5Z"/>
-              <path fill="#FBBC04" d="M5 8.72v8.78c0 .28.22.5.5.5H8V10.87L5 8.72Z"/>
-              <path fill="#34A853" d="M16 18h2.5c.28 0 .5-.22.5-.5V8.72l-3 2.15V18Z"/>
-              <path fill="#4285F4" d="M8 18h8v-7.13l-4 2.87-4-2.87V18Z"/>
-            </svg>
+            <img src="logo_gmail.webp" alt="" />
           </span>
           <span>Entrar com Gmail</span>
         </button>
