@@ -1248,7 +1248,11 @@ function preencherFormularioIntegrante(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "Salvar alterações";
+    botaoSalvar.textContent = "Alterar repertório";
+  }
+
+  if (botaoGerarPdf) {
+    botaoGerarPdf.style.display = "inline-block";
   }
 
   if (botaoCancelar) {
@@ -2043,7 +2047,7 @@ async function carregarRepertorios() {
 
       .btn-editar-repertorio,
       .btn-montar-repertorio,
-      .btn-salvar-pdf-repertorio,
+      .btn-gerar-pdf-repertorio,
       .btn-subir-musica,
       .btn-descer-musica,
       .btn-adicionar-musica-repertorio {
@@ -2112,6 +2116,7 @@ async function carregarRepertorios() {
 
           <div class="acoes-repertorio">
             <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
+            <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF do repertório</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -2141,6 +2146,7 @@ async function carregarRepertorios() {
 function configurarEventosRepertorios() {
   const botaoSalvar = elemento("btn-salvar-repertorio");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
+  const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
 
   if (botaoSalvar) {
     botaoSalvar.addEventListener("click", salvarRepertorio);
@@ -2148,6 +2154,13 @@ function configurarEventosRepertorios() {
 
   if (botaoCancelar) {
     botaoCancelar.addEventListener("click", limparFormularioRepertorio);
+  }
+
+  if (botaoGerarPdf) {
+    botaoGerarPdf.addEventListener("click", function() {
+      const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
+      gerarPDFDoRepertorio(id);
+    });
   }
 }
 
@@ -2203,6 +2216,7 @@ function renderizarListaRepertorios() {
 
           <div class="botoes-item-repertorio">
             <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">Montar</button>
+            <button class="btn-gerar-pdf-repertorio" type="button" data-gerar-pdf-repertorio="${escaparHtml(item.id)}">Gerar PDF</button>
             <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
@@ -2214,6 +2228,12 @@ function renderizarListaRepertorios() {
   lista.querySelectorAll("[data-montar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       montarRepertorio(botao.dataset.montarRepertorio);
+    });
+  });
+
+  lista.querySelectorAll("[data-gerar-pdf-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      gerarPDFDoRepertorio(botao.dataset.gerarPdfRepertorio);
     });
   });
 
@@ -2239,6 +2259,7 @@ function preencherFormularioRepertorio(item) {
   const campoObservacoes = elemento("repertorio-observacoes");
   const titulo = elemento("titulo-form-repertorio");
   const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (campoNome) {
@@ -2274,6 +2295,7 @@ function limparFormularioRepertorio() {
   const campoObservacoes = elemento("repertorio-observacoes");
   const titulo = elemento("titulo-form-repertorio");
   const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (campoNome) {
@@ -2290,6 +2312,10 @@ function limparFormularioRepertorio() {
 
   if (botaoSalvar) {
     botaoSalvar.textContent = "Salvar repertório";
+  }
+
+  if (botaoGerarPdf) {
+    botaoGerarPdf.style.display = "none";
   }
 
   if (botaoCancelar) {
@@ -2499,9 +2525,6 @@ function renderizarMontagemRepertorio() {
       <h3>Montar repertório</h3>
       <p><strong>${escaparHtml(repertorio.nome || "Repertório")}</strong></p>
       <p>Adicione músicas cadastradas, remova do repertório e altere a ordem.</p>
-      <div class="acoes-repertorio" style="margin-top:10px;">
-        <button class="botao-card btn-salvar-pdf-repertorio" id="btn-salvar-pdf-repertorio" type="button">Salvar PDF</button>
-      </div>
     </div>
 
     <div class="montagem-repertorio-grid">
@@ -2582,14 +2605,9 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
 
 function configurarEventosMontagemRepertorio() {
   const busca = elemento("busca-musicas-repertorio");
-  const botaoSalvarPdf = elemento("btn-salvar-pdf-repertorio");
 
   if (busca) {
     busca.addEventListener("input", renderizarMontagemRepertorio);
-  }
-
-  if (botaoSalvarPdf) {
-    botaoSalvarPdf.addEventListener("click", salvarRepertorioPDF);
   }
 
   document.querySelectorAll("[data-adicionar-musica-repertorio]").forEach(function(botao) {
@@ -2760,20 +2778,61 @@ function formatarDataPDF(data) {
   }
 }
 
-function salvarRepertorioPDF() {
-  const repertorio = obterRepertorioAtualMontagem();
-  const projeto = appState.projetoAtual || {};
-  const itens = [...(appState.repertorioMusicas || [])].sort(function(a, b) {
-    return Number(a.ordem || 0) - Number(b.ordem || 0);
-  });
+async function obterMusicasDoRepertorioParaPDF(repertorioId) {
+  const cliente = sb();
 
-  if (!repertorio) {
-    alert("Abra um repertório antes de salvar o PDF.");
+  if (!cliente || !repertorioId) {
+    return [];
+  }
+
+  if (appState.repertorioMontandoId === repertorioId && Array.isArray(appState.repertorioMusicas)) {
+    return [...appState.repertorioMusicas].sort(function(a, b) {
+      return Number(a.ordem || 0) - Number(b.ordem || 0);
+    });
+  }
+
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+    .select("id, ordem, musica:musica_id(id, nome, artista, tom, bpm)")
+    .eq("repertorio_id", repertorioId)
+    .order("ordem", { ascending: true });
+
+  if (error) {
+    alert("Erro ao carregar músicas do repertório para PDF: " + error.message);
+    return [];
+  }
+
+  return data || [];
+}
+
+function abrirJanelaImpressaoRepertorio(html) {
+  const janela = window.open("", "_blank");
+
+  if (!janela) {
+    alert("O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente novamente.");
     return;
   }
 
+  janela.document.open();
+  janela.document.write(html);
+  janela.document.close();
+}
+
+async function gerarPDFDoRepertorio(repertorioId) {
+  const repertorio = (appState.repertorios || []).find(function(item) {
+    return item.id === repertorioId;
+  });
+  const projeto = appState.projetoAtual || {};
+
+  if (!repertorio) {
+    alert("Selecione um repertório salvo antes de gerar o PDF.");
+    return;
+  }
+
+  const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
+
   if (itens.length === 0) {
-    alert("Adicione músicas ao repertório antes de salvar o PDF.");
+    alert("Adicione músicas ao repertório antes de gerar o PDF.");
     return;
   }
 
@@ -2949,19 +3008,12 @@ function salvarRepertorioPDF() {
     </html>
   `;
 
-  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const janela = window.open(url, "_blank");
+  abrirJanelaImpressaoRepertorio(html);
+}
 
-  if (!janela) {
-    URL.revokeObjectURL(url);
-    alert("O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente novamente.");
-    return;
-  }
-
-  setTimeout(function() {
-    URL.revokeObjectURL(url);
-  }, 60000);
+async function salvarRepertorioPDF() {
+  const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
+  await gerarPDFDoRepertorio(id);
 }
 
 function fecharMontagemRepertorio() {
