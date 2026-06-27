@@ -593,6 +593,8 @@ function montarListaProjetos(lista) {
         </div>
 
         <div class="acoes-projeto-card" id="acoes-projeto-${escaparHtml(projeto.id)}">
+          ${podeExcluir ? `<button type="button" data-acao-em-breve="Editar projeto">Editar projeto</button>` : `<button type="button" data-acao-em-breve="Informações do projeto">Informações</button>`}
+          ${podeExcluir ? `<button type="button" data-acao-em-breve="Convidar integrante">Convidar integrante</button>` : ""}
           <button type="button" data-sair-projeto="${escaparHtml(projeto.id)}">Sair do projeto</button>
           ${podeExcluir ? `<button type="button" class="acao-perigo" data-excluir-projeto="${escaparHtml(projeto.id)}">Excluir projeto</button>` : ""}
         </div>
@@ -622,6 +624,12 @@ function montarListaProjetos(lista) {
     botao.addEventListener("click", function(evento) {
       evento.stopPropagation();
       alternarMenuProjeto(botao.dataset.menuProjeto);
+    });
+  });
+
+  document.querySelectorAll("[data-acao-em-breve]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      alert(botao.dataset.acaoEmBreve + " será liberado em uma próxima etapa.");
     });
   });
 
@@ -4769,40 +4777,29 @@ function configurarMenuPrincipal() {
 
     botao.addEventListener("click", function() {
       const acao = botao.dataset.menuPrincipal;
+      const botaoProjetos = elemento("menu-projetos");
 
       document.querySelectorAll("#tela-projetos [data-menu-principal]").forEach(function(item) {
         item.classList.remove("ativo");
       });
 
-      if (acao === "inicio" || acao === "projetos") {
-        const botaoProjetos = elemento("menu-projetos");
-        if (botaoProjetos) {
-          botaoProjetos.classList.add("ativo");
-        } else {
-          botao.classList.add("ativo");
-        }
-
+      if (acao === "projetos") {
+        botao.classList.add("ativo");
         mostrarTela("tela-projetos", { registrar: false });
         return;
       }
 
       if (acao === "agenda") {
-        botao.classList.add("ativo");
         alert("Agenda será liberada em uma próxima etapa.");
-        const botaoProjetos = elemento("menu-projetos");
         if (botaoProjetos) {
-          botao.classList.remove("ativo");
           botaoProjetos.classList.add("ativo");
         }
         return;
       }
 
       if (acao === "perfil") {
-        botao.classList.add("ativo");
         alert("Perfil será liberado em uma próxima etapa.");
-        const botaoProjetos = elemento("menu-projetos");
         if (botaoProjetos) {
-          botao.classList.remove("ativo");
           botaoProjetos.classList.add("ativo");
         }
       }

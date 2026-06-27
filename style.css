@@ -882,3 +882,114 @@ select {
     margin-top: 18px !important;
   }
 }
+
+
+/* POLIMENTO FINAL - MEUS PROJETOS v0.9.7 */
+#tela-projetos .container {
+  max-width: 1020px !important;
+  padding-bottom: 22px !important;
+}
+
+#tela-projetos .banner {
+  padding: 14px 16px !important;
+  margin-bottom: 12px !important;
+}
+
+#tela-projetos .banner h2 {
+  font-size: 22px !important;
+}
+
+#tela-projetos .banner p {
+  max-width: 620px !important;
+}
+
+#tela-projetos .botao-novo {
+  min-width: 138px !important;
+  height: 34px !important;
+}
+
+#tela-projetos .grid-projetos {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 11px !important;
+}
+
+#tela-projetos .card-projeto,
+#tela-projetos .card-criar,
+#tela-projetos .card-projeto-listado {
+  min-height: 154px !important;
+  padding: 13px !important;
+}
+
+#tela-projetos .card-criar {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
+#tela-projetos .card-criar .icone-mais {
+  width: 36px !important;
+  height: 36px !important;
+  font-size: 24px !important;
+  margin-bottom: 9px !important;
+}
+
+#tela-projetos .card-projeto h3 {
+  font-size: 18px !important;
+}
+
+#tela-projetos .card-projeto p {
+  margin-bottom: 6px !important;
+}
+
+#tela-projetos .papel-projeto::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #b84dff;
+  margin-right: 6px;
+}
+
+#tela-projetos .resumo-projeto-card {
+  margin: 7px 0 9px !important;
+}
+
+#tela-projetos .resumo-projeto-card span {
+  min-height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#tela-projetos .menu-principal-projetos,
+#tela-projetos .menu-inferior {
+  width: min(100%, 390px) !important;
+  max-width: 390px !important;
+  margin: 20px auto 0 !important;
+}
+
+#tela-projetos .menu-inferior button {
+  min-height: 33px !important;
+  height: 33px !important;
+}
+
+@media (max-width: 760px) {
+  #tela-projetos .banner {
+    padding: 14px !important;
+  }
+
+  #tela-projetos .topo-logo img {
+    width: 46px !important;
+  }
+
+  #tela-projetos .topo h1 {
+    font-size: 23px !important;
+  }
+
+  #tela-projetos .menu-principal-projetos,
+  #tela-projetos .menu-inferior {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 16px !important;
+  }
+}
