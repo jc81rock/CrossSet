@@ -307,6 +307,94 @@
       display: block !important;
     }
   </style>
+
+
+  <style>
+    /* Correção tela de boas-vindas: logo compacto e card centralizado */
+    #tela-boas-vindas.tela-ativa {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      min-height: 100vh !important;
+      padding: 16px !important;
+      background: #0d1b2f !important;
+    }
+
+    #tela-boas-vindas .card-boas-vindas {
+      width: 100% !important;
+      max-width: 520px !important;
+      margin: 0 auto !important;
+      padding: 26px 28px 22px !important;
+      text-align: center !important;
+      background: #07111f !important;
+      border: 1px solid rgba(255,255,255,0.12) !important;
+      border-radius: 24px !important;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35) !important;
+    }
+
+    #tela-boas-vindas .logo-boas-vindas {
+      width: 118px !important;
+      max-width: 118px !important;
+      height: auto !important;
+      max-height: 118px !important;
+      object-fit: contain !important;
+      display: block !important;
+      margin: 0 auto 16px !important;
+      border-radius: 16px !important;
+    }
+
+    #tela-boas-vindas h1 {
+      font-size: 30px !important;
+      line-height: 1.12 !important;
+      margin: 0 0 12px !important;
+      text-align: center !important;
+    }
+
+    #tela-boas-vindas .texto-destaque-boas-vindas {
+      font-size: 15px !important;
+      line-height: 1.4 !important;
+      margin: 0 0 10px !important;
+      text-align: center !important;
+    }
+
+    #tela-boas-vindas .texto-boas-vindas {
+      font-size: 13px !important;
+      line-height: 1.5 !important;
+      max-width: 430px !important;
+      margin: 0 auto 18px !important;
+      text-align: center !important;
+      color: #c8d6f5 !important;
+    }
+
+    #tela-boas-vindas #btn-comecar-boas-vindas {
+      width: 100% !important;
+      max-width: 260px !important;
+      height: 40px !important;
+      min-height: 40px !important;
+      margin: 0 auto !important;
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
+    @media (max-width: 560px) {
+      #tela-boas-vindas .card-boas-vindas {
+        max-width: 430px !important;
+        padding: 22px 18px 18px !important;
+      }
+
+      #tela-boas-vindas .logo-boas-vindas {
+        width: 96px !important;
+        max-width: 96px !important;
+        max-height: 96px !important;
+      }
+
+      #tela-boas-vindas h1 {
+        font-size: 26px !important;
+      }
+    }
+  </style>
+
 </head>
 <body>
 
