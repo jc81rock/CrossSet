@@ -4758,6 +4758,58 @@ function acionarBotaoSalvarDoFormulario(campo) {
 
 
 
+
+function configurarMenuPrincipal() {
+  document.querySelectorAll("#tela-projetos [data-menu-principal]").forEach(function(botao) {
+    if (botao.dataset.configuradoMenuPrincipal) {
+      return;
+    }
+
+    botao.dataset.configuradoMenuPrincipal = "true";
+
+    botao.addEventListener("click", function() {
+      const acao = botao.dataset.menuPrincipal;
+
+      document.querySelectorAll("#tela-projetos [data-menu-principal]").forEach(function(item) {
+        item.classList.remove("ativo");
+      });
+
+      if (acao === "inicio" || acao === "projetos") {
+        const botaoProjetos = elemento("menu-projetos");
+        if (botaoProjetos) {
+          botaoProjetos.classList.add("ativo");
+        } else {
+          botao.classList.add("ativo");
+        }
+
+        mostrarTela("tela-projetos", { registrar: false });
+        return;
+      }
+
+      if (acao === "agenda") {
+        botao.classList.add("ativo");
+        alert("Agenda será liberada em uma próxima etapa.");
+        const botaoProjetos = elemento("menu-projetos");
+        if (botaoProjetos) {
+          botao.classList.remove("ativo");
+          botaoProjetos.classList.add("ativo");
+        }
+        return;
+      }
+
+      if (acao === "perfil") {
+        botao.classList.add("ativo");
+        alert("Perfil será liberado em uma próxima etapa.");
+        const botaoProjetos = elemento("menu-projetos");
+        if (botaoProjetos) {
+          botao.classList.remove("ativo");
+          botaoProjetos.classList.add("ativo");
+        }
+      }
+    });
+  });
+}
+
 function configurarAuthListener() {
   const cliente = sb();
 
@@ -4796,6 +4848,7 @@ function configurarAuthListener() {
 
 function prepararAplicacao() {
   configurarBotoesFixos();
+  configurarMenuPrincipal();
   configurarEnterNosCampos();
   configurarAuthListener();
   configurarNavegacaoEnterGlobal();

@@ -710,3 +710,175 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* POLIMENTO FINAL - MEUS PROJETOS v0.9.6 */
+#tela-projetos.tela-ativa {
+  align-items: flex-start !important;
+}
+
+#tela-projetos .container {
+  max-width: 1040px !important;
+  padding-bottom: 28px !important;
+}
+
+#tela-projetos .topo {
+  margin-bottom: 12px !important;
+}
+
+#tela-projetos .topo-logo img {
+  width: 50px !important;
+  max-height: none !important;
+  border-radius: 10px !important;
+}
+
+#tela-projetos .topo h1 {
+  font-size: 25px !important;
+}
+
+#tela-projetos .topo p {
+  font-size: 14px !important;
+}
+
+#tela-projetos .banner {
+  padding: 16px 18px !important;
+  margin-bottom: 14px !important;
+  border-radius: 22px !important;
+}
+
+#tela-projetos .banner h2 {
+  font-size: 24px !important;
+  margin-bottom: 4px !important;
+}
+
+#tela-projetos .banner p {
+  font-size: 12px !important;
+}
+
+#tela-projetos .grid-projetos {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) !important;
+  gap: 12px !important;
+}
+
+#tela-projetos .card-projeto {
+  min-height: 160px !important;
+  padding: 14px !important;
+  border-radius: 20px !important;
+}
+
+#tela-projetos .card-projeto-listado {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#tela-projetos .card-criar {
+  min-height: 160px !important;
+}
+
+#tela-projetos .icone-mais {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  font-size: 26px !important;
+  margin-bottom: 10px !important;
+}
+
+#tela-projetos .card-projeto h3 {
+  font-size: 19px !important;
+  margin-bottom: 5px !important;
+}
+
+#tela-projetos .card-projeto p {
+  font-size: 12px !important;
+  line-height: 1.3 !important;
+  margin-bottom: 7px !important;
+}
+
+#tela-projetos .tag {
+  font-size: 11px !important;
+  padding: 5px 10px !important;
+  margin-bottom: 8px !important;
+}
+
+#tela-projetos .menu-card-projeto {
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+}
+
+#tela-projetos .detalhes-projeto-card {
+  gap: 2px !important;
+  margin-bottom: 8px !important;
+  font-size: 12px !important;
+}
+
+#tela-projetos .papel-projeto {
+  width: fit-content !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 4px 9px !important;
+  border-radius: 999px !important;
+  background: rgba(122, 92, 255, .20) !important;
+  border: 1px solid rgba(122, 92, 255, .45) !important;
+  color: #cfc7ff !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+#tela-projetos .resumo-projeto-card {
+  gap: 5px !important;
+  margin: 8px 0 10px !important;
+}
+
+#tela-projetos .resumo-projeto-card span {
+  border-radius: 9px !important;
+  padding: 5px 3px !important;
+  font-size: 11px !important;
+}
+
+#tela-projetos .botao-card {
+  height: 32px !important;
+  min-height: 32px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  margin-top: auto !important;
+}
+
+#tela-projetos .menu-inferior {
+  position: static !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin: 26px auto 0 !important;
+  width: min(100%, 460px) !important;
+  max-width: 460px !important;
+  padding: 8px !important;
+  border-radius: 20px !important;
+}
+
+#tela-projetos .menu-inferior button {
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  border-radius: 13px !important;
+}
+
+@media (max-width: 760px) {
+  #tela-projetos .container {
+    padding-bottom: 18px !important;
+  }
+
+  #tela-projetos .topo {
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  #tela-projetos .grid-projetos {
+    grid-template-columns: 1fr !important;
+  }
+
+  #tela-projetos .menu-inferior {
+    margin-top: 18px !important;
+  }
+}
