@@ -19,7 +19,9 @@ let appState = {
   historico: [],
   projetoAtual: null,
   integrantes: [],
-  integranteEditandoId: null
+  integranteEditandoId: null,
+  musicas: [],
+  musicaEditandoId: null
 };
 
 function sb() {
@@ -1409,24 +1411,245 @@ async function criarIntegrante() {
 }
 
 async function carregarMusicas() {
+  const area = elemento("area-modulo");
   const projetoId = obterProjetoAtualId();
 
-  limparAreaModulo();
+  if (!area) {
+    return;
+  }
 
-  montarFormularioModulo(
-    "Nova música",
-    "Cadastre músicas para montar repertórios.",
-    [
-      { id: "musica-nome", placeholder: "Nome da música" },
-      { id: "musica-artista", placeholder: "Artista / banda" },
-      { id: "musica-tom", placeholder: "Tom" },
-      { id: "musica-bpm", placeholder: "BPM" }
-    ],
-    "Salvar música",
-    criarMusica
-  );
+  if (!projetoId) {
+    area.innerHTML = `
+      <div class="card-projeto">
+        <h3>Projeto não encontrado</h3>
+        <p>Volte para Meus Projetos e acesse o projeto novamente.</p>
+      </div>
+    `;
+    return;
+  }
 
+  area.innerHTML = `
+    <style>
+      .modulo-musicas {
+        display: grid;
+        grid-template-columns: minmax(280px, 380px) 1fr;
+        gap: 18px;
+        width: 100%;
+      }
+
+      .form-musicas {
+        display: grid;
+        gap: 10px;
+      }
+
+      .form-musicas label,
+      .filtros-musicas label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+
+      .form-musicas input,
+      .filtros-musicas input,
+      .filtros-musicas select {
+        width: 100%;
+      }
+
+      .linha-form-musicas {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .acoes-musica {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .lista-musicas {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item-musica {
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: 14px;
+        padding: 14px;
+        background: #1f2937;
+        color: #f9fafb;
+      }
+
+      .item-musica-topo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .icone-musica-placeholder {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        background: #6d28d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .dados-musica {
+        flex: 1;
+      }
+
+      .dados-musica h4 {
+        margin: 0 0 6px;
+        color: #ffffff;
+        font-size: 17px;
+      }
+
+      .dados-musica p {
+        margin: 3px 0;
+        font-size: 13px;
+        color: #d1d5db;
+      }
+
+      .dados-musica strong {
+        color: #f3f4f6;
+      }
+
+      .botoes-item-musica {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .botoes-item-musica button {
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .btn-editar-musica {
+        background: #e5e7eb;
+        color: #111827;
+      }
+
+      .btn-excluir-musica {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      @media (max-width: 820px) {
+        .modulo-musicas,
+        .linha-form-musicas,
+        .filtros-musicas {
+          grid-template-columns: 1fr;
+        }
+
+        .item-musica-topo {
+          flex-direction: column;
+        }
+
+        .botoes-item-musica {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+
+    <div class="modulo-musicas">
+      <div class="card-projeto">
+        <span class="tag">Cadastro</span>
+        <h3 id="titulo-form-musica">Nova música</h3>
+        <p>Cadastre músicas para montar repertórios.</p>
+
+        <div class="form-musicas">
+          <label>
+            Nome da música
+            <input id="musica-nome" type="text" placeholder="Nome da música" />
+          </label>
+
+          <label>
+            Artista / Banda
+            <input id="musica-artista" type="text" placeholder="Artista / banda" />
+          </label>
+
+          <div class="linha-form-musicas">
+            <label>
+              Tom
+              <input id="musica-tom" type="text" placeholder="Ex: Mi menor (Em)" />
+            </label>
+
+            <label>
+              BPM
+              <input id="musica-bpm" type="text" placeholder="Ex: 96" />
+            </label>
+          </div>
+
+          <div class="acoes-musica">
+            <button class="botao-card" id="btn-salvar-musica" type="button">Salvar música</button>
+            <button class="botao-secundario-modulo" id="btn-cancelar-musica" type="button" style="display:none;">Cancelar edição</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-projeto">
+        <span class="tag">Lista</span>
+        <h3>Músicas cadastradas</h3>
+        <p>Pesquise, edite ou exclua músicas deste projeto.</p>
+
+        <div class="filtros-musicas">
+          <label>
+            Pesquisar
+            <input id="busca-musicas" type="text" placeholder="Buscar por nome, artista ou tom" />
+          </label>
+        </div>
+
+        <div id="lista-musicas" class="lista-musicas">
+          <p>Carregando músicas...</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  appState.musicaEditandoId = null;
+  configurarEventosMusicas();
+  await buscarMusicas();
+}
+
+function configurarEventosMusicas() {
+  const botaoSalvar = elemento("btn-salvar-musica");
+  const botaoCancelar = elemento("btn-cancelar-musica");
+  const busca = elemento("busca-musicas");
+
+  if (botaoSalvar) {
+    botaoSalvar.addEventListener("click", salvarMusica);
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.addEventListener("click", limparFormularioMusica);
+  }
+
+  if (busca) {
+    busca.addEventListener("input", renderizarListaMusicas);
+  }
+}
+
+async function buscarMusicas() {
   const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const lista = elemento("lista-musicas");
+
+  if (!cliente || !projetoId || !lista) {
+    return;
+  }
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
@@ -1435,77 +1658,231 @@ async function carregarMusicas() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    montarListaModulo("Músicas cadastradas", [], function() {
-      return "";
-    });
-    vincularBotaoSalvarMusica();
+    lista.innerHTML = `<p>Erro ao carregar músicas: ${escaparHtml(error.message)}</p>`;
     return;
   }
 
-  montarListaModulo("Músicas cadastradas", data || [], function(item) {
-    const nome = escaparHtml(item.nome || "Sem nome");
-    const artista = escaparHtml(item.artista || "Artista não informado");
-    const tom = item.tom ? escaparHtml(item.tom) : "Não informado";
-    const bpm = item.bpm ? escaparHtml(item.bpm) : "Não informado";
+  appState.musicas = data || [];
+  renderizarListaMusicas();
+}
 
+function renderizarListaMusicas() {
+  const lista = elemento("lista-musicas");
+  const busca = limparTexto(elemento("busca-musicas")?.value).toLowerCase();
+
+  if (!lista) {
+    return;
+  }
+
+  let itens = [...(appState.musicas || [])];
+
+  if (busca) {
+    itens = itens.filter(function(item) {
+      const texto = [item.nome, item.artista, item.tom, item.bpm].join(" ").toLowerCase();
+      return texto.includes(busca);
+    });
+  }
+
+  if (itens.length === 0) {
+    lista.innerHTML = `<p>Nenhuma música encontrada.</p>`;
+    return;
+  }
+
+  lista.innerHTML = itens.map(function(item) {
     return `
-      <div style="border:1px solid rgba(255,255,255,.16); border-radius:14px; padding:14px; margin:12px 0; background:#1f2937; color:#f9fafb;">
-        <div style="display:flex; gap:12px; align-items:flex-start;">
-          <div style="width:42px; height:42px; min-width:42px; border-radius:50%; background:#6d28d9; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">♪</div>
+      <div class="item-musica">
+        <div class="item-musica-topo">
+          <div class="icone-musica-placeholder">♪</div>
 
-          <div style="flex:1;">
-            <h4 style="margin:0 0 6px; color:#fff; font-size:17px;">${nome}</h4>
-            <p style="margin:3px 0; color:#d1d5db; font-size:13px;"><strong style="color:#f3f4f6;">Artista:</strong> ${artista}</p>
-            <p style="margin:3px 0; color:#d1d5db; font-size:13px;"><strong style="color:#f3f4f6;">Tom:</strong> ${tom}</p>
-            <p style="margin:3px 0; color:#d1d5db; font-size:13px;"><strong style="color:#f3f4f6;">BPM:</strong> ${bpm}</p>
+          <div class="dados-musica">
+            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+            <p><strong>Artista:</strong> ${escaparHtml(item.artista || "Não informado")}</p>
+            <p><strong>Tom:</strong> ${escaparHtml(item.tom || "Não informado")}</p>
+            <p><strong>BPM:</strong> ${escaparHtml(item.bpm || "Não informado")}</p>
+          </div>
+
+          <div class="botoes-item-musica">
+            <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">Excluir</button>
           </div>
         </div>
       </div>
     `;
+  }).join("");
+
+  lista.querySelectorAll("[data-editar-musica]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      editarMusica(botao.dataset.editarMusica);
+    });
   });
 
-  vincularBotaoSalvarMusica();
+  lista.querySelectorAll("[data-excluir-musica]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      excluirMusica(botao.dataset.excluirMusica);
+    });
+  });
 }
 
-function vincularBotaoSalvarMusica() {
-  const botao = elemento("btn-salvar-modulo");
+function obterDadosFormularioMusica() {
+  return {
+    nome: limparTexto(elemento("musica-nome")?.value),
+    artista: limparTexto(elemento("musica-artista")?.value),
+    tom: limparTexto(elemento("musica-tom")?.value),
+    bpm: limparTexto(elemento("musica-bpm")?.value)
+  };
+}
 
-  if (botao) {
-    botao.addEventListener("click", criarMusica);
+function preencherFormularioMusica(item) {
+  if (!item) {
+    return;
+  }
+
+  elemento("musica-nome").value = item.nome || "";
+  elemento("musica-artista").value = item.artista || "";
+  elemento("musica-tom").value = item.tom || "";
+  elemento("musica-bpm").value = item.bpm || "";
+
+  const titulo = elemento("titulo-form-musica");
+  const botaoSalvar = elemento("btn-salvar-musica");
+  const botaoCancelar = elemento("btn-cancelar-musica");
+
+  if (titulo) {
+    titulo.textContent = "Editar música";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar alterações";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "inline-block";
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function limparFormularioMusica() {
+  appState.musicaEditandoId = null;
+
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm"].forEach(function(id) {
+    const campo = elemento(id);
+    if (campo) {
+      campo.value = "";
+    }
+  });
+
+  const titulo = elemento("titulo-form-musica");
+  const botaoSalvar = elemento("btn-salvar-musica");
+  const botaoCancelar = elemento("btn-cancelar-musica");
+
+  if (titulo) {
+    titulo.textContent = "Nova música";
+  }
+
+  if (botaoSalvar) {
+    botaoSalvar.textContent = "Salvar música";
+  }
+
+  if (botaoCancelar) {
+    botaoCancelar.style.display = "none";
   }
 }
 
-async function criarMusica() {
+async function salvarMusica() {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  const nome = limparTexto(elemento("musica-nome")?.value);
-  const artista = limparTexto(elemento("musica-artista")?.value);
-  const tom = limparTexto(elemento("musica-tom")?.value);
-  const bpm = limparTexto(elemento("musica-bpm")?.value);
-  const bpmNumero = parseInt(bpm, 10);
+  if (!cliente || !projetoId) {
+    return;
+  }
 
-  if (!nome) {
+  const dados = obterDadosFormularioMusica();
+  const bpmNumero = parseInt(dados.bpm, 10);
+
+  if (!dados.nome) {
     alert("Informe o nome da música.");
+    return;
+  }
+
+  const payload = {
+    projeto_id: projetoId,
+    nome: dados.nome,
+    artista: dados.artista,
+    tom: dados.tom,
+    bpm: Number.isFinite(bpmNumero) ? bpmNumero : null
+  };
+
+  let resultado;
+
+  if (appState.musicaEditandoId) {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.musicas)
+      .update(payload)
+      .eq("id", appState.musicaEditandoId)
+      .eq("projeto_id", projetoId);
+  } else {
+    resultado = await cliente
+      .from(REPERTORIO_FACIL.tabelas.musicas)
+      .insert(payload);
+  }
+
+  if (resultado.error) {
+    alert("Erro ao salvar música: " + resultado.error.message);
+    return;
+  }
+
+  limparFormularioMusica();
+  await buscarMusicas();
+}
+
+function editarMusica(id) {
+  const item = (appState.musicas || []).find(function(musica) {
+    return musica.id === id;
+  });
+
+  if (!item) {
+    alert("Música não encontrada.");
+    return;
+  }
+
+  appState.musicaEditandoId = id;
+  preencherFormularioMusica(item);
+}
+
+async function excluirMusica(id) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !id || !projetoId) {
+    return;
+  }
+
+  const confirmar = confirm("Excluir esta música?");
+
+  if (!confirmar) {
     return;
   }
 
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
-    .insert({
-      projeto_id: projetoId,
-      nome: nome,
-      artista: artista,
-      tom: tom,
-      bpm: Number.isFinite(bpmNumero) ? bpmNumero : null
-    });
+    .delete()
+    .eq("id", id)
+    .eq("projeto_id", projetoId);
 
   if (error) {
-    alert("Erro ao salvar música: " + error.message);
+    alert("Erro ao excluir música: " + error.message);
     return;
   }
 
-  carregarMusicas();
+  if (appState.musicaEditandoId === id) {
+    limparFormularioMusica();
+  }
+
+  await buscarMusicas();
+}
+
+async function criarMusica() {
+  await salvarMusica();
 }
 
 async function carregarRepertorios() {
