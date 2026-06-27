@@ -6,8 +6,7 @@
 
   <title>Repertório Fácil</title>
 
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,0,0" />
-  <link rel="stylesheet" href="style.css?v=22" />
+  <link rel="stylesheet" href="style.css?v=17" />
 
   <style>
     /* Polimento geral da interface - Repertório Fácil v1.0 */
@@ -309,261 +308,75 @@
     }
 
 
-    /* Padrão oficial de ações rápidas por ícones */
-    .acoes-icones,
-    .botoes-item-integrante.acoes-icones,
-    .botoes-item-musica.acoes-icones,
-    .botoes-item-repertorio.acoes-icones,
-    .botoes-item-evento.acoes-icones {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      gap: 7px !important;
-      flex-wrap: nowrap !important;
+    /* Tela Sobre o Repertório Fácil */
+    .rf-link-sobre {
+      margin-top: 6px;
+      border: 0;
+      background: transparent;
+      color: #BFC7D5;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      padding: 2px 4px;
     }
 
-    .botao-icone-acao,
-    .botoes-item-integrante .botao-icone-acao,
-    .botoes-item-musica .botao-icone-acao,
-    .botoes-item-repertorio .botao-icone-acao,
-    .botoes-item-evento .botao-icone-acao {
-      width: 34px !important;
-      height: 34px !important;
-      min-width: 34px !important;
-      min-height: 34px !important;
-      padding: 0 !important;
-      border-radius: 11px !important;
-      border: 1px solid rgba(180, 77, 255, .28) !important;
-      background: rgba(122, 92, 255, .10) !important;
-      color: #d7ccff !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      transition: background .18s ease, border-color .18s ease, transform .18s ease, color .18s ease !important;
+    .rf-link-sobre:hover {
+      color: #ffffff;
     }
 
-    .botao-icone-acao:hover,
-    .botao-icone-acao:focus-visible {
-      background: linear-gradient(135deg, #7a5cff, #b84dff) !important;
-      border-color: rgba(255,255,255,.25) !important;
-      color: #ffffff !important;
-      transform: translateY(-1px) !important;
+    .sobre-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
     }
 
-    .botao-icone-acao.acao-excluir {
-      border-color: rgba(255, 110, 110, .26) !important;
-      color: #ffc7c7 !important;
-      background: rgba(255, 110, 110, .08) !important;
+    .sobre-card {
+      background: rgba(17, 24, 39, .82);
+      border: 1px solid rgba(255, 255, 255, .10);
+      border-radius: 16px;
+      padding: 18px;
+      color: #e5e7eb;
     }
 
-    .botao-icone-acao.acao-excluir:hover,
-    .botao-icone-acao.acao-excluir:focus-visible {
-      background: rgba(255, 80, 80, .22) !important;
-      color: #ffffff !important;
+    .sobre-card h3 {
+      margin: 0 0 8px;
+      font-size: 18px !important;
+      color: #ffffff;
     }
 
-    .material-symbols-rounded {
-      font-family: 'Material Symbols Rounded';
-      font-weight: normal;
-      font-style: normal;
-      font-size: 20px;
-      line-height: 1;
-      letter-spacing: normal;
-      text-transform: none;
-      display: inline-block;
-      white-space: nowrap;
-      word-wrap: normal;
-      direction: ltr;
-      -webkit-font-feature-settings: 'liga';
-      -webkit-font-smoothing: antialiased;
-      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    .sobre-card p,
+    .sobre-card li {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #d1d5db;
+    }
+
+    .sobre-card ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .sobre-destaque {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(109,40,217,.35), rgba(37,99,235,.25));
+    }
+
+    .sobre-acoes {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 18px;
     }
 
     @media (max-width: 820px) {
-      .acoes-icones,
-      .botoes-item-integrante.acoes-icones,
-      .botoes-item-musica.acoes-icones,
-      .botoes-item-repertorio.acoes-icones,
-      .botoes-item-evento.acoes-icones {
-        justify-content: flex-start !important;
-        flex-wrap: wrap !important;
+      .sobre-grid {
+        grid-template-columns: 1fr;
       }
     }
 
   </style>
-
-
-  <style>
-    /* Correção tela de boas-vindas: logo compacto e card centralizado */
-    #tela-boas-vindas.tela-ativa {
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-      min-height: 100vh !important;
-      padding: 16px !important;
-      background: #0d1b2f !important;
-    }
-
-    #tela-boas-vindas .card-boas-vindas {
-      width: 100% !important;
-      max-width: 520px !important;
-      margin: 0 auto !important;
-      padding: 26px 28px 22px !important;
-      text-align: center !important;
-      background: #07111f !important;
-      border: 1px solid rgba(255,255,255,0.12) !important;
-      border-radius: 24px !important;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.35) !important;
-    }
-
-    #tela-boas-vindas .logo-boas-vindas {
-      width: 118px !important;
-      max-width: 118px !important;
-      height: auto !important;
-      max-height: 118px !important;
-      object-fit: contain !important;
-      display: block !important;
-      margin: 0 auto 16px !important;
-      border-radius: 16px !important;
-    }
-
-    #tela-boas-vindas h1 {
-      font-size: 30px !important;
-      line-height: 1.12 !important;
-      margin: 0 0 12px !important;
-      text-align: center !important;
-    }
-
-    #tela-boas-vindas .texto-destaque-boas-vindas {
-      font-size: 15px !important;
-      line-height: 1.4 !important;
-      margin: 0 0 10px !important;
-      text-align: center !important;
-    }
-
-    #tela-boas-vindas .texto-boas-vindas {
-      font-size: 13px !important;
-      line-height: 1.5 !important;
-      max-width: 430px !important;
-      margin: 0 auto 18px !important;
-      text-align: center !important;
-      color: #c8d6f5 !important;
-    }
-
-    #tela-boas-vindas #btn-comecar-boas-vindas {
-      width: 100% !important;
-      max-width: 260px !important;
-      height: 40px !important;
-      min-height: 40px !important;
-      margin: 0 auto !important;
-      display: flex !important;
-      justify-content: center !important;
-      align-items: center !important;
-    }
-
-    @media (max-width: 560px) {
-      #tela-boas-vindas .card-boas-vindas {
-        max-width: 430px !important;
-        padding: 22px 18px 18px !important;
-      }
-
-      #tela-boas-vindas .logo-boas-vindas {
-        width: 96px !important;
-        max-width: 96px !important;
-        max-height: 96px !important;
-      }
-
-      #tela-boas-vindas h1 {
-        font-size: 26px !important;
-      }
-    }
-
-
-    /* Padrão oficial de ações rápidas por ícones */
-    .acoes-icones,
-    .botoes-item-integrante.acoes-icones,
-    .botoes-item-musica.acoes-icones,
-    .botoes-item-repertorio.acoes-icones,
-    .botoes-item-evento.acoes-icones {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-      gap: 7px !important;
-      flex-wrap: nowrap !important;
-    }
-
-    .botao-icone-acao,
-    .botoes-item-integrante .botao-icone-acao,
-    .botoes-item-musica .botao-icone-acao,
-    .botoes-item-repertorio .botao-icone-acao,
-    .botoes-item-evento .botao-icone-acao {
-      width: 34px !important;
-      height: 34px !important;
-      min-width: 34px !important;
-      min-height: 34px !important;
-      padding: 0 !important;
-      border-radius: 11px !important;
-      border: 1px solid rgba(180, 77, 255, .28) !important;
-      background: rgba(122, 92, 255, .10) !important;
-      color: #d7ccff !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      cursor: pointer !important;
-      transition: background .18s ease, border-color .18s ease, transform .18s ease, color .18s ease !important;
-    }
-
-    .botao-icone-acao:hover,
-    .botao-icone-acao:focus-visible {
-      background: linear-gradient(135deg, #7a5cff, #b84dff) !important;
-      border-color: rgba(255,255,255,.25) !important;
-      color: #ffffff !important;
-      transform: translateY(-1px) !important;
-    }
-
-    .botao-icone-acao.acao-excluir {
-      border-color: rgba(255, 110, 110, .26) !important;
-      color: #ffc7c7 !important;
-      background: rgba(255, 110, 110, .08) !important;
-    }
-
-    .botao-icone-acao.acao-excluir:hover,
-    .botao-icone-acao.acao-excluir:focus-visible {
-      background: rgba(255, 80, 80, .22) !important;
-      color: #ffffff !important;
-    }
-
-    .material-symbols-rounded {
-      font-family: 'Material Symbols Rounded';
-      font-weight: normal;
-      font-style: normal;
-      font-size: 20px;
-      line-height: 1;
-      letter-spacing: normal;
-      text-transform: none;
-      display: inline-block;
-      white-space: nowrap;
-      word-wrap: normal;
-      direction: ltr;
-      -webkit-font-feature-settings: 'liga';
-      -webkit-font-smoothing: antialiased;
-      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
-    }
-
-    @media (max-width: 820px) {
-      .acoes-icones,
-      .botoes-item-integrante.acoes-icones,
-      .botoes-item-musica.acoes-icones,
-      .botoes-item-repertorio.acoes-icones,
-      .botoes-item-evento.acoes-icones {
-        justify-content: flex-start !important;
-        flex-wrap: wrap !important;
-      }
-    }
-
-  </style>
-
 </head>
 <body>
 
@@ -603,6 +416,7 @@
         <div class="login-footer-interno">
           <div>© 2026 Jefferson de Castro Lima</div>
           <div><strong>Repertório Fácil • Versão 1.0</strong></div>
+          <button class="rf-link-sobre" type="button" data-abrir-sobre>Sobre o Repertório Fácil</button>
         </div>
       </div>
     </section>
@@ -633,36 +447,7 @@
         <div class="login-footer-interno">
           <div>© 2026 Jefferson de Castro Lima</div>
           <div><strong>Repertório Fácil • Versão 1.0</strong></div>
-        </div>
-      </div>
-    </section>
-
-
-    <section id="tela-boas-vindas" class="tela">
-      <div class="card-boas-vindas">
-        <img src="logo.png" alt="Repertório Fácil" class="logo-boas-vindas" />
-
-        <h1>
-          Bem-vindo ao
-          <span>Repertório Fácil</span>
-        </h1>
-
-        <p class="texto-destaque-boas-vindas">
-          Organize seus projetos musicais de forma simples e prática.
-        </p>
-
-        <p class="texto-boas-vindas">
-          Cadastre integrantes, músicas, repertórios e eventos em um único lugar,
-          mantendo tudo sempre à mão para ensaios e apresentações.
-        </p>
-
-        <button id="btn-comecar-boas-vindas" class="botao-principal" type="button">
-          Começar
-        </button>
-
-        <div class="login-footer-interno">
-          <div>© 2026 Jefferson de Castro Lima</div>
-          <div><strong>Repertório Fácil • Versão 1.0</strong></div>
+          <button class="rf-link-sobre" type="button" data-abrir-sobre>Sobre o Repertório Fácil</button>
         </div>
       </div>
     </section>
@@ -707,10 +492,11 @@
           </div>
         </section>
 
-        <nav class="menu-inferior menu-principal-projetos" aria-label="Menu principal">
-          <button id="menu-projetos" class="ativo" type="button" data-menu-principal="projetos">Projetos</button>
-          <button id="menu-agenda" type="button" data-menu-principal="agenda">Agenda</button>
-          <button id="menu-perfil" type="button" data-menu-principal="perfil">Perfil</button>
+        <nav class="menu-inferior">
+          <button type="button">Início</button>
+          <button class="ativo" type="button">Projetos</button>
+          <button type="button">Agenda</button>
+          <button type="button">Perfil</button>
         </nav>
 
       </div>
@@ -750,9 +536,97 @@
         <div class="login-footer-interno">
           <div>© 2026 Jefferson de Castro Lima</div>
           <div><strong>Repertório Fácil • Versão 1.0</strong></div>
+          <button class="rf-link-sobre" type="button" data-abrir-sobre>Sobre o Repertório Fácil</button>
         </div>
       </div>
     </section>
+
+
+    <section id="tela-sobre" class="tela">
+      <div class="container">
+        <header class="topo">
+          <div class="topo-logo">
+            <img src="logo.png" alt="Repertório Fácil" />
+            <div>
+              <h1>Sobre o Repertório Fácil</h1>
+              <p>Versão 1.0 • Documento oficial do produto</p>
+            </div>
+          </div>
+
+          <button class="botao-sair" id="btn-voltar-sobre" type="button">
+            Voltar
+          </button>
+        </header>
+
+        <section class="banner">
+          <div>
+            <h2>Menos cliques. Mais música.</h2>
+            <p>
+              O Repertório Fácil foi criado para ajudar bandas, músicos, ministérios e projetos musicais
+              a organizar integrantes, músicas, repertórios e eventos em um só lugar.
+            </p>
+          </div>
+        </section>
+
+        <section class="sobre-grid">
+          <div class="sobre-card sobre-destaque">
+            <h3>Missão</h3>
+            <p>
+              Criar o aplicativo mais simples e intuitivo para gestão de bandas. O foco não é ter mais
+              botões, e sim economizar tempo para quem ensaia, toca e organiza apresentações.
+            </p>
+          </div>
+
+          <div class="sobre-card">
+            <h3>Fluxo principal</h3>
+            <ul>
+              <li>Login</li>
+              <li>Meus Projetos</li>
+              <li>Dashboard do projeto</li>
+              <li>Integrantes, Músicas, Repertórios e Eventos</li>
+            </ul>
+          </div>
+
+          <div class="sobre-card">
+            <h3>Funcionalidades atuais</h3>
+            <ul>
+              <li>Cadastro de projetos musicais</li>
+              <li>Cadastro de integrantes</li>
+              <li>Biblioteca de músicas</li>
+              <li>Montagem de repertórios</li>
+              <li>Eventos vinculados a repertórios</li>
+              <li>PDF e compartilhamento</li>
+            </ul>
+          </div>
+
+          <div class="sobre-card">
+            <h3>Princípios de desenvolvimento</h3>
+            <ul>
+              <li>Não complicar o uso para o músico.</li>
+              <li>Consolidar cada módulo antes de avançar.</li>
+              <li>Manter visual consistente em todas as telas.</li>
+              <li>Entregar arquivos completos a cada atualização.</li>
+            </ul>
+          </div>
+
+          <div class="sobre-card">
+            <h3>Próximas fases</h3>
+            <ul>
+              <li>Polimento final da interface</li>
+              <li>Modo Show</li>
+              <li>QR Code</li>
+              <li>Agenda inteligente</li>
+              <li>Dashboard com dados do projeto</li>
+            </ul>
+          </div>
+        </section>
+
+        <div class="sobre-acoes">
+          <button class="botao-card" id="btn-voltar-sobre-baixo" type="button">Voltar</button>
+        </div>
+      </div>
+    </section>
+
 
   </main>
 
@@ -760,11 +634,12 @@
   <footer class="rf-footer">
     <div>© 2026 Jefferson de Castro Lima</div>
     <div><strong>Repertório Fácil • Versão 1.0</strong></div>
+    <button class="rf-link-sobre" type="button" data-abrir-sobre>Sobre o Repertório Fácil</button>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseClient.js?v=20"></script>
-  <script src="app.js?v=20"></script>
+  <script src="supabaseClient.js?v=17"></script>
+  <script src="app.js?v=17"></script>
 
 </body>
 </html>
