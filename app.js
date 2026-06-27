@@ -213,10 +213,22 @@ function obterCodigoConvitePendente() {
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
 
-  if (window.location.search.includes("convite=")) {
-    const url = new URL(window.location.href);
+  const url = new URL(window.location.href);
+  let mudou = false;
+
+  if (url.searchParams.has("convite")) {
     url.searchParams.delete("convite");
-    window.history.replaceState({}, document.title, url.pathname + url.search + url.hash);
+    mudou = true;
+  }
+
+  const hashAtual = window.location.hash || "";
+  if (hashAtual.includes("convite=")) {
+    url.hash = "";
+    mudou = true;
+  }
+
+  if (mudou) {
+    window.history.replaceState({}, document.title, url.pathname + url.search);
   }
 }
 
@@ -1818,7 +1830,7 @@ async function carregarConvitePublico(codigo) {
           </label>
         </div>
 
-        <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Criar conta e entrar no projeto</button>
+        <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Salvar cadastro e entrar no projeto</button>
 
         <div class="divisor" style="margin:4px 0;">
           <span></span>
@@ -2017,7 +2029,7 @@ async function criarContaEAceitarConvite() {
 
     if (loginError) {
       localStorage.setItem("convite_pendente", convite.codigo);
-      alert("Conta criada. Faça login com seu e-mail e senha para concluir o aceite do convite.");
+      alert("Conta criada. Entre com seu e-mail e senha para salvar o cadastro no projeto.");
       mostrarTela("tela-login", { registrar: false });
       return;
     }
@@ -2151,7 +2163,7 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   limparDadosConviteTemporario();
   appState.conviteAtual = null;
 
-  alert("Cadastro concluído. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  alert("Cadastro salvo. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
   abrirPainelProjeto();
 }
 
