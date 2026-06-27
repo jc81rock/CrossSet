@@ -2949,16 +2949,19 @@ function salvarRepertorioPDF() {
     </html>
   `;
 
-  const janela = window.open("", "_blank");
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const janela = window.open(url, "_blank");
 
   if (!janela) {
-    alert("O navegador bloqueou a janela do PDF. Libere pop-ups para este site e tente novamente.");
+    URL.revokeObjectURL(url);
+    alert("O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente novamente.");
     return;
   }
 
-  janela.document.open();
-  janela.document.write(html);
-  janela.document.close();
+  setTimeout(function() {
+    URL.revokeObjectURL(url);
+  }, 60000);
 }
 
 function fecharMontagemRepertorio() {
