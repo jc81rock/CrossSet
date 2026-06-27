@@ -945,14 +945,14 @@ function garantirTelasInternas() {
       }
 
       .painel-projeto-hero {
-        background: linear-gradient(135deg, rgba(51,196,255,0.16), rgba(122,92,255,0.22), rgba(184,77,255,0.14));
-        border: 1px solid rgba(255,255,255,0.12);
+        background: linear-gradient(135deg, rgba(122,92,255,0.20), rgba(184,77,255,0.12));
+        border: 1px solid rgba(184,77,255,0.18);
         border-radius: 22px;
-        padding: 18px;
-        margin-bottom: 16px;
+        padding: 16px;
+        margin-bottom: 14px;
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 14px;
+        gap: 12px;
         align-items: center;
       }
 
@@ -986,31 +986,31 @@ function garantirTelasInternas() {
 
       .painel-resumo {
         display: grid;
-        grid-template-columns: repeat(4, minmax(82px, 1fr));
-        gap: 8px;
-        min-width: 330px;
+        grid-template-columns: repeat(4, minmax(78px, 1fr));
+        gap: 7px;
+        min-width: 318px;
       }
 
       .painel-resumo-item {
-        background: rgba(7,17,31,0.62);
-        border: 1px solid rgba(255,255,255,0.10);
-        border-radius: 14px;
-        padding: 10px;
+        background: rgba(7,17,31,0.60);
+        border: 1px solid rgba(184,77,255,0.16);
+        border-radius: 13px;
+        padding: 8px 9px;
         text-align: center;
       }
 
       .painel-resumo-item strong {
         display: block;
-        font-size: 20px;
+        font-size: 19px;
         line-height: 1;
-        margin: 4px 0;
+        margin: 3px 0;
         color: #ffffff;
       }
 
       .painel-resumo-item span {
         display: block;
         font-size: 10px;
-        color: #aebee0;
+        color: #c9c0ff;
         font-weight: 700;
       }
 
@@ -1023,23 +1023,25 @@ function garantirTelasInternas() {
       }
 
       .grid-modulos-painel .card-projeto {
-        min-height: 150px !important;
-        padding: 15px !important;
+        min-height: 132px !important;
+        padding: 14px !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        gap: 8px;
+        gap: 7px;
+        border-color: rgba(184,77,255,0.16) !important;
       }
 
       .modulo-icone {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-radius: 12px;
-        background: linear-gradient(135deg, rgba(51,196,255,0.22), rgba(122,92,255,0.28));
-        border: 1px solid rgba(255,255,255,0.10);
+        background: rgba(122,92,255,0.20);
+        border: 1px solid rgba(184,77,255,0.28);
+        color: #d8d0ff;
         font-size: 17px;
       }
 
@@ -1048,17 +1050,20 @@ function garantirTelasInternas() {
         font-size: 10px !important;
         padding: 4px 8px !important;
         margin-bottom: 0 !important;
+        background: rgba(122,92,255,0.20) !important;
+        border-color: rgba(184,77,255,0.35) !important;
+        color: #d8d0ff !important;
       }
 
       .grid-modulos-painel h3 {
-        font-size: 20px !important;
-        margin: 2px 0 0 !important;
+        font-size: 19px !important;
+        margin: 1px 0 0 !important;
         line-height: 1.08;
       }
 
       .grid-modulos-painel p {
         font-size: 12px !important;
-        line-height: 1.28 !important;
+        line-height: 1.25 !important;
         margin: 0 !important;
       }
 
@@ -1077,24 +1082,13 @@ function garantirTelasInternas() {
       }
 
       .modulo-card::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: linear-gradient(180deg, #33c4ff, #7a5cff);
+        content: none;
       }
-
-      .modulo-integrantes-card::before { background: linear-gradient(180deg, #33c4ff, #5f8cff); }
-      .modulo-musicas-card::before { background: linear-gradient(180deg, #7a5cff, #b84dff); }
-      .modulo-repertorios-card::before { background: linear-gradient(180deg, #33c4ff, #33ffe0); }
-      .modulo-eventos-card::before { background: linear-gradient(180deg, #35d07f, #33c4ff); }
 
       .painel-comunidade {
         margin-top: 14px;
         background: #07111f;
-        border: 1px solid rgba(255,255,255,0.12);
+        border: 1px solid rgba(184,77,255,0.16);
         border-radius: 18px;
         padding: 14px;
         display: none;
