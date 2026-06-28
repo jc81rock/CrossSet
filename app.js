@@ -1016,13 +1016,15 @@ async function carregarIntegrantes() {
         min-height: 42px !important;
         border: 0 !important;
         border-radius: 13px !important;
-        padding: 0 16px !important;
+        padding: 0 44px !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 10px !important;
-        font-size: 14px !important;
-        font-weight: 800 !important;
+        position: relative !important;
+        gap: 8px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        letter-spacing: .1px !important;
         line-height: 1 !important;
         cursor: pointer !important;
         transition: transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
@@ -1031,50 +1033,66 @@ async function carregarIntegrantes() {
       #btn-salvar-integrante {
         background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
         color: #ffffff !important;
-        box-shadow: 0 8px 20px rgba(122, 92, 255, .22) !important;
+        box-shadow: 0 8px 18px rgba(122, 92, 255, .20) !important;
       }
 
       #btn-salvar-integrante::before {
-        content: "💾";
-        font-size: 15px;
+        content: "✓";
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 600;
         line-height: 1;
       }
 
       #btn-convidar-integrante {
-        background: linear-gradient(135deg, #20d66b, #0bbf55) !important;
+        background: linear-gradient(135deg, #1fc562, #12ad4f) !important;
         color: #ffffff !important;
-        box-shadow: 0 8px 20px rgba(37, 211, 102, .22) !important;
+        box-shadow: 0 8px 18px rgba(37, 211, 102, .18) !important;
       }
 
       #btn-convidar-integrante::before {
         content: "☎";
-        width: 22px;
-        height: 22px;
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%) rotate(-18deg);
+        width: 20px;
+        height: 20px;
         border: 2px solid #ffffff;
         border-radius: 50%;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 600;
         line-height: 1;
-        transform: rotate(-18deg);
       }
 
       #btn-convidar-integrante::after {
         content: "→";
-        margin-left: auto;
-        font-size: 21px;
+        position: absolute;
+        right: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 600;
         line-height: 1;
       }
 
-      #btn-convidar-integrante::before {
-        margin-left: auto;
+      #btn-salvar-integrante:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
       }
 
-      #btn-salvar-integrante:hover,
       #btn-convidar-integrante:hover {
         transform: translateY(-1px);
-        filter: brightness(1.04);
+        filter: brightness(.97);
       }
 
       .botao-secundario-modulo {
