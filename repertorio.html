@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repertório Fácil - Repertório</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseClient.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(51,196,255,.14), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(184,77,255,.16), transparent 38%),
+        #0d1b2f;
+      color: #fff;
+      padding: 18px;
+    }
+    .wrap {
+      width: min(780px, 100%);
+      margin: 0 auto;
+      padding: 18px 0 30px;
+    }
+    .card {
+      background: #07111f;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 26px;
+      padding: 22px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    }
+    .tag {
+      display: inline-flex;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(122,92,255,.2);
+      border: 1px solid rgba(122,92,255,.45);
+      color: #bfb4ff;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: clamp(28px, 5vw, 46px); line-height: 1; margin-bottom: 10px; color: #fff; }
+    .sub { color: #9db2d6; font-size: 14px; line-height: 1.45; }
+    .info {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 20px 0;
+    }
+    .info-card {
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 76px;
+    }
+    .info-card span { display: block; color: #9db2d6; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 7px; }
+    .info-card strong { display: block; color: #fff; font-size: 16px; line-height: 1.25; }
+    .setlist-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 18px 0 10px; }
+    .setlist-head h2 { font-size: 20px; }
+    .setlist-head p { color: #9db2d6; font-size: 13px; }
+    .list { display: grid; gap: 8px; }
+    .item {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.035);
+      border-radius: 15px;
+      padding: 10px 12px;
+    }
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
+      font-size: 13px;
+    }
+    .music strong { display: block; font-size: 16px; color: #fff; line-height: 1.25; }
+    .music span { display: block; margin-top: 3px; color: #9db2d6; font-size: 12px; line-height: 1.35; }
+    .empty, .error {
+      border: 1px dashed rgba(255,255,255,.18);
+      border-radius: 16px;
+      padding: 18px;
+      color: #c8d6f5;
+      line-height: 1.5;
+      background: rgba(255,255,255,.035);
+    }
+    .footer {
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      text-align: center;
+      color: #8A8FA3;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .footer strong { color: #BFC7D5; }
+    @media (max-width: 680px) {
+      body { padding: 12px; }
+      .card { padding: 18px; border-radius: 22px; }
+      .info { grid-template-columns: 1fr; }
+      .item { grid-template-columns: 38px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="card" id="conteudo">
+      <span class="tag">Repertório Fácil</span>
+      <h1>Carregando repertório...</h1>
+      <p class="sub">Buscando a versão mais atualizada.</p>
+    </section>
+  </main>
+
+  <script>
+    function el(id) { return document.getElementById(id); }
+    function limpar(v) { return v == null ? '' : String(v).trim(); }
+    function html(v) {
+      return limpar(v)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'",'&#039;');
+    }
+    function formatarData(valor) {
+      if (!valor) return 'Não informada';
+      try {
+        const partes = String(valor).split('-');
+        if (partes.length === 3) return partes[2] + '/' + partes[1] + '/' + partes[0];
+        return new Intl.DateTimeFormat('pt-BR').format(new Date(valor));
+      } catch { return String(valor); }
+    }
+    function obterId() {
+      const params = new URLSearchParams(window.location.search);
+      return limpar(params.get('id') || params.get('repertorio'));
+    }
+    async function carregar() {
+      const conteudo = el('conteudo');
+      const id = obterId();
+      if (!id) {
+        conteudo.innerHTML = `<span class="tag">Repertório Fácil</span><h1>Link inválido</h1><p class="sub">Este link não possui o identificador do repertório.</p>`;
+        return;
+      }
+      if (!window.supabaseClient) {
+        conteudo.innerHTML = `<span class="tag">Repertório Fácil</span><h1>Erro ao carregar</h1><p class="sub">Supabase não foi carregado.</p>`;
+        return;
+      }
+      const { data, error } = await window.supabaseClient.rpc('obter_repertorio_publico', { p_repertorio_id: id });
+      if (error) {
+        conteudo.innerHTML = `<span class="tag">Repertório Fácil</span><h1>Repertório não disponível</h1><div class="error">Não foi possível abrir este repertório.<br><br>${html(error.message)}</div>`;
+        return;
+      }
+      const repertorio = data || {};
+      const projeto = repertorio.projeto || {};
+      const evento = repertorio.evento || null;
+      const musicas = Array.isArray(repertorio.musicas) ? repertorio.musicas : [];
+      const lista = musicas.length ? musicas.map((m, i) => {
+        const detalhes = [];
+        if (m.artista) detalhes.push(m.artista);
+        if (m.tom) detalhes.push('Tom: ' + m.tom);
+        if (m.bpm) detalhes.push('BPM: ' + m.bpm);
+        return `<div class="item"><div class="num">${String(i + 1).padStart(2, '0')}</div><div class="music"><strong>${html(m.nome || 'Sem nome')}</strong>${detalhes.length ? `<span>${html(detalhes.join(' • '))}</span>` : ''}</div></div>`;
+      }).join('') : `<div class="empty">Nenhuma música foi adicionada a este repertório ainda.</div>`;
+
+      conteudo.innerHTML = `
+        <span class="tag">Repertório</span>
+        <h1>${html(repertorio.nome || 'Repertório')}</h1>
+        <p class="sub">Repertório compartilhado em formato online, sempre atualizado.</p>
+        <div class="info">
+          <div class="info-card"><span>Banda / Projeto</span><strong>${html(projeto.nome || 'Projeto musical')}</strong></div>
+          <div class="info-card"><span>Evento</span><strong>${html(evento && evento.nome ? evento.nome : 'Não vinculado')}</strong></div>
+          <div class="info-card"><span>Data</span><strong>${html(evento && evento.data_evento ? formatarData(evento.data_evento) : 'Não informada')}</strong></div>
+        </div>
+        <div class="setlist-head"><div><h2>Setlist</h2><p>${musicas.length} música${musicas.length === 1 ? '' : 's'} na ordem salva.</p></div></div>
+        <div class="list">${lista}</div>
+        <div class="footer"><strong>Repertório Fácil</strong><br>Este repertório é atualizado automaticamente.<br>Sempre consulte este link antes do ensaio ou show.</div>
+      `;
+    }
+    carregar();
+  </script>
+</body>
+</html>

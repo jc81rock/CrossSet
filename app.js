@@ -5795,9 +5795,23 @@ function abrirJanelaImpressaoRepertorio(html) {
 }
 
 function montarUrlCompartilhavel(tipo, id) {
-  const base = REPERTORIO_FACIL.urlApp || window.location.origin + window.location.pathname;
+  const base = REPERTORIO_FACIL.urlApp || (window.location.origin + window.location.pathname.replace(/[^\/]*$/, ""));
+  const codigo = encodeURIComponent(id || "");
+
+  if (tipo === "repertorio") {
+    return base.replace(/\/$/, "/") + "repertorio.html?id=" + codigo;
+  }
+
+  if (tipo === "evento") {
+    return base.replace(/\/$/, "/") + "index.html?evento=" + codigo;
+  }
+
+  if (tipo === "convite") {
+    return base.replace(/\/$/, "/") + "#convite=" + codigo;
+  }
+
   const separador = base.includes("?") ? "&" : "?";
-  return base + separador + tipo + "=" + encodeURIComponent(id || "");
+  return base + separador + tipo + "=" + codigo;
 }
 
 async function copiarTextoCompartilhamento(texto) {
