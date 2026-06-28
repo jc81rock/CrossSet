@@ -3746,6 +3746,43 @@ async function carregarRepertorios() {
           justify-content: flex-start;
         }
       }
+
+      #btn-salvar-repertorio,
+      #btn-salvar-repertorio-edicao,
+      .btn-salvar-repertorio-padrao {
+        width: 100% !important;
+        min-height: 44px !important;
+        height: 44px !important;
+        border: none !important;
+        border-radius: 13px !important;
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+        color: #ffffff !important;
+        font-size: 17px !important;
+        font-weight: 600 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        cursor: pointer !important;
+      }
+
+      #btn-salvar-repertorio::before,
+      #btn-salvar-repertorio-edicao::before,
+      .btn-salvar-repertorio-padrao::before {
+        content: "✓";
+        width: 21px;
+        height: 21px;
+        border: 2px solid rgba(255,255,255,.92);
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+        flex: 0 0 21px;
+      }
     </style>
 
     <div class="modulo-repertorios">
@@ -3766,7 +3803,7 @@ async function carregarRepertorios() {
           </label>
 
           <div class="acoes-repertorio">
-            <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
+            <button class="botao-card btn-salvar-repertorio-padrao" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
             <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">↗ Compartilhar</button>
             <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">PDF</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
@@ -3990,7 +4027,7 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Abrir</button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">✎ Montar</button>
             <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">↗ Compartilhar</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
@@ -4153,17 +4190,26 @@ async function salvarRepertorio() {
   };
 
   let resultado;
+  let repertorioSalvoId = appState.repertorioEditandoId || appState.repertorioMontandoId || null;
 
-  if (appState.repertorioEditandoId) {
+  if (appState.repertorioEditandoId || appState.repertorioMontandoId) {
+    repertorioSalvoId = appState.repertorioEditandoId || appState.repertorioMontandoId;
+
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
       .update(payload)
-      .eq("id", appState.repertorioEditandoId)
+      .eq("id", repertorioSalvoId)
       .eq("projeto_id", projetoId);
   } else {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
-      .insert(payload);
+      .insert(payload)
+      .select("*")
+      .single();
+
+    if (!resultado.error && resultado.data) {
+      repertorioSalvoId = resultado.data.id;
+    }
   }
 
   if (resultado.error) {
@@ -4171,8 +4217,26 @@ async function salvarRepertorio() {
     return;
   }
 
-  limparFormularioRepertorio();
   await buscarRepertorios();
+
+  if (repertorioSalvoId) {
+    const item = (appState.repertorios || []).find(function(repertorio) {
+      return repertorio.id === repertorioSalvoId;
+    });
+
+    appState.repertorioEditandoId = repertorioSalvoId;
+    appState.repertorioMontandoId = repertorioSalvoId;
+
+    if (item) {
+      preencherFormularioRepertorio(item);
+    }
+
+    await carregarDadosMontagemRepertorio();
+    renderizarMontagemRepertorio();
+    return;
+  }
+
+  limparFormularioRepertorio();
 }
 
 async function criarRepertorio() {
@@ -4429,7 +4493,7 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="acoes-edicao-repertorio">
-      <button class="botao-card" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
+      <button class="botao-card btn-salvar-repertorio-padrao" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
       <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">↗ Compartilhar</button>
       <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
       <button class="botao-secundario-modulo" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>

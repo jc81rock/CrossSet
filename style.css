@@ -1176,3 +1176,52 @@ button#btn-convidar-integrante:hover,
   gap: 6px !important;
   font-weight: 600 !important;
 }
+
+/* Repertórios — botão principal no padrão Repertório Fácil */
+#btn-salvar-repertorio,
+#btn-salvar-repertorio-edicao,
+.btn-salvar-repertorio-padrao {
+  width: 100% !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 0 18px !important;
+  border: none !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 24px rgba(122, 92, 255, 0.20) !important;
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+}
+
+#btn-salvar-repertorio::before,
+#btn-salvar-repertorio-edicao::before,
+.btn-salvar-repertorio-padrao::before {
+  content: "✓";
+  width: 21px;
+  height: 21px;
+  border: 2px solid rgba(255,255,255,.92);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  flex: 0 0 21px;
+}
+
+#btn-salvar-repertorio:hover,
+#btn-salvar-repertorio-edicao:hover,
+.btn-salvar-repertorio-padrao:hover {
+  filter: brightness(1.06) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 30px rgba(122, 92, 255, 0.28) !important;
+}
