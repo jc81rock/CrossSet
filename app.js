@@ -210,6 +210,41 @@ function obterCodigoConviteDaURL() {
   return pathMatch ? decodeURIComponent(pathMatch[1]) : "";
 }
 
+
+function obterCodigoRepertorioDaURL() {
+  const params = new URLSearchParams(window.location.search);
+  const codigoBusca = limparTexto(params.get("repertorio"));
+
+  if (codigoBusca) {
+    return codigoBusca;
+  }
+
+  const hashOriginal = window.location.hash || "";
+  const hashLimpo = hashOriginal.replace(/^#/, "").replace(/^\?/, "");
+
+  if (hashLimpo) {
+    const paramsHash = new URLSearchParams(hashLimpo);
+    const codigoHash = limparTexto(paramsHash.get("repertorio"));
+
+    if (codigoHash) {
+      return codigoHash;
+    }
+
+    const matchIgual = hashLimpo.match(/repertorio=([^&]+)/);
+    if (matchIgual) {
+      return decodeURIComponent(matchIgual[1]);
+    }
+
+    const matchRota = hashLimpo.match(/repertorio\/([^/?&]+)/);
+    if (matchRota) {
+      return decodeURIComponent(matchRota[1]);
+    }
+  }
+
+  const pathMatch = window.location.pathname.match(/repertorio\/([^/?&]+)/) || window.location.pathname.match(/r\/([^/?&]+)/);
+  return pathMatch ? decodeURIComponent(pathMatch[1]) : "";
+}
+
 function obterCodigoConvitePendente() {
   return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
 }
@@ -241,6 +276,12 @@ async function verificarSessao() {
 
   if (!cliente) {
     mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const codigoRepertorio = obterCodigoRepertorioDaURL();
+  if (codigoRepertorio) {
+    await carregarRepertorioPublico(codigoRepertorio);
     return;
   }
 
@@ -5342,6 +5383,359 @@ async function normalizarOrdemRepertorio() {
   }
 }
 
+
+
+function garantirTelaRepertorioPublico() {
+  if (elemento("tela-repertorio-publico")) {
+    return;
+  }
+
+  const app = document.querySelector(".app");
+  if (!app) {
+    return;
+  }
+
+  const tela = document.createElement("section");
+  tela.id = "tela-repertorio-publico";
+  tela.className = "tela";
+  tela.innerHTML = `
+    <style>
+      #tela-repertorio-publico.tela-ativa {
+        display: flex !important;
+        align-items: flex-start;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 18px;
+        background:
+          radial-gradient(circle at top left, rgba(51,196,255,.13), transparent 34%),
+          radial-gradient(circle at bottom right, rgba(168,85,247,.16), transparent 38%),
+          #0d1b2f;
+      }
+
+      .pagina-repertorio-publico {
+        width: min(860px, 100%);
+        margin: 0 auto;
+      }
+
+      .card-repertorio-publico {
+        background: #07111f;
+        border: 1px solid rgba(255,255,255,.13);
+        border-radius: 28px;
+        padding: 26px;
+        box-shadow: 0 22px 70px rgba(0,0,0,.34);
+      }
+
+      .publico-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #c4b5fd;
+        border: 1px solid rgba(139,92,246,.35);
+        background: rgba(139,92,246,.14);
+        border-radius: 999px;
+        padding: 7px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 14px;
+      }
+
+      .publico-titulo h1 {
+        margin: 0;
+        color: #fff;
+        font-size: clamp(28px, 5vw, 46px);
+        line-height: 1.02;
+        letter-spacing: -.04em;
+      }
+
+      .publico-titulo p {
+        margin: 10px 0 0;
+        color: #9fb0d6;
+        font-size: 15px;
+      }
+
+      .publico-info-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin: 20px 0;
+      }
+
+      .publico-info-card {
+        border: 1px solid rgba(255,255,255,.10);
+        background: rgba(255,255,255,.05);
+        border-radius: 16px;
+        padding: 14px;
+      }
+
+      .publico-info-card span {
+        display: block;
+        color: #8fa2c8;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        margin-bottom: 6px;
+        font-weight: 800;
+      }
+
+      .publico-info-card strong {
+        color: #fff;
+        font-size: 15px;
+        line-height: 1.25;
+        word-break: break-word;
+      }
+
+      .publico-setlist-topo {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-end;
+        border-top: 1px solid rgba(255,255,255,.10);
+        padding-top: 20px;
+        margin-top: 4px;
+      }
+
+      .publico-setlist-topo h2 {
+        margin: 0;
+        font-size: 22px;
+        color: #fff;
+      }
+
+      .publico-setlist-topo p {
+        margin: 4px 0 0;
+        color: #9fb0d6;
+        font-size: 13px;
+      }
+
+      .publico-lista-musicas {
+        display: grid;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .publico-musica-item {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 12px;
+        align-items: center;
+        padding: 12px 14px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 16px;
+        background: rgba(15,23,42,.62);
+      }
+
+      .publico-musica-numero {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #38bdf8, #6366f1, #a855f7);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .publico-musica-dados strong {
+        display: block;
+        color: #fff;
+        font-size: 15px;
+        line-height: 1.25;
+      }
+
+      .publico-musica-dados span {
+        display: block;
+        color: #a8b4c9;
+        font-size: 12px;
+        margin-top: 3px;
+      }
+
+      .publico-rodape {
+        margin-top: 18px;
+        text-align: center;
+        color: #8fa2c8;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .publico-rodape strong {
+        color: #cbd5e1;
+      }
+
+      .publico-erro {
+        color: #fecaca;
+        background: rgba(239,68,68,.10);
+        border: 1px solid rgba(239,68,68,.30);
+        border-radius: 16px;
+        padding: 14px;
+        margin-top: 16px;
+      }
+
+      @media (max-width: 720px) {
+        #tela-repertorio-publico.tela-ativa {
+          padding: 12px;
+        }
+
+        .card-repertorio-publico {
+          padding: 20px;
+          border-radius: 22px;
+        }
+
+        .publico-info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .publico-setlist-topo {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+    <div class="pagina-repertorio-publico">
+      <div class="card-repertorio-publico" id="conteudo-repertorio-publico">
+        <span class="publico-tag">Repertório Fácil</span>
+        <div class="publico-titulo">
+          <h1>Carregando repertório...</h1>
+          <p>Buscando informações atualizadas.</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  app.appendChild(tela);
+}
+
+function formatarDataPublica(valor) {
+  if (!valor) {
+    return "Não informada";
+  }
+
+  try {
+    const data = new Date(valor + "T00:00:00");
+    if (Number.isNaN(data.getTime())) {
+      return valor;
+    }
+
+    return new Intl.DateTimeFormat("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    }).format(data);
+  } catch (erro) {
+    return valor;
+  }
+}
+
+async function carregarRepertorioPublico(repertorioId) {
+  const cliente = sb();
+
+  garantirTelaRepertorioPublico();
+  mostrarTela("tela-repertorio-publico", { registrar: false });
+
+  const conteudo = elemento("conteudo-repertorio-publico");
+  if (!conteudo || !cliente) {
+    return;
+  }
+
+  conteudo.innerHTML = `
+    <span class="publico-tag">Repertório Fácil</span>
+    <div class="publico-titulo">
+      <h1>Carregando repertório...</h1>
+      <p>Buscando informações atualizadas.</p>
+    </div>
+  `;
+
+  const { data, error } = await cliente.rpc("obter_repertorio_publico", {
+    p_repertorio_id: repertorioId
+  });
+
+  if (error) {
+    conteudo.innerHTML = `
+      <span class="publico-tag">Repertório Fácil</span>
+      <div class="publico-titulo">
+        <h1>Repertório não disponível</h1>
+        <p>Não foi possível carregar este repertório.</p>
+      </div>
+      <div class="publico-erro">
+        Verifique se o link está correto ou se a função pública do repertório foi criada no Supabase.
+        <br><br>
+        Detalhe: ${escaparHtml(error.message)}
+      </div>
+    `;
+    return;
+  }
+
+  const repertorio = data || {};
+  const projeto = repertorio.projeto || {};
+  const evento = repertorio.evento || null;
+  const musicas = Array.isArray(repertorio.musicas) ? repertorio.musicas : [];
+
+  const titulo = repertorio.nome || "Repertório";
+  const banda = projeto.nome || "Projeto musical";
+  const nomeEvento = evento?.nome || "Não vinculado";
+  const dataEvento = evento?.data_evento ? formatarDataPublica(evento.data_evento) : "Não informada";
+
+  const listaHtml = musicas.length === 0
+    ? `<div class="publico-erro">Nenhuma música foi adicionada a este repertório ainda.</div>`
+    : musicas.map(function(item, indice) {
+        const numero = String(indice + 1).padStart(2, "0");
+        const detalhes = [];
+        if (item.artista) detalhes.push(item.artista);
+        if (item.tom) detalhes.push("Tom: " + item.tom);
+        if (item.bpm) detalhes.push("BPM: " + item.bpm);
+
+        return `
+          <div class="publico-musica-item">
+            <div class="publico-musica-numero">${numero}</div>
+            <div class="publico-musica-dados">
+              <strong>${escaparHtml(item.nome || "Sem nome")}</strong>
+              ${detalhes.length ? `<span>${escaparHtml(detalhes.join(" • "))}</span>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+
+  conteudo.innerHTML = `
+    <span class="publico-tag">Repertório</span>
+
+    <div class="publico-titulo">
+      <h1>${escaparHtml(titulo)}</h1>
+      <p>Link público do repertório atualizado automaticamente.</p>
+    </div>
+
+    <div class="publico-info-grid">
+      <div class="publico-info-card">
+        <span>Banda / Projeto</span>
+        <strong>${escaparHtml(banda)}</strong>
+      </div>
+      <div class="publico-info-card">
+        <span>Evento</span>
+        <strong>${escaparHtml(nomeEvento)}</strong>
+      </div>
+      <div class="publico-info-card">
+        <span>Data</span>
+        <strong>${escaparHtml(dataEvento)}</strong>
+      </div>
+    </div>
+
+    <div class="publico-setlist-topo">
+      <div>
+        <h2>Setlist</h2>
+        <p>${musicas.length} música${musicas.length === 1 ? "" : "s"} na ordem salva.</p>
+      </div>
+    </div>
+
+    <div class="publico-lista-musicas">
+      ${listaHtml}
+    </div>
+
+    <div class="publico-rodape">
+      <strong>Repertório Fácil</strong><br>
+      Este repertório é atualizado automaticamente.<br>
+      Sempre consulte este link antes do ensaio ou show.
+    </div>
+  `;
+}
 
 function formatarDataPDF(data) {
   try {
