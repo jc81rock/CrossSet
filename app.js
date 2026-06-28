@@ -1072,6 +1072,77 @@ async function carregarIntegrantes() {
         font-weight: 700;
       }
 
+      .btn-salvar-padrao,
+      .btn-whatsapp-padrao-repertorio {
+        width: 100%;
+        min-height: 42px !important;
+        height: 42px !important;
+        border: 0;
+        border-radius: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: transform .15s ease, filter .15s ease;
+      }
+
+      .btn-salvar-padrao {
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
+        color: #ffffff;
+      }
+
+      .btn-whatsapp-padrao-repertorio {
+        background: linear-gradient(135deg, #18bf5b, #16a34a);
+        color: #ffffff;
+        box-shadow: 0 10px 24px rgba(22, 163, 74, .18);
+      }
+
+      .btn-salvar-padrao:hover,
+      .btn-whatsapp-padrao-repertorio:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.07);
+      }
+
+      .btn-whatsapp-padrao-repertorio .seta-btn {
+        margin-left: auto;
+        padding-right: 4px;
+        font-size: 18px;
+      }
+
+      .btn-whatsapp-padrao-repertorio .icone-btn {
+        width: 23px;
+        height: 23px;
+        border: 2px solid rgba(255,255,255,.88);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+      }
+
+      .btn-acao-padrao {
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        min-height: 32px;
+        cursor: pointer;
+        font-size: 12px;
+        line-height: 1;
+        white-space: nowrap;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .btn-acao-editar { background: #e5e7eb; color: #111827; }
+      .btn-acao-whatsapp { background: #16a34a; color: #ffffff; }
+      .btn-acao-excluir { background: #fee2e2; color: #991b1b; }
+
       .filtros-integrantes {
         display: grid;
         grid-template-columns: 1.4fr 1fr;
@@ -4056,8 +4127,8 @@ async function carregarRepertorios() {
           </label>
 
           <div class="acoes-repertorio">
-            <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
-            <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">↗ Compartilhar</button>
+            <button class="btn-salvar-padrao" id="btn-salvar-repertorio" type="button"><span>✓</span><span>Salvar repertório</span></button>
+            <button class="btn-whatsapp-padrao-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;"><span class="icone-btn">☏</span><span>Enviar repertório via WhatsApp</span><span class="seta-btn">→</span></button>
             <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">PDF</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
@@ -4280,9 +4351,9 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Abrir</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">↗ Compartilhar</button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
+            <button class="btn-acao-padrao btn-acao-editar" type="button" data-editar-repertorio="${escaparHtml(item.id)}">🎼 Montar repertório</button>
+            <button class="btn-acao-padrao btn-acao-whatsapp" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">☏ WhatsApp</button>
+            <button class="btn-acao-padrao btn-acao-excluir" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -4681,7 +4752,7 @@ function renderizarMontagemRepertorio() {
 
     <div class="montagem-repertorio-grid">
       <div>
-        <h3>Biblioteca do projeto</h3>
+        <h3>Escolher músicas do projeto</h3>
         <div class="filtros-montagem-repertorio">
           <label>
             Pesquisar música
@@ -4719,8 +4790,8 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="acoes-edicao-repertorio">
-      <button class="botao-card" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
-      <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">↗ Compartilhar</button>
+      <button class="btn-salvar-padrao" id="btn-salvar-repertorio-edicao" type="button"><span>✓</span><span>Salvar repertório</span></button>
+      <button class="btn-whatsapp-padrao-repertorio" id="btn-compartilhar-repertorio-edicao" type="button"><span class="icone-btn">☏</span><span>Enviar repertório via WhatsApp</span><span class="seta-btn">→</span></button>
       <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
       <button class="botao-secundario-modulo" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
     </div>
