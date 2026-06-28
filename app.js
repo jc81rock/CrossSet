@@ -1072,77 +1072,6 @@ async function carregarIntegrantes() {
         font-weight: 700;
       }
 
-      .btn-salvar-padrao,
-      .btn-whatsapp-padrao-repertorio {
-        width: 100%;
-        min-height: 42px !important;
-        height: 42px !important;
-        border: 0;
-        border-radius: 13px;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 9px;
-        font-size: 15px;
-        font-weight: 600;
-        transition: transform .15s ease, filter .15s ease;
-      }
-
-      .btn-salvar-padrao {
-        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
-        color: #ffffff;
-      }
-
-      .btn-whatsapp-padrao-repertorio {
-        background: linear-gradient(135deg, #18bf5b, #16a34a);
-        color: #ffffff;
-        box-shadow: 0 10px 24px rgba(22, 163, 74, .18);
-      }
-
-      .btn-salvar-padrao:hover,
-      .btn-whatsapp-padrao-repertorio:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.07);
-      }
-
-      .btn-whatsapp-padrao-repertorio .seta-btn {
-        margin-left: auto;
-        padding-right: 4px;
-        font-size: 18px;
-      }
-
-      .btn-whatsapp-padrao-repertorio .icone-btn {
-        width: 23px;
-        height: 23px;
-        border: 2px solid rgba(255,255,255,.88);
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-      }
-
-      .btn-acao-padrao {
-        border: 0;
-        border-radius: 10px;
-        padding: 8px 10px;
-        min-height: 32px;
-        cursor: pointer;
-        font-size: 12px;
-        line-height: 1;
-        white-space: nowrap;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-      }
-
-      .btn-acao-editar { background: #e5e7eb; color: #111827; }
-      .btn-acao-whatsapp { background: #16a34a; color: #ffffff; }
-      .btn-acao-excluir { background: #fee2e2; color: #991b1b; }
-
       .filtros-integrantes {
         display: grid;
         grid-template-columns: 1.4fr 1fr;
@@ -1753,7 +1682,7 @@ function limparFormularioIntegrante() {
   }
 
   if (botaoCancelar) {
-    botaoCancelar.style.display = "none";
+    botaoCancelar.style.display = "inline-flex";
   }
 }
 
@@ -2715,95 +2644,6 @@ async function carregarMusicas() {
         cursor: default;
       }
 
-
-      .btn-musica-repertorio {
-        background: rgba(122, 92, 255, .18);
-        border: 1px solid rgba(122, 92, 255, .42);
-        color: #e8e3ff;
-      }
-
-      .info-repertorios-musica {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        color: #cbd5e1;
-        font-size: 12px;
-        margin-top: 4px;
-      }
-
-      .modal-rf-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, .68);
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-      }
-
-      .modal-rf-card {
-        width: min(560px, 100%);
-        max-height: min(720px, calc(100vh - 32px));
-        overflow: auto;
-        background: #07111f;
-        border: 1px solid rgba(255,255,255,.14);
-        border-radius: 22px;
-        padding: 18px;
-        box-shadow: 0 24px 70px rgba(0,0,0,.45);
-      }
-
-      .modal-rf-card h3 {
-        margin: 0 0 6px;
-        color: #ffffff;
-      }
-
-      .modal-rf-card p {
-        margin: 0 0 12px;
-        color: #cbd5e1;
-        font-size: 13px;
-        line-height: 1.4;
-      }
-
-      .lista-repertorios-modal {
-        display: grid;
-        gap: 8px;
-        margin: 12px 0;
-      }
-
-      .item-repertorio-modal {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 11px 12px;
-        border-radius: 13px;
-        background: rgba(255,255,255,.06);
-        border: 1px solid rgba(255,255,255,.10);
-        color: #f9fafb;
-        font-size: 14px;
-      }
-
-      .item-repertorio-modal input {
-        width: 18px !important;
-        height: 18px !important;
-        min-height: 18px !important;
-        margin: 0 !important;
-      }
-
-      .acoes-modal-rf {
-        display: flex;
-        gap: 8px;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-        margin-top: 14px;
-      }
-
-      .acoes-modal-rf button {
-        min-height: 38px !important;
-        padding: 0 14px !important;
-        border-radius: 11px !important;
-      }
-
       .progresso-musica-card {
         display: grid;
         gap: 8px;
@@ -3087,7 +2927,7 @@ async function buscarMusicas() {
   const { data: sessionData } = await cliente.auth.getSession();
   const usuario = sessionData.session?.user || null;
 
-  const [musicasResultado, integrantesResultado, progressoResultado, repertoriosResultado] = await Promise.all([
+  const [musicasResultado, integrantesResultado, progressoResultado] = await Promise.all([
     cliente
       .from(REPERTORIO_FACIL.tabelas.musicas)
       .select("*")
@@ -3103,13 +2943,7 @@ async function buscarMusicas() {
     cliente
       .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
       .select("*")
-      .eq("projeto_id", projetoId),
-
-    cliente
-      .from(REPERTORIO_FACIL.tabelas.repertorios)
-      .select("*")
       .eq("projeto_id", projetoId)
-      .order("nome", { ascending: true })
   ]);
 
   if (musicasResultado.error) {
@@ -3127,33 +2961,9 @@ async function buscarMusicas() {
     return;
   }
 
-  if (repertoriosResultado.error) {
-    lista.innerHTML = `<p>Erro ao carregar repertórios: ${escaparHtml(repertoriosResultado.error.message)}</p>`;
-    return;
-  }
-
   appState.musicas = musicasResultado.data || [];
   appState.integrantesProjetoMusicas = integrantesResultado.data || [];
   appState.progressoMusicas = progressoResultado.data || [];
-  appState.repertorios = repertoriosResultado.data || [];
-  appState.repertorioMusicasBiblioteca = [];
-
-  const repertorioIds = appState.repertorios.map(function(item) { return item.id; }).filter(Boolean);
-
-  if (repertorioIds.length > 0) {
-    const { data: relacoesRepertorios, error: erroRelacoesRepertorios } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-      .select("*")
-      .in("repertorio_id", repertorioIds);
-
-    if (erroRelacoesRepertorios) {
-      lista.innerHTML = `<p>Erro ao carregar vínculo com repertórios: ${escaparHtml(erroRelacoesRepertorios.message)}</p>`;
-      return;
-    }
-
-    appState.repertorioMusicasBiblioteca = relacoesRepertorios || [];
-  }
-
   appState.meuIntegranteAtual = encontrarMeuIntegranteNoProjeto(appState.integrantesProjetoMusicas, usuario);
 
   renderizarListaMusicas();
@@ -3349,14 +3159,12 @@ function renderizarListaMusicas() {
             ${montarResumoProgressoMusica(item.id)}
 
             ${indicadores ? `<div class="indicadores-musica">${indicadores}</div>` : ""}
-            ${montarResumoUsoMusicaEmRepertorios(item.id)}
 
             ${link ? `<p><a class="link-musica" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Assistir / Ouvir</a></p>` : ""}
             ${item.observacoes ? `<p><strong>Obs.:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
           </div>
 
           <div class="botoes-item-musica">
-            <button class="btn-musica-repertorio" type="button" data-musica-repertorios="${escaparHtml(item.id)}">＋ Repertório</button>
             <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">✎ Editar</button>
             <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
@@ -3377,180 +3185,11 @@ function renderizarListaMusicas() {
     });
   });
 
-  lista.querySelectorAll("[data-musica-repertorios]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      abrirModalMusicaRepertorios(botao.dataset.musicaRepertorios);
-    });
-  });
-
   lista.querySelectorAll("[data-status-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       salvarMeuProgressoMusica(botao.dataset.musicaId, botao.dataset.statusMusica);
     });
   });
-}
-
-
-function obterRelacoesDaMusicaEmRepertorios(musicaId) {
-  return (appState.repertorioMusicasBiblioteca || []).filter(function(relacao) {
-    return relacao.musica_id === musicaId;
-  });
-}
-
-function montarResumoUsoMusicaEmRepertorios(musicaId) {
-  const quantidade = obterRelacoesDaMusicaEmRepertorios(musicaId).length;
-
-  if (quantidade === 0) {
-    return `<div class="info-repertorios-musica">📂 Ainda não está em repertórios</div>`;
-  }
-
-  const texto = quantidade === 1 ? "Em 1 repertório" : `Em ${quantidade} repertórios`;
-  return `<div class="info-repertorios-musica">📂 ${texto}</div>`;
-}
-
-function abrirModalMusicaRepertorios(musicaId) {
-  const musica = (appState.musicas || []).find(function(item) {
-    return item.id === musicaId;
-  });
-
-  if (!musica) {
-    alert("Música não encontrada.");
-    return;
-  }
-
-  if (!appState.repertorios || appState.repertorios.length === 0) {
-    alert("Crie um repertório antes de adicionar músicas.");
-    return;
-  }
-
-  fecharModalMusicaRepertorios();
-
-  const relacoes = obterRelacoesDaMusicaEmRepertorios(musicaId);
-  const idsMarcados = new Set(relacoes.map(function(item) { return item.repertorio_id; }));
-
-  const overlay = document.createElement("div");
-  overlay.id = "modal-musica-repertorios";
-  overlay.className = "modal-rf-overlay";
-
-  overlay.innerHTML = `
-    <div class="modal-rf-card" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-musica-repertorios">
-      <h3 id="titulo-modal-musica-repertorios">Adicionar ao repertório</h3>
-      <p><strong>${escaparHtml(musica.nome || "Música")}</strong></p>
-      <p>Marque em quais repertórios essa música deve aparecer.</p>
-
-      <div class="lista-repertorios-modal">
-        ${(appState.repertorios || []).map(function(repertorio) {
-          const marcado = idsMarcados.has(repertorio.id) ? "checked" : "";
-          return `
-            <label class="item-repertorio-modal">
-              <input type="checkbox" class="check-repertorio-musica" value="${escaparHtml(repertorio.id)}" ${marcado} />
-              <span>${escaparHtml(repertorio.nome || "Repertório")}</span>
-            </label>
-          `;
-        }).join("")}
-      </div>
-
-      <div class="acoes-modal-rf">
-        <button class="botao-secundario-modulo" id="btn-fechar-modal-musica-repertorios" type="button">Cancelar</button>
-        <button class="botao-card" id="btn-salvar-modal-musica-repertorios" type="button">Salvar repertórios</button>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(overlay);
-
-  const fechar = elemento("btn-fechar-modal-musica-repertorios");
-  const salvar = elemento("btn-salvar-modal-musica-repertorios");
-
-  if (fechar) {
-    fechar.addEventListener("click", fecharModalMusicaRepertorios);
-  }
-
-  if (salvar) {
-    salvar.addEventListener("click", function() {
-      salvarRepertoriosDaMusica(musicaId);
-    });
-  }
-
-  overlay.addEventListener("click", function(evento) {
-    if (evento.target === overlay) {
-      fecharModalMusicaRepertorios();
-    }
-  });
-}
-
-function fecharModalMusicaRepertorios() {
-  const modal = elemento("modal-musica-repertorios");
-
-  if (modal) {
-    modal.remove();
-  }
-}
-
-async function salvarRepertoriosDaMusica(musicaId) {
-  const cliente = sb();
-
-  if (!cliente || !musicaId) {
-    return;
-  }
-
-  const checks = Array.from(document.querySelectorAll("#modal-musica-repertorios .check-repertorio-musica:checked"));
-  const repertoriosMarcados = new Set(checks.map(function(campo) { return campo.value; }).filter(Boolean));
-  const relacoesAtuais = obterRelacoesDaMusicaEmRepertorios(musicaId);
-  const idsAtuais = new Set(relacoesAtuais.map(function(item) { return item.repertorio_id; }));
-
-  const inserir = [];
-  const remover = [];
-
-  repertoriosMarcados.forEach(function(repertorioId) {
-    if (!idsAtuais.has(repertorioId)) {
-      const relacoesDoRepertorio = (appState.repertorioMusicasBiblioteca || []).filter(function(item) {
-        return item.repertorio_id === repertorioId;
-      });
-
-      const maiorOrdem = relacoesDoRepertorio.reduce(function(maior, item) {
-        return Math.max(maior, Number(item.ordem || 0));
-      }, 0);
-
-      inserir.push({
-        repertorio_id: repertorioId,
-        musica_id: musicaId,
-        ordem: maiorOrdem + 1
-      });
-    }
-  });
-
-  relacoesAtuais.forEach(function(relacao) {
-    if (!repertoriosMarcados.has(relacao.repertorio_id)) {
-      remover.push(relacao.id);
-    }
-  });
-
-  if (inserir.length > 0) {
-    const { error } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-      .insert(inserir);
-
-    if (error) {
-      alert("Erro ao adicionar música aos repertórios: " + error.message);
-      return;
-    }
-  }
-
-  if (remover.length > 0) {
-    const { error } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-      .delete()
-      .in("id", remover);
-
-    if (error) {
-      alert("Erro ao remover música dos repertórios: " + error.message);
-      return;
-    }
-  }
-
-  fecharModalMusicaRepertorios();
-  await buscarMusicas();
 }
 
 async function salvarMeuProgressoMusica(musicaId, status) {
@@ -3857,9 +3496,68 @@ async function carregarRepertorios() {
       .acoes-musica-repertorio,
       .acoes-edicao-repertorio {
         display: flex;
-        gap: 8px;
+        gap: 10px;
         flex-wrap: wrap;
-        margin-top: 4px;
+        margin-top: 6px;
+      }
+
+      .acoes-repertorio {
+        flex-direction: column;
+      }
+
+      .botao-salvar-repertorio,
+      .botao-whatsapp-repertorio,
+      .botao-montar-repertorio {
+        width: 100%;
+        min-height: 44px;
+        border: 0;
+        border-radius: 13px;
+        padding: 0 18px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      }
+
+      .botao-salvar-repertorio,
+      .botao-montar-repertorio {
+        color: #fff;
+        background: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #a855f7 100%);
+        box-shadow: 0 10px 22px rgba(99, 102, 241, .25);
+      }
+
+      .botao-whatsapp-repertorio {
+        color: #fff;
+        background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+        box-shadow: 0 10px 22px rgba(34, 197, 94, .20);
+      }
+
+      .botao-salvar-repertorio:hover,
+      .botao-whatsapp-repertorio:hover,
+      .botao-montar-repertorio:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+
+      .botao-repertorio-secundario {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 11px;
+        padding: 0 14px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: rgba(255,255,255,.06);
+        color: #e5e7eb;
       }
 
       .acoes-edicao-repertorio {
@@ -4127,10 +3825,11 @@ async function carregarRepertorios() {
           </label>
 
           <div class="acoes-repertorio">
-            <button class="btn-salvar-padrao" id="btn-salvar-repertorio" type="button"><span>✓</span><span>Salvar repertório</span></button>
-            <button class="btn-whatsapp-padrao-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;"><span class="icone-btn">☏</span><span>Enviar repertório via WhatsApp</span><span class="seta-btn">→</span></button>
-            <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">PDF</button>
-            <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
+            <button class="botao-salvar-repertorio" id="btn-salvar-repertorio" type="button">✓ Salvar repertório</button>
+            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button" style="display:none;">🎼 Montar repertório</button>
+            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">☘ Enviar repertório via WhatsApp →</button>
+            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">📄 Gerar PDF</button>
+            <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
 
           <div id="montagem-repertorio" class="montagem-repertorio" style="display:none;"></div>
@@ -4161,6 +3860,7 @@ function configurarEventosRepertorios() {
   const botaoCancelar = elemento("btn-cancelar-repertorio");
   const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
+  const botaoMontarForm = elemento("btn-montar-repertorio-form");
 
   if (botaoSalvar) {
     botaoSalvar.addEventListener("click", salvarRepertorio);
@@ -4181,6 +3881,13 @@ function configurarEventosRepertorios() {
     botaoGerarPdf.addEventListener("click", function() {
       const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
       gerarPDFDoRepertorio(id);
+    });
+  }
+
+  if (botaoMontarForm) {
+    botaoMontarForm.addEventListener("click", function() {
+      const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
+      montarRepertorio(id);
     });
   }
 }
@@ -4351,14 +4058,21 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-acao-padrao btn-acao-editar" type="button" data-editar-repertorio="${escaparHtml(item.id)}">🎼 Montar repertório</button>
-            <button class="btn-acao-padrao btn-acao-whatsapp" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">☏ WhatsApp</button>
-            <button class="btn-acao-padrao btn-acao-excluir" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
+            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">🎼 Montar</button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">☘ WhatsApp</button>
+            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
     `;
   }).join("");
+
+  lista.querySelectorAll("[data-montar-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      montarRepertorio(botao.dataset.montarRepertorio);
+    });
+  });
 
   lista.querySelectorAll("[data-editar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
@@ -4390,6 +4104,7 @@ function preencherFormularioRepertorio(item) {
   const botaoSalvar = elemento("btn-salvar-repertorio");
   const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
+  const botaoMontarForm = elemento("btn-montar-repertorio-form");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (campoNome) {
@@ -4405,20 +4120,24 @@ function preencherFormularioRepertorio(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "Salvar alterações";
-    botaoSalvar.style.display = "none";
+    botaoSalvar.textContent = "✓ Salvar alterações";
+    botaoSalvar.style.display = "inline-flex";
   }
 
   if (botaoCompartilhar) {
-    botaoCompartilhar.style.display = "none";
+    botaoCompartilhar.style.display = "inline-flex";
   }
 
   if (botaoGerarPdf) {
-    botaoGerarPdf.style.display = "none";
+    botaoGerarPdf.style.display = "inline-flex";
   }
 
   if (botaoCancelar) {
     botaoCancelar.style.display = "none";
+  }
+
+  if (botaoMontarForm) {
+    botaoMontarForm.style.display = "none";
   }
 
   const cardForm = elemento("card-form-repertorio");
@@ -4446,6 +4165,7 @@ function limparFormularioRepertorio() {
   const botaoSalvar = elemento("btn-salvar-repertorio");
   const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
+  const botaoMontarForm = elemento("btn-montar-repertorio-form");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (campoNome) {
@@ -4461,8 +4181,8 @@ function limparFormularioRepertorio() {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "Salvar repertório";
-    botaoSalvar.style.display = "inline-block";
+    botaoSalvar.textContent = "✓ Salvar repertório";
+    botaoSalvar.style.display = "inline-flex";
   }
 
   if (botaoCompartilhar) {
@@ -4513,18 +4233,23 @@ async function salvarRepertorio() {
     observacoes: observacoes
   };
 
+  let idSalvo = appState.repertorioEditandoId || appState.repertorioMontandoId || null;
   let resultado;
 
-  if (appState.repertorioEditandoId) {
+  if (idSalvo) {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
       .update(payload)
-      .eq("id", appState.repertorioEditandoId)
-      .eq("projeto_id", projetoId);
+      .eq("id", idSalvo)
+      .eq("projeto_id", projetoId)
+      .select()
+      .single();
   } else {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
-      .insert(payload);
+      .insert(payload)
+      .select()
+      .single();
   }
 
   if (resultado.error) {
@@ -4532,8 +4257,20 @@ async function salvarRepertorio() {
     return;
   }
 
-  limparFormularioRepertorio();
+  idSalvo = resultado.data?.id || idSalvo;
   await buscarRepertorios();
+
+  const repertorioSalvo = (appState.repertorios || []).find(function(item) {
+    return item.id === idSalvo;
+  });
+
+  if (repertorioSalvo) {
+    appState.repertorioEditandoId = idSalvo;
+    appState.repertorioMontandoId = idSalvo;
+    preencherFormularioRepertorio(repertorioSalvo);
+    await carregarDadosMontagemRepertorio();
+    renderizarMontagemRepertorio();
+  }
 }
 
 async function criarRepertorio() {
@@ -4752,7 +4489,7 @@ function renderizarMontagemRepertorio() {
 
     <div class="montagem-repertorio-grid">
       <div>
-        <h3>Escolher músicas do projeto</h3>
+        <h3>Biblioteca do projeto</h3>
         <div class="filtros-montagem-repertorio">
           <label>
             Pesquisar música
@@ -4790,10 +4527,10 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="acoes-edicao-repertorio">
-      <button class="btn-salvar-padrao" id="btn-salvar-repertorio-edicao" type="button"><span>✓</span><span>Salvar repertório</span></button>
-      <button class="btn-whatsapp-padrao-repertorio" id="btn-compartilhar-repertorio-edicao" type="button"><span class="icone-btn">☏</span><span>Enviar repertório via WhatsApp</span><span class="seta-btn">→</span></button>
-      <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
-      <button class="botao-secundario-modulo" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
+      <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button">✓ Salvar alterações</button>
+      <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">☘ Enviar repertório via WhatsApp →</button>
+      <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">📄 Gerar PDF</button>
+      <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
     </div>
   `;
 
@@ -6066,8 +5803,8 @@ function preencherFormularioEvento(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "Salvar alterações";
-    botaoSalvar.style.display = "none";
+    botaoSalvar.textContent = "✓ Salvar alterações";
+    botaoSalvar.style.display = "inline-flex";
   }
 
   if (botaoCompartilhar) {
