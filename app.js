@@ -3889,10 +3889,241 @@ async function carregarRepertorios() {
           justify-content: flex-start;
         }
       }
+
+
+      /* Repertórios 2.0 - layout amplo de montagem */
+      #card-form-repertorio.card-repertorio-expandido {
+        width: min(1420px, calc(100vw - 96px)) !important;
+        max-width: none !important;
+        margin: 0 auto !important;
+        overflow: visible !important;
+      }
+
+      #card-form-repertorio.card-repertorio-expandido > .tag,
+      #card-form-repertorio.card-repertorio-expandido > #titulo-form-repertorio,
+      #card-form-repertorio.card-repertorio-expandido > p,
+      #card-form-repertorio.card-repertorio-expandido > .form-repertorios > label,
+      #card-form-repertorio.card-repertorio-expandido > .form-repertorios > .acoes-repertorio {
+        display: none !important;
+      }
+
+      #card-form-repertorio.card-repertorio-expandido .montagem-repertorio {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: 0 !important;
+      }
+
+      .repertorio-builder {
+        display: grid;
+        grid-template-columns: minmax(360px, 0.8fr) minmax(560px, 1.2fr);
+        gap: 18px;
+        align-items: stretch;
+        width: 100%;
+      }
+
+      .repertorio-builder-card {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 18px;
+        background: rgba(15,23,42,.45);
+        padding: 18px;
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .repertorio-builder-card h3 {
+        margin: 0 0 8px;
+        font-size: 24px;
+      }
+
+      .repertorio-builder-card .texto-ajuda {
+        color: #a8b4c9;
+        font-size: 13px;
+        margin: 0 0 14px;
+      }
+
+      .repertorio-builder-form {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .repertorio-builder-form label {
+        display: grid;
+        gap: 6px;
+      }
+
+      .repertorio-resumos {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin: 12px 0 14px;
+      }
+
+      .repertorio-resumo-card {
+        border: 1px solid rgba(255,255,255,.10);
+        background: rgba(255,255,255,.05);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .repertorio-resumo-card strong {
+        display: block;
+        font-size: 20px;
+        color: #fff;
+      }
+
+      .repertorio-resumo-card span {
+        display: block;
+        color: #a8b4c9;
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .repertorio-biblioteca-lista {
+        max-height: 520px;
+        overflow: auto;
+        display: grid;
+        gap: 8px;
+        padding-right: 4px;
+      }
+
+      .musica-biblioteca-linha {
+        display: grid;
+        grid-template-columns: 26px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 13px;
+        padding: 10px;
+        background: rgba(255,255,255,.035);
+      }
+
+      .musica-biblioteca-linha h4,
+      .setlist-linha h4 {
+        margin: 0;
+        font-size: 14px;
+        color: #fff;
+        line-height: 1.2;
+      }
+
+      .musica-biblioteca-linha p,
+      .setlist-linha p {
+        margin: 3px 0 0;
+        color: #a8b4c9;
+        font-size: 12px;
+        line-height: 1.25;
+      }
+
+      .status-biblioteca-mini {
+        min-width: 84px;
+        text-align: right;
+        color: #e5e7eb;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .status-biblioteca-mini .bolinha-status-musica {
+        margin-right: 6px;
+      }
+
+      .botao-adicionar-selecionadas-final {
+        width: 100%;
+        min-height: 44px;
+        margin-top: 12px;
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #a855f7 100%);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .setlist-lista-final {
+        display: grid;
+        gap: 8px;
+        max-height: 430px;
+        overflow: auto;
+        padding-right: 4px;
+        min-height: 150px;
+      }
+
+      .setlist-linha {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 13px;
+        padding: 10px;
+        background: rgba(255,255,255,.04);
+      }
+
+      .numero-setlist-final {
+        width: 34px;
+        height: 34px;
+        border-radius: 11px;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #4f46e5, #9333ea);
+        color: #fff;
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .setlist-acoes-final {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .setlist-acoes-final button {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,.10);
+        background: rgba(255,255,255,.06);
+        color: #fff;
+        display: inline-grid;
+        place-items: center;
+        cursor: pointer;
+      }
+
+      .setlist-acoes-final button.remover {
+        border-color: rgba(239,68,68,.35);
+        color: #fecaca;
+        background: rgba(239,68,68,.10);
+      }
+
+      .rodape-repertorio-builder {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+        align-items: center;
+      }
+
+      .rodape-repertorio-builder .botao-whatsapp-repertorio,
+      .rodape-repertorio-builder .botao-salvar-repertorio {
+        margin: 0;
+      }
+
+      @media (max-width: 1050px) {
+        #card-form-repertorio.card-repertorio-expandido {
+          width: min(100%, calc(100vw - 32px)) !important;
+        }
+        .repertorio-builder {
+          grid-template-columns: 1fr;
+        }
+        .rodape-repertorio-builder,
+        .repertorio-resumos {
+          grid-template-columns: 1fr;
+        }
+      }
+
     </style>
 
     <div class="modulo-repertorios">
-      <div class="card-projeto">
+      <div class="card-projeto" id="card-form-repertorio">
         <span class="tag">Cadastro</span>
         <h3 id="titulo-form-repertorio">Novo repertório</h3>
         <p>Crie uma lista para show, ensaio ou evento.</p>
@@ -4340,6 +4571,29 @@ async function salvarMusicasTemporariasDoRepertorio(repertorioId) {
   return true;
 }
 
+
+function obterValorCampoRepertorio(nomeCampo) {
+  const campoMontagem = elemento(nomeCampo + "-montagem");
+  if (campoMontagem) {
+    return limparTexto(campoMontagem.value);
+  }
+  return limparTexto(elemento(nomeCampo)?.value);
+}
+
+function sincronizarCamposRepertorio() {
+  const nomeMontagem = elemento("repertorio-nome-montagem");
+  const obsMontagem = elemento("repertorio-observacoes-montagem");
+  const nomeBase = elemento("repertorio-nome");
+  const obsBase = elemento("repertorio-observacoes");
+
+  if (nomeMontagem && nomeBase) {
+    nomeBase.value = nomeMontagem.value || "";
+  }
+  if (obsMontagem && obsBase) {
+    obsBase.value = obsMontagem.value || "";
+  }
+}
+
 async function salvarRepertorio() {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
@@ -4348,8 +4602,9 @@ async function salvarRepertorio() {
     return;
   }
 
-  const nome = limparTexto(elemento("repertorio-nome")?.value);
-  const observacoes = limparTexto(elemento("repertorio-observacoes")?.value);
+  sincronizarCamposRepertorio();
+  const nome = obterValorCampoRepertorio("repertorio-nome");
+  const observacoes = obterValorCampoRepertorio("repertorio-observacoes");
 
   if (!nome) {
     alert("Informe o nome do repertório.");
@@ -4478,8 +4733,8 @@ function obterRepertorioAtualMontagem() {
     return existente;
   }
 
-  const nome = limparTexto(elemento("repertorio-nome")?.value) || "Novo repertório";
-  const observacoes = limparTexto(elemento("repertorio-observacoes")?.value) || "Selecione músicas da biblioteca do projeto e organize a ordem do set.";
+  const nome = obterValorCampoRepertorio("repertorio-nome") || "Novo repertório";
+  const observacoes = obterValorCampoRepertorio("repertorio-observacoes") || "Monte seu repertório adicionando músicas da biblioteca.";
 
   return {
     id: null,
@@ -4641,15 +4896,12 @@ function renderizarMontagemRepertorio() {
     if (ordemAtual === "nome") {
       return compararTexto(a.nome, b.nome);
     }
-
     if (ordemAtual === "menos_preparo") {
       return obterProgressoDaMusica(a.id).percentual - obterProgressoDaMusica(b.id).percentual || compararTexto(a.nome, b.nome);
     }
-
     if (ordemAtual === "recentes") {
       return new Date(b.created_at || 0) - new Date(a.created_at || 0);
     }
-
     return obterProgressoDaMusica(b.id).percentual - obterProgressoDaMusica(a.id).percentual || compararTexto(a.nome, b.nome);
   });
 
@@ -4662,22 +4914,17 @@ function renderizarMontagemRepertorio() {
   });
   const resumoRepertorio = calcularProgressoMedioDasMusicas(idsMusicasSelecionadas);
   const textoMusicas = resumoRepertorio.quantidade === 1 ? "1 música" : `${resumoRepertorio.quantidade} músicas`;
+  const duracaoEstimada = resumoRepertorio.quantidade ? `${Math.max(1, resumoRepertorio.quantidade * 4)} min` : "0 min";
+  const nomeAtual = obterValorCampoRepertorio("repertorio-nome") || (repertorio.temporario ? "" : repertorio.nome || "");
+  const obsAtual = obterValorCampoRepertorio("repertorio-observacoes") || (repertorio.temporario ? "" : repertorio.observacoes || "");
 
   montagem.innerHTML = `
-    <div class="titulo-montagem-repertorio">
-      <span class="tag">Repertório inteligente</span>
-      <h3>${escaparHtml(repertorio.nome || "Repertório")}</h3>
-      <p>${escaparHtml(repertorio.observacoes || "Selecione músicas da biblioteca do projeto e organize a ordem do set.")}</p>
-
-      <div class="resumo-repertorio-inteligente">
-        ${montarMiniProgresso(resumoRepertorio.percentual, resumoRepertorio.cor, textoMusicas)}
-        <p style="margin-top:8px; font-size:12px; color:#cbd5e1;">O percentual do repertório é a média do progresso das músicas selecionadas.</p>
-      </div>
-    </div>
-
-    <div class="montagem-repertorio-grid">
-      <div class="painel-biblioteca-repertorio">
+    <div class="repertorio-builder">
+      <section class="repertorio-builder-card">
+        <span class="tag">Repertório inteligente</span>
         <h3>Biblioteca do projeto</h3>
+        <p class="texto-ajuda">Escolha músicas já cadastradas no projeto e adicione ao set.</p>
+
         <div class="filtros-montagem-repertorio">
           <label>
             Pesquisar música
@@ -4695,30 +4942,55 @@ function renderizarMontagemRepertorio() {
           </label>
         </div>
 
-        <div class="biblioteca-acoes-repertorio">
-          <p style="margin:0; font-size:12px; color:#cbd5e1;">Marque várias músicas e adicione de uma vez.</p>
-          <button class="btn-adicionar-musica-repertorio" id="btn-adicionar-musicas-selecionadas" type="button">Adicionar selecionadas</button>
-        </div>
-
-        <div id="lista-biblioteca-musicas" class="lista-biblioteca-musicas">
+        <div id="lista-biblioteca-musicas" class="repertorio-biblioteca-lista">
           ${renderizarBibliotecaMusicasRepertorio(musicasDisponiveis)}
         </div>
-      </div>
 
-      <div class="painel-setlist-repertorio">
-        <h3>Músicas no repertório</h3>
-        <p>${selecionadas.length} música(s) selecionada(s).</p>
-        <div id="lista-musicas-repertorio" class="lista-musicas-repertorio">
+        <button class="botao-adicionar-selecionadas-final" id="btn-adicionar-musicas-selecionadas" type="button">+ Adicionar selecionadas ao repertório</button>
+      </section>
+
+      <section class="repertorio-builder-card">
+        <h3>Repertório em construção</h3>
+        <p class="texto-ajuda">Monte o repertório primeiro. O nome será obrigatório apenas ao salvar.</p>
+
+        <div class="repertorio-builder-form">
+          <label>
+            Nome do repertório
+            <input id="repertorio-nome-montagem" type="text" placeholder="Ex: Rock Nacional, Show Mr. Neno..." value="${escaparHtml(nomeAtual)}" />
+          </label>
+          <label>
+            Observações
+            <textarea id="repertorio-observacoes-montagem" placeholder="Ex: Repertório usado no show de verão.">${escaparHtml(obsAtual)}</textarea>
+          </label>
+        </div>
+
+        <div class="repertorio-resumos">
+          <div class="repertorio-resumo-card"><strong>${resumoRepertorio.quantidade}</strong><span>Músicas</span></div>
+          <div class="repertorio-resumo-card"><strong>${duracaoEstimada}</strong><span>Duração estimada</span></div>
+          <div class="repertorio-resumo-card"><strong>${resumoRepertorio.percentual}%</strong><span>Preparo médio</span></div>
+        </div>
+
+        <div class="resumo-repertorio-inteligente">
+          ${montarMiniProgresso(resumoRepertorio.percentual, resumoRepertorio.cor, textoMusicas)}
+          <p style="margin-top:8px; font-size:12px; color:#cbd5e1;">O percentual do repertório é a média do progresso das músicas selecionadas.</p>
+        </div>
+
+        <h3 style="margin-top:16px;">Músicas no repertório</h3>
+        <p class="texto-ajuda">Use as setas para organizar a ordem do set.</p>
+        <div id="lista-musicas-repertorio" class="setlist-lista-final">
           ${renderizarMusicasSelecionadasRepertorio(selecionadas)}
         </div>
-      </div>
-    </div>
 
-    <div class="acoes-edicao-repertorio">
-      <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>${repertorio.temporario ? "Salvar repertório" : "Salvar alterações"}</span></button>
-      <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg><span>Enviar repertório via WhatsApp</span><span>→</span></button>
-      <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};">Gerar PDF</button>
-      <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
+        <div class="rodape-repertorio-builder">
+          <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>${repertorio.temporario ? "Salvar repertório" : "Salvar alterações"}</span></button>
+          <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg><span>Enviar via WhatsApp</span></button>
+        </div>
+
+        <div class="acoes-edicao-repertorio" style="margin-top:10px;">
+          <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};">Gerar PDF</button>
+          <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio-edicao" type="button">Voltar à lista</button>
+        </div>
+      </section>
     </div>
   `;
 
@@ -4727,53 +4999,51 @@ function renderizarMontagemRepertorio() {
 
 function renderizarBibliotecaMusicasRepertorio(musicas) {
   if (!musicas || musicas.length === 0) {
-    return `<p>Nenhuma música disponível para adicionar.</p>`;
+    return `<p style="color:#cbd5e1;">Nenhuma música disponível para adicionar.</p>`;
   }
 
   return musicas.map(function(musica) {
     const progresso = obterProgressoDaMusica(musica.id);
+    const textoStatus = progresso.percentual >= 90 ? "Pronta" : progresso.percentual >= 50 ? "Em estudo" : "Não iniciada";
 
     return `
-      <div class="item-biblioteca-musica">
+      <label class="musica-biblioteca-linha">
         <input class="check-musica-repertorio" type="checkbox" value="${escaparHtml(musica.id)}" aria-label="Selecionar música ${escaparHtml(musica.nome || "")}" />
-        <div class="dados-biblioteca-musica">
+        <div>
           <h4>${escaparHtml(musica.nome || "Sem nome")}</h4>
-          <p>${escaparHtml(musica.artista || "Artista não informado")}</p>
-          <p>Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
-          ${montarMiniProgresso(progresso.percentual, progresso.cor, progresso.total > 0 ? progresso.prontas + " de " + progresso.total + " prontos" : "Sem integrantes")}
+          <p>${escaparHtml(musica.artista || "Artista não informado")} • Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
         </div>
-        <button class="btn-adicionar-musica-repertorio" type="button" data-adicionar-musica-repertorio="${escaparHtml(musica.id)}">+ Adicionar</button>
-      </div>
+        <div class="status-biblioteca-mini">
+          <span class="bolinha-status-musica ${escaparHtml(progresso.cor)}"></span>${textoStatus}<br />${progresso.percentual}%
+        </div>
+      </label>
     `;
   }).join("");
 }
 
 function renderizarMusicasSelecionadasRepertorio(itens) {
   if (!itens || itens.length === 0) {
-    return `<p>Nenhuma música adicionada ainda.</p>`;
+    return `<p style="color:#cbd5e1;">Nenhuma música adicionada ainda.</p>`;
   }
 
   return itens.map(function(item, indice) {
     const musica = item.musica || {};
     const numero = String(indice + 1).padStart(2, "0");
     const progresso = obterProgressoDaMusica(musica.id);
+    const textoStatus = progresso.percentual >= 90 ? "Pronta" : progresso.percentual >= 50 ? "Em estudo" : "Não iniciada";
 
     return `
-      <div class="item-musica-repertorio">
-        <div class="item-musica-repertorio-conteudo">
-          <div class="numero-musica-repertorio">${numero}</div>
-          <div class="dados-musica-repertorio">
-            <h4>${escaparHtml(musica.nome || "Sem nome")}</h4>
-            <p>${escaparHtml(musica.artista || "Artista não informado")}</p>
-            <p>Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
-            ${montarMiniProgresso(progresso.percentual, progresso.cor, progresso.total > 0 ? progresso.prontas + " de " + progresso.total + " prontos" : "Sem integrantes")}
-          </div>
+      <div class="setlist-linha">
+        <div class="numero-setlist-final">${numero}</div>
+        <div>
+          <h4>${escaparHtml(musica.nome || "Sem nome")}</h4>
+          <p>${escaparHtml(musica.artista || "Artista não informado")} • Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
+          <p><span class="bolinha-status-musica ${escaparHtml(progresso.cor)}"></span>${textoStatus} • ${progresso.percentual}%</p>
         </div>
-
-        <div class="botoes-musica-repertorio">
-          <button class="btn-subir-musica" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">Antes</button>
-          <button class="btn-descer-musica" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">Depois</button>
-          <button class="btn-remover-musica-repertorio" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">Remover</button>
+        <div class="setlist-acoes-final">
+          <button type="button" title="Mover para cima" data-subir-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button>
+          <button type="button" title="Mover para baixo" data-descer-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+          <button class="remover" type="button" title="Remover" data-remover-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
         </div>
       </div>
     `;
@@ -4788,9 +5058,19 @@ function configurarEventosMontagemRepertorio() {
   const botaoCompartilharEdicao = elemento("btn-compartilhar-repertorio-edicao");
   const botaoGerarPdfEdicao = elemento("btn-gerar-pdf-repertorio-edicao");
   const botaoCancelarEdicao = elemento("btn-cancelar-repertorio-edicao");
+  const nomeMontagem = elemento("repertorio-nome-montagem");
+  const obsMontagem = elemento("repertorio-observacoes-montagem");
 
   if (busca) {
     busca.addEventListener("input", renderizarMontagemRepertorio);
+  }
+
+  if (nomeMontagem) {
+    nomeMontagem.addEventListener("input", sincronizarCamposRepertorio);
+  }
+
+  if (obsMontagem) {
+    obsMontagem.addEventListener("input", sincronizarCamposRepertorio);
   }
 
   if (ordenar) {
