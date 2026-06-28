@@ -2445,8 +2445,8 @@ async function carregarMusicas() {
       }
 
       .bolinha-status-musica {
-        width: 13px;
-        height: 13px;
+        width: 11px;
+        height: 11px;
         border-radius: 50%;
         display: inline-block;
         box-shadow: 0 0 0 2px rgba(255,255,255,.08);
@@ -2475,6 +2475,14 @@ async function carregarMusicas() {
       .barra-progresso-musica span.amarela { background: #facc15; }
       .barra-progresso-musica span.verde { background: #22c55e; }
 
+      .progresso-musica-ajuda {
+        display: block;
+        margin-top: -2px;
+        font-size: 11px;
+        line-height: 1.35;
+        color: #94a3b8;
+      }
+
       .meu-progresso-musica {
         display: flex;
         align-items: center;
@@ -2490,8 +2498,8 @@ async function carregarMusicas() {
       }
 
       .btn-status-musica {
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
         border-radius: 50%;
         border: 2px solid rgba(255,255,255,.16);
         cursor: pointer;
@@ -2823,7 +2831,7 @@ function montarResumoProgressoMusica(musicaId) {
   const progresso = obterProgressoDaMusica(musicaId);
 
   const textoProntas = progresso.total > 0
-    ? `${progresso.prontas}/${progresso.total} prontas`
+    ? `${progresso.prontas} de ${progresso.total} integrantes prontos`
     : "Sem integrantes";
 
   return `
@@ -2838,6 +2846,7 @@ function montarResumoProgressoMusica(musicaId) {
       <div class="barra-progresso-musica" title="Progresso da música">
         <span class="${progresso.cor}" style="width:${progresso.percentual}%"></span>
       </div>
+      <small class="progresso-musica-ajuda">ⓘ O percentual representa o progresso coletivo da banda nesta música.</small>
       ${montarControleMeuProgresso(musicaId)}
     </div>
   `;
