@@ -210,23 +210,8 @@ function obterCodigoConvitePendente() {
   return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
 }
 
-function marcarConviteAutenticado(codigo) {
-  if (codigo) {
-    localStorage.setItem("convite_autenticado_codigo", codigo);
-  }
-}
-
-function conviteAutenticadoNoFluxo(codigo) {
-  return codigo && localStorage.getItem("convite_autenticado_codigo") === codigo;
-}
-
-function limparMarcadorConviteAutenticado() {
-  localStorage.removeItem("convite_autenticado_codigo");
-}
-
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
-  limparMarcadorConviteAutenticado();
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -1786,8 +1771,9 @@ async function carregarConvitePublico(codigo) {
 
   const { data: sessaoParaConvite } = await cliente.auth.getSession();
   const usuarioLogado = sessaoParaConvite.session?.user;
+  const autenticadoPeloConvite = localStorage.getItem("convite_autenticado_" + codigo) === "true";
 
-  if (usuarioLogado && conviteAutenticadoNoFluxo(codigo)) {
+  if (usuarioLogado && autenticadoPeloConvite) {
     appState.sessao = sessaoParaConvite.session;
     appState.usuario = usuarioLogado;
     preencherUsuario(usuarioLogado);
@@ -1828,7 +1814,7 @@ function renderizarAutenticacaoConvite(convite) {
   acoes.innerHTML = `
     <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
       <h3 style="margin:0; color:#ffffff;">Aceitar convite</h3>
-      <p style="margin:0; color:#d1d5db; font-size:13px;">Crie seu login com e-mail e senha ou entre com Gmail. Em seguida, abrirá o cadastro de integrante.</p>
+      <p style="margin:0; color:#d1d5db; font-size:13px;">Para aceitar o convite, crie seu login com e-mail e senha ou entre com Gmail. Depois disso abrirá o cadastro de integrante.</p>
 
       <button class="botao-google" id="btn-gmail-convite" type="button" style="min-height:42px;">
         <img src="logo_gmail.webp" alt="Gmail" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;" />
@@ -1837,7 +1823,7 @@ function renderizarAutenticacaoConvite(convite) {
 
       <div class="divisor" style="margin:4px 0;">
         <span></span>
-        <p>ou</p>
+        <p>ou crie sua conta</p>
         <span></span>
       </div>
 
@@ -1848,22 +1834,20 @@ function renderizarAutenticacaoConvite(convite) {
 
       <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
         Senha
-        <input id="convite-auth-senha" type="password" placeholder="Senha" />
+        <input id="convite-auth-senha" type="password" placeholder="Crie uma senha" />
       </label>
 
       <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-        Confirmar senha <span style="font-weight:400; color:#9ca3af;">(somente para criar conta)</span>
-        <input id="convite-auth-repetir-senha" type="password" placeholder="Confirmar senha" />
+        Confirmar senha
+        <input id="convite-auth-repetir-senha" type="password" placeholder="Repita a senha" />
       </label>
 
-      <button class="botao-principal" id="btn-criar-login-convite" type="button">Criar login e senha</button>
-      <button class="botao-card" id="btn-entrar-email-convite" type="button">Já tenho conta: entrar</button>
+      <button class="botao-principal" id="btn-criar-login-convite" type="button">Criar minha conta</button>
     </div>
   `;
 
   elemento("btn-gmail-convite")?.addEventListener("click", entrarComGmailConvite);
   elemento("btn-criar-login-convite")?.addEventListener("click", criarLoginConvite);
-  elemento("btn-entrar-email-convite")?.addEventListener("click", entrarEmailConvite);
 }
 
 function obterDadosAuthConvite() {
@@ -1883,7 +1867,7 @@ async function entrarComGmailConvite() {
   }
 
   localStorage.setItem("convite_pendente", convite.codigo);
-  marcarConviteAutenticado(convite.codigo);
+  localStorage.setItem("convite_autenticado_" + convite.codigo, "true");
 
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
@@ -1897,7 +1881,7 @@ async function entrarComGmailConvite() {
   });
 
   if (error) {
-    limparMarcadorConviteAutenticado();
+    localStorage.removeItem("convite_autenticado_" + convite.codigo);
     alert("Erro ao entrar com Gmail: " + error.message);
     return;
   }
@@ -1940,11 +1924,8 @@ async function criarLoginConvite() {
   const botao = elemento("btn-criar-login-convite");
   if (botao) {
     botao.disabled = true;
-    botao.textContent = "Criando login...";
+    botao.textContent = "Criando conta...";
   }
-
-  localStorage.setItem("convite_pendente", convite.codigo);
-  marcarConviteAutenticado(convite.codigo);
 
   const { data, error } = await cliente.auth.signUp({
     email: dados.email,
@@ -1960,14 +1941,14 @@ async function criarLoginConvite() {
   if (error) {
     if (botao) {
       botao.disabled = false;
-      botao.textContent = "Criar login e senha";
+      botao.textContent = "Criar minha conta";
     }
-    limparMarcadorConviteAutenticado();
     alert("Erro ao criar login: " + error.message);
     return;
   }
 
   if (data.session && data.session.user) {
+    localStorage.setItem("convite_autenticado_" + convite.codigo, "true");
     appState.sessao = data.session;
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
@@ -1980,7 +1961,7 @@ async function criarLoginConvite() {
     botao.textContent = "Criar login e senha";
   }
 
-  alert("Login criado. Se o Supabase pedir confirmação de e-mail, confirme e depois entre por esta mesma tela para continuar o convite.");
+  alert("Conta criada. Se o Supabase pedir confirmação de e-mail, confirme pelo e-mail e depois abra novamente este convite para continuar.");
 }
 
 async function entrarEmailConvite() {
@@ -2018,7 +1999,6 @@ async function entrarEmailConvite() {
     return;
   }
 
-  marcarConviteAutenticado(convite.codigo);
   appState.sessao = data.session || null;
   appState.usuario = data.user || data.session?.user || null;
   preencherUsuario(appState.usuario);
@@ -2276,6 +2256,7 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   };
 
   salvarProjetoAtual(projeto);
+  localStorage.removeItem("convite_autenticado_" + convite.codigo);
   limparConvitePendente();
   limparDadosConviteTemporario();
   appState.conviteAtual = null;
