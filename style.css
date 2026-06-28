@@ -993,3 +993,132 @@ select {
     margin-top: 16px !important;
   }
 }
+
+
+/* =========================================================
+   Padronização global — botões Integrantes / WhatsApp
+   Mantém a estrutura original e ajusta apenas o visual.
+   ========================================================= */
+#btn-salvar-integrante,
+button#btn-salvar-integrante,
+.botao-salvar-integrante {
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin-top: 10px !important;
+  padding: 0 18px !important;
+  border: none !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 24px rgba(122, 92, 255, 0.20) !important;
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+}
+
+#btn-salvar-integrante::before,
+button#btn-salvar-integrante::before,
+.botao-salvar-integrante::before {
+  content: "✓";
+  width: 21px;
+  height: 21px;
+  border: 2px solid rgba(255,255,255,.92);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  flex: 0 0 21px;
+}
+
+#btn-salvar-integrante:hover,
+button#btn-salvar-integrante:hover,
+.botao-salvar-integrante:hover {
+  filter: brightness(1.06) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 30px rgba(122, 92, 255, 0.28) !important;
+}
+
+#btn-convidar-integrante,
+button#btn-convidar-integrante,
+.botao-whatsapp,
+.botao-convidar-whatsapp {
+  width: 100% !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  margin-top: 8px !important;
+  padding: 0 16px !important;
+  border: none !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #18c761, #16b957) !important;
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 24px rgba(24, 199, 97, 0.22) !important;
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+}
+
+#btn-convidar-integrante::before,
+button#btn-convidar-integrante::before,
+.botao-whatsapp::before,
+.botao-convidar-whatsapp::before {
+  content: "☎";
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255,255,255,.94);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  flex: 0 0 24px;
+}
+
+#btn-convidar-integrante::after,
+button#btn-convidar-integrante::after,
+.botao-whatsapp::after,
+.botao-convidar-whatsapp::after {
+  content: "→";
+  margin-left: auto;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  opacity: .96;
+}
+
+#btn-convidar-integrante:hover,
+button#btn-convidar-integrante:hover,
+.botao-whatsapp:hover,
+.botao-convidar-whatsapp:hover {
+  filter: brightness(1.05) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 30px rgba(24, 199, 97, 0.30) !important;
+}
+
+#btn-salvar-integrante:disabled,
+#btn-convidar-integrante:disabled {
+  opacity: .68 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  filter: grayscale(.1) !important;
+}
