@@ -210,8 +210,23 @@ function obterCodigoConvitePendente() {
   return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
 }
 
+function marcarConviteAutenticado(codigo) {
+  if (codigo) {
+    localStorage.setItem("convite_autenticado_codigo", codigo);
+  }
+}
+
+function conviteAutenticadoNoFluxo(codigo) {
+  return codigo && localStorage.getItem("convite_autenticado_codigo") === codigo;
+}
+
+function limparMarcadorConviteAutenticado() {
+  localStorage.removeItem("convite_autenticado_codigo");
+}
+
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
+  limparMarcadorConviteAutenticado();
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -1772,7 +1787,7 @@ async function carregarConvitePublico(codigo) {
   const { data: sessaoParaConvite } = await cliente.auth.getSession();
   const usuarioLogado = sessaoParaConvite.session?.user;
 
-  if (usuarioLogado) {
+  if (usuarioLogado && conviteAutenticadoNoFluxo(codigo)) {
     appState.sessao = sessaoParaConvite.session;
     appState.usuario = usuarioLogado;
     preencherUsuario(usuarioLogado);
@@ -1868,6 +1883,7 @@ async function entrarComGmailConvite() {
   }
 
   localStorage.setItem("convite_pendente", convite.codigo);
+  marcarConviteAutenticado(convite.codigo);
 
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
@@ -1881,6 +1897,7 @@ async function entrarComGmailConvite() {
   });
 
   if (error) {
+    limparMarcadorConviteAutenticado();
     alert("Erro ao entrar com Gmail: " + error.message);
     return;
   }
@@ -1926,6 +1943,9 @@ async function criarLoginConvite() {
     botao.textContent = "Criando login...";
   }
 
+  localStorage.setItem("convite_pendente", convite.codigo);
+  marcarConviteAutenticado(convite.codigo);
+
   const { data, error } = await cliente.auth.signUp({
     email: dados.email,
     password: dados.senha,
@@ -1942,6 +1962,7 @@ async function criarLoginConvite() {
       botao.disabled = false;
       botao.textContent = "Criar login e senha";
     }
+    limparMarcadorConviteAutenticado();
     alert("Erro ao criar login: " + error.message);
     return;
   }
@@ -1997,6 +2018,7 @@ async function entrarEmailConvite() {
     return;
   }
 
+  marcarConviteAutenticado(convite.codigo);
   appState.sessao = data.session || null;
   appState.usuario = data.user || data.session?.user || null;
   preencherUsuario(appState.usuario);
