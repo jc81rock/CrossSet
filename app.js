@@ -3426,6 +3426,83 @@ async function carregarRepertorios() {
         margin-bottom: 6px;
       }
 
+      .mini-progresso-repertorio,
+      .mini-progresso-musica-repertorio {
+        margin-top: 8px;
+        display: grid;
+        gap: 6px;
+      }
+
+      .linha-progresso-repertorio {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: #e5e7eb;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .bolinha-status-musica {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+
+      .bolinha-status-musica.vermelha { background: #ef4444; }
+      .bolinha-status-musica.amarela { background: #facc15; }
+      .bolinha-status-musica.verde { background: #22c55e; }
+
+      .barra-mini-progresso {
+        width: 100%;
+        height: 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.12);
+        overflow: hidden;
+      }
+
+      .barra-mini-progresso span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+      }
+
+      .barra-mini-progresso span.vermelha { background: #ef4444; }
+      .barra-mini-progresso span.amarela { background: #facc15; }
+      .barra-mini-progresso span.verde { background: #22c55e; }
+
+      .resumo-repertorio-inteligente {
+        margin: 12px 0 4px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.10);
+      }
+
+      .biblioteca-acoes-repertorio {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin: 8px 0 10px;
+      }
+
+      .check-musica-repertorio {
+        width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 2px 8px 0 0 !important;
+        flex: 0 0 18px;
+      }
+
+      .item-biblioteca-musica .dados-biblioteca-musica {
+        flex: 1;
+      }
+
       @media (max-width: 820px) {
         .modulo-repertorios,
         .montagem-repertorio-grid,
@@ -3540,7 +3617,117 @@ async function buscarRepertorios() {
   }
 
   appState.repertorios = data || [];
+
+  const idsRepertorios = appState.repertorios.map(function(item) {
+    return item.id;
+  });
+
+  const consultas = [
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.musicas)
+      .select("*")
+      .eq("projeto_id", projetoId),
+
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .select("*")
+      .eq("projeto_id", projetoId),
+
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
+      .select("*")
+      .eq("projeto_id", projetoId)
+  ];
+
+  if (idsRepertorios.length > 0) {
+    consultas.push(
+      cliente
+        .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+        .select("*")
+        .in("repertorio_id", idsRepertorios)
+    );
+  }
+
+  const resultados = await Promise.all(consultas);
+  const musicasResultado = resultados[0];
+  const integrantesResultado = resultados[1];
+  const progressoResultado = resultados[2];
+  const relacoesResultado = resultados[3] || { data: [], error: null };
+
+  if (musicasResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar músicas: ${escaparHtml(musicasResultado.error.message)}</p>`;
+    return;
+  }
+
+  if (integrantesResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar integrantes: ${escaparHtml(integrantesResultado.error.message)}</p>`;
+    return;
+  }
+
+  if (progressoResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar progresso: ${escaparHtml(progressoResultado.error.message)}</p>`;
+    return;
+  }
+
+  if (relacoesResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar músicas dos repertórios: ${escaparHtml(relacoesResultado.error.message)}</p>`;
+    return;
+  }
+
+  appState.musicas = musicasResultado.data || [];
+  appState.integrantesProjetoMusicas = integrantesResultado.data || [];
+  appState.progressoMusicas = progressoResultado.data || [];
+  appState.repertorioRelacoesTodas = relacoesResultado.data || [];
+
   renderizarListaRepertorios();
+}
+
+
+function calcularProgressoMedioDasMusicas(idsMusicas) {
+  const ids = idsMusicas || [];
+
+  if (!ids.length) {
+    return { percentual: 0, cor: "vermelha", quantidade: 0 };
+  }
+
+  const soma = ids.reduce(function(total, musicaId) {
+    return total + obterProgressoDaMusica(musicaId).percentual;
+  }, 0);
+
+  const percentual = Math.round(soma / ids.length);
+  let cor = "vermelha";
+
+  if (percentual === 100) {
+    cor = "verde";
+  } else if (percentual >= 50) {
+    cor = "amarela";
+  }
+
+  return { percentual: percentual, cor: cor, quantidade: ids.length };
+}
+
+function obterIdsMusicasDoRepertorio(repertorioId) {
+  return (appState.repertorioRelacoesTodas || [])
+    .filter(function(item) {
+      return item.repertorio_id === repertorioId;
+    })
+    .map(function(item) {
+      return item.musica_id;
+    });
+}
+
+function montarMiniProgresso(percentual, cor, textoComplementar) {
+  return `
+    <div class="mini-progresso-repertorio">
+      <div class="linha-progresso-repertorio">
+        <span><i class="bolinha-status-musica ${escaparHtml(cor)}"></i>${Number(percentual || 0)}%</span>
+        <span>${escaparHtml(textoComplementar || "")}</span>
+      </div>
+      <div class="barra-mini-progresso" title="Progresso">
+        <span class="${escaparHtml(cor)}" style="width:${Number(percentual || 0)}%"></span>
+      </div>
+    </div>
+  `;
 }
 
 function renderizarListaRepertorios() {
@@ -3558,6 +3745,10 @@ function renderizarListaRepertorios() {
   }
 
   lista.innerHTML = itens.map(function(item) {
+    const idsMusicas = obterIdsMusicasDoRepertorio(item.id);
+    const resumo = calcularProgressoMedioDasMusicas(idsMusicas);
+    const textoMusicas = resumo.quantidade === 1 ? "1 música" : `${resumo.quantidade} músicas`;
+
     return `
       <div class="item-repertorio">
         <div class="item-repertorio-topo">
@@ -3566,11 +3757,12 @@ function renderizarListaRepertorios() {
             <div class="dados-repertorio">
               <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
               <p>${escaparHtml(item.observacoes || "Sem observações")}</p>
+              ${montarMiniProgresso(resumo.percentual, resumo.cor, textoMusicas)}
             </div>
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Abrir</button>
             <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
@@ -3838,30 +4030,55 @@ async function carregarDadosMontagemRepertorio() {
     return;
   }
 
-  const { data: musicas, error: erroMusicas } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.musicas)
-    .select("*")
-    .eq("projeto_id", projetoId)
-    .order("nome", { ascending: true });
+  const [musicasResultado, integrantesResultado, progressoResultado, relacoesResultado] = await Promise.all([
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.musicas)
+      .select("*")
+      .eq("projeto_id", projetoId)
+      .order("nome", { ascending: true }),
 
-  if (erroMusicas) {
-    alert("Erro ao carregar músicas: " + erroMusicas.message);
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .select("*")
+      .eq("projeto_id", projetoId)
+      .order("nome", { ascending: true }),
+
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
+      .select("*")
+      .eq("projeto_id", projetoId),
+
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+      .select("*")
+      .eq("repertorio_id", repertorioId)
+      .order("ordem", { ascending: true })
+  ]);
+
+  if (musicasResultado.error) {
+    alert("Erro ao carregar músicas: " + musicasResultado.error.message);
     return;
   }
 
-  const { data: relacoes, error: erroRelacoes } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-    .select("*")
-    .eq("repertorio_id", repertorioId)
-    .order("ordem", { ascending: true });
-
-  if (erroRelacoes) {
-    alert("Erro ao carregar músicas do repertório: " + erroRelacoes.message);
+  if (integrantesResultado.error) {
+    alert("Erro ao carregar integrantes: " + integrantesResultado.error.message);
     return;
   }
 
-  appState.musicas = musicas || [];
-  appState.repertorioMusicas = (relacoes || []).map(function(relacao) {
+  if (progressoResultado.error) {
+    alert("Erro ao carregar progresso: " + progressoResultado.error.message);
+    return;
+  }
+
+  if (relacoesResultado.error) {
+    alert("Erro ao carregar músicas do repertório: " + relacoesResultado.error.message);
+    return;
+  }
+
+  appState.musicas = musicasResultado.data || [];
+  appState.integrantesProjetoMusicas = integrantesResultado.data || [];
+  appState.progressoMusicas = progressoResultado.data || [];
+  appState.repertorioMusicas = (relacoesResultado.data || []).map(function(relacao) {
     const musica = appState.musicas.find(function(item) {
       return item.id === relacao.musica_id;
     });
@@ -3893,6 +4110,7 @@ function renderizarMontagemRepertorio() {
   }));
 
   const buscaAtual = limparTexto(elemento("busca-musicas-repertorio")?.value).toLowerCase();
+  const ordemAtual = elemento("ordenar-musicas-repertorio")?.value || "preparo";
 
   let musicasDisponiveis = (appState.musicas || []).filter(function(musica) {
     return !idsSelecionados.has(musica.id);
@@ -3905,26 +4123,69 @@ function renderizarMontagemRepertorio() {
     });
   }
 
+  musicasDisponiveis.sort(function(a, b) {
+    if (ordemAtual === "nome") {
+      return compararTexto(a.nome, b.nome);
+    }
+
+    if (ordemAtual === "menos_preparo") {
+      return obterProgressoDaMusica(a.id).percentual - obterProgressoDaMusica(b.id).percentual || compararTexto(a.nome, b.nome);
+    }
+
+    if (ordemAtual === "recentes") {
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    }
+
+    return obterProgressoDaMusica(b.id).percentual - obterProgressoDaMusica(a.id).percentual || compararTexto(a.nome, b.nome);
+  });
+
   const selecionadas = [...(appState.repertorioMusicas || [])].sort(function(a, b) {
     return Number(a.ordem || 0) - Number(b.ordem || 0);
   });
 
+  const idsMusicasSelecionadas = selecionadas.map(function(item) {
+    return item.musica_id;
+  });
+  const resumoRepertorio = calcularProgressoMedioDasMusicas(idsMusicasSelecionadas);
+  const textoMusicas = resumoRepertorio.quantidade === 1 ? "1 música" : `${resumoRepertorio.quantidade} músicas`;
+
   montagem.innerHTML = `
     <div class="titulo-montagem-repertorio">
-      <span class="tag">Músicas do repertório</span>
-      <p><strong>${escaparHtml(repertorio.nome || "Repertório")}</strong></p>
-      <p>Adicione músicas, altere a ordem e remova músicas deste repertório.</p>
+      <span class="tag">Repertório inteligente</span>
+      <h3>${escaparHtml(repertorio.nome || "Repertório")}</h3>
+      <p>${escaparHtml(repertorio.observacoes || "Selecione músicas da biblioteca do projeto e organize a ordem do set.")}</p>
+
+      <div class="resumo-repertorio-inteligente">
+        ${montarMiniProgresso(resumoRepertorio.percentual, resumoRepertorio.cor, textoMusicas)}
+        <p style="margin-top:8px; font-size:12px; color:#cbd5e1;">O percentual do repertório é a média do progresso das músicas selecionadas.</p>
+      </div>
     </div>
 
     <div class="montagem-repertorio-grid">
       <div>
-        <h3>Biblioteca de músicas</h3>
+        <h3>Biblioteca do projeto</h3>
         <div class="filtros-montagem-repertorio">
           <label>
             Pesquisar música
             <input id="busca-musicas-repertorio" type="text" placeholder="Buscar por nome, artista ou tom" value="${escaparHtml(buscaAtual)}" />
           </label>
+
+          <label>
+            Ordenar por
+            <select id="ordenar-musicas-repertorio">
+              <option value="preparo" ${ordemAtual === "preparo" ? "selected" : ""}>Mais preparadas</option>
+              <option value="menos_preparo" ${ordemAtual === "menos_preparo" ? "selected" : ""}>Menos preparadas</option>
+              <option value="nome" ${ordemAtual === "nome" ? "selected" : ""}>Nome</option>
+              <option value="recentes" ${ordemAtual === "recentes" ? "selected" : ""}>Mais recentes</option>
+            </select>
+          </label>
         </div>
+
+        <div class="biblioteca-acoes-repertorio">
+          <p style="margin:0; font-size:12px; color:#cbd5e1;">Marque várias músicas e adicione de uma vez.</p>
+          <button class="btn-adicionar-musica-repertorio" id="btn-adicionar-musicas-selecionadas" type="button">Adicionar selecionadas</button>
+        </div>
+
         <div id="lista-biblioteca-musicas" class="lista-biblioteca-musicas">
           ${renderizarBibliotecaMusicasRepertorio(musicasDisponiveis)}
         </div>
@@ -3956,12 +4217,16 @@ function renderizarBibliotecaMusicasRepertorio(musicas) {
   }
 
   return musicas.map(function(musica) {
+    const progresso = obterProgressoDaMusica(musica.id);
+
     return `
       <div class="item-biblioteca-musica">
+        <input class="check-musica-repertorio" type="checkbox" value="${escaparHtml(musica.id)}" aria-label="Selecionar música ${escaparHtml(musica.nome || "")}" />
         <div class="dados-biblioteca-musica">
           <h4>${escaparHtml(musica.nome || "Sem nome")}</h4>
           <p>${escaparHtml(musica.artista || "Artista não informado")}</p>
           <p>Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
+          ${montarMiniProgresso(progresso.percentual, progresso.cor, progresso.total > 0 ? progresso.prontas + " de " + progresso.total + " prontos" : "Sem integrantes")}
         </div>
         <button class="btn-adicionar-musica-repertorio" type="button" data-adicionar-musica-repertorio="${escaparHtml(musica.id)}">+ Adicionar</button>
       </div>
@@ -3977,6 +4242,7 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
   return itens.map(function(item, indice) {
     const musica = item.musica || {};
     const numero = String(indice + 1).padStart(2, "0");
+    const progresso = obterProgressoDaMusica(musica.id);
 
     return `
       <div class="item-musica-repertorio">
@@ -3986,6 +4252,7 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
             <h4>${escaparHtml(musica.nome || "Sem nome")}</h4>
             <p>${escaparHtml(musica.artista || "Artista não informado")}</p>
             <p>Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
+            ${montarMiniProgresso(progresso.percentual, progresso.cor, progresso.total > 0 ? progresso.prontas + " de " + progresso.total + " prontos" : "Sem integrantes")}
           </div>
         </div>
 
@@ -4001,6 +4268,8 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
 
 function configurarEventosMontagemRepertorio() {
   const busca = elemento("busca-musicas-repertorio");
+  const ordenar = elemento("ordenar-musicas-repertorio");
+  const botaoAdicionarSelecionadas = elemento("btn-adicionar-musicas-selecionadas");
   const botaoSalvarEdicao = elemento("btn-salvar-repertorio-edicao");
   const botaoCompartilharEdicao = elemento("btn-compartilhar-repertorio-edicao");
   const botaoGerarPdfEdicao = elemento("btn-gerar-pdf-repertorio-edicao");
@@ -4008,6 +4277,14 @@ function configurarEventosMontagemRepertorio() {
 
   if (busca) {
     busca.addEventListener("input", renderizarMontagemRepertorio);
+  }
+
+  if (ordenar) {
+    ordenar.addEventListener("change", renderizarMontagemRepertorio);
+  }
+
+  if (botaoAdicionarSelecionadas) {
+    botaoAdicionarSelecionadas.addEventListener("click", adicionarMusicasSelecionadasAoRepertorio);
   }
 
   if (botaoSalvarEdicao) {
@@ -4055,11 +4332,38 @@ function configurarEventosMontagemRepertorio() {
   });
 }
 
-async function adicionarMusicaAoRepertorio(musicaId) {
+async function adicionarMusicasSelecionadasAoRepertorio() {
+  const checks = Array.from(document.querySelectorAll("#lista-biblioteca-musicas .check-musica-repertorio:checked"));
+  const ids = checks.map(function(campo) {
+    return campo.value;
+  }).filter(Boolean);
+
+  if (ids.length === 0) {
+    alert("Selecione pelo menos uma música.");
+    return;
+  }
+
+  await adicionarMusicasAoRepertorio(ids);
+}
+
+async function adicionarMusicasAoRepertorio(musicaIds) {
   const cliente = sb();
   const repertorioId = appState.repertorioMontandoId;
 
-  if (!cliente || !repertorioId || !musicaId) {
+  if (!cliente || !repertorioId || !musicaIds || musicaIds.length === 0) {
+    return;
+  }
+
+  const idsJaSelecionados = new Set((appState.repertorioMusicas || []).map(function(item) {
+    return item.musica_id;
+  }));
+
+  const idsNovos = musicaIds.filter(function(id) {
+    return !idsJaSelecionados.has(id);
+  });
+
+  if (idsNovos.length === 0) {
+    alert("As músicas selecionadas já fazem parte deste repertório.");
     return;
   }
 
@@ -4067,21 +4371,33 @@ async function adicionarMusicaAoRepertorio(musicaId) {
     return Math.max(maior, Number(item.ordem || 0));
   }, 0);
 
-  const { error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-    .insert({
+  const payload = idsNovos.map(function(musicaId, indice) {
+    return {
       repertorio_id: repertorioId,
       musica_id: musicaId,
-      ordem: maiorOrdem + 1
-    });
+      ordem: maiorOrdem + indice + 1
+    };
+  });
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+    .insert(payload);
 
   if (error) {
-    alert("Erro ao adicionar música ao repertório: " + error.message);
+    alert("Erro ao adicionar músicas ao repertório: " + error.message);
     return;
   }
 
   await carregarDadosMontagemRepertorio();
   renderizarMontagemRepertorio();
+}
+
+async function adicionarMusicaAoRepertorio(musicaId) {
+  if (!musicaId) {
+    return;
+  }
+
+  await adicionarMusicasAoRepertorio([musicaId]);
 }
 
 async function removerMusicaDoRepertorio(relacaoId) {
