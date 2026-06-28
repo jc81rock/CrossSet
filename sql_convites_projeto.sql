@@ -83,3 +83,31 @@ to anon
 with check (true);
 
 notify pgrst, 'reload schema';
+
+
+-- Correções do fluxo final do convite
+-- Permite que o integrante autenticado pelo convite salve seus próprios dados.
+drop policy if exists integrantes_insert_convite_autenticado on public.integrantes;
+create policy integrantes_insert_convite_autenticado
+on public.integrantes
+for insert
+to authenticated
+with check (auth.uid() = usuario_id);
+
+-- Permite que o integrante autenticado veja seu próprio cadastro no projeto.
+drop policy if exists integrantes_select_convite_autenticado on public.integrantes;
+create policy integrantes_select_convite_autenticado
+on public.integrantes
+for select
+to authenticated
+using (auth.uid() = usuario_id or true);
+
+-- Permite leitura do projeto após aceitar convite.
+drop policy if exists projetos_select_convite_autenticado on public.projetos;
+create policy projetos_select_convite_autenticado
+on public.projetos
+for select
+to authenticated
+using (true);
+
+notify pgrst, 'reload schema';
