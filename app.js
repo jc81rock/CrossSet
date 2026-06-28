@@ -2510,6 +2510,12 @@ async function carregarMusicas() {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
+        align-items: start;
+      }
+
+      .linha-form-musicas .ajuda-bpm-musica {
+        grid-column: 2;
+        margin-top: -4px;
       }
 
       .acoes-musica {
@@ -2696,11 +2702,20 @@ async function carregarMusicas() {
         color: #991b1b;
       }
 
+      .btn-adicionar-repertorio-musica {
+        background: linear-gradient(135deg, rgba(51, 196, 255, .95), rgba(122, 92, 255, .95));
+        color: #ffffff;
+      }
+
       @media (max-width: 820px) {
         .modulo-musicas,
         .linha-form-musicas,
         .filtros-musicas {
           grid-template-columns: 1fr;
+        }
+
+        .linha-form-musicas .ajuda-bpm-musica {
+          grid-column: 1;
         }
 
         .item-musica-topo {
@@ -2739,8 +2754,8 @@ async function carregarMusicas() {
             <label>
               BPM
               <input id="musica-bpm" type="number" inputmode="numeric" placeholder="Ex: 120" />
-              <small class="ajuda-campo-musica">Velocidade da música (contagem aproximada)</small>
             </label>
+            <small class="ajuda-campo-musica ajuda-bpm-musica">Velocidade da música (contagem aproximada)</small>
           </div>
 
           <label>
@@ -2945,6 +2960,7 @@ function renderizarListaMusicas() {
           </div>
 
           <div class="botoes-item-musica">
+            <button class="btn-adicionar-repertorio-musica" type="button" data-adicionar-musica-card-repertorio="${escaparHtml(item.id)}">+ Repertório</button>
             <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">Editar</button>
             <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">Excluir</button>
           </div>
@@ -2964,6 +2980,123 @@ function renderizarListaMusicas() {
       excluirMusica(botao.dataset.excluirMusica);
     });
   });
+
+  lista.querySelectorAll("[data-adicionar-musica-card-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      adicionarMusicaDoCardAoRepertorio(botao.dataset.adicionarMusicaCardRepertorio);
+    });
+  });
+}
+
+async function adicionarMusicaDoCardAoRepertorio(musicaId) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !projetoId || !musicaId) {
+    return;
+  }
+
+  const musica = (appState.musicas || []).find(function(item) {
+    return item.id === musicaId;
+  });
+
+  const { data: repertorios, error: erroRepertorios } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorios)
+    .select("*")
+    .eq("projeto_id", projetoId)
+    .order("created_at", { ascending: false });
+
+  if (erroRepertorios) {
+    alert("Erro ao carregar repertórios: " + erroRepertorios.message);
+    return;
+  }
+
+  if (!repertorios || repertorios.length === 0) {
+    alert("Crie um repertório primeiro para adicionar esta música.");
+    abrirModulo("repertorios");
+    return;
+  }
+
+  let repertorio = repertorios[0];
+
+  if (repertorios.length === 1) {
+    const confirmar = confirm(
+      "Adicionar "" + (musica?.nome || "esta música") + "" ao repertório "" + (repertorio.nome || "Repertório") + ""?"
+    );
+
+    if (!confirmar) {
+      return;
+    }
+  } else {
+    const opcoes = repertorios.map(function(item, indice) {
+      return (indice + 1) + " - " + (item.nome || "Repertório sem nome");
+    }).join("\n");
+
+    const escolha = prompt(
+      "Escolha o repertório para adicionar "" + (musica?.nome || "esta música") + "":\n\n" + opcoes
+    );
+
+    if (!escolha) {
+      return;
+    }
+
+    const indice = parseInt(escolha, 10) - 1;
+
+    if (!Number.isInteger(indice) || indice < 0 || indice >= repertorios.length) {
+      alert("Opção inválida.");
+      return;
+    }
+
+    repertorio = repertorios[indice];
+  }
+
+  const { data: existente, error: erroExistente } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+    .select("id")
+    .eq("repertorio_id", repertorio.id)
+    .eq("musica_id", musicaId)
+    .limit(1);
+
+  if (erroExistente) {
+    alert("Erro ao verificar repertório: " + erroExistente.message);
+    return;
+  }
+
+  if (existente && existente.length > 0) {
+    alert("Esta música já está neste repertório.");
+    return;
+  }
+
+  const { data: musicasDoRepertorio, error: erroOrdem } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+    .select("ordem")
+    .eq("repertorio_id", repertorio.id)
+    .order("ordem", { ascending: false })
+    .limit(1);
+
+  if (erroOrdem) {
+    alert("Erro ao verificar ordem do repertório: " + erroOrdem.message);
+    return;
+  }
+
+  const maiorOrdem = musicasDoRepertorio && musicasDoRepertorio.length > 0
+    ? Number(musicasDoRepertorio[0].ordem || 0)
+    : 0;
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+    .insert({
+      repertorio_id: repertorio.id,
+      musica_id: musicaId,
+      ordem: maiorOrdem + 1
+    });
+
+  if (error) {
+    alert("Erro ao adicionar música ao repertório: " + error.message);
+    return;
+  }
+
+  alert("Música adicionada ao repertório "" + (repertorio.nome || "Repertório") + "".");
 }
 
 function obterDadosFormularioMusica() {
