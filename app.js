@@ -3773,11 +3773,22 @@ async function carregarRepertorios() {
         line-height: 1;
         white-space: nowrap;
         font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .botoes-item-repertorio .icone-limpo {
+        width: 14px;
+        height: 14px;
+        flex-basis: 14px;
       }
 
       .btn-editar-repertorio,
       .btn-montar-repertorio,
       .btn-gerar-pdf-repertorio,
+      .btn-pdf-repertorio,
       .btn-compartilhar-repertorio,
       .btn-mover-repertorio,
       .btn-subir-musica,
@@ -4423,10 +4434,11 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">Montar</button>
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">WhatsApp</button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
+            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Montar</span></button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>
+            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg><span>Compartilhar</span></button>
+            <button class="btn-pdf-repertorio" type="button" data-pdf-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg><span>PDF</span></button>
+            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>Excluir</span></button>
           </div>
         </div>
       </div>
@@ -4448,6 +4460,12 @@ function renderizarListaRepertorios() {
   lista.querySelectorAll("[data-compartilhar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       compartilharRepertorio(botao.dataset.compartilharRepertorio);
+    });
+  });
+
+  lista.querySelectorAll("[data-pdf-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      gerarPDFDoRepertorio(botao.dataset.pdfRepertorio);
     });
   });
 
@@ -5951,8 +5969,28 @@ async function compartilharRepertorio(repertorioId) {
     return;
   }
 
-  const url = montarUrlCompartilhavel("repertorio", repertorioId);
-  await compartilharConteudo("Repertório - " + (repertorio.nome || "Repertório"), texto, url);
+  const titulo = "Repertório - " + (repertorio.nome || "Repertório");
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: titulo, text: texto });
+      return;
+    } catch (erro) {
+      // fallback abaixo
+    }
+  }
+
+  const copiado = await copiarTextoCompartilhamento(texto);
+
+  if (copiado) {
+    const abrirWhatsapp = confirm("Texto do repertório copiado. Deseja abrir o WhatsApp para compartilhar?");
+
+    if (abrirWhatsapp) {
+      window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+    }
+  } else {
+    prompt("Copie o texto abaixo para compartilhar:", texto);
+  }
 }
 
 function montarTextoCompartilhamentoEvento(evento) {
