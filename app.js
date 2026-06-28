@@ -1255,42 +1255,6 @@ async function carregarIntegrantes() {
         line-height: 1.35;
       }
 
-
-      .acoes-repertorio {
-        display: grid;
-        gap: 10px;
-        margin-top: 14px;
-      }
-
-      .acoes-repertorio .botao-salvar-repertorio,
-      .acoes-repertorio .botao-montar-repertorio,
-      .acoes-repertorio .botao-whatsapp-repertorio {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .botao-montar-repertorio {
-        background: linear-gradient(135deg, #38bdf8, #9333ea);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(99, 102, 241, .22);
-      }
-
-      .botao-whatsapp-repertorio {
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(34, 197, 94, .18);
-      }
-
       @media (max-width: 820px) {
         .modulo-integrantes,
         .linha-form-integrantes,
@@ -1718,7 +1682,7 @@ function limparFormularioIntegrante() {
   }
 
   if (botaoCancelar) {
-    botaoCancelar.style.display = "inline-flex";
+    botaoCancelar.style.display = "none";
   }
 }
 
@@ -2809,42 +2773,6 @@ async function carregarMusicas() {
         color: #991b1b;
       }
 
-
-      .acoes-repertorio {
-        display: grid;
-        gap: 10px;
-        margin-top: 14px;
-      }
-
-      .acoes-repertorio .botao-salvar-repertorio,
-      .acoes-repertorio .botao-montar-repertorio,
-      .acoes-repertorio .botao-whatsapp-repertorio {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .botao-montar-repertorio {
-        background: linear-gradient(135deg, #38bdf8, #9333ea);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(99, 102, 241, .22);
-      }
-
-      .botao-whatsapp-repertorio {
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(34, 197, 94, .18);
-      }
-
       @media (max-width: 820px) {
         .modulo-musicas,
         .linha-form-musicas,
@@ -3568,68 +3496,9 @@ async function carregarRepertorios() {
       .acoes-musica-repertorio,
       .acoes-edicao-repertorio {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 6px;
-      }
-
-      .acoes-repertorio {
-        flex-direction: column;
-      }
-
-      .botao-salvar-repertorio,
-      .botao-whatsapp-repertorio,
-      .botao-montar-repertorio {
-        width: 100%;
-        min-height: 44px;
-        border: 0;
-        border-radius: 13px;
-        padding: 0 18px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
-      }
-
-      .botao-salvar-repertorio,
-      .botao-montar-repertorio {
-        color: #fff;
-        background: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #a855f7 100%);
-        box-shadow: 0 10px 22px rgba(99, 102, 241, .25);
-      }
-
-      .botao-whatsapp-repertorio {
-        color: #fff;
-        background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
-        box-shadow: 0 10px 22px rgba(34, 197, 94, .20);
-      }
-
-      .botao-salvar-repertorio:hover,
-      .botao-whatsapp-repertorio:hover,
-      .botao-montar-repertorio:hover {
-        transform: translateY(-1px);
-        filter: brightness(1.05);
-      }
-
-      .botao-repertorio-secundario {
-        width: 100%;
-        min-height: 38px;
-        border: 1px solid rgba(255,255,255,.14);
-        border-radius: 11px;
-        padding: 0 14px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
         gap: 8px;
-        background: rgba(255,255,255,.06);
-        color: #e5e7eb;
+        flex-wrap: wrap;
+        margin-top: 4px;
       }
 
       .acoes-edicao-repertorio {
@@ -3655,6 +3524,101 @@ async function carregarRepertorios() {
         background: #eeeeee;
         color: #222;
         font-weight: 700;
+      }
+
+
+      .rf-btn-modern {
+        width: 100%;
+        min-height: 44px !important;
+        height: 44px !important;
+        border: 0;
+        border-radius: 14px !important;
+        padding: 0 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        cursor: pointer;
+        font-size: 15px !important;
+        line-height: 1 !important;
+        font-weight: 600 !important;
+        color: #ffffff !important;
+        white-space: nowrap !important;
+        box-shadow: 0 12px 28px rgba(0,0,0,.22);
+        transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+      }
+
+      .rf-btn-modern:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.06);
+        box-shadow: 0 16px 32px rgba(0,0,0,.28);
+      }
+
+      .rf-btn-modern:active {
+        transform: translateY(0);
+      }
+
+      .rf-btn-modern svg {
+        width: 18px;
+        height: 18px;
+        min-width: 18px;
+        stroke: #ffffff;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .rf-btn-primary {
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+      }
+
+      .rf-btn-music {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed, #9333ea) !important;
+      }
+
+      .rf-btn-whatsapp {
+        background: #1fb85a !important;
+      }
+
+      .rf-btn-whatsapp:hover {
+        background: #18a64f !important;
+      }
+
+      .acoes-repertorio .rf-btn-modern {
+        margin-bottom: 2px;
+      }
+
+      .btn-acao-minimal {
+        border: 1px solid rgba(255,255,255,.14) !important;
+        background: rgba(255,255,255,.08) !important;
+        color: #ffffff !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        font-weight: 600 !important;
+      }
+
+      .btn-acao-minimal svg {
+        width: 14px;
+        height: 14px;
+        min-width: 14px;
+        stroke: #ffffff;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .btn-acao-danger {
+        border: 1px solid rgba(248,113,113,.35) !important;
+        background: rgba(127,29,29,.45) !important;
+        color: #fecaca !important;
+      }
+
+      .btn-acao-danger svg {
+        stroke: #fecaca;
       }
 
       .lista-repertorios,
@@ -3862,42 +3826,6 @@ async function carregarRepertorios() {
         flex: 1;
       }
 
-
-      .acoes-repertorio {
-        display: grid;
-        gap: 10px;
-        margin-top: 14px;
-      }
-
-      .acoes-repertorio .botao-salvar-repertorio,
-      .acoes-repertorio .botao-montar-repertorio,
-      .acoes-repertorio .botao-whatsapp-repertorio {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .botao-montar-repertorio {
-        background: linear-gradient(135deg, #38bdf8, #9333ea);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(99, 102, 241, .22);
-      }
-
-      .botao-whatsapp-repertorio {
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(34, 197, 94, .18);
-      }
-
       @media (max-width: 820px) {
         .modulo-repertorios,
         .montagem-repertorio-grid,
@@ -3933,11 +3861,22 @@ async function carregarRepertorios() {
           </label>
 
           <div class="acoes-repertorio">
-            <button class="botao-salvar-repertorio" id="btn-salvar-repertorio" type="button">✓ Salvar repertório</button>
-            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button">🎼 Escolher músicas do projeto</button>
-            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button">☘ Enviar repertório via WhatsApp →</button>
-            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">📄 Gerar PDF</button>
-            <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
+            <button class="rf-btn-modern rf-btn-primary" id="btn-salvar-repertorio" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+              <span class="rf-btn-text">Salvar repertório</span>
+            </button>
+
+            <button class="rf-btn-modern rf-btn-music" id="btn-montar-repertorio-form" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+              <span>Montar repertório</span>
+            </button>
+
+            <button class="rf-btn-modern rf-btn-whatsapp" id="btn-whatsapp-repertorio-form" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L4 20l1.1-3.2A8.5 8.5 0 1 1 20 11.5Z"></path><path d="M9 8.8c.2 3 2.3 5.1 5.2 5.8l1.1-1.1c.3-.3.7-.3 1.1-.1l1.1.6"></path></svg>
+              <span>Enviar repertório via WhatsApp</span>
+            </button>
+
+            <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
 
           <div id="montagem-repertorio" class="montagem-repertorio" style="display:none;"></div>
@@ -3965,13 +3904,22 @@ async function carregarRepertorios() {
 
 function configurarEventosRepertorios() {
   const botaoSalvar = elemento("btn-salvar-repertorio");
+  const botaoMontarForm = elemento("btn-montar-repertorio-form");
+  const botaoWhatsappForm = elemento("btn-whatsapp-repertorio-form");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
   const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
-  const botaoMontarForm = elemento("btn-montar-repertorio-form");
 
   if (botaoSalvar) {
     botaoSalvar.addEventListener("click", salvarRepertorio);
+  }
+
+  if (botaoMontarForm) {
+    botaoMontarForm.addEventListener("click", salvarRepertorioEMontar);
+  }
+
+  if (botaoWhatsappForm) {
+    botaoWhatsappForm.addEventListener("click", compartilharRepertorioDoFormulario);
   }
 
   if (botaoCancelar) {
@@ -3981,10 +3929,6 @@ function configurarEventosRepertorios() {
   if (botaoCompartilhar) {
     botaoCompartilhar.addEventListener("click", function() {
       const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
-      if (!id) {
-        alert("Salve o repertório antes de enviar pelo WhatsApp.");
-        return;
-      }
       compartilharRepertorio(id);
     });
   }
@@ -3993,24 +3937,6 @@ function configurarEventosRepertorios() {
     botaoGerarPdf.addEventListener("click", function() {
       const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
       gerarPDFDoRepertorio(id);
-    });
-  }
-
-  if (botaoMontarForm) {
-    botaoMontarForm.addEventListener("click", async function() {
-      let id = appState.repertorioEditandoId || appState.repertorioMontandoId;
-
-      if (!id) {
-        await salvarRepertorio();
-        id = appState.repertorioEditandoId || appState.repertorioMontandoId;
-      }
-
-      if (!id) {
-        alert("Salve o repertório antes de escolher as músicas.");
-        return;
-      }
-
-      montarRepertorio(id);
     });
   }
 }
@@ -4181,21 +4107,23 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">🎼 Montar</button>
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">✎ Editar</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">☘ WhatsApp</button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
+            <button class="btn-editar-repertorio btn-acao-minimal" type="button" data-editar-repertorio="${escaparHtml(item.id)}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+              Montar
+            </button>
+            <button class="btn-compartilhar-repertorio btn-acao-minimal" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L4 20l1.1-3.2A8.5 8.5 0 1 1 20 11.5Z"></path></svg>
+              WhatsApp
+            </button>
+            <button class="btn-excluir-repertorio btn-acao-danger" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path></svg>
+              Excluir
+            </button>
           </div>
         </div>
       </div>
     `;
   }).join("");
-
-  lista.querySelectorAll("[data-montar-repertorio]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      montarRepertorio(botao.dataset.montarRepertorio);
-    });
-  });
 
   lista.querySelectorAll("[data-editar-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
@@ -4227,7 +4155,6 @@ function preencherFormularioRepertorio(item) {
   const botaoSalvar = elemento("btn-salvar-repertorio");
   const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
-  const botaoMontarForm = elemento("btn-montar-repertorio-form");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (campoNome) {
@@ -4243,25 +4170,23 @@ function preencherFormularioRepertorio(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "✓ Salvar alterações";
     botaoSalvar.style.display = "inline-flex";
+    const textoBotaoSalvar = botaoSalvar.querySelector(".rf-btn-text");
+    if (textoBotaoSalvar) {
+      textoBotaoSalvar.textContent = "Salvar alterações";
+    }
   }
 
   if (botaoCompartilhar) {
-    botaoCompartilhar.style.display = "inline-flex";
+    botaoCompartilhar.style.display = "none";
   }
 
   if (botaoGerarPdf) {
-    botaoGerarPdf.style.display = "inline-flex";
+    botaoGerarPdf.style.display = "none";
   }
 
   if (botaoCancelar) {
     botaoCancelar.style.display = "none";
-  }
-
-  if (botaoMontarForm) {
-    botaoMontarForm.style.display = "inline-flex";
-    botaoMontarForm.textContent = "🎼 Escolher músicas do projeto";
   }
 
   const cardForm = elemento("card-form-repertorio");
@@ -4289,7 +4214,6 @@ function limparFormularioRepertorio() {
   const botaoSalvar = elemento("btn-salvar-repertorio");
   const botaoCompartilhar = elemento("btn-compartilhar-repertorio");
   const botaoGerarPdf = elemento("btn-gerar-pdf-repertorio");
-  const botaoMontarForm = elemento("btn-montar-repertorio-form");
   const botaoCancelar = elemento("btn-cancelar-repertorio");
 
   if (campoNome) {
@@ -4305,12 +4229,15 @@ function limparFormularioRepertorio() {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "✓ Salvar repertório";
     botaoSalvar.style.display = "inline-flex";
+    const textoBotaoSalvar = botaoSalvar.querySelector(".rf-btn-text");
+    if (textoBotaoSalvar) {
+      textoBotaoSalvar.textContent = "Salvar repertório";
+    }
   }
 
   if (botaoCompartilhar) {
-    botaoCompartilhar.style.display = "inline-flex";
+    botaoCompartilhar.style.display = "none";
   }
 
   if (botaoGerarPdf) {
@@ -4335,12 +4262,13 @@ function limparFormularioRepertorio() {
   fecharMontagemRepertorio();
 }
 
-async function salvarRepertorio() {
+async function salvarRepertorio(opcoes = {}) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
+  const abrirMontagemDepois = opcoes && opcoes.abrirMontagem === true;
 
   if (!cliente || !projetoId) {
-    return;
+    return null;
   }
 
   const nome = limparTexto(elemento("repertorio-nome")?.value);
@@ -4348,7 +4276,7 @@ async function salvarRepertorio() {
 
   if (!nome) {
     alert("Informe o nome do repertório.");
-    return;
+    return null;
   }
 
   const payload = {
@@ -4357,14 +4285,13 @@ async function salvarRepertorio() {
     observacoes: observacoes
   };
 
-  let idSalvo = appState.repertorioEditandoId || appState.repertorioMontandoId || null;
   let resultado;
 
-  if (idSalvo) {
+  if (appState.repertorioEditandoId) {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
       .update(payload)
-      .eq("id", idSalvo)
+      .eq("id", appState.repertorioEditandoId)
       .eq("projeto_id", projetoId)
       .select()
       .single();
@@ -4378,27 +4305,65 @@ async function salvarRepertorio() {
 
   if (resultado.error) {
     alert("Erro ao salvar repertório: " + resultado.error.message);
-    return;
+    return null;
   }
 
-  idSalvo = resultado.data?.id || idSalvo;
+  const repertorioSalvo = resultado.data;
+
   await buscarRepertorios();
 
-  const repertorioSalvo = (appState.repertorios || []).find(function(item) {
-    return item.id === idSalvo;
-  });
-
-  if (repertorioSalvo) {
-    appState.repertorioEditandoId = idSalvo;
-    appState.repertorioMontandoId = idSalvo;
+  if (abrirMontagemDepois && repertorioSalvo && repertorioSalvo.id) {
+    appState.repertorioEditandoId = repertorioSalvo.id;
+    appState.repertorioMontandoId = repertorioSalvo.id;
     preencherFormularioRepertorio(repertorioSalvo);
     await carregarDadosMontagemRepertorio();
     renderizarMontagemRepertorio();
+    return repertorioSalvo;
   }
+
+  limparFormularioRepertorio();
+  await buscarRepertorios();
+  return repertorioSalvo;
 }
 
 async function criarRepertorio() {
   await salvarRepertorio();
+}
+
+async function salvarRepertorioEMontar() {
+  if (appState.repertorioEditandoId || appState.repertorioMontandoId) {
+    const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
+    appState.repertorioEditandoId = id;
+    appState.repertorioMontandoId = id;
+    const salvo = await salvarRepertorio({ abrirMontagem: true });
+    if (!salvo) {
+      await montarRepertorio(id);
+    }
+    return;
+  }
+
+  await salvarRepertorio({ abrirMontagem: true });
+}
+
+async function compartilharRepertorioDoFormulario() {
+  const id = appState.repertorioEditandoId || appState.repertorioMontandoId;
+
+  if (id) {
+    await compartilharRepertorio(id);
+    return;
+  }
+
+  const salvar = confirm("Salve o repertório antes de enviar pelo WhatsApp. Deseja salvar agora?");
+
+  if (!salvar) {
+    return;
+  }
+
+  const repertorioSalvo = await salvarRepertorio({ abrirMontagem: true });
+
+  if (repertorioSalvo && repertorioSalvo.id) {
+    await compartilharRepertorio(repertorioSalvo.id);
+  }
 }
 
 async function editarRepertorio(id) {
@@ -4633,7 +4598,7 @@ function renderizarMontagemRepertorio() {
 
         <div class="biblioteca-acoes-repertorio">
           <p style="margin:0; font-size:12px; color:#cbd5e1;">Marque várias músicas e adicione de uma vez.</p>
-          <button class="btn-adicionar-musica-repertorio" id="btn-adicionar-musicas-selecionadas" type="button">Adicionar selecionadas</button>
+          <button class="btn-adicionar-musica-repertorio btn-acao-minimal" id="btn-adicionar-musicas-selecionadas" type="button">Adicionar selecionadas</button>
         </div>
 
         <div id="lista-biblioteca-musicas" class="lista-biblioteca-musicas">
@@ -4651,10 +4616,16 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="acoes-edicao-repertorio">
-      <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button">✓ Salvar alterações</button>
-      <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">☘ Enviar repertório via WhatsApp →</button>
-      <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">📄 Gerar PDF</button>
-      <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
+      <button class="rf-btn-modern rf-btn-primary" id="btn-salvar-repertorio-edicao" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+        <span>Salvar alterações</span>
+      </button>
+      <button class="rf-btn-modern rf-btn-whatsapp" id="btn-compartilhar-repertorio-edicao" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.5 8.5 0 0 1-12.6 7.4L4 20l1.1-3.2A8.5 8.5 0 1 1 20 11.5Z"></path></svg>
+        <span>Enviar repertório via WhatsApp</span>
+      </button>
+      <button class="botao-secundario-modulo btn-gerar-pdf-repertorio btn-acao-minimal" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
+      <button class="botao-secundario-modulo btn-acao-minimal" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
     </div>
   `;
 
@@ -4678,7 +4649,7 @@ function renderizarBibliotecaMusicasRepertorio(musicas) {
           <p>Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
           ${montarMiniProgresso(progresso.percentual, progresso.cor, progresso.total > 0 ? progresso.prontas + " de " + progresso.total + " prontos" : "Sem integrantes")}
         </div>
-        <button class="btn-adicionar-musica-repertorio" type="button" data-adicionar-musica-repertorio="${escaparHtml(musica.id)}">+ Adicionar</button>
+        <button class="btn-adicionar-musica-repertorio btn-acao-minimal" type="button" data-adicionar-musica-repertorio="${escaparHtml(musica.id)}">Adicionar</button>
       </div>
     `;
   }).join("");
@@ -4707,9 +4678,9 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
         </div>
 
         <div class="botoes-musica-repertorio">
-          <button class="btn-subir-musica" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">⬆ Antes</button>
-          <button class="btn-descer-musica" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">⬇ Depois</button>
-          <button class="btn-remover-musica-repertorio" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">🗑 Remover</button>
+          <button class="btn-subir-musica btn-acao-minimal" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">Antes</button>
+          <button class="btn-descer-musica btn-acao-minimal" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">Depois</button>
+          <button class="btn-remover-musica-repertorio btn-acao-danger" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">Remover</button>
         </div>
       </div>
     `;
@@ -5590,42 +5561,6 @@ async function carregarEventos() {
         color: #991b1b;
       }
 
-
-      .acoes-repertorio {
-        display: grid;
-        gap: 10px;
-        margin-top: 14px;
-      }
-
-      .acoes-repertorio .botao-salvar-repertorio,
-      .acoes-repertorio .botao-montar-repertorio,
-      .acoes-repertorio .botao-whatsapp-repertorio {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .botao-montar-repertorio {
-        background: linear-gradient(135deg, #38bdf8, #9333ea);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(99, 102, 241, .22);
-      }
-
-      .botao-whatsapp-repertorio {
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        color: #fff;
-        border: 0;
-        border-radius: 14px;
-        min-height: 46px;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 24px rgba(34, 197, 94, .18);
-      }
-
       @media (max-width: 820px) {
         .modulo-eventos,
         .linha-form-eventos,
@@ -5963,12 +5898,12 @@ function preencherFormularioEvento(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "✓ Salvar alterações";
-    botaoSalvar.style.display = "inline-flex";
+    botaoSalvar.textContent = "Salvar alterações";
+    botaoSalvar.style.display = "none";
   }
 
   if (botaoCompartilhar) {
-    botaoCompartilhar.style.display = "inline-flex";
+    botaoCompartilhar.style.display = "none";
   }
 
   if (botaoGerarPdf) {
