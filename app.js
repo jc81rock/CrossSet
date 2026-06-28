@@ -2644,6 +2644,33 @@ async function carregarMusicas() {
         text-decoration: underline;
       }
 
+      .ajuda-campo-musica {
+        margin: -4px 0 2px;
+        color: #9db2d6;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
+      .indicadores-musica {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin: 6px 0 4px;
+      }
+
+      .indicador-conteudo-musica {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, .08);
+        border: 1px solid rgba(255, 255, 255, .12);
+        font-size: 15px;
+        cursor: default;
+      }
+
       .botoes-item-musica {
         display: flex;
         gap: 6px;
@@ -2690,7 +2717,7 @@ async function carregarMusicas() {
       <div class="card-projeto">
         <span class="tag">Cadastro</span>
         <h3 id="titulo-form-musica">Nova música</h3>
-        <p>Cadastre músicas com tom, BPM, link e observações para montar repertórios.</p>
+        <p>Cadastre músicas com tom, BPM, link, letra e material musical para montar repertórios.</p>
 
         <div class="form-musicas">
           <label>
@@ -2711,13 +2738,25 @@ async function carregarMusicas() {
 
             <label>
               BPM
-              <input id="musica-bpm" type="number" inputmode="numeric" placeholder="Ex: 125" />
+              <input id="musica-bpm" type="number" inputmode="numeric" placeholder="Ex: 120" />
+              <small class="ajuda-campo-musica">Velocidade da música (contagem aproximada)</small>
             </label>
           </div>
 
           <label>
             Link
             <input id="musica-link" type="url" placeholder="YouTube, Spotify, Deezer..." />
+            <small class="ajuda-campo-musica">Cole um link do YouTube, Spotify ou Deezer.</small>
+          </label>
+
+          <label>
+            Material Musical
+            <textarea id="musica-material-musical" placeholder="Cole aqui a cifra, tablatura ou partitura da música (opcional)."></textarea>
+          </label>
+
+          <label>
+            Letra
+            <textarea id="musica-letra" placeholder="Cole aqui a letra da música (opcional)."></textarea>
           </label>
 
           <label>
@@ -2842,6 +2881,8 @@ function renderizarListaMusicas() {
         item.tom,
         item.bpm,
         obterLinkMusica(item),
+        item.material_musical,
+        item.letra,
         item.observacoes
       ].join(" ").toLowerCase();
       return texto.includes(busca);
@@ -2876,6 +2917,12 @@ function renderizarListaMusicas() {
   lista.innerHTML = itens.map(function(item) {
     const link = obterLinkMusica(item);
     const linkSeguro = escaparHtml(link);
+    const temLetra = limparTexto(item.letra).length > 0;
+    const temMaterial = limparTexto(item.material_musical).length > 0;
+    const indicadores = [
+      temLetra ? `<span class="indicador-conteudo-musica" title="Letra disponível" aria-label="Letra disponível">📄</span>` : "",
+      temMaterial ? `<span class="indicador-conteudo-musica" title="Material musical disponível" aria-label="Material musical disponível">🎼</span>` : ""
+    ].filter(Boolean).join("");
 
     return `
       <div class="item-musica">
@@ -2891,7 +2938,9 @@ function renderizarListaMusicas() {
               <span class="pill-musica">BPM: ${escaparHtml(item.bpm || "-")}</span>
             </div>
 
-            ${link ? `<p><a class="link-musica" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">Abrir link da música</a></p>` : ""}
+            ${indicadores ? `<div class="indicadores-musica">${indicadores}</div>` : ""}
+
+            ${link ? `<p><a class="link-musica" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Assistir / Ouvir</a></p>` : ""}
             ${item.observacoes ? `<p><strong>Obs.:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
           </div>
 
@@ -2924,6 +2973,8 @@ function obterDadosFormularioMusica() {
     tom: limparTexto(elemento("musica-tom")?.value),
     bpm: limparTexto(elemento("musica-bpm")?.value),
     link_url: limparTexto(elemento("musica-link")?.value),
+    material_musical: limparTexto(elemento("musica-material-musical")?.value),
+    letra: limparTexto(elemento("musica-letra")?.value),
     observacoes: limparTexto(elemento("musica-observacoes")?.value)
   };
 }
@@ -2938,6 +2989,8 @@ function preencherFormularioMusica(item) {
   elemento("musica-tom").value = item.tom || "";
   elemento("musica-bpm").value = item.bpm || "";
   elemento("musica-link").value = obterLinkMusica(item);
+  elemento("musica-material-musical").value = item.material_musical || "";
+  elemento("musica-letra").value = item.letra || "";
   elemento("musica-observacoes").value = item.observacoes || "";
 
   const titulo = elemento("titulo-form-musica");
@@ -2963,7 +3016,7 @@ function preencherFormularioMusica(item) {
 function limparFormularioMusica() {
   appState.musicaEditandoId = null;
 
-  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-observacoes"].forEach(function(id) {
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-material-musical", "musica-letra", "musica-observacoes"].forEach(function(id) {
     const campo = elemento(id);
     if (campo) {
       campo.value = "";
@@ -3012,6 +3065,8 @@ async function salvarMusica() {
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: dados.link_url,
     youtube_url: dados.link_url,
+    material_musical: dados.material_musical,
+    letra: dados.letra,
     observacoes: dados.observacoes,
     updated_at: new Date().toISOString()
   };
