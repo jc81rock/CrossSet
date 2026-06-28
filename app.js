@@ -3467,6 +3467,52 @@ async function carregarRepertorios() {
         width: 100%;
       }
 
+      .card-repertorio-expandido {
+        grid-column: 1 / -1;
+        overflow: visible;
+      }
+
+      .form-repertorio-topo {
+        display: grid;
+        grid-template-columns: minmax(280px, 420px) minmax(360px, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .resumo-repertorio-lateral {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 16px;
+        background: rgba(15,23,42,.48);
+      }
+
+      .cards-resumo-repertorio {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .card-resumo-mini {
+        border: 1px solid rgba(255,255,255,.10);
+        background: rgba(255,255,255,.045);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .card-resumo-mini strong {
+        display: block;
+        font-size: 20px;
+        color: #fff;
+        line-height: 1.1;
+      }
+
+      .card-resumo-mini span {
+        color: #a8b4c9;
+        font-size: 12px;
+      }
+
       .form-repertorios,
       .filtros-montagem-repertorio {
         display: grid;
@@ -3521,6 +3567,18 @@ async function carregarRepertorios() {
         justify-content: center;
         gap: 10px;
         transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      }
+
+      .icone-limpo {
+        width: 18px;
+        height: 18px;
+        color: #fff;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 18px;
       }
 
       .botao-salvar-repertorio,
@@ -3609,6 +3667,7 @@ async function carregarRepertorios() {
         align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
+        min-width: 0;
       }
 
       .item-repertorio-conteudo,
@@ -3683,26 +3742,49 @@ async function carregarRepertorios() {
       .btn-subir-musica,
       .btn-descer-musica,
       .btn-adicionar-musica-repertorio {
-        background: #e5e7eb;
-        color: #111827;
+        background: rgba(255,255,255,.08);
+        color: #e5e7eb;
+        border: 1px solid rgba(255,255,255,.10);
       }
 
       .btn-excluir-repertorio,
       .btn-remover-musica-repertorio {
-        background: #fee2e2;
-        color: #991b1b;
+        background: rgba(239, 68, 68, .10);
+        color: #fecaca;
+        border: 1px solid rgba(239, 68, 68, .35);
       }
 
       .montagem-repertorio {
-        margin-top: 18px;
-        padding-top: 16px;
+        margin-top: 20px;
+        padding-top: 18px;
         border-top: 1px solid rgba(255,255,255,.12);
+        overflow: visible;
       }
 
       .montagem-repertorio-grid {
         display: grid;
-        grid-template-columns: minmax(280px, 1fr) minmax(280px, 1.2fr);
+        grid-template-columns: minmax(360px, .9fr) minmax(460px, 1.25fr);
         gap: 18px;
+        align-items: start;
+      }
+
+      .painel-biblioteca-repertorio,
+      .painel-setlist-repertorio {
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(15,23,42,.34);
+        min-width: 0;
+      }
+
+      .lista-biblioteca-musicas {
+        max-height: 420px;
+        overflow: auto;
+        padding-right: 4px;
+      }
+
+      .lista-musicas-repertorio {
+        min-height: 240px;
       }
 
       .titulo-montagem-repertorio {
@@ -3790,9 +3872,11 @@ async function carregarRepertorios() {
         flex: 1;
       }
 
-      @media (max-width: 820px) {
+      @media (max-width: 980px) {
         .modulo-repertorios,
         .montagem-repertorio-grid,
+        .form-repertorio-topo,
+        .cards-resumo-repertorio,
         .item-repertorio-topo,
         .item-biblioteca-musica,
         .item-musica-repertorio {
@@ -3825,10 +3909,19 @@ async function carregarRepertorios() {
           </label>
 
           <div class="acoes-repertorio">
-            <button class="botao-salvar-repertorio" id="btn-salvar-repertorio" type="button">✓ Salvar repertório</button>
-            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button" style="display:inline-flex;">♪ Montar repertório</button>
-            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">Enviar repertório via WhatsApp →</button>
-            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">📄 Gerar PDF</button>
+            <button class="botao-salvar-repertorio" id="btn-salvar-repertorio" type="button">
+              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+              <span>Salvar repertório</span>
+            </button>
+            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button" style="display:inline-flex;">
+              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>Montar repertório</span>
+            </button>
+            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
+              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
+              <span>Enviar repertório via WhatsApp</span><span>→</span>
+            </button>
+            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
 
@@ -4058,10 +4151,10 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">♪ Montar</button>
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}">Montar</button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Editar</button>
             <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">WhatsApp</button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
+            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
           </div>
         </div>
       </div>
@@ -4120,7 +4213,7 @@ function preencherFormularioRepertorio(item) {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "✓ Salvar alterações";
+    botaoSalvar.innerHTML = `<svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>Salvar alterações</span>`;
     botaoSalvar.style.display = "inline-flex";
   }
 
@@ -4181,7 +4274,7 @@ function limparFormularioRepertorio() {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "✓ Salvar repertório";
+    botaoSalvar.innerHTML = `<svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>Salvar repertório</span>`;
     botaoSalvar.style.display = "inline-flex";
   }
 
@@ -4406,6 +4499,16 @@ async function montarRepertorio(id) {
   await carregarDadosMontagemRepertorio();
   renderizarMontagemRepertorio();
 
+  const cardForm = elemento("card-form-repertorio");
+  const cardLista = elemento("card-lista-repertorios");
+  if (cardForm) {
+    cardForm.classList.add("card-repertorio-expandido");
+    cardForm.style.gridColumn = "1 / -1";
+  }
+  if (cardLista) {
+    cardLista.style.display = "none";
+  }
+
   const montagem = elemento("montagem-repertorio");
   if (montagem) {
     montagem.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -4573,7 +4676,7 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="montagem-repertorio-grid">
-      <div>
+      <div class="painel-biblioteca-repertorio">
         <h3>Biblioteca do projeto</h3>
         <div class="filtros-montagem-repertorio">
           <label>
@@ -4602,7 +4705,7 @@ function renderizarMontagemRepertorio() {
         </div>
       </div>
 
-      <div>
+      <div class="painel-setlist-repertorio">
         <h3>Músicas no repertório</h3>
         <p>${selecionadas.length} música(s) selecionada(s).</p>
         <div id="lista-musicas-repertorio" class="lista-musicas-repertorio">
@@ -4612,8 +4715,8 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="acoes-edicao-repertorio">
-      <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button">✓ ${repertorio.temporario ? "Salvar repertório" : "Salvar alterações"}</button>
-      <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};">Enviar repertório via WhatsApp →</button>
+      <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>${repertorio.temporario ? "Salvar repertório" : "Salvar alterações"}</span></button>
+      <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg><span>Enviar repertório via WhatsApp</span><span>→</span></button>
       <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};">Gerar PDF</button>
       <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
     </div>
@@ -4668,9 +4771,9 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
         </div>
 
         <div class="botoes-musica-repertorio">
-          <button class="btn-subir-musica" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">⬆ Antes</button>
-          <button class="btn-descer-musica" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">⬇ Depois</button>
-          <button class="btn-remover-musica-repertorio" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">🗑 Remover</button>
+          <button class="btn-subir-musica" type="button" data-subir-musica-repertorio="${escaparHtml(item.id)}">Antes</button>
+          <button class="btn-descer-musica" type="button" data-descer-musica-repertorio="${escaparHtml(item.id)}">Depois</button>
+          <button class="btn-remover-musica-repertorio" type="button" data-remover-musica-repertorio="${escaparHtml(item.id)}">Remover</button>
         </div>
       </div>
     `;
@@ -5422,6 +5525,16 @@ function fecharMontagemRepertorio() {
   if (montagem) {
     montagem.style.display = "none";
     montagem.innerHTML = "";
+  }
+
+  const cardForm = elemento("card-form-repertorio");
+  const cardLista = elemento("card-lista-repertorios");
+  if (cardForm) {
+    cardForm.classList.remove("card-repertorio-expandido");
+    cardForm.style.gridColumn = "";
+  }
+  if (cardLista) {
+    cardLista.style.display = "block";
   }
 }
 
