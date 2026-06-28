@@ -177,32 +177,35 @@ function obterCodigoConviteDaURL() {
   const codigoBusca = limparTexto(params.get("convite"));
 
   if (codigoBusca) {
-    return codigoBusca;
+    return codigoBusca.split("#")[0].split("&")[0];
   }
 
   const hashOriginal = window.location.hash || "";
   const hashLimpo = hashOriginal.replace(/^#/, "").replace(/^\?/, "");
 
   if (hashLimpo) {
-    const paramsHash = new URLSearchParams(hashLimpo);
-    const codigoHash = limparTexto(paramsHash.get("convite"));
-
-    if (codigoHash) {
-      return codigoHash;
-    }
-
-    const matchIgual = hashLimpo.match(/convite=([^&]+)/);
+    // Importante: depois do login Google o Supabase devolve tokens no hash.
+    // Exemplo: #convite=ABC123#access_token=...
+    // Por isso o código do convite precisa parar antes de & ou #.
+    const matchIgual = hashLimpo.match(/convite=([^&#]+)/);
     if (matchIgual) {
       return decodeURIComponent(matchIgual[1]);
     }
 
-    const matchRota = hashLimpo.match(/convite\/([^/?&]+)/);
+    const matchRota = hashLimpo.match(/convite\/([^/?&#]+)/);
     if (matchRota) {
       return decodeURIComponent(matchRota[1]);
     }
+
+    const paramsHash = new URLSearchParams(hashLimpo.split("#")[0]);
+    const codigoHash = limparTexto(paramsHash.get("convite"));
+
+    if (codigoHash) {
+      return codigoHash.split("#")[0].split("&")[0];
+    }
   }
 
-  const pathMatch = window.location.pathname.match(/convite\/([^/?&]+)/);
+  const pathMatch = window.location.pathname.match(/convite\/([^/?&#]+)/);
   return pathMatch ? decodeURIComponent(pathMatch[1]) : "";
 }
 
