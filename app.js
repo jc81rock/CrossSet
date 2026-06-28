@@ -1004,10 +1004,77 @@ async function carregarIntegrantes() {
       }
 
       .acoes-integrante {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
+        display: grid;
+        gap: 10px;
         margin-top: 4px;
+      }
+
+      #btn-salvar-integrante,
+      #btn-convidar-integrante {
+        width: 100% !important;
+        height: 42px !important;
+        min-height: 42px !important;
+        border: 0 !important;
+        border-radius: 13px !important;
+        padding: 0 16px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+        transition: transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+      }
+
+      #btn-salvar-integrante {
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(122, 92, 255, .22) !important;
+      }
+
+      #btn-salvar-integrante::before {
+        content: "💾";
+        font-size: 15px;
+        line-height: 1;
+      }
+
+      #btn-convidar-integrante {
+        background: linear-gradient(135deg, #20d66b, #0bbf55) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(37, 211, 102, .22) !important;
+      }
+
+      #btn-convidar-integrante::before {
+        content: "☎";
+        width: 22px;
+        height: 22px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        line-height: 1;
+        transform: rotate(-18deg);
+      }
+
+      #btn-convidar-integrante::after {
+        content: "→";
+        margin-left: auto;
+        font-size: 21px;
+        line-height: 1;
+      }
+
+      #btn-convidar-integrante::before {
+        margin-left: auto;
+      }
+
+      #btn-salvar-integrante:hover,
+      #btn-convidar-integrante:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.04);
       }
 
       .botao-secundario-modulo {
