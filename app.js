@@ -261,7 +261,7 @@ function limparConvitePendente() {
   }
 
   const hashAtual = window.location.hash || "";
-  if (hashAtual.includes("convite=")) {
+  if (hashAtual.includes("convite=") || hashAtual.includes("convite/")) {
     url.hash = "";
     mudou = true;
   }
@@ -279,6 +279,23 @@ async function verificarSessao() {
     return;
   }
 
+  const { data, error } = await cliente.auth.getSession();
+
+  if (!error && data && data.session) {
+    appState.sessao = data.session;
+    appState.usuario = data.session.user;
+
+    // Se o usuário já está logado, convite antigo na URL não deve reabrir a tela de convite.
+    limparConvitePendente();
+
+    preencherUsuario(appState.usuario);
+    mostrarTela("tela-projetos", { registrar: false });
+    return;
+  }
+
+  appState.sessao = null;
+  appState.usuario = null;
+
   const codigoRepertorio = obterCodigoRepertorioDaURL();
   if (codigoRepertorio) {
     await carregarRepertorioPublico(codigoRepertorio);
@@ -292,20 +309,7 @@ async function verificarSessao() {
     return;
   }
 
-  const { data, error } = await cliente.auth.getSession();
-
-  if (error || !data.session) {
-    appState.sessao = null;
-    appState.usuario = null;
-    mostrarTela("tela-login", { registrar: false });
-    return;
-  }
-
-  appState.sessao = data.session;
-  appState.usuario = data.session.user;
-
-  preencherUsuario(appState.usuario);
-  mostrarTela("tela-projetos", { registrar: false });
+  mostrarTela("tela-login", { registrar: false });
 }
 
 async function entrarComGoogle() {
@@ -2452,7 +2456,7 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
 
   try {
     if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, document.title, REPERTORIO_FACIL.urlApp + "#");
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
     }
   } catch (erroUrl) {
     console.warn("Não foi possível limpar a URL do convite.", erroUrl);
@@ -3806,6 +3810,60 @@ async function carregarRepertorios() {
         border: 1px solid rgba(239, 68, 68, .35);
       }
 
+
+
+      .botoes-item-repertorio {
+        gap: 8px;
+      }
+
+      .botoes-item-repertorio button {
+        min-height: 34px;
+        padding: 0 13px;
+        border-radius: 11px;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: .01em;
+        color: #f8fafc;
+        background: rgba(255,255,255,.07);
+        border: 1px solid rgba(255,255,255,.14);
+        transition: transform .15s ease, filter .15s ease, background .15s ease, border-color .15s ease;
+      }
+
+      .botoes-item-repertorio button:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+      }
+
+      .botoes-item-repertorio .btn-montar-repertorio {
+        background: linear-gradient(135deg, #38bdf8 0%, #6366f1 50%, #a855f7 100%);
+        border-color: rgba(168,85,247,.45);
+        box-shadow: 0 8px 18px rgba(99,102,241,.20);
+      }
+
+      .botoes-item-repertorio .btn-compartilhar-repertorio {
+        border-color: rgba(168,85,247,.55);
+        background: rgba(124,58,237,.16);
+      }
+
+      .botoes-item-repertorio .btn-pdf-repertorio,
+      .botoes-item-repertorio .btn-editar-repertorio {
+        background: rgba(255,255,255,.08);
+        border-color: rgba(255,255,255,.16);
+      }
+
+      .botoes-item-repertorio .btn-excluir-repertorio {
+        background: rgba(239,68,68,.11);
+        border-color: rgba(239,68,68,.45);
+        color: #fecaca;
+      }
+
+      .botoes-item-repertorio .icone-limpo {
+        width: 15px;
+        height: 15px;
+        flex-basis: 15px;
+        color: #fff;
+      }
+
       .montagem-repertorio {
         margin-top: 20px;
         padding-top: 18px;
@@ -4202,7 +4260,7 @@ async function carregarRepertorios() {
             </button>
             <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
-              <span>Enviar repertório via WhatsApp</span><span>→</span>
+              <span>Compartilhar repertório</span><span>→</span>
             </button>
             <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
@@ -5042,7 +5100,7 @@ function renderizarMontagemRepertorio() {
 
         <div class="rodape-repertorio-builder">
           <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>${repertorio.temporario ? "Salvar repertório" : "Salvar alterações"}</span></button>
-          <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg><span>Enviar via WhatsApp</span></button>
+          <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg><span>Compartilhar</span></button>
         </div>
 
         <div class="acoes-edicao-repertorio" style="margin-top:10px;">
