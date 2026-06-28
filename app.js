@@ -1679,17 +1679,104 @@ function garantirTelaConvite() {
   tela.className = "tela";
   tela.style.justifyContent = "center";
   tela.style.alignItems = "center";
+  tela.style.padding = "10px";
 
   tela.innerHTML = `
-    <div class="card-login" style="max-width:620px; margin:0 auto;">
+    <style>
+      #tela-convite.tela-ativa {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        min-height: 100vh !important;
+        padding: 10px !important;
+      }
+
+      #tela-convite .card-login {
+        width: min(560px, calc(100vw - 20px)) !important;
+        max-width: 560px !important;
+        margin: 0 auto !important;
+        padding: 14px 18px !important;
+        border-radius: 22px !important;
+      }
+
+      #tela-convite .logo-login {
+        width: 74px !important;
+        max-height: 74px !important;
+        margin: 0 auto 6px !important;
+      }
+
+      #tela-convite .tag {
+        margin-bottom: 8px !important;
+        padding: 4px 10px !important;
+        font-size: 12px !important;
+      }
+
+      #tela-convite h1 {
+        font-size: 24px !important;
+        margin: 4px 0 6px !important;
+        line-height: 1.1 !important;
+      }
+
+      #tela-convite p {
+        margin-bottom: 8px !important;
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+      }
+
+      #convite-detalhes {
+        margin: 8px 0 !important;
+      }
+
+      #convite-acoes {
+        gap: 8px !important;
+      }
+
+      #tela-convite input {
+        min-height: 34px !important;
+        height: 34px !important;
+        margin-bottom: 0 !important;
+        padding: 7px 10px !important;
+        font-size: 13px !important;
+      }
+
+      #tela-convite .botao-principal,
+      #tela-convite .botao-google {
+        min-height: 36px !important;
+        height: 36px !important;
+        padding: 0 12px !important;
+        font-size: 14px !important;
+        margin-bottom: 0 !important;
+      }
+
+      #tela-convite .divisor {
+        margin: 2px 0 !important;
+      }
+
+      #tela-convite .botao-link {
+        margin-top: 8px !important;
+        font-size: 13px !important;
+      }
+
+      @media (max-height: 760px) {
+        #tela-convite.tela-ativa {
+          align-items: flex-start !important;
+        }
+        #tela-convite .card-login {
+          transform: scale(.92);
+          transform-origin: top center;
+        }
+      }
+    </style>
+
+    <div class="card-login">
       <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
+      <div id="convite-detalhes" style="display:grid; gap:8px;"></div>
 
-      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
+      <div id="convite-acoes" style="display:grid; gap:8px;"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
@@ -1754,9 +1841,9 @@ async function carregarConvitePublico(codigo) {
     }
     if (detalhes) {
       detalhes.innerHTML = `
-        <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
+        <div style="border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; background:#111827; color:#f9fafb;">
           <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
-          <h3 style="margin:0; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+          <h3 style="margin:0; font-size:22px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
         </div>
       `;
     }
@@ -1799,9 +1886,9 @@ function renderizarCabecalhoConvite(convite) {
 
   if (detalhes) {
     detalhes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb; text-align:left;">
+      <div style="border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; background:#111827; color:#f9fafb; text-align:left;">
         <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Você foi convidado para participar do projeto</p>
-        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(convite.projeto_nome || "Projeto musical")}</h3>
+        <h3 style="margin:0 0 12px; font-size:22px;">${escaparHtml(convite.projeto_nome || "Projeto musical")}</h3>
         <p style="margin:3px 0;"><strong>Administrador:</strong> ${escaparHtml(convite.criado_por_nome || "Administrador")}</p>
         <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Depois do acesso, você completará seu cadastro de integrante e será salvo diretamente aqui.</p>
       </div>
@@ -1817,11 +1904,11 @@ function renderizarAutenticacaoConvite(convite) {
   }
 
   acoes.innerHTML = `
-    <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
+    <div style="border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; background:#0b1220; display:grid; gap:7px; text-align:left;">
       <h3 style="margin:0; color:#ffffff;">Aceitar convite</h3>
       <p style="margin:0; color:#d1d5db; font-size:13px;">Para aceitar o convite, crie seu login com e-mail e senha ou entre com Gmail. Depois disso abrirá o cadastro de integrante.</p>
 
-      <button class="botao-google" id="btn-gmail-convite" type="button" style="min-height:42px;">
+      <button class="botao-google" id="btn-gmail-convite" type="button" style="min-height:36px;">
         <img src="logo_gmail.webp" alt="Gmail" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;" />
         Entrar com Gmail
       </button>
@@ -2028,7 +2115,7 @@ function renderizarCadastroIntegranteConvite(convite, usuario) {
   const emailPadrao = escaparHtml(usuario?.email || "");
 
   acoes.innerHTML = `
-    <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
+    <div style="border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:10px 12px; background:#0b1220; display:grid; gap:7px; text-align:left;">
       <h3 style="margin:0; color:#ffffff;">Cadastro de integrante</h3>
       <p style="margin:0; color:#d1d5db; font-size:13px;">Preencha seus dados na banda. Ao salvar, você entrará direto no projeto.</p>
 
@@ -2037,7 +2124,7 @@ function renderizarCadastroIntegranteConvite(convite, usuario) {
         <input id="convite-integrante-nome" type="text" placeholder="Seu nome" value="${nomePadrao}" />
       </label>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
         <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
           Função
           <input id="convite-integrante-funcao" type="text" placeholder="Ex: Guitarrista" />
@@ -2208,7 +2295,9 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
         instrumento: instrumentoUsuario,
         administrador: convite.papel === "administrador",
         email: emailUsuario,
-        telefone: telefoneUsuario
+        telefone: telefoneUsuario,
+        convite_id: convite.id,
+        status: "ativo"
       });
 
     if (erroInserir) {
@@ -2219,6 +2308,8 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
       }
       return;
     }
+  } else {
+    alert("Este login já está cadastrado neste projeto. Para cadastrar outro integrante, a pessoa precisa aceitar o convite usando a própria conta/Gmail dela.");
   }
 
   const { error: erroAceitar } = await cliente

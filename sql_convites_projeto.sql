@@ -1,92 +1,41 @@
--- ============================================
--- REPERTÓRIO FÁCIL - Convites v8
--- Convite com cadastro único e projeto travado
--- ============================================
+-- REPERTÓRIO FÁCIL - Convites / Correção v4
+-- Rode este SQL no Supabase. Ele não apaga dados.
 
 create extension if not exists pgcrypto;
 
-create table if not exists public.convites_projeto (
-  id uuid primary key default gen_random_uuid(),
-  projeto_id uuid not null references public.projetos(id) on delete cascade,
-  projeto_nome text not null,
-  criado_por uuid,
-  criado_por_nome text,
-  codigo text not null unique,
-  link_convite text,
-  mensagem text,
-  papel text default 'integrante',
-  funcao text default 'Integrante',
-  status text default 'pendente' check (status in ('pendente','aceito','cancelado','expirado')),
-  criado_em timestamptz default now(),
-  aceito_em timestamptz,
-  aceito_por uuid
-);
+alter table public.integrantes
+add column if not exists convite_id uuid,
+add column if not exists status text default 'ativo';
 
+alter table public.integrantes
+alter column status set default 'ativo';
+
+alter table public.integrantes
+DROP CONSTRAINT IF EXISTS integrantes_status_check;
+
+alter table public.integrantes
+ADD CONSTRAINT integrantes_status_check
+CHECK (status IN ('ativo', 'pendente', 'inativo'));
+
+alter table public.convites_projeto
+add column if not exists aceito_por uuid,
+add column if not exists aceito_em timestamptz;
+
+alter table public.convites_projeto
+alter column status set default 'pendente';
+
+alter table public.convites_projeto
+DROP CONSTRAINT IF EXISTS convites_projeto_status_check;
+
+alter table public.convites_projeto
+ADD CONSTRAINT convites_projeto_status_check
+CHECK (status IN ('pendente', 'aceito', 'cancelado', 'expirado'));
+
+alter table public.integrantes enable row level security;
+alter table public.projetos enable row level security;
 alter table public.convites_projeto enable row level security;
 
-drop policy if exists convites_select on public.convites_projeto;
-drop policy if exists convites_insert on public.convites_projeto;
-drop policy if exists convites_update on public.convites_projeto;
-drop policy if exists convites_delete on public.convites_projeto;
-drop policy if exists convites_select_publico on public.convites_projeto;
-drop policy if exists convites_update_publico on public.convites_projeto;
-
-create policy convites_select
-on public.convites_projeto
-for select
-to authenticated
-using (true);
-
-create policy convites_insert
-on public.convites_projeto
-for insert
-to authenticated
-with check (true);
-
-create policy convites_update
-on public.convites_projeto
-for update
-to authenticated
-using (true)
-with check (true);
-
-create policy convites_delete
-on public.convites_projeto
-for delete
-to authenticated
-using (true);
-
--- Permite que o link público do convite seja aberto antes do login.
-create policy convites_select_publico
-on public.convites_projeto
-for select
-to anon
-using (status = 'pendente');
-
--- Permite marcar o convite como aceito durante o fluxo público de cadastro.
-create policy convites_update_publico
-on public.convites_projeto
-for update
-to anon
-using (status = 'pendente')
-with check (status in ('pendente','aceito'));
-
--- Política extra para permitir salvar o integrante no fluxo público do convite.
--- Mantém as políticas existentes e apenas adiciona esta para o cadastro via link.
-alter table public.integrantes enable row level security;
-
-drop policy if exists integrantes_insert_convite_publico on public.integrantes;
-create policy integrantes_insert_convite_publico
-on public.integrantes
-for insert
-to anon
-with check (true);
-
-notify pgrst, 'reload schema';
-
-
--- Correções do fluxo final do convite
--- Permite que o integrante autenticado pelo convite salve seus próprios dados.
+-- Permite ao usuário autenticado salvar o próprio cadastro via convite.
 drop policy if exists integrantes_insert_convite_autenticado on public.integrantes;
 create policy integrantes_insert_convite_autenticado
 on public.integrantes
@@ -94,20 +43,96 @@ for insert
 to authenticated
 with check (auth.uid() = usuario_id);
 
--- Permite que o integrante autenticado veja seu próprio cadastro no projeto.
-drop policy if exists integrantes_select_convite_autenticado on public.integrantes;
-create policy integrantes_select_convite_autenticado
+-- Permite leitura dos integrantes do projeto para quem é dono do projeto ou integrante dele.
+drop policy if exists integrantes_select_por_projeto on public.integrantes;
+create policy integrantes_select_por_projeto
 on public.integrantes
 for select
 to authenticated
-using (auth.uid() = usuario_id or true);
+using (
+  exists (
+    select 1
+    from public.projetos p
+    where p.id = integrantes.projeto_id
+      and p.usuario_id = auth.uid()
+  )
+  or exists (
+    select 1
+    from public.integrantes i2
+    where i2.projeto_id = integrantes.projeto_id
+      and i2.usuario_id = auth.uid()
+  )
+);
 
--- Permite leitura do projeto após aceitar convite.
-drop policy if exists projetos_select_convite_autenticado on public.projetos;
-create policy projetos_select_convite_autenticado
+-- Permite ao dono do projeto editar/excluir integrantes do próprio projeto.
+drop policy if exists integrantes_update_dono_projeto on public.integrantes;
+create policy integrantes_update_dono_projeto
+on public.integrantes
+for update
+to authenticated
+using (
+  usuario_id = auth.uid()
+  or exists (
+    select 1
+    from public.projetos p
+    where p.id = integrantes.projeto_id
+      and p.usuario_id = auth.uid()
+  )
+)
+with check (
+  usuario_id = auth.uid()
+  or exists (
+    select 1
+    from public.projetos p
+    where p.id = integrantes.projeto_id
+      and p.usuario_id = auth.uid()
+  )
+);
+
+drop policy if exists integrantes_delete_dono_projeto on public.integrantes;
+create policy integrantes_delete_dono_projeto
+on public.integrantes
+for delete
+to authenticated
+using (
+  exists (
+    select 1
+    from public.projetos p
+    where p.id = integrantes.projeto_id
+      and p.usuario_id = auth.uid()
+  )
+);
+
+-- Convites: leitura pública enquanto pendente e atualização pelo usuário autenticado ao aceitar.
+drop policy if exists convites_select_publico on public.convites_projeto;
+create policy convites_select_publico
+on public.convites_projeto
+for select
+to anon, authenticated
+using (status = 'pendente' or aceito_por = auth.uid() or criado_por = auth.uid());
+
+drop policy if exists convites_update_aceite_autenticado on public.convites_projeto;
+create policy convites_update_aceite_autenticado
+on public.convites_projeto
+for update
+to authenticated
+using (status = 'pendente')
+with check (status in ('pendente', 'aceito', 'cancelado', 'expirado'));
+
+-- Projetos: leitura para dono ou integrante vinculado.
+drop policy if exists projetos_select_dono_ou_integrante on public.projetos;
+create policy projetos_select_dono_ou_integrante
 on public.projetos
 for select
 to authenticated
-using (true);
+using (
+  usuario_id = auth.uid()
+  or exists (
+    select 1
+    from public.integrantes i
+    where i.projeto_id = projetos.id
+      and i.usuario_id = auth.uid()
+  )
+);
 
 notify pgrst, 'reload schema';
