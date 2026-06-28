@@ -1122,3 +1122,57 @@ button#btn-convidar-integrante:hover,
   transform: none !important;
   filter: grayscale(.1) !important;
 }
+
+/* Padronização global de ações - Repertório Fácil */
+.btn-acao-editar,
+.btn-editar-integrante,
+.btn-editar-musica,
+.btn-editar-repertorio,
+.btn-montar-repertorio,
+.btn-editar-evento {
+  background: rgba(255,255,255,.10) !important;
+  color: #f9fafb !important;
+  border: 1px solid rgba(255,255,255,.18) !important;
+  border-radius: 10px !important;
+  min-height: 34px !important;
+  padding: 8px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-weight: 600 !important;
+}
+
+.btn-acao-excluir,
+.btn-excluir-integrante,
+.btn-excluir-musica,
+.btn-excluir-repertorio,
+.btn-remover-musica-repertorio,
+.btn-excluir-evento {
+  background: rgba(239,68,68,.12) !important;
+  color: #fecaca !important;
+  border: 1px solid rgba(239,68,68,.45) !important;
+  border-radius: 10px !important;
+  min-height: 34px !important;
+  padding: 8px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-weight: 600 !important;
+}
+
+.btn-compartilhar-repertorio,
+.btn-compartilhar-evento {
+  background: rgba(122,92,255,.16) !important;
+  color: #d9d3ff !important;
+  border: 1px solid rgba(122,92,255,.42) !important;
+  border-radius: 10px !important;
+  min-height: 34px !important;
+  padding: 8px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-weight: 600 !important;
+}

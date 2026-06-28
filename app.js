@@ -1005,10 +1005,61 @@ async function carregarIntegrantes() {
       }
 
       .acoes-integrante {
-        display: flex;
+        display: grid;
         gap: 8px;
-        flex-wrap: wrap;
         margin-top: 4px;
+      }
+
+      .btn-salvar-integrante-padrao,
+      .btn-whatsapp-padrao {
+        width: 100%;
+        min-height: 42px !important;
+        height: 42px !important;
+        border: 0;
+        border-radius: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: transform .15s ease, filter .15s ease;
+      }
+
+      .btn-salvar-integrante-padrao {
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
+        color: #ffffff;
+      }
+
+      .btn-whatsapp-padrao {
+        background: linear-gradient(135deg, #18bf5b, #16a34a);
+        color: #ffffff;
+        box-shadow: 0 10px 24px rgba(22, 163, 74, .18);
+      }
+
+      .btn-salvar-integrante-padrao:hover,
+      .btn-whatsapp-padrao:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.07);
+      }
+
+      .btn-whatsapp-padrao .seta-btn {
+        margin-left: auto;
+        padding-right: 4px;
+        font-size: 18px;
+      }
+
+      .btn-whatsapp-padrao .icone-btn {
+        width: 23px;
+        height: 23px;
+        border: 2px solid rgba(255,255,255,.88);
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        line-height: 1;
       }
 
       .botao-secundario-modulo {
@@ -1113,9 +1164,14 @@ async function carregarIntegrantes() {
       .botoes-item-integrante button {
         border: 0;
         border-radius: 10px;
-        padding: 8px 10px;
+        padding: 8px 12px;
+        min-height: 34px;
         cursor: pointer;
-        font-weight: 700;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
       }
 
       .btn-editar-integrante {
@@ -1126,6 +1182,77 @@ async function carregarIntegrantes() {
       .btn-excluir-integrante {
         background: #fee2e2;
         color: #991b1b;
+      }
+
+      .desenvolvimento-integrante {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 13px;
+        background: rgba(255, 255, 255, .055);
+        border: 1px solid rgba(255, 255, 255, .10);
+        display: grid;
+        gap: 8px;
+      }
+
+      .desenvolvimento-integrante-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: #f9fafb;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .desenvolvimento-integrante-percentual {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .desenvolvimento-integrante-percentual.verde { color: #22c55e; }
+      .desenvolvimento-integrante-percentual.amarela { color: #facc15; }
+      .desenvolvimento-integrante-percentual.vermelha { color: #ef4444; }
+
+      .barra-desenvolvimento-integrante {
+        width: 100%;
+        height: 7px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, .10);
+      }
+
+      .barra-desenvolvimento-integrante span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+        transition: width .2s ease;
+      }
+
+      .barra-desenvolvimento-integrante span.verde { background: #22c55e; }
+      .barra-desenvolvimento-integrante span.amarela { background: #facc15; }
+      .barra-desenvolvimento-integrante span.vermelha { background: #ef4444; }
+
+      .desenvolvimento-integrante-contadores {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: #d1d5db;
+      }
+
+      .desenvolvimento-integrante-contadores strong {
+        font-size: 14px;
+        margin-right: 3px;
+      }
+
+      .contador-prontas strong { color: #22c55e; }
+      .contador-estudo strong { color: #facc15; }
+      .contador-nao strong { color: #ef4444; }
+
+      .desenvolvimento-integrante-ajuda {
+        color: #94a3b8;
+        font-size: 11px;
+        line-height: 1.35;
       }
 
       @media (max-width: 820px) {
@@ -1188,8 +1315,8 @@ async function carregarIntegrantes() {
           </label>
 
           <div class="acoes-integrante">
-            <button class="botao-card" id="btn-salvar-integrante" type="button">Salvar integrante</button>
-            <button class="botao-secundario-modulo" id="btn-convidar-integrante" type="button">Convidar por WhatsApp</button>
+            <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☏</span><span>Convidar por WhatsApp</span><span class="seta-btn">→</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -1266,19 +1393,121 @@ async function buscarIntegrantes() {
     return;
   }
 
-  const { data, error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.integrantes)
-    .select("*")
-    .eq("projeto_id", projetoId)
-    .order("nome", { ascending: true });
+  const [integrantesResultado, musicasResultado, progressoResultado] = await Promise.all([
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .select("*")
+      .eq("projeto_id", projetoId)
+      .order("nome", { ascending: true }),
 
-  if (error) {
-    lista.innerHTML = `<p>Erro ao carregar integrantes: ${escaparHtml(error.message)}</p>`;
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.musicas)
+      .select("id")
+      .eq("projeto_id", projetoId),
+
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
+      .select("*")
+      .eq("projeto_id", projetoId)
+  ]);
+
+  if (integrantesResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar integrantes: ${escaparHtml(integrantesResultado.error.message)}</p>`;
     return;
   }
 
-  appState.integrantes = data || [];
+  if (musicasResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar músicas do projeto: ${escaparHtml(musicasResultado.error.message)}</p>`;
+    return;
+  }
+
+  if (progressoResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar desenvolvimento dos integrantes: ${escaparHtml(progressoResultado.error.message)}</p>`;
+    return;
+  }
+
+  appState.integrantes = integrantesResultado.data || [];
+  appState.musicas = musicasResultado.data || [];
+  appState.progressoMusicas = progressoResultado.data || [];
   renderizarListaIntegrantes();
+}
+
+
+function obterDesenvolvimentoIntegrante(integranteId) {
+  const musicas = appState.musicas || [];
+  const progresso = appState.progressoMusicas || [];
+  const total = musicas.length;
+
+  if (!total) {
+    return {
+      percentual: 0,
+      cor: "vermelha",
+      prontas: 0,
+      emEstudo: 0,
+      naoIniciadas: 0,
+      total: 0
+    };
+  }
+
+  let pontos = 0;
+  let prontas = 0;
+  let emEstudo = 0;
+
+  musicas.forEach(function(musica) {
+    const registro = progresso.find(function(item) {
+      return item.musica_id === musica.id && item.integrante_id === integranteId;
+    });
+
+    const status = registro?.status || "nao_iniciada";
+
+    if (status === "pronta") {
+      pontos += 1;
+      prontas += 1;
+      return;
+    }
+
+    if (status === "em_estudo") {
+      pontos += 0.5;
+      emEstudo += 1;
+    }
+  });
+
+  const percentual = Math.round((pontos / total) * 100);
+  const naoIniciadas = Math.max(total - prontas - emEstudo, 0);
+  let cor = "vermelha";
+
+  if (percentual === 100) {
+    cor = "verde";
+  } else if (percentual >= 50) {
+    cor = "amarela";
+  }
+
+  return { percentual, cor, prontas, emEstudo, naoIniciadas, total };
+}
+
+function montarDesenvolvimentoIntegrante(integranteId) {
+  const dados = obterDesenvolvimentoIntegrante(integranteId);
+
+  const textoTotal = dados.total === 1 ? "1 música" : `${dados.total} músicas`;
+
+  return `
+    <div class="desenvolvimento-integrante">
+      <div class="desenvolvimento-integrante-topo">
+        <span>📈 Desenvolvimento no projeto</span>
+        <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
+      </div>
+      <div class="barra-desenvolvimento-integrante" title="Desenvolvimento no projeto">
+        <span class="${dados.cor}" style="width:${dados.percentual}%"></span>
+      </div>
+      <div class="desenvolvimento-integrante-contadores">
+        <span class="contador-prontas"><strong>${dados.prontas}</strong> prontas</span>
+        <span class="contador-estudo"><strong>${dados.emEstudo}</strong> em estudo</span>
+        <span class="contador-nao"><strong>${dados.naoIniciadas}</strong> não iniciadas</span>
+        <span>Total: ${textoTotal}</span>
+      </div>
+      <small class="desenvolvimento-integrante-ajuda">ⓘ O desenvolvimento é calculado com base no progresso individual deste integrante nas músicas da biblioteca do projeto.</small>
+    </div>
+  `;
 }
 
 function renderizarListaIntegrantes() {
@@ -1347,11 +1576,12 @@ function renderizarListaIntegrantes() {
             <p><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")}</p>
             <p><strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
             ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
+            ${montarDesenvolvimentoIntegrante(item.id)}
           </div>
 
           <div class="botoes-item-integrante">
-            <button class="btn-editar-integrante" type="button" data-editar-integrante="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-excluir-integrante" type="button" data-excluir-integrante="${escaparHtml(item.id)}">Excluir</button>
+            <button class="btn-editar-integrante btn-acao-editar" type="button" data-editar-integrante="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-excluir-integrante btn-acao-excluir" type="button" data-excluir-integrante="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -1497,8 +1727,7 @@ async function salvarIntegrante() {
       .from(REPERTORIO_FACIL.tabelas.integrantes)
       .update(payload)
       .eq("id", appState.integranteEditandoId)
-      .eq("projeto_id", projetoId)
-      .eq("usuario_id", usuario.id);
+      .eq("projeto_id", projetoId);
   } else {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
@@ -1554,8 +1783,7 @@ async function excluirIntegrante(id) {
     .from(REPERTORIO_FACIL.tabelas.integrantes)
     .delete()
     .eq("id", id)
-    .eq("projeto_id", projetoId)
-    .eq("usuario_id", usuario.id);
+    .eq("projeto_id", projetoId);
 
   if (error) {
     alert("Erro ao excluir integrante: " + error.message);
@@ -2937,8 +3165,8 @@ function renderizarListaMusicas() {
           </div>
 
           <div class="botoes-item-musica">
-            <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">Excluir</button>
+            <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -3539,7 +3767,7 @@ async function carregarRepertorios() {
 
           <div class="acoes-repertorio">
             <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
-            <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">Compartilhar</button>
+            <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">↗ Compartilhar</button>
             <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">PDF</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
@@ -3763,8 +3991,8 @@ function renderizarListaRepertorios() {
 
           <div class="botoes-item-repertorio">
             <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Abrir</button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">Compartilhar</button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">Excluir</button>
+            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">↗ Compartilhar</button>
+            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -4202,7 +4430,7 @@ function renderizarMontagemRepertorio() {
 
     <div class="acoes-edicao-repertorio">
       <button class="botao-card" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
-      <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">Compartilhar</button>
+      <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">↗ Compartilhar</button>
       <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
       <button class="botao-secundario-modulo" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
     </div>
@@ -5409,9 +5637,9 @@ function renderizarListaEventos() {
           </div>
 
           <div class="botoes-item-evento">
-            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">Editar</button>
-            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">Compartilhar</button>
-            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">Excluir</button>
+            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">↗ Compartilhar</button>
+            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -5645,8 +5873,7 @@ async function excluirEvento(id) {
     .from(REPERTORIO_FACIL.tabelas.eventos)
     .delete()
     .eq("id", id)
-    .eq("projeto_id", projetoId)
-    .eq("usuario_id", usuario.id);
+    .eq("projeto_id", projetoId);
 
   if (error) {
     alert("Erro ao excluir evento: " + error.message);
