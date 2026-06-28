@@ -1606,10 +1606,10 @@ async function gerarConviteIntegrante() {
     "",
     "Este convite é exclusivo para esse projeto. Ao aceitar, seus dados serão cadastrados diretamente dentro de " + nomeProjeto + ".",
     "",
-    "Clique no link abaixo, preencha seu cadastro e aceite o convite:",
+    "Clique no link abaixo para aceitar o convite:",
     link,
     "",
-    "Se você ainda não possui conta, poderá criá-la durante o processo.",
+    "Ao abrir, você cria seu login ou entra com Gmail. Depois completa seu cadastro de integrante e entra direto no projeto.",
     "",
     "Nos vemos no projeto! 🎸"
   ].join("\n");
@@ -1697,6 +1697,7 @@ function garantirTelaConvite() {
   const voltar = elemento("btn-voltar-login-convite");
   if (voltar) {
     voltar.addEventListener("click", function() {
+      limparConvitePendente();
       mostrarTela("tela-login", { registrar: false });
     });
   }
@@ -1742,168 +1743,123 @@ async function carregarConvitePublico(codigo) {
     return;
   }
 
-  appState.conviteAtual = data;
-  localStorage.setItem("convite_pendente", codigo);
-
-  const dadosPendentesGmail = obterDadosConviteTemporario(codigo);
-  const { data: sessaoParaConvite } = await cliente.auth.getSession();
-  const usuarioLogado = sessaoParaConvite.session?.user;
-
-  if (usuarioLogado && dadosPendentesGmail) {
+  if (data.status && data.status !== "pendente") {
     if (descricao) {
-      descricao.textContent = "Finalizando seu cadastro no projeto...";
+      descricao.textContent = "Este convite já foi utilizado ou não está mais disponível.";
     }
     if (detalhes) {
-      detalhes.innerHTML = `<p>Salvando seus dados em ${escaparHtml(data.projeto_nome || "Projeto musical")}...</p>`;
+      detalhes.innerHTML = `
+        <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
+          <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
+          <h3 style="margin:0; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+        </div>
+      `;
     }
     if (acoes) {
-      acoes.innerHTML = "";
+      acoes.innerHTML = `<button class="botao-principal" type="button" id="btn-ir-login-convite-usado">Ir para o login</button>`;
+      elemento("btn-ir-login-convite-usado")?.addEventListener("click", function() {
+        mostrarTela("tela-login", { registrar: false });
+      });
     }
-    await aceitarConviteComUsuario(usuarioLogado, {
-      nome: dadosPendentesGmail.nome,
-      funcao: dadosPendentesGmail.funcao,
-      instrumento: dadosPendentesGmail.instrumento,
-      telefone: dadosPendentesGmail.telefone,
-      email: usuarioLogado.email || ""
-    });
     return;
   }
 
+  appState.conviteAtual = data;
+  localStorage.setItem("convite_pendente", codigo);
+
+  renderizarCabecalhoConvite(data);
+
+  const { data: sessaoParaConvite } = await cliente.auth.getSession();
+  const usuarioLogado = sessaoParaConvite.session?.user;
+
+  if (usuarioLogado) {
+    appState.sessao = sessaoParaConvite.session;
+    appState.usuario = usuarioLogado;
+    preencherUsuario(usuarioLogado);
+    renderizarCadastroIntegranteConvite(data, usuarioLogado);
+    return;
+  }
+
+  renderizarAutenticacaoConvite(data);
+}
+
+function renderizarCabecalhoConvite(convite) {
+  const descricao = elemento("convite-descricao");
+  const detalhes = elemento("convite-detalhes");
+
   if (descricao) {
-    descricao.textContent = "Preencha seus dados para aceitar o convite. Este cadastro será vinculado somente ao projeto informado abaixo.";
+    descricao.textContent = "Você recebeu um convite para entrar em um projeto no Repertório Fácil.";
   }
 
   if (detalhes) {
     detalhes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
-        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
-        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-        <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
-        <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
-        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Você não escolherá outro projeto: ao aceitar, seus dados serão salvos diretamente aqui.</p>
+      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb; text-align:left;">
+        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Você foi convidado para participar do projeto</p>
+        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(convite.projeto_nome || "Projeto musical")}</h3>
+        <p style="margin:3px 0;"><strong>Administrador:</strong> ${escaparHtml(convite.criado_por_nome || "Administrador")}</p>
+        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Depois do acesso, você completará seu cadastro de integrante e será salvo diretamente aqui.</p>
       </div>
     `;
   }
-
-  if (acoes) {
-    acoes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
-        <h3 style="margin:0; color:#ffffff;">Criar cadastro e aceitar convite</h3>
-        <p style="margin:0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para o projeto <strong>${escaparHtml(data.projeto_nome || 'Projeto musical')}</strong>. Para entrar nele, preencha seus dados abaixo. Você pode criar acesso com e-mail e senha ou entrar com Gmail. O cadastro será salvo diretamente como integrante deste projeto.</p>
-
-        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-          Nome completo
-          <input id="convite-cadastro-nome" type="text" placeholder="Seu nome" />
-        </label>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-            Função
-            <input id="convite-cadastro-funcao" type="text" placeholder="Ex: Guitarrista" />
-          </label>
-
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-            Instrumento
-            <input id="convite-cadastro-instrumento" type="text" placeholder="Ex: Guitarra" />
-          </label>
-        </div>
-
-        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-          WhatsApp / Telefone
-          <input id="convite-cadastro-telefone" type="tel" placeholder="(00) 00000-0000" />
-        </label>
-
-        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-          E-mail
-          <input id="convite-cadastro-email" type="email" placeholder="email@exemplo.com" />
-        </label>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-            Senha
-            <input id="convite-cadastro-senha" type="password" placeholder="Senha" />
-          </label>
-
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
-            Repetir senha
-            <input id="convite-cadastro-repetir-senha" type="password" placeholder="Repetir senha" />
-          </label>
-        </div>
-
-        <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Aceitar convite e entrar no projeto</button>
-
-        <div class="divisor" style="margin:4px 0;">
-          <span></span>
-          <p>ou</p>
-          <span></span>
-        </div>
-
-        <button class="botao-google" id="btn-gmail-aceitar-convite" type="button" style="min-height:42px;">
-          <img src="logo_gmail.webp" alt="Gmail" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;" />
-          Entrar com Gmail e entrar no projeto
-        </button>
-      </div>
-    `;
-
-    elemento("btn-criar-conta-aceitar-convite")?.addEventListener("click", criarContaEAceitarConvite);
-    elemento("btn-gmail-aceitar-convite")?.addEventListener("click", entrarComGmailEAceitarConvite);
-  }
 }
 
+function renderizarAutenticacaoConvite(convite) {
+  const acoes = elemento("convite-acoes");
 
-function obterDadosCadastroConvite() {
-  return {
-    nome: limparTexto(elemento("convite-cadastro-nome")?.value),
-    funcao: limparTexto(elemento("convite-cadastro-funcao")?.value) || "Integrante",
-    instrumento: limparTexto(elemento("convite-cadastro-instrumento")?.value),
-    telefone: limparTexto(elemento("convite-cadastro-telefone")?.value),
-    email: limparTexto(elemento("convite-cadastro-email")?.value),
-    senha: limparTexto(elemento("convite-cadastro-senha")?.value),
-    repetirSenha: limparTexto(elemento("convite-cadastro-repetir-senha")?.value)
-  };
-}
-
-function salvarDadosConviteTemporario(codigo, dados) {
-  if (!codigo || !dados) {
+  if (!acoes) {
     return;
   }
 
-  localStorage.setItem("convite_dados_pendentes", JSON.stringify({
-    codigo: codigo,
-    dados: {
-      nome: dados.nome || "",
-      funcao: dados.funcao || "Integrante",
-      instrumento: dados.instrumento || "",
-      telefone: dados.telefone || ""
-    }
-  }));
+  acoes.innerHTML = `
+    <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
+      <h3 style="margin:0; color:#ffffff;">Aceitar convite</h3>
+      <p style="margin:0; color:#d1d5db; font-size:13px;">Crie seu login com e-mail e senha ou entre com Gmail. Em seguida, abrirá o cadastro de integrante.</p>
+
+      <button class="botao-google" id="btn-gmail-convite" type="button" style="min-height:42px;">
+        <img src="logo_gmail.webp" alt="Gmail" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;" />
+        Entrar com Gmail
+      </button>
+
+      <div class="divisor" style="margin:4px 0;">
+        <span></span>
+        <p>ou</p>
+        <span></span>
+      </div>
+
+      <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        E-mail
+        <input id="convite-auth-email" type="email" placeholder="email@exemplo.com" />
+      </label>
+
+      <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        Senha
+        <input id="convite-auth-senha" type="password" placeholder="Senha" />
+      </label>
+
+      <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        Confirmar senha <span style="font-weight:400; color:#9ca3af;">(somente para criar conta)</span>
+        <input id="convite-auth-repetir-senha" type="password" placeholder="Confirmar senha" />
+      </label>
+
+      <button class="botao-principal" id="btn-criar-login-convite" type="button">Criar login e senha</button>
+      <button class="botao-card" id="btn-entrar-email-convite" type="button">Já tenho conta: entrar</button>
+    </div>
+  `;
+
+  elemento("btn-gmail-convite")?.addEventListener("click", entrarComGmailConvite);
+  elemento("btn-criar-login-convite")?.addEventListener("click", criarLoginConvite);
+  elemento("btn-entrar-email-convite")?.addEventListener("click", entrarEmailConvite);
 }
 
-function obterDadosConviteTemporario(codigo) {
-  const bruto = localStorage.getItem("convite_dados_pendentes");
-
-  if (!bruto || !codigo) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(bruto);
-
-    if (parsed && parsed.codigo === codigo) {
-      return parsed.dados || null;
-    }
-  } catch (erro) {
-    console.warn("Dados temporários do convite inválidos.", erro);
-  }
-
-  return null;
+function obterDadosAuthConvite() {
+  return {
+    email: limparTexto(elemento("convite-auth-email")?.value),
+    senha: limparTexto(elemento("convite-auth-senha")?.value),
+    repetirSenha: limparTexto(elemento("convite-auth-repetir-senha")?.value)
+  };
 }
 
-function limparDadosConviteTemporario() {
-  localStorage.removeItem("convite_dados_pendentes");
-}
-
-async function entrarComGmailEAceitarConvite() {
+async function entrarComGmailConvite() {
   const cliente = sb();
   const convite = appState.conviteAtual;
 
@@ -1911,14 +1867,6 @@ async function entrarComGmailEAceitarConvite() {
     return;
   }
 
-  const dados = obterDadosCadastroConvite();
-
-  if (!dados.nome) {
-    alert("Informe seu nome antes de entrar com Gmail.");
-    return;
-  }
-
-  salvarDadosConviteTemporario(convite.codigo, dados);
   localStorage.setItem("convite_pendente", convite.codigo);
 
   const { data, error } = await cliente.auth.signInWithOAuth({
@@ -1942,7 +1890,7 @@ async function entrarComGmailEAceitarConvite() {
   }
 }
 
-async function criarContaEAceitarConvite() {
+async function criarLoginConvite() {
   const cliente = sb();
   const convite = appState.conviteAtual;
 
@@ -1950,108 +1898,222 @@ async function criarContaEAceitarConvite() {
     return;
   }
 
-  const dadosFormulario = obterDadosCadastroConvite();
-  const nome = dadosFormulario.nome;
-  const funcao = dadosFormulario.funcao;
-  const instrumento = dadosFormulario.instrumento;
-  const telefone = dadosFormulario.telefone;
-  const email = dadosFormulario.email;
-  const senha = dadosFormulario.senha;
-  const repetirSenha = dadosFormulario.repetirSenha;
+  const dados = obterDadosAuthConvite();
 
-  if (!nome) {
-    alert("Informe seu nome.");
-    return;
-  }
-
-  if (!email) {
+  if (!dados.email) {
     alert("Informe seu e-mail.");
     return;
   }
 
-  if (!senha) {
+  if (!dados.senha) {
     alert("Informe sua senha.");
     return;
   }
 
-  if (senha.length < 6) {
+  if (dados.senha.length < 6) {
     alert("A senha precisa ter pelo menos 6 caracteres.");
     return;
   }
 
-  if (senha !== repetirSenha) {
+  if (dados.senha !== dados.repetirSenha) {
     alert("As senhas não coincidem.");
     return;
   }
 
-  const botaoConvite = elemento("btn-criar-conta-aceitar-convite");
-  if (botaoConvite) {
-    botaoConvite.disabled = true;
-    botaoConvite.textContent = "Salvando cadastro...";
+  const botao = elemento("btn-criar-login-convite");
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "Criando login...";
   }
 
-  const dadosPerfil = {
-    nome: nome,
-    funcao: funcao,
-    instrumento: instrumento,
-    telefone: telefone,
-    email: email
-  };
-
-  let usuario = null;
-
-  const { data: sessaoAtual } = await cliente.auth.getSession();
-  if (sessaoAtual.session) {
-    await cliente.auth.signOut();
-  }
-
-  const { data: cadastroData, error: cadastroError } = await cliente.auth.signUp({
-    email: email,
-    password: senha,
+  const { data, error } = await cliente.auth.signUp({
+    email: dados.email,
+    password: dados.senha,
     options: {
       emailRedirectTo: REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(convite.codigo),
       data: {
-        nome: nome,
-        full_name: nome,
-        telefone: telefone,
-        funcao: funcao,
-        instrumento: instrumento
+        origem: "convite_repertorio_facil"
       }
     }
   });
 
-  if (cadastroError) {
-    if (botaoConvite) {
-      botaoConvite.disabled = false;
-      botaoConvite.textContent = "Aceitar convite e entrar no projeto";
+  if (error) {
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "Criar login e senha";
     }
-    alert("Erro ao criar conta: " + cadastroError.message);
+    alert("Erro ao criar login: " + error.message);
     return;
   }
 
-  usuario = cadastroData.user || cadastroData.session?.user || null;
-
-  if (!cadastroData.session) {
-    const { data: loginData, error: loginError } = await cliente.auth.signInWithPassword({
-      email: email,
-      password: senha
-    });
-
-    if (!loginError && loginData) {
-      usuario = loginData.user || loginData.session?.user || usuario;
-    }
+  if (data.session && data.session.user) {
+    appState.sessao = data.session;
+    appState.usuario = data.session.user;
+    preencherUsuario(appState.usuario);
+    renderizarCadastroIntegranteConvite(convite, appState.usuario);
+    return;
   }
+
+  if (botao) {
+    botao.disabled = false;
+    botao.textContent = "Criar login e senha";
+  }
+
+  alert("Login criado. Se o Supabase pedir confirmação de e-mail, confirme e depois entre por esta mesma tela para continuar o convite.");
+}
+
+async function entrarEmailConvite() {
+  const cliente = sb();
+  const convite = appState.conviteAtual;
+
+  if (!cliente || !convite) {
+    return;
+  }
+
+  const dados = obterDadosAuthConvite();
+
+  if (!dados.email || !dados.senha) {
+    alert("Informe e-mail e senha.");
+    return;
+  }
+
+  const botao = elemento("btn-entrar-email-convite");
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "Entrando...";
+  }
+
+  const { data, error } = await cliente.auth.signInWithPassword({
+    email: dados.email,
+    password: dados.senha
+  });
+
+  if (error) {
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "Já tenho conta: entrar";
+    }
+    alert("Erro ao entrar: " + error.message);
+    return;
+  }
+
+  appState.sessao = data.session || null;
+  appState.usuario = data.user || data.session?.user || null;
+  preencherUsuario(appState.usuario);
+  renderizarCadastroIntegranteConvite(convite, appState.usuario);
+}
+
+function renderizarCadastroIntegranteConvite(convite, usuario) {
+  renderizarCabecalhoConvite(convite);
+
+  const descricao = elemento("convite-descricao");
+  const acoes = elemento("convite-acoes");
+
+  if (descricao) {
+    descricao.textContent = "Agora complete seu cadastro de integrante. Ele será salvo diretamente no projeto informado acima.";
+  }
+
+  if (!acoes) {
+    return;
+  }
+
+  const nomePadrao = escaparHtml(obterNomeUsuario(usuario) === "Usuário" ? "" : obterNomeUsuario(usuario));
+  const emailPadrao = escaparHtml(usuario?.email || "");
+
+  acoes.innerHTML = `
+    <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
+      <h3 style="margin:0; color:#ffffff;">Cadastro de integrante</h3>
+      <p style="margin:0; color:#d1d5db; font-size:13px;">Preencha seus dados na banda. Ao salvar, você entrará direto no projeto.</p>
+
+      <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        Nome
+        <input id="convite-integrante-nome" type="text" placeholder="Seu nome" value="${nomePadrao}" />
+      </label>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+          Função
+          <input id="convite-integrante-funcao" type="text" placeholder="Ex: Guitarrista" />
+        </label>
+
+        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+          Instrumento
+          <input id="convite-integrante-instrumento" type="text" placeholder="Ex: Guitarra" />
+        </label>
+      </div>
+
+      <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        WhatsApp / Telefone
+        <input id="convite-integrante-telefone" type="tel" placeholder="(00) 00000-0000" />
+      </label>
+
+      <input id="convite-integrante-email" type="hidden" value="${emailPadrao}" />
+
+      <button class="botao-principal" id="btn-salvar-integrante-convite" type="button">Salvar e entrar no projeto</button>
+    </div>
+  `;
+
+  elemento("btn-salvar-integrante-convite")?.addEventListener("click", salvarIntegranteConvite);
+}
+
+function obterDadosIntegranteConvite() {
+  return {
+    nome: limparTexto(elemento("convite-integrante-nome")?.value),
+    funcao: limparTexto(elemento("convite-integrante-funcao")?.value) || "Integrante",
+    instrumento: limparTexto(elemento("convite-integrante-instrumento")?.value),
+    telefone: limparTexto(elemento("convite-integrante-telefone")?.value),
+    email: limparTexto(elemento("convite-integrante-email")?.value)
+  };
+}
+
+async function salvarIntegranteConvite() {
+  const cliente = sb();
+  const convite = appState.conviteAtual;
+
+  if (!cliente || !convite) {
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
 
   if (!usuario) {
-    if (botaoConvite) {
-      botaoConvite.disabled = false;
-      botaoConvite.textContent = "Aceitar convite e entrar no projeto";
-    }
-    alert("Não foi possível criar a conta. Tente novamente.");
+    renderizarAutenticacaoConvite(convite);
     return;
   }
 
-  await aceitarConviteComUsuario(usuario, dadosPerfil);
+  const dados = obterDadosIntegranteConvite();
+
+  if (!dados.nome) {
+    alert("Informe seu nome.");
+    return;
+  }
+
+  const botao = elemento("btn-salvar-integrante-convite");
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "Salvando...";
+  }
+
+  await aceitarConviteComUsuario(usuario, dados);
+}
+
+function obterDadosCadastroConvite() {
+  return obterDadosIntegranteConvite();
+}
+
+function salvarDadosConviteTemporario() {}
+function obterDadosConviteTemporario() { return null; }
+function limparDadosConviteTemporario() {
+  localStorage.removeItem("convite_dados_pendentes");
+}
+
+async function entrarComGmailEAceitarConvite() {
+  await entrarComGmailConvite();
+}
+
+async function criarContaEAceitarConvite() {
+  await criarLoginConvite();
 }
 
 async function aceitarConviteAtual() {
@@ -2123,8 +2185,22 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     emailJaCadastrado = existenteEmail;
   }
 
-  if (existente || emailJaCadastrado) {
+  if (existente) {
+    await cliente
+      .from(REPERTORIO_FACIL.tabelas.convites)
+      .update({
+        status: "aceito",
+        aceito_em: new Date().toISOString(),
+        aceito_por: usuario.id
+      })
+      .eq("id", convite.id);
+  } else if (emailJaCadastrado) {
     alert("Este e-mail já está cadastrado como integrante deste projeto.");
+    const botao = elemento("btn-salvar-integrante-convite");
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "Salvar e entrar no projeto";
+    }
     return;
   }
 
@@ -2144,6 +2220,11 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
 
     if (erroInserir) {
       alert("Erro ao aceitar convite: " + erroInserir.message);
+      const botao = elemento("btn-salvar-integrante-convite");
+      if (botao) {
+        botao.disabled = false;
+        botao.textContent = "Salvar e entrar no projeto";
+      }
       return;
     }
   }
