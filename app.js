@@ -2644,6 +2644,95 @@ async function carregarMusicas() {
         cursor: default;
       }
 
+
+      .btn-musica-repertorio {
+        background: rgba(122, 92, 255, .18);
+        border: 1px solid rgba(122, 92, 255, .42);
+        color: #e8e3ff;
+      }
+
+      .info-repertorios-musica {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #cbd5e1;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      .modal-rf-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .68);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .modal-rf-card {
+        width: min(560px, 100%);
+        max-height: min(720px, calc(100vh - 32px));
+        overflow: auto;
+        background: #07111f;
+        border: 1px solid rgba(255,255,255,.14);
+        border-radius: 22px;
+        padding: 18px;
+        box-shadow: 0 24px 70px rgba(0,0,0,.45);
+      }
+
+      .modal-rf-card h3 {
+        margin: 0 0 6px;
+        color: #ffffff;
+      }
+
+      .modal-rf-card p {
+        margin: 0 0 12px;
+        color: #cbd5e1;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .lista-repertorios-modal {
+        display: grid;
+        gap: 8px;
+        margin: 12px 0;
+      }
+
+      .item-repertorio-modal {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border-radius: 13px;
+        background: rgba(255,255,255,.06);
+        border: 1px solid rgba(255,255,255,.10);
+        color: #f9fafb;
+        font-size: 14px;
+      }
+
+      .item-repertorio-modal input {
+        width: 18px !important;
+        height: 18px !important;
+        min-height: 18px !important;
+        margin: 0 !important;
+      }
+
+      .acoes-modal-rf {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .acoes-modal-rf button {
+        min-height: 38px !important;
+        padding: 0 14px !important;
+        border-radius: 11px !important;
+      }
+
       .progresso-musica-card {
         display: grid;
         gap: 8px;
@@ -2927,7 +3016,7 @@ async function buscarMusicas() {
   const { data: sessionData } = await cliente.auth.getSession();
   const usuario = sessionData.session?.user || null;
 
-  const [musicasResultado, integrantesResultado, progressoResultado] = await Promise.all([
+  const [musicasResultado, integrantesResultado, progressoResultado, repertoriosResultado] = await Promise.all([
     cliente
       .from(REPERTORIO_FACIL.tabelas.musicas)
       .select("*")
@@ -2943,7 +3032,13 @@ async function buscarMusicas() {
     cliente
       .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
       .select("*")
+      .eq("projeto_id", projetoId),
+
+    cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorios)
+      .select("*")
       .eq("projeto_id", projetoId)
+      .order("nome", { ascending: true })
   ]);
 
   if (musicasResultado.error) {
@@ -2961,9 +3056,33 @@ async function buscarMusicas() {
     return;
   }
 
+  if (repertoriosResultado.error) {
+    lista.innerHTML = `<p>Erro ao carregar repertórios: ${escaparHtml(repertoriosResultado.error.message)}</p>`;
+    return;
+  }
+
   appState.musicas = musicasResultado.data || [];
   appState.integrantesProjetoMusicas = integrantesResultado.data || [];
   appState.progressoMusicas = progressoResultado.data || [];
+  appState.repertorios = repertoriosResultado.data || [];
+  appState.repertorioMusicasBiblioteca = [];
+
+  const repertorioIds = appState.repertorios.map(function(item) { return item.id; }).filter(Boolean);
+
+  if (repertorioIds.length > 0) {
+    const { data: relacoesRepertorios, error: erroRelacoesRepertorios } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+      .select("*")
+      .in("repertorio_id", repertorioIds);
+
+    if (erroRelacoesRepertorios) {
+      lista.innerHTML = `<p>Erro ao carregar vínculo com repertórios: ${escaparHtml(erroRelacoesRepertorios.message)}</p>`;
+      return;
+    }
+
+    appState.repertorioMusicasBiblioteca = relacoesRepertorios || [];
+  }
+
   appState.meuIntegranteAtual = encontrarMeuIntegranteNoProjeto(appState.integrantesProjetoMusicas, usuario);
 
   renderizarListaMusicas();
@@ -3159,12 +3278,14 @@ function renderizarListaMusicas() {
             ${montarResumoProgressoMusica(item.id)}
 
             ${indicadores ? `<div class="indicadores-musica">${indicadores}</div>` : ""}
+            ${montarResumoUsoMusicaEmRepertorios(item.id)}
 
             ${link ? `<p><a class="link-musica" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Assistir / Ouvir</a></p>` : ""}
             ${item.observacoes ? `<p><strong>Obs.:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
           </div>
 
           <div class="botoes-item-musica">
+            <button class="btn-musica-repertorio" type="button" data-musica-repertorios="${escaparHtml(item.id)}">＋ Repertório</button>
             <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">✎ Editar</button>
             <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
@@ -3185,11 +3306,180 @@ function renderizarListaMusicas() {
     });
   });
 
+  lista.querySelectorAll("[data-musica-repertorios]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      abrirModalMusicaRepertorios(botao.dataset.musicaRepertorios);
+    });
+  });
+
   lista.querySelectorAll("[data-status-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       salvarMeuProgressoMusica(botao.dataset.musicaId, botao.dataset.statusMusica);
     });
   });
+}
+
+
+function obterRelacoesDaMusicaEmRepertorios(musicaId) {
+  return (appState.repertorioMusicasBiblioteca || []).filter(function(relacao) {
+    return relacao.musica_id === musicaId;
+  });
+}
+
+function montarResumoUsoMusicaEmRepertorios(musicaId) {
+  const quantidade = obterRelacoesDaMusicaEmRepertorios(musicaId).length;
+
+  if (quantidade === 0) {
+    return `<div class="info-repertorios-musica">📂 Ainda não está em repertórios</div>`;
+  }
+
+  const texto = quantidade === 1 ? "Em 1 repertório" : `Em ${quantidade} repertórios`;
+  return `<div class="info-repertorios-musica">📂 ${texto}</div>`;
+}
+
+function abrirModalMusicaRepertorios(musicaId) {
+  const musica = (appState.musicas || []).find(function(item) {
+    return item.id === musicaId;
+  });
+
+  if (!musica) {
+    alert("Música não encontrada.");
+    return;
+  }
+
+  if (!appState.repertorios || appState.repertorios.length === 0) {
+    alert("Crie um repertório antes de adicionar músicas.");
+    return;
+  }
+
+  fecharModalMusicaRepertorios();
+
+  const relacoes = obterRelacoesDaMusicaEmRepertorios(musicaId);
+  const idsMarcados = new Set(relacoes.map(function(item) { return item.repertorio_id; }));
+
+  const overlay = document.createElement("div");
+  overlay.id = "modal-musica-repertorios";
+  overlay.className = "modal-rf-overlay";
+
+  overlay.innerHTML = `
+    <div class="modal-rf-card" role="dialog" aria-modal="true" aria-labelledby="titulo-modal-musica-repertorios">
+      <h3 id="titulo-modal-musica-repertorios">Adicionar ao repertório</h3>
+      <p><strong>${escaparHtml(musica.nome || "Música")}</strong></p>
+      <p>Marque em quais repertórios essa música deve aparecer.</p>
+
+      <div class="lista-repertorios-modal">
+        ${(appState.repertorios || []).map(function(repertorio) {
+          const marcado = idsMarcados.has(repertorio.id) ? "checked" : "";
+          return `
+            <label class="item-repertorio-modal">
+              <input type="checkbox" class="check-repertorio-musica" value="${escaparHtml(repertorio.id)}" ${marcado} />
+              <span>${escaparHtml(repertorio.nome || "Repertório")}</span>
+            </label>
+          `;
+        }).join("")}
+      </div>
+
+      <div class="acoes-modal-rf">
+        <button class="botao-secundario-modulo" id="btn-fechar-modal-musica-repertorios" type="button">Cancelar</button>
+        <button class="botao-card" id="btn-salvar-modal-musica-repertorios" type="button">Salvar repertórios</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  const fechar = elemento("btn-fechar-modal-musica-repertorios");
+  const salvar = elemento("btn-salvar-modal-musica-repertorios");
+
+  if (fechar) {
+    fechar.addEventListener("click", fecharModalMusicaRepertorios);
+  }
+
+  if (salvar) {
+    salvar.addEventListener("click", function() {
+      salvarRepertoriosDaMusica(musicaId);
+    });
+  }
+
+  overlay.addEventListener("click", function(evento) {
+    if (evento.target === overlay) {
+      fecharModalMusicaRepertorios();
+    }
+  });
+}
+
+function fecharModalMusicaRepertorios() {
+  const modal = elemento("modal-musica-repertorios");
+
+  if (modal) {
+    modal.remove();
+  }
+}
+
+async function salvarRepertoriosDaMusica(musicaId) {
+  const cliente = sb();
+
+  if (!cliente || !musicaId) {
+    return;
+  }
+
+  const checks = Array.from(document.querySelectorAll("#modal-musica-repertorios .check-repertorio-musica:checked"));
+  const repertoriosMarcados = new Set(checks.map(function(campo) { return campo.value; }).filter(Boolean));
+  const relacoesAtuais = obterRelacoesDaMusicaEmRepertorios(musicaId);
+  const idsAtuais = new Set(relacoesAtuais.map(function(item) { return item.repertorio_id; }));
+
+  const inserir = [];
+  const remover = [];
+
+  repertoriosMarcados.forEach(function(repertorioId) {
+    if (!idsAtuais.has(repertorioId)) {
+      const relacoesDoRepertorio = (appState.repertorioMusicasBiblioteca || []).filter(function(item) {
+        return item.repertorio_id === repertorioId;
+      });
+
+      const maiorOrdem = relacoesDoRepertorio.reduce(function(maior, item) {
+        return Math.max(maior, Number(item.ordem || 0));
+      }, 0);
+
+      inserir.push({
+        repertorio_id: repertorioId,
+        musica_id: musicaId,
+        ordem: maiorOrdem + 1
+      });
+    }
+  });
+
+  relacoesAtuais.forEach(function(relacao) {
+    if (!repertoriosMarcados.has(relacao.repertorio_id)) {
+      remover.push(relacao.id);
+    }
+  });
+
+  if (inserir.length > 0) {
+    const { error } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+      .insert(inserir);
+
+    if (error) {
+      alert("Erro ao adicionar música aos repertórios: " + error.message);
+      return;
+    }
+  }
+
+  if (remover.length > 0) {
+    const { error } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+      .delete()
+      .in("id", remover);
+
+    if (error) {
+      alert("Erro ao remover música dos repertórios: " + error.message);
+      return;
+    }
+  }
+
+  fecharModalMusicaRepertorios();
+  await buscarMusicas();
 }
 
 async function salvarMeuProgressoMusica(musicaId, status) {
@@ -3746,43 +4036,6 @@ async function carregarRepertorios() {
           justify-content: flex-start;
         }
       }
-
-      #btn-salvar-repertorio,
-      #btn-salvar-repertorio-edicao,
-      .btn-salvar-repertorio-padrao {
-        width: 100% !important;
-        min-height: 44px !important;
-        height: 44px !important;
-        border: none !important;
-        border-radius: 13px !important;
-        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
-        color: #ffffff !important;
-        font-size: 17px !important;
-        font-weight: 600 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 10px !important;
-        cursor: pointer !important;
-      }
-
-      #btn-salvar-repertorio::before,
-      #btn-salvar-repertorio-edicao::before,
-      .btn-salvar-repertorio-padrao::before {
-        content: "✓";
-        width: 21px;
-        height: 21px;
-        border: 2px solid rgba(255,255,255,.92);
-        border-radius: 999px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1;
-        flex: 0 0 21px;
-      }
     </style>
 
     <div class="modulo-repertorios">
@@ -3803,7 +4056,7 @@ async function carregarRepertorios() {
           </label>
 
           <div class="acoes-repertorio">
-            <button class="botao-card btn-salvar-repertorio-padrao" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
+            <button class="botao-card" id="btn-salvar-repertorio" type="button">Salvar repertório</button>
             <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:none;">↗ Compartilhar</button>
             <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">PDF</button>
             <button class="botao-secundario-modulo" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
@@ -4027,7 +4280,7 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">✎ Montar</button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}">Abrir</button>
             <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}">↗ Compartilhar</button>
             <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
@@ -4190,26 +4443,17 @@ async function salvarRepertorio() {
   };
 
   let resultado;
-  let repertorioSalvoId = appState.repertorioEditandoId || appState.repertorioMontandoId || null;
 
-  if (appState.repertorioEditandoId || appState.repertorioMontandoId) {
-    repertorioSalvoId = appState.repertorioEditandoId || appState.repertorioMontandoId;
-
+  if (appState.repertorioEditandoId) {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
       .update(payload)
-      .eq("id", repertorioSalvoId)
+      .eq("id", appState.repertorioEditandoId)
       .eq("projeto_id", projetoId);
   } else {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.repertorios)
-      .insert(payload)
-      .select("*")
-      .single();
-
-    if (!resultado.error && resultado.data) {
-      repertorioSalvoId = resultado.data.id;
-    }
+      .insert(payload);
   }
 
   if (resultado.error) {
@@ -4217,26 +4461,8 @@ async function salvarRepertorio() {
     return;
   }
 
-  await buscarRepertorios();
-
-  if (repertorioSalvoId) {
-    const item = (appState.repertorios || []).find(function(repertorio) {
-      return repertorio.id === repertorioSalvoId;
-    });
-
-    appState.repertorioEditandoId = repertorioSalvoId;
-    appState.repertorioMontandoId = repertorioSalvoId;
-
-    if (item) {
-      preencherFormularioRepertorio(item);
-    }
-
-    await carregarDadosMontagemRepertorio();
-    renderizarMontagemRepertorio();
-    return;
-  }
-
   limparFormularioRepertorio();
+  await buscarRepertorios();
 }
 
 async function criarRepertorio() {
@@ -4493,7 +4719,7 @@ function renderizarMontagemRepertorio() {
     </div>
 
     <div class="acoes-edicao-repertorio">
-      <button class="botao-card btn-salvar-repertorio-padrao" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
+      <button class="botao-card" id="btn-salvar-repertorio-edicao" type="button">Salvar alterações</button>
       <button class="botao-secundario-modulo btn-compartilhar-repertorio" id="btn-compartilhar-repertorio-edicao" type="button">↗ Compartilhar</button>
       <button class="botao-secundario-modulo btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button">Gerar PDF</button>
       <button class="botao-secundario-modulo" id="btn-cancelar-repertorio-edicao" type="button">Cancelar edição</button>
