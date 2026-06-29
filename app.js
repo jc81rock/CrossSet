@@ -1,3 +1,25 @@
+
+// Auto-clear stale invite
+(function(){
+ const h=window.location.hash||"";
+ if(!h.includes("convite=")){
+   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+     try{localStorage.removeItem(k);}catch(e){}
+     try{sessionStorage.removeItem(k);}catch(e){}
+   });
+ }
+ window.addEventListener("hashchange",()=>{
+   const hh=window.location.hash||"";
+   if(!hh.includes("convite=")){
+     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+       try{localStorage.removeItem(k);}catch(e){}
+       try{sessionStorage.removeItem(k);}catch(e){}
+     });
+     try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
+   }
+ });
+})();
+
 "use strict";
 
 const REPERTORIO_FACIL = {
