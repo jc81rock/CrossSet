@@ -1322,6 +1322,145 @@ async function carregarIntegrantes() {
         line-height: 1.35;
       }
 
+
+
+      /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
+      .lista-musicas {
+        display: block !important;
+      }
+
+      .item-musica {
+        padding: 5px 2px !important;
+        min-height: 58px !important;
+        max-height: 72px !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-bottom: 1px solid rgba(255,255,255,.10) !important;
+        border-radius: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .item-musica:hover {
+        background: rgba(255,255,255,.035) !important;
+      }
+
+      .musica-linha-principal {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+        margin-bottom: 1px !important;
+        min-height: 22px !important;
+      }
+
+      .musica-identidade {
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+      }
+
+      .musica-icone-mini {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        font-size: 10px !important;
+      }
+
+      .musica-nome-mini {
+        font-size: 13px !important;
+        max-width: 260px !important;
+        line-height: 1.15 !important;
+      }
+
+      .musica-artista-mini {
+        font-size: 11.5px !important;
+        max-width: 190px !important;
+        line-height: 1.15 !important;
+      }
+
+      .acoes-icone-musica {
+        gap: 6px !important;
+        flex: 0 0 auto !important;
+      }
+
+      .btn-acao-musica {
+        width: 18px !important;
+        height: 18px !important;
+        color: #ffffff !important;
+        opacity: .92 !important;
+      }
+
+      .btn-acao-musica svg {
+        width: 15px !important;
+        height: 15px !important;
+      }
+
+      .musica-linha-meta {
+        margin-left: 25px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        font-size: 11px !important;
+        line-height: 1.15 !important;
+        color: #cbd5e1 !important;
+      }
+
+      .musica-meta-chip,
+      .musica-meta-link {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        white-space: nowrap !important;
+        flex: 0 0 auto !important;
+      }
+
+      .progresso-musica-inline {
+        min-width: 72px !important;
+        gap: 4px !important;
+        flex: 0 0 auto !important;
+      }
+
+      .barra-fina-musica {
+        width: 42px !important;
+        height: 3px !important;
+      }
+
+      .preparacao-inline-musica {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        flex: 1 1 auto !important;
+      }
+
+      .status-integrante-mini,
+      .status-integrante-mini-botao {
+        gap: 2px !important;
+        font-size: 10.5px !important;
+        line-height: 1 !important;
+      }
+
+      .bolinha-status-mini {
+        width: 7px !important;
+        height: 7px !important;
+        min-width: 7px !important;
+      }
+
+      .musica-linha-status {
+        display: none !important;
+      }
+
+      .indicador-conteudo-musica {
+        font-size: 11px !important;
+      }
+
       @media (max-width: 820px) {
         .modulo-integrantes,
         .linha-form-integrantes,
@@ -2942,6 +3081,235 @@ async function carregarMusicas() {
         color: #991b1b;
       }
 
+
+
+      /* UX v0.9.18 - lista fina de músicas */
+      .lista-musicas {
+        display: grid;
+        gap: 0;
+      }
+
+      .item-musica {
+        border: 0;
+        border-radius: 0;
+        padding: 7px 2px;
+        background: transparent;
+        color: #f9fafb;
+        border-bottom: 1px solid rgba(255, 255, 255, .10);
+      }
+
+      .item-musica:hover {
+        background: rgba(255, 255, 255, .035);
+      }
+
+      .musica-linha-principal,
+      .musica-linha-meta,
+      .musica-linha-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .musica-linha-principal {
+        justify-content: space-between;
+        margin-bottom: 2px;
+      }
+
+      .musica-identidade {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .musica-icone-mini {
+        width: 21px;
+        height: 21px;
+        min-width: 21px;
+        border-radius: 50%;
+        background: #7a5cff;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .musica-nome-mini {
+        font-size: 14px;
+        font-weight: 700;
+        color: #ffffff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 230px;
+      }
+
+      .musica-artista-mini {
+        color: #aeb9d6;
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 160px;
+      }
+
+      .musica-linha-meta {
+        flex-wrap: wrap;
+        font-size: 11.5px;
+        color: #cbd5e1;
+        margin-left: 29px;
+        line-height: 1.25;
+      }
+
+      .musica-meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      .musica-meta-link {
+        color: #c4b5fd;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .musica-meta-link:hover {
+        text-decoration: underline;
+      }
+
+      .progresso-musica-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 92px;
+      }
+
+      .barra-fina-musica {
+        width: 58px;
+        height: 4px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(255,255,255,.13);
+      }
+
+      .barra-fina-musica span {
+        display: block;
+        height: 100%;
+        border-radius: 999px;
+      }
+
+      .barra-fina-musica span.vermelha { background: #ef4444; }
+      .barra-fina-musica span.amarela { background: #facc15; }
+      .barra-fina-musica span.verde { background: #22c55e; }
+
+      .musica-linha-status {
+        flex-wrap: wrap;
+        gap: 7px;
+        margin-left: 29px;
+        margin-top: 2px;
+        font-size: 11.5px;
+        line-height: 1.2;
+      }
+
+      .status-integrante-mini,
+      .status-integrante-mini-botao {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        color: #dbe4f5;
+        white-space: nowrap;
+      }
+
+      .status-integrante-mini-botao {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .status-integrante-mini-botao:hover {
+        color: #d8b4fe;
+      }
+
+      .bolinha-status-mini {
+        width: 8px;
+        height: 8px;
+        min-width: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .bolinha-status-mini.vermelha { background: #ef4444; }
+      .bolinha-status-mini.amarela { background: #facc15; }
+      .bolinha-status-mini.verde { background: #22c55e; }
+
+      .acoes-icone-musica {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        flex: 0 0 auto;
+      }
+
+      .btn-acao-musica {
+        width: 22px;
+        height: 22px;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: #ffffff;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        opacity: .9;
+        transition: color .15s ease, opacity .15s ease, transform .15s ease;
+      }
+
+      .btn-acao-musica svg {
+        width: 17px;
+        height: 17px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .btn-acao-musica:hover {
+        color: #d8b4fe;
+        opacity: 1;
+        transform: translateY(-1px) scale(1.05);
+      }
+
+      .btn-acao-musica.excluir:hover {
+        color: #fca5a5;
+      }
+
+      .botao-colar-letra {
+        min-height: 30px !important;
+        height: 30px !important;
+        padding: 0 10px !important;
+        border-radius: 9px !important;
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(255,255,255,.08);
+        color: #ffffff;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .linha-letra-acoes {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
       @media (max-width: 820px) {
         .modulo-musicas,
         .linha-form-musicas,
@@ -3011,10 +3379,25 @@ async function carregarMusicas() {
           </div>
 
           <label>
-            Letra
+            <span class="linha-letra-acoes">
+              <span>Letra</span>
+              <button class="botao-colar-letra" id="btn-colar-salvar-letra" type="button">📋 Copiar e salvar</button>
+            </span>
             <textarea id="musica-letra" placeholder="Cole a letra aqui"></textarea>
           </label>
 
+          <div class="upload-musica-card">
+            <div class="upload-musica-card-topo">
+              <span>📝 Upload da letra</span>
+            </div>
+            <div class="upload-musica-acoes">
+              <label class="upload-musica-botao">
+                Selecionar arquivo
+                <input id="musica-letra-arquivo" type="file" accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png,.webp" />
+              </label>
+            </div>
+            <small id="musica-letra-arquivo-atual" class="upload-musica-atual"></small>
+          </div>
 
           <label>
             Observações
@@ -3091,7 +3474,8 @@ function configurarEventosMusicas() {
   }
 
   [
-    { input: "musica-material-arquivo", info: "musica-material-arquivo-atual" }
+    { input: "musica-material-arquivo", info: "musica-material-arquivo-atual" },
+    { input: "musica-letra-arquivo", info: "musica-letra-arquivo-atual" }
   ].forEach(function(config) {
     const campoArquivo = elemento(config.input);
     const infoArquivo = elemento(config.info);
@@ -3105,6 +3489,16 @@ function configurarEventosMusicas() {
       });
     }
   });
+
+  const botaoColarLetra = elemento("btn-colar-salvar-letra");
+  if (botaoColarLetra) {
+    botaoColarLetra.addEventListener("click", function() {
+      const campoLetra = elemento("musica-letra");
+      if (!campoLetra) { return; }
+      campoLetra.value = limparTexto(campoLetra.value);
+      campoLetra.focus();
+    });
+  }
 }
 
 async function buscarMusicas() {
@@ -3263,6 +3657,94 @@ function montarControleMeuProgresso(musicaId) {
   `;
 }
 
+
+function abreviarNomeIntegrante(nome) {
+  const texto = limparTexto(nome || "?");
+  if (!texto) {
+    return "?";
+  }
+
+  const primeiro = texto.split(/\s+/)[0];
+  if (primeiro.length <= 5) {
+    return primeiro;
+  }
+
+  return primeiro.slice(0, 5);
+}
+
+function corStatusMusica(status) {
+  if (status === "pronta") {
+    return "verde";
+  }
+
+  if (status === "em_estudo") {
+    return "amarela";
+  }
+
+  return "vermelha";
+}
+
+function proximoStatusMusica(statusAtual) {
+  if (statusAtual === "nao_iniciada") {
+    return "em_estudo";
+  }
+
+  if (statusAtual === "em_estudo") {
+    return "pronta";
+  }
+
+  return "nao_iniciada";
+}
+
+function montarPreparacaoLinhaMusica(musicaId) {
+  const integrantes = appState.integrantesProjetoMusicas || [];
+  const progresso = appState.progressoMusicas || [];
+  const meuIntegrante = appState.meuIntegranteAtual;
+
+  if (!integrantes.length) {
+    return `<span class="status-integrante-mini">Sem integrantes</span>`;
+  }
+
+  return integrantes.map(function(integrante) {
+    const registro = progresso.find(function(item) {
+      return item.musica_id === musicaId && item.integrante_id === integrante.id;
+    });
+
+    const status = registro?.status || "nao_iniciada";
+    const cor = corStatusMusica(status);
+    const nome = abreviarNomeIntegrante(integrante.nome || integrante.email || "Integrante");
+    const titulo = status === "pronta" ? "Pronta" : (status === "em_estudo" ? "Em estudo" : "Não iniciada");
+
+    if (meuIntegrante && meuIntegrante.id === integrante.id) {
+      return `<button class="status-integrante-mini-botao" type="button" title="${escaparHtml(titulo)} - clique para alterar" data-ciclar-status-musica="${escaparHtml(musicaId)}" data-status-atual="${escaparHtml(status)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</button>`;
+    }
+
+    return `<span class="status-integrante-mini" title="${escaparHtml(titulo)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</span>`;
+  }).join("");
+}
+
+function montarProgressoInlineMusica(musicaId) {
+  const progresso = obterProgressoDaMusica(musicaId);
+
+  return `
+    <span class="progresso-musica-inline" title="Preparação da banda">
+      <span class="barra-fina-musica"><span class="${progresso.cor}" style="width:${progresso.percentual}%"></span></span>
+      <strong>${progresso.percentual}%</strong>
+    </span>
+  `;
+}
+
+function iconeAcaoMusica(tipo) {
+  const icones = {
+    editar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+    compartilhar: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg>`,
+    pdf: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 17v-4h1.6a1.2 1.2 0 0 1 0 2.4H8"/><path d="M12 17v-4h1.1a2 2 0 0 1 0 4H12"/><path d="M17 13h-2v4"/><path d="M15 15h1.7"/></svg>`,
+    excluir: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`
+  };
+
+  return icones[tipo] || "";
+}
+
 function montarResumoProgressoMusica(musicaId) {
   const progresso = obterProgressoDaMusica(musicaId);
 
@@ -3355,33 +3837,34 @@ function renderizarListaMusicas() {
       montarLinkArquivoMusica(arquivoMaterial, "Material da música", "🎼 ")
     ].filter(Boolean).join("");
 
+    const arquivoLetra = obterArquivoLetraMusica(item);
+    const temLetraCompleta = temLetra || limparTexto(arquivoLetra).length > 0;
+
     return `
       <div class="item-musica">
-        <div class="item-musica-topo">
-          <div class="icone-musica-placeholder">♪</div>
-
-          <div class="dados-musica">
-            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-            <p><strong>Artista:</strong> ${escaparHtml(item.artista || "Não informado")}</p>
-
-            <div class="meta-musica">
-              <span class="pill-musica">Tom: ${escaparHtml(item.tom || "-")}</span>
-              <span class="pill-musica">BPM: ${escaparHtml(item.bpm || "-")}</span>
-            </div>
-
-            ${montarResumoProgressoMusica(item.id)}
-
-            ${indicadores ? `<div class="indicadores-musica">${indicadores}</div>` : ""}
-
-            ${link ? `<p><a class="link-musica" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Assistir / Ouvir</a></p>` : ""}
-            ${linksArquivos ? `<p>${linksArquivos}</p>` : ""}
-            ${item.observacoes ? `<p><strong>Obs.:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
+        <div class="musica-linha-principal">
+          <div class="musica-identidade">
+            <span class="musica-icone-mini">♪</span>
+            <span class="musica-nome-mini" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</span>
+            <span class="musica-artista-mini" title="${escaparHtml(item.artista || "Não informado")}">${escaparHtml(item.artista || "Não informado")}</span>
           </div>
 
-          <div class="botoes-item-musica">
-            <button class="btn-editar-musica" type="button" data-editar-musica="${escaparHtml(item.id)}">✎ Editar</button>
-            <button class="btn-excluir-musica" type="button" data-excluir-musica="${escaparHtml(item.id)}">🗑 Excluir</button>
+          <div class="acoes-icone-musica">
+            <button class="btn-acao-musica" type="button" title="Editar" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
+            <button class="btn-acao-musica" type="button" title="Compartilhar" data-compartilhar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("compartilhar")}</button>
+            <button class="btn-acao-musica" type="button" title="Gerar PDF" data-pdf-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("pdf")}</button>
+            <button class="btn-acao-musica excluir" type="button" title="Excluir" data-excluir-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
           </div>
+        </div>
+
+        <div class="musica-linha-meta">
+          <span class="musica-meta-chip">🎼 ${escaparHtml(item.tom || "-")}</span>
+          <span class="musica-meta-chip">🥁 ${escaparHtml(item.bpm || "-")}</span>
+          ${link ? `<a class="musica-meta-link" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Link</a>` : ""}
+          ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer">🎼 Material</a>` : ""}
+          ${temLetraCompleta ? `<span class="musica-meta-chip">📝 Letra</span>` : ""}
+          ${montarProgressoInlineMusica(item.id)}
+          <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
       </div>
     `;
@@ -3399,11 +3882,96 @@ function renderizarListaMusicas() {
     });
   });
 
+  lista.querySelectorAll("[data-compartilhar-musica]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      compartilharMusica(botao.dataset.compartilharMusica);
+    });
+  });
+
+  lista.querySelectorAll("[data-pdf-musica]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      gerarPDFDaMusica(botao.dataset.pdfMusica);
+    });
+  });
+
+  lista.querySelectorAll("[data-ciclar-status-musica]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      salvarMeuProgressoMusica(botao.dataset.ciclarStatusMusica, proximoStatusMusica(botao.dataset.statusAtual));
+    });
+  });
+
   lista.querySelectorAll("[data-status-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       salvarMeuProgressoMusica(botao.dataset.musicaId, botao.dataset.statusMusica);
     });
   });
+}
+
+
+async function compartilharMusica(musicaId) {
+  const musica = (appState.musicas || []).find(function(item) {
+    return item.id === musicaId;
+  });
+
+  if (!musica) {
+    alert("Música não encontrada.");
+    return;
+  }
+
+  const linhas = [
+    "🎵 " + (musica.nome || "Música"),
+    musica.artista ? "Artista: " + musica.artista : "",
+    musica.tom ? "Tom: " + musica.tom : "",
+    musica.bpm ? "BPM: " + musica.bpm : "",
+    obterLinkMusica(musica) ? "Link: " + obterLinkMusica(musica) : ""
+  ].filter(Boolean);
+
+  await compartilharConteudo("Música - " + (musica.nome || "Música"), linhas.join("\n"), obterLinkMusica(musica));
+}
+
+function gerarPDFDaMusica(musicaId) {
+  const musica = (appState.musicas || []).find(function(item) {
+    return item.id === musicaId;
+  });
+
+  if (!musica) {
+    alert("Música não encontrada.");
+    return;
+  }
+
+  const janela = window.open("", "_blank");
+
+  if (!janela) {
+    alert("Permita pop-ups para gerar o PDF da música.");
+    return;
+  }
+
+  const letra = escaparHtml(musica.letra || "").replaceAll("\n", "<br>");
+  const observacoes = escaparHtml(musica.observacoes || "").replaceAll("\n", "<br>");
+
+  janela.document.write(`
+    <html>
+      <head>
+        <title>${escaparHtml(musica.nome || "Música")}</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 28px; color: #111; }
+          h1 { margin-bottom: 4px; }
+          .meta { color: #555; margin-bottom: 18px; }
+          .box { border-top: 1px solid #ddd; padding-top: 14px; margin-top: 14px; }
+          @media print { button { display: none; } }
+        </style>
+      </head>
+      <body>
+        <button onclick="window.print()">Salvar / Imprimir PDF</button>
+        <h1>${escaparHtml(musica.nome || "Música")}</h1>
+        <div class="meta">${escaparHtml(musica.artista || "")}</div>
+        <p><strong>Tom:</strong> ${escaparHtml(musica.tom || "-")} &nbsp; <strong>BPM:</strong> ${escaparHtml(musica.bpm || "-")}</p>
+        ${observacoes ? `<div class="box"><strong>Observações</strong><br>${observacoes}</div>` : ""}
+        ${letra ? `<div class="box"><strong>Letra</strong><br><br>${letra}</div>` : ""}
+      </body>
+    </html>
+  `);
+  janela.document.close();
 }
 
 async function salvarMeuProgressoMusica(musicaId, status) {
@@ -3581,6 +4149,7 @@ function preencherFormularioMusica(item) {
   elemento("musica-observacoes").value = item.observacoes || "";
 
   atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", obterArquivoMaterialMusica(item), "Abrir material musical");
+  atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", obterArquivoLetraMusica(item), "Abrir letra");
 
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
@@ -3605,7 +4174,7 @@ function preencherFormularioMusica(item) {
 function limparFormularioMusica() {
   appState.musicaEditandoId = null;
 
-  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-letra", "musica-observacoes", "musica-material-arquivo"].forEach(function(id) {
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
     const campo = elemento(id);
     if (campo) {
       campo.value = "";
@@ -3613,6 +4182,7 @@ function limparFormularioMusica() {
   });
 
   atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", "", "Abrir material musical");
+  atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", "", "Abrir letra");
 
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
@@ -3650,13 +4220,18 @@ async function salvarMusica() {
 
   const musicaAtual = obterMusicaEditandoAtual();
   let materialArquivoUrl = musicaAtual ? obterArquivoMaterialMusica(musicaAtual) : "";
-
+  let letraArquivoUrl = musicaAtual ? obterArquivoLetraMusica(musicaAtual) : "";
 
   try {
     const novoMaterialArquivo = await enviarArquivoMusica("musica-material-arquivo", "material-musical", projetoId);
+    const novoLetraArquivo = await enviarArquivoMusica("musica-letra-arquivo", "letras", projetoId);
 
     if (novoMaterialArquivo) {
       materialArquivoUrl = novoMaterialArquivo;
+    }
+
+    if (novoLetraArquivo) {
+      letraArquivoUrl = novoLetraArquivo;
     }
   } catch (erroUpload) {
     alert(erroUpload.message || "Erro ao enviar arquivo.");
@@ -3672,6 +4247,7 @@ async function salvarMusica() {
     link_url: dados.link_url,
     youtube_url: dados.link_url,
     material_arquivo_url: materialArquivoUrl,
+    letra_arquivo_url: letraArquivoUrl,
     letra: dados.letra,
     observacoes: dados.observacoes,
     updated_at: new Date().toISOString()
