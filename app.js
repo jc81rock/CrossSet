@@ -1267,7 +1267,7 @@ async function carregarIntegrantes() {
         justify-content: space-between;
         gap: 10px;
         color: #f9fafb;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
       }
 
@@ -1459,6 +1459,22 @@ async function carregarIntegrantes() {
 
       .indicador-conteudo-musica {
         font-size: 11px !important;
+      }
+
+
+
+      /* UX v0.9.20 - cadastro ultracompacto */
+      .modulo-musicas > .card-projeto:first-child {
+        align-self: start;
+      }
+
+      .modulo-musicas > .card-projeto:first-child label {
+        margin: 0 !important;
+      }
+
+      .modulo-musicas > .card-projeto:first-child input,
+      .modulo-musicas > .card-projeto:first-child textarea {
+        box-shadow: none !important;
       }
 
       @media (max-width: 820px) {
@@ -2649,21 +2665,30 @@ async function carregarMusicas() {
     <style>
       .modulo-musicas {
         display: grid;
-        grid-template-columns: minmax(280px, 380px) 1fr;
-        gap: 18px;
+        grid-template-columns: minmax(240px, 320px) 1fr;
+        gap: 12px;
         width: 100%;
+      }
+
+      .modulo-musicas > .card-projeto {
+        padding: 12px !important;
+      }
+
+      .modulo-musicas > .card-projeto h3 {
+        margin: 0 0 8px !important;
+        font-size: 17px !important;
       }
 
       .form-musicas {
         display: grid;
-        gap: 7px;
+        gap: 5px;
       }
 
       .form-musicas label,
       .filtros-musicas label {
         display: grid;
-        gap: 6px;
-        font-size: 13px;
+        gap: 2px;
+        font-size: 12px;
         color: #e5e7eb;
       }
 
@@ -2674,23 +2699,40 @@ async function carregarMusicas() {
         width: 100%;
       }
 
+      .form-musicas input,
+      .form-musicas select,
+      .filtros-musicas input,
+      .filtros-musicas select {
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 7px 10px !important;
+        border-radius: 9px !important;
+        margin-bottom: 0 !important;
+        font-size: 13px !important;
+      }
+
       .form-musicas textarea {
-        min-height: 78px !important;
+        min-height: 54px !important;
+        padding: 7px 10px !important;
+        border-radius: 9px !important;
+        margin-bottom: 0 !important;
+        font-size: 13px !important;
+        line-height: 1.35 !important;
         resize: vertical;
       }
 
       #musica-letra {
-        min-height: 128px !important;
+        min-height: 76px !important;
       }
 
       #musica-observacoes {
-        min-height: 68px !important;
+        min-height: 42px !important;
       }
 
       .linha-form-musicas {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
+        gap: 6px;
         align-items: start;
       }
 
@@ -2700,20 +2742,20 @@ async function carregarMusicas() {
 
       .acoes-musica {
         display: grid;
-        gap: 8px;
-        margin-top: 4px;
+        gap: 6px;
+        margin-top: 2px;
       }
 
       .btn-principal-musica,
       .btn-secundario-musica {
         width: 100%;
-        min-height: 42px !important;
-        height: 42px !important;
+        min-height: 36px !important;
+        height: 36px !important;
         border: 0;
-        border-radius: 13px;
+        border-radius: 10px;
         cursor: pointer;
-        font-size: 15px;
-        font-weight: 600;
+        font-size: 13px;
+        font-weight: 700;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -2975,22 +3017,25 @@ async function carregarMusicas() {
 
       .upload-musica-card {
         display: grid;
-        gap: 7px;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 6px;
         margin-top: 0;
-        padding: 10px;
-        border-radius: 12px;
-        background: rgba(255,255,255,.045);
-        border: 1px solid rgba(255,255,255,.12);
+        padding: 6px 8px;
+        border-radius: 9px;
+        background: rgba(255,255,255,.035);
+        border: 1px solid rgba(255,255,255,.10);
       }
 
       .upload-musica-card-topo {
         display: flex;
         align-items: center;
         justify-content: flex-start;
-        gap: 10px;
+        gap: 6px;
         font-size: 12px;
         color: #e5e7eb;
         font-weight: 700;
+        min-width: 0;
       }
 
       .upload-musica-card-topo span:first-child {
@@ -3006,17 +3051,18 @@ async function carregarMusicas() {
       .upload-musica-acoes {
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        gap: 6px;
+        flex-wrap: nowrap;
       }
 
       .upload-musica-botao {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 32px;
-        padding: 0 11px;
-        border-radius: 10px;
+        min-height: 28px;
+        height: 28px;
+        padding: 0 9px;
+        border-radius: 8px;
         cursor: pointer;
         color: #ffffff;
         font-size: 12px;
@@ -3040,9 +3086,10 @@ async function carregarMusicas() {
       }
 
       .upload-musica-atual {
-        font-size: 11px;
+        grid-column: 1 / -1;
+        font-size: 10.5px;
         color: #9db2d6;
-        line-height: 1.35;
+        line-height: 1.2;
       }
 
       .upload-musica-atual a {
@@ -3291,10 +3338,10 @@ async function carregarMusicas() {
       }
 
       .botao-colar-letra {
-        min-height: 30px !important;
-        height: 30px !important;
-        padding: 0 10px !important;
-        border-radius: 9px !important;
+        min-height: 24px !important;
+        height: 24px !important;
+        padding: 0 8px !important;
+        border-radius: 7px !important;
         border: 1px solid rgba(255,255,255,.14);
         background: rgba(255,255,255,.08);
         color: #ffffff;
@@ -3308,6 +3355,22 @@ async function carregarMusicas() {
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+      }
+
+
+
+      /* UX v0.9.20 - cadastro ultracompacto */
+      .modulo-musicas > .card-projeto:first-child {
+        align-self: start;
+      }
+
+      .modulo-musicas > .card-projeto:first-child label {
+        margin: 0 !important;
+      }
+
+      .modulo-musicas > .card-projeto:first-child input,
+      .modulo-musicas > .card-projeto:first-child textarea {
+        box-shadow: none !important;
       }
 
       @media (max-width: 820px) {
@@ -3333,18 +3396,16 @@ async function carregarMusicas() {
 
     <div class="modulo-musicas">
       <div class="card-projeto">
-        <span class="tag">Cadastro</span>
         <h3 id="titulo-form-musica">Nova música</h3>
-        <p>Cadastre músicas com tom, BPM, link, material, letra e observações.</p>
 
         <div class="form-musicas">
           <label>
-            Nome da música
+            Nome
             <input id="musica-nome" type="text" placeholder="Sweet Child O' Mine" />
           </label>
 
           <label>
-            Artista / Banda
+            Artista
             <input id="musica-artista" type="text" placeholder="Guns N' Roses" />
           </label>
 
@@ -3367,11 +3428,11 @@ async function carregarMusicas() {
 
           <div class="upload-musica-card">
             <div class="upload-musica-card-topo">
-              <span>🎼 Material da Música</span>
+              <span>🎼 Cifra / Partitura</span>
             </div>
             <div class="upload-musica-acoes">
               <label class="upload-musica-botao">
-                Selecionar arquivo
+                Anexar
                 <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" />
               </label>
             </div>
@@ -3388,11 +3449,11 @@ async function carregarMusicas() {
 
           <div class="upload-musica-card">
             <div class="upload-musica-card-topo">
-              <span>📝 Upload da letra</span>
+              <span>📝 Letra em arquivo</span>
             </div>
             <div class="upload-musica-acoes">
               <label class="upload-musica-botao">
-                Selecionar arquivo
+                Anexar
                 <input id="musica-letra-arquivo" type="file" accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png,.webp" />
               </label>
             </div>
@@ -3407,7 +3468,7 @@ async function carregarMusicas() {
           <div class="acoes-musica">
             <button class="btn-principal-musica" id="btn-salvar-musica" type="button">
               <span>＋</span>
-              <span>Adicionar música</span>
+              <span>Salvar</span>
             </button>
             <button class="btn-secundario-musica" id="btn-cancelar-musica" type="button" style="display:none;">
               Cancelar edição
@@ -7336,6 +7397,22 @@ async function carregarEventos() {
       .btn-excluir-evento {
         background: #fee2e2;
         color: #991b1b;
+      }
+
+
+
+      /* UX v0.9.20 - cadastro ultracompacto */
+      .modulo-musicas > .card-projeto:first-child {
+        align-self: start;
+      }
+
+      .modulo-musicas > .card-projeto:first-child label {
+        margin: 0 !important;
+      }
+
+      .modulo-musicas > .card-projeto:first-child input,
+      .modulo-musicas > .card-projeto:first-child textarea {
+        box-shadow: none !important;
       }
 
       @media (max-width: 820px) {
