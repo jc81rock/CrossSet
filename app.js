@@ -1053,8 +1053,8 @@ async function carregarIntegrantes() {
       .form-integrantes label,
       .filtros-integrantes label {
         display: grid;
-        gap: 6px;
-        font-size: 13px;
+        gap: 4px;
+        font-size: 12px;
         color: #e5e7eb;
       }
 
@@ -2517,7 +2517,7 @@ async function carregarMusicas() {
 
       .form-musicas {
         display: grid;
-        gap: 10px;
+        gap: 7px;
       }
 
       .form-musicas label,
@@ -2536,20 +2536,27 @@ async function carregarMusicas() {
       }
 
       .form-musicas textarea {
-        min-height: 92px !important;
+        min-height: 78px !important;
         resize: vertical;
+      }
+
+      #musica-letra {
+        min-height: 128px !important;
+      }
+
+      #musica-observacoes {
+        min-height: 68px !important;
       }
 
       .linha-form-musicas {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 8px;
         align-items: start;
       }
 
       .linha-form-musicas .ajuda-bpm-musica {
-        grid-column: 2;
-        margin-top: -4px;
+        display: none;
       }
 
       .acoes-musica {
@@ -2685,10 +2692,7 @@ async function carregarMusicas() {
       }
 
       .ajuda-campo-musica {
-        margin: -4px 0 2px;
-        color: #9db2d6;
-        font-size: 11px;
-        line-height: 1.35;
+        display: none;
       }
 
       .indicadores-musica {
@@ -2832,10 +2836,10 @@ async function carregarMusicas() {
 
       .upload-musica-card {
         display: grid;
-        gap: 8px;
-        margin-top: -2px;
-        padding: 12px;
-        border-radius: 14px;
+        gap: 7px;
+        margin-top: 0;
+        padding: 10px;
+        border-radius: 12px;
         background: rgba(255,255,255,.045);
         border: 1px solid rgba(255,255,255,.12);
       }
@@ -2843,7 +2847,7 @@ async function carregarMusicas() {
       .upload-musica-card-topo {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-start;
         gap: 10px;
         font-size: 12px;
         color: #e5e7eb;
@@ -2857,12 +2861,7 @@ async function carregarMusicas() {
       }
 
       .upload-musica-badge {
-        font-size: 10px;
-        padding: 3px 8px;
-        border-radius: 999px;
-        background: rgba(122,92,255,.20);
-        border: 1px solid rgba(122,92,255,.38);
-        color: #d9d3ff;
+        display: none;
       }
 
       .upload-musica-acoes {
@@ -2876,8 +2875,8 @@ async function carregarMusicas() {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 34px;
-        padding: 0 12px;
+        min-height: 32px;
+        padding: 0 11px;
         border-radius: 10px;
         cursor: pointer;
         color: #ffffff;
@@ -2897,7 +2896,10 @@ async function carregarMusicas() {
         display: none;
       }
 
-      .upload-musica-ajuda,
+      .upload-musica-ajuda {
+        display: none;
+      }
+
       .upload-musica-atual {
         font-size: 11px;
         color: #9db2d6;
@@ -2965,62 +2967,58 @@ async function carregarMusicas() {
       <div class="card-projeto">
         <span class="tag">Cadastro</span>
         <h3 id="titulo-form-musica">Nova música</h3>
-        <p>Cadastre a biblioteca de músicas do projeto com tom, BPM, link de referência, material, letra e observações.</p>
+        <p>Cadastre músicas com tom, BPM, link, material, letra e observações.</p>
 
         <div class="form-musicas">
           <label>
             Nome da música
-            <input id="musica-nome" type="text" placeholder="Ex: Sweet Child O' Mine" />
+            <input id="musica-nome" type="text" placeholder="Sweet Child O' Mine" />
           </label>
 
           <label>
             Artista / Banda
-            <input id="musica-artista" type="text" placeholder="Ex: Guns N' Roses" />
+            <input id="musica-artista" type="text" placeholder="Guns N' Roses" />
           </label>
 
           <div class="linha-form-musicas">
             <label>
               Tom
-              <input id="musica-tom" type="text" placeholder="Ex: D, Em, G" />
+              <input id="musica-tom" type="text" placeholder="D, Em, G" />
             </label>
 
             <label>
               BPM
-              <input id="musica-bpm" type="number" inputmode="numeric" placeholder="Ex: 120" />
+              <input id="musica-bpm" type="number" inputmode="numeric" placeholder="120" />
             </label>
-            <small class="ajuda-campo-musica ajuda-bpm-musica">Velocidade da música (contagem aproximada)</small>
           </div>
 
           <label>
-            Link
+            Link de referência
             <input id="musica-link" type="url" placeholder="YouTube, Spotify, Deezer..." />
-            <small class="ajuda-campo-musica">Cole um link do YouTube, Spotify ou Deezer.</small>
           </label>
 
           <div class="upload-musica-card">
             <div class="upload-musica-card-topo">
               <span>🎼 Material da Música</span>
-              <span class="upload-musica-badge">Opcional</span>
             </div>
             <div class="upload-musica-acoes">
               <label class="upload-musica-botao">
                 Selecionar arquivo
                 <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" />
               </label>
-              <small class="upload-musica-ajuda">PDF, imagem, texto, Word ou Guitar Pro.</small>
             </div>
             <small id="musica-material-arquivo-atual" class="upload-musica-atual"></small>
           </div>
 
           <label>
             Letra
-            <textarea id="musica-letra" placeholder="Cole aqui a letra da música (opcional)."></textarea>
+            <textarea id="musica-letra" placeholder="Cole a letra aqui"></textarea>
           </label>
 
 
           <label>
             Observações
-            <textarea id="musica-observacoes" placeholder="Ex: solo em 2:34, versão acústica, baixar meio tom..."></textarea>
+            <textarea id="musica-observacoes" placeholder="Solo, versão, observações do arranjo..."></textarea>
           </label>
 
           <div class="acoes-musica">
