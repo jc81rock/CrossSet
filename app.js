@@ -2830,6 +2830,106 @@ async function carregarMusicas() {
         font-weight: 700;
       }
 
+      .upload-musica-card {
+        display: grid;
+        gap: 8px;
+        margin-top: -2px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.045);
+        border: 1px solid rgba(255,255,255,.12);
+      }
+
+      .upload-musica-card-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 12px;
+        color: #e5e7eb;
+        font-weight: 700;
+      }
+
+      .upload-musica-card-topo span:first-child {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .upload-musica-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: rgba(122,92,255,.20);
+        border: 1px solid rgba(122,92,255,.38);
+        color: #d9d3ff;
+      }
+
+      .upload-musica-acoes {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .upload-musica-botao {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.16);
+        transition: transform .15s ease, filter .15s ease;
+      }
+
+      .upload-musica-botao:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.08);
+      }
+
+      .upload-musica-botao input {
+        display: none;
+      }
+
+      .upload-musica-ajuda,
+      .upload-musica-atual {
+        font-size: 11px;
+        color: #9db2d6;
+        line-height: 1.35;
+      }
+
+      .upload-musica-atual a {
+        color: #93c5fd;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .upload-musica-atual a:hover {
+        text-decoration: underline;
+      }
+
+      .link-arquivo-musica {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-right: 8px;
+        margin-top: 4px;
+        color: #c4b5fd;
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .link-arquivo-musica:hover {
+        text-decoration: underline;
+      }
+
       .btn-editar-musica {
         background: #e5e7eb;
         color: #111827;
@@ -2902,10 +3002,40 @@ async function carregarMusicas() {
             <textarea id="musica-material-musical" placeholder="Cole aqui a cifra, tablatura ou partitura da música (opcional)."></textarea>
           </label>
 
+          <div class="upload-musica-card">
+            <div class="upload-musica-card-topo">
+              <span>♪ Upload de cifra / partitura / tablatura</span>
+              <span class="upload-musica-badge">Opcional</span>
+            </div>
+            <div class="upload-musica-acoes">
+              <label class="upload-musica-botao">
+                Selecionar arquivo
+                <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp5,.gpx" />
+              </label>
+              <small class="upload-musica-ajuda">PDF, imagem, texto, Word ou Guitar Pro.</small>
+            </div>
+            <small id="musica-material-arquivo-atual" class="upload-musica-atual"></small>
+          </div>
+
           <label>
             Letra
             <textarea id="musica-letra" placeholder="Cole aqui a letra da música (opcional)."></textarea>
           </label>
+
+          <div class="upload-musica-card">
+            <div class="upload-musica-card-topo">
+              <span>▤ Upload da letra</span>
+              <span class="upload-musica-badge">Opcional</span>
+            </div>
+            <div class="upload-musica-acoes">
+              <label class="upload-musica-botao">
+                Selecionar arquivo
+                <input id="musica-letra-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx" />
+              </label>
+              <small class="upload-musica-ajuda">PDF, imagem, texto ou Word.</small>
+            </div>
+            <small id="musica-letra-arquivo-atual" class="upload-musica-atual"></small>
+          </div>
 
           <label>
             Observações
@@ -2980,6 +3110,23 @@ function configurarEventosMusicas() {
   if (ordenar) {
     ordenar.addEventListener("change", renderizarListaMusicas);
   }
+
+  [
+    { input: "musica-material-arquivo", info: "musica-material-arquivo-atual" },
+    { input: "musica-letra-arquivo", info: "musica-letra-arquivo-atual" }
+  ].forEach(function(config) {
+    const campoArquivo = elemento(config.input);
+    const infoArquivo = elemento(config.info);
+
+    if (campoArquivo && infoArquivo) {
+      campoArquivo.addEventListener("change", function() {
+        const arquivo = campoArquivo.files && campoArquivo.files[0];
+        if (arquivo) {
+          infoArquivo.textContent = "Arquivo selecionado: " + arquivo.name;
+        }
+      });
+    }
+  });
 }
 
 async function buscarMusicas() {
@@ -3038,6 +3185,22 @@ async function buscarMusicas() {
 
 function obterLinkMusica(item) {
   return item.link_url || item.link || item.youtube_url || item.spotify_url || "";
+}
+
+function obterArquivoMaterialMusica(item) {
+  return item.material_arquivo_url || item.material_musical_arquivo_url || item.arquivo_material_url || "";
+}
+
+function obterArquivoLetraMusica(item) {
+  return item.letra_arquivo_url || item.arquivo_letra_url || "";
+}
+
+function montarLinkArquivoMusica(url, texto, icone) {
+  if (!url) {
+    return "";
+  }
+
+  return `<a class="link-arquivo-musica" href="${escaparHtml(url)}" target="_blank" rel="noopener noreferrer">${escaparHtml(icone || "")}${escaparHtml(texto)}</a>`;
 }
 
 function encontrarMeuIntegranteNoProjeto(integrantes, usuario) {
@@ -3167,7 +3330,9 @@ function renderizarListaMusicas() {
         item.bpm,
         obterLinkMusica(item),
         item.material_musical,
+        obterArquivoMaterialMusica(item),
         item.letra,
+        obterArquivoLetraMusica(item),
         item.observacoes
       ].join(" ").toLowerCase();
       return texto.includes(busca);
@@ -3202,11 +3367,17 @@ function renderizarListaMusicas() {
   lista.innerHTML = itens.map(function(item) {
     const link = obterLinkMusica(item);
     const linkSeguro = escaparHtml(link);
-    const temLetra = limparTexto(item.letra).length > 0;
-    const temMaterial = limparTexto(item.material_musical).length > 0;
+    const arquivoMaterial = obterArquivoMaterialMusica(item);
+    const arquivoLetra = obterArquivoLetraMusica(item);
+    const temLetra = limparTexto(item.letra).length > 0 || limparTexto(arquivoLetra).length > 0;
+    const temMaterial = limparTexto(item.material_musical).length > 0 || limparTexto(arquivoMaterial).length > 0;
     const indicadores = [
       temLetra ? `<span class="indicador-conteudo-musica" title="Letra disponível" aria-label="Letra disponível">📄</span>` : "",
       temMaterial ? `<span class="indicador-conteudo-musica" title="Material musical disponível" aria-label="Material musical disponível">🎼</span>` : ""
+    ].filter(Boolean).join("");
+    const linksArquivos = [
+      montarLinkArquivoMusica(arquivoLetra, "Arquivo da letra", "📄 "),
+      montarLinkArquivoMusica(arquivoMaterial, "Arquivo musical", "🎼 ")
     ].filter(Boolean).join("");
 
     return `
@@ -3228,6 +3399,7 @@ function renderizarListaMusicas() {
             ${indicadores ? `<div class="indicadores-musica">${indicadores}</div>` : ""}
 
             ${link ? `<p><a class="link-musica" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Assistir / Ouvir</a></p>` : ""}
+            ${linksArquivos ? `<p>${linksArquivos}</p>` : ""}
             ${item.observacoes ? `<p><strong>Obs.:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
           </div>
 
@@ -3342,6 +3514,85 @@ function obterDadosFormularioMusica() {
   };
 }
 
+function atualizarExibicaoArquivoAtual(idElemento, url, texto) {
+  const campo = elemento(idElemento);
+
+  if (!campo) {
+    return;
+  }
+
+  if (!url) {
+    campo.textContent = "Nenhum arquivo enviado.";
+    return;
+  }
+
+  campo.innerHTML = `Arquivo atual: <a href="${escaparHtml(url)}" target="_blank" rel="noopener noreferrer">${escaparHtml(texto || "Abrir arquivo")}</a>`;
+}
+
+function obterMusicaEditandoAtual() {
+  if (!appState.musicaEditandoId) {
+    return null;
+  }
+
+  return (appState.musicas || []).find(function(musica) {
+    return musica.id === appState.musicaEditandoId;
+  }) || null;
+}
+
+function nomeSeguroArquivo(nome) {
+  const partes = String(nome || "arquivo").split(".");
+  const extensao = partes.length > 1 ? partes.pop().toLowerCase().replace(/[^a-z0-9]/g, "") : "bin";
+  const base = partes.join(".") || "arquivo";
+  const baseSeguro = base
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase()
+    .slice(0, 70) || "arquivo";
+
+  return baseSeguro + "." + extensao;
+}
+
+async function enviarArquivoMusica(campoId, tipo, projetoId) {
+  const cliente = sb();
+  const input = elemento(campoId);
+
+  if (!cliente || !input || !input.files || input.files.length === 0) {
+    return "";
+  }
+
+  const arquivo = input.files[0];
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    throw new Error("Faça login para enviar arquivos.");
+  }
+
+  const caminho = [
+    projetoId,
+    tipo,
+    usuario.id,
+    Date.now() + "-" + nomeSeguroArquivo(arquivo.name)
+  ].join("/");
+
+  const { error } = await cliente.storage
+    .from("musicas-arquivos")
+    .upload(caminho, arquivo, { cacheControl: "3600", upsert: false });
+
+  if (error) {
+    throw new Error("Erro ao enviar arquivo: " + error.message);
+  }
+
+  const { data } = cliente.storage
+    .from("musicas-arquivos")
+    .getPublicUrl(caminho);
+
+  return data?.publicUrl || "";
+}
+
 function preencherFormularioMusica(item) {
   if (!item) {
     return;
@@ -3355,6 +3606,9 @@ function preencherFormularioMusica(item) {
   elemento("musica-material-musical").value = item.material_musical || "";
   elemento("musica-letra").value = item.letra || "";
   elemento("musica-observacoes").value = item.observacoes || "";
+
+  atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", obterArquivoMaterialMusica(item), "Abrir material musical");
+  atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", obterArquivoLetraMusica(item), "Abrir letra");
 
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
@@ -3379,12 +3633,15 @@ function preencherFormularioMusica(item) {
 function limparFormularioMusica() {
   appState.musicaEditandoId = null;
 
-  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-material-musical", "musica-letra", "musica-observacoes"].forEach(function(id) {
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-material-musical", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
     const campo = elemento(id);
     if (campo) {
       campo.value = "";
     }
   });
+
+  atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", "", "Abrir material musical");
+  atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", "", "Abrir letra");
 
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
@@ -3420,6 +3677,26 @@ async function salvarMusica() {
     return;
   }
 
+  const musicaAtual = obterMusicaEditandoAtual();
+  let materialArquivoUrl = musicaAtual ? obterArquivoMaterialMusica(musicaAtual) : "";
+  let letraArquivoUrl = musicaAtual ? obterArquivoLetraMusica(musicaAtual) : "";
+
+  try {
+    const novoMaterialArquivo = await enviarArquivoMusica("musica-material-arquivo", "material-musical", projetoId);
+    const novaLetraArquivo = await enviarArquivoMusica("musica-letra-arquivo", "letras", projetoId);
+
+    if (novoMaterialArquivo) {
+      materialArquivoUrl = novoMaterialArquivo;
+    }
+
+    if (novaLetraArquivo) {
+      letraArquivoUrl = novaLetraArquivo;
+    }
+  } catch (erroUpload) {
+    alert(erroUpload.message || "Erro ao enviar arquivo.");
+    return;
+  }
+
   const payload = {
     projeto_id: projetoId,
     nome: dados.nome,
@@ -3429,7 +3706,9 @@ async function salvarMusica() {
     link_url: dados.link_url,
     youtube_url: dados.link_url,
     material_musical: dados.material_musical,
+    material_arquivo_url: materialArquivoUrl,
     letra: dados.letra,
+    letra_arquivo_url: letraArquivoUrl,
     observacoes: dados.observacoes,
     updated_at: new Date().toISOString()
   };
