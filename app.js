@@ -3,7 +3,7 @@
 (function(){
  const h=window.location.hash||"";
  if(!h.includes("convite=")){
-   ["convite_pendente","convitePendente","codigoConvitePendente","codigo_convite_pendente","convite","inviteCode"].forEach(k=>{
+   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
      try{localStorage.removeItem(k);}catch(e){}
      try{sessionStorage.removeItem(k);}catch(e){}
    });
@@ -11,7 +11,7 @@
  window.addEventListener("hashchange",()=>{
    const hh=window.location.hash||"";
    if(!hh.includes("convite=")){
-     ["convite_pendente","convitePendente","codigoConvitePendente","codigo_convite_pendente","convite","inviteCode"].forEach(k=>{
+     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
      });
@@ -272,12 +272,7 @@ function obterCodigoConvitePendente() {
 }
 
 function limparConvitePendente() {
-  ["convite_pendente", "convitePendente", "codigoConvitePendente", "codigo_convite_pendente", "convite", "inviteCode"].forEach(function(chave) {
-    try { localStorage.removeItem(chave); } catch (erro) {}
-    try { sessionStorage.removeItem(chave); } catch (erro) {}
-  });
-
-  appState.conviteAtual = null;
+  localStorage.removeItem("convite_pendente");
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -336,8 +331,6 @@ async function verificarSessao() {
     return;
   }
 
-  // Sem convite explícito na URL, nunca abrir tela de convite antigo.
-  limparConvitePendente();
   mostrarTela("tela-login", { registrar: false });
 }
 
@@ -3664,9 +3657,8 @@ async function carregarRepertorios() {
 
       .botao-whatsapp-repertorio {
         color: #fff;
-        background: rgba(124,58,237,.18);
-        border: 1px solid rgba(168,85,247,.55);
-        box-shadow: 0 10px 22px rgba(124,58,237,.18);
+        background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+        box-shadow: 0 10px 22px rgba(34, 197, 94, .20);
       }
 
       .botao-salvar-repertorio:hover,
@@ -4292,7 +4284,7 @@ async function carregarRepertorios() {
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
               <span>Compartilhar repertório</span><span>→</span>
             </button>
-            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg><span>PDF</span></button>
+            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
 
@@ -4522,7 +4514,7 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Músicas</span></button>
+            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Montar</span></button>
             <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>
             <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg><span>Compartilhar</span></button>
             <button class="btn-pdf-repertorio" type="button" data-pdf-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg><span>PDF</span></button>
@@ -5130,11 +5122,11 @@ function renderizarMontagemRepertorio() {
 
         <div class="rodape-repertorio-builder">
           <button class="botao-salvar-repertorio" id="btn-salvar-repertorio-edicao" type="button"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg><span>${repertorio.temporario ? "Salvar repertório" : "Salvar alterações"}</span></button>
-          <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg><span>Compartilhar</span></button>
+          <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg><span>Compartilhar</span></button>
         </div>
 
         <div class="acoes-edicao-repertorio" style="margin-top:10px;">
-          <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg><span>PDF</span></button>
+          <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio-edicao" type="button" style="display:${repertorio.temporario ? "none" : "inline-flex"};">Gerar PDF</button>
           <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio-edicao" type="button">Voltar à lista</button>
         </div>
       </section>
@@ -7344,11 +7336,113 @@ function configurarAuthListener() {
 }
 
 
+
+
+function rfSvgIconeCampoTexto(tipo) {
+  const icones = {
+    material: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+    letra: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>',
+    observacoes: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg>',
+    descricao: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>',
+    padrao: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>'
+  };
+  return icones[tipo] || icones.padrao;
+}
+
+function rfTipoCampoTexto(titulo, id) {
+  const texto = (String(titulo || '') + ' ' + String(id || '')).toLowerCase();
+  if (texto.includes('material') || texto.includes('cifra') || texto.includes('tablatura') || texto.includes('partitura')) return 'material';
+  if (texto.includes('letra')) return 'letra';
+  if (texto.includes('observa')) return 'observacoes';
+  if (texto.includes('descri')) return 'descricao';
+  return 'padrao';
+}
+
+function rfTituloCampoTexto(label, textarea) {
+  const clone = label.cloneNode(true);
+  clone.querySelectorAll('textarea, input, select, button, .rf-textarea-header, .rf-textarea-counter, .rf-textarea-help').forEach(function(no) {
+    no.remove();
+  });
+  const texto = limparTexto(clone.textContent);
+  if (texto) return texto;
+
+  const id = textarea.id || '';
+  if (id.includes('material')) return 'Material Musical';
+  if (id.includes('letra')) return 'Letra';
+  if (id.includes('observ')) return 'Observações';
+  if (id.includes('descricao')) return 'Descrição';
+  return 'Informações';
+}
+
+function rfAtualizarContadorTextarea(textarea, contador) {
+  if (!textarea || !contador) return;
+  const total = String(textarea.value || '').length;
+  const max = Number(textarea.getAttribute('maxlength') || 0);
+  contador.textContent = max > 0 ? `${total} / ${max} caracteres` : `${total} caracteres`;
+}
+
+function aprimorarCamposTextoGrandes(contexto) {
+  const raiz = contexto && contexto.querySelectorAll ? contexto : document;
+
+  raiz.querySelectorAll('label').forEach(function(label) {
+    const textarea = label.querySelector(':scope > textarea');
+    if (!textarea || label.dataset.rfTextarea === 'true') return;
+
+    const titulo = rfTituloCampoTexto(label, textarea);
+    const tipo = rfTipoCampoTexto(titulo, textarea.id);
+    const obrigatorio = textarea.hasAttribute('required');
+
+    Array.from(label.childNodes).forEach(function(no) {
+      if (no.nodeType === Node.TEXT_NODE && limparTexto(no.textContent)) {
+        no.textContent = '';
+      }
+    });
+
+    label.classList.add('rf-campo-textarea');
+    label.dataset.rfTextarea = 'true';
+
+    const header = document.createElement('div');
+    header.className = 'rf-textarea-header';
+    header.innerHTML = `
+      <span class="rf-textarea-icon">${rfSvgIconeCampoTexto(tipo)}</span>
+      <span>${escaparHtml(titulo)}</span>
+      ${obrigatorio ? '' : '<span class="rf-textarea-badge">Opcional</span>'}
+    `;
+
+    label.insertBefore(header, textarea);
+
+    const contador = document.createElement('div');
+    contador.className = 'rf-textarea-counter';
+    label.appendChild(contador);
+    rfAtualizarContadorTextarea(textarea, contador);
+    textarea.addEventListener('input', function() {
+      rfAtualizarContadorTextarea(textarea, contador);
+    });
+  });
+}
+
+function configurarAprimoramentoCamposTexto() {
+  aprimorarCamposTextoGrandes(document);
+
+  const observer = new MutationObserver(function(mudancas) {
+    mudancas.forEach(function(mudanca) {
+      mudanca.addedNodes.forEach(function(no) {
+        if (no.nodeType === 1) {
+          aprimorarCamposTextoGrandes(no);
+        }
+      });
+    });
+  });
+
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function prepararAplicacao() {
   configurarBotoesFixos();
   configurarEnterNosCampos();
   configurarAuthListener();
   configurarNavegacaoEnterGlobal();
+  configurarAprimoramentoCamposTexto();
 }
 
 document.addEventListener("DOMContentLoaded", async function() {

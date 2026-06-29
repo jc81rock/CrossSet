@@ -1176,3 +1176,132 @@ button#btn-convidar-integrante:hover,
   gap: 6px !important;
   font-weight: 600 !important;
 }
+
+/* RF v1.0 Alpha - Campos grandes profissionais */
+.rf-campo-textarea {
+  display: grid !important;
+  gap: 8px !important;
+  margin: 8px 0 12px !important;
+  color: #f8fafc !important;
+}
+
+.rf-textarea-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 24px !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: -.01em;
+}
+
+.rf-textarea-icon {
+  width: 22px !important;
+  height: 22px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  color: #a855f7 !important;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, .22));
+}
+
+.rf-textarea-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  stroke: currentColor !important;
+  stroke-width: 2.1 !important;
+  fill: none !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.rf-textarea-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+  background: rgba(122, 92, 255, .16) !important;
+  border: 1px solid rgba(168, 85, 247, .22) !important;
+  color: #c4b5fd !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+
+textarea,
+.rf-campo-textarea textarea {
+  width: 100% !important;
+  min-height: 112px !important;
+  height: auto !important;
+  padding: 14px 16px !important;
+  border-radius: 15px !important;
+  border: 1px solid rgba(148, 163, 184, .22) !important;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, .92), rgba(3, 7, 18, .84)) !important;
+  color: #f8fafc !important;
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+  resize: vertical !important;
+  outline: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+
+textarea::placeholder,
+.rf-campo-textarea textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: .92 !important;
+}
+
+textarea:focus,
+.rf-campo-textarea textarea:focus {
+  border-color: rgba(168, 85, 247, .78) !important;
+  box-shadow:
+    0 0 0 3px rgba(168, 85, 247, .13),
+    0 0 24px rgba(51, 196, 255, .08),
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, .96), rgba(3, 7, 18, .90)) !important;
+}
+
+.rf-textarea-counter {
+  margin-top: -3px !important;
+  text-align: right !important;
+  color: #8ea4ca !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+
+.rf-textarea-help {
+  margin-top: -2px !important;
+  color: #9db2d6 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+
+.rf-campo-textarea textarea::-webkit-scrollbar {
+  width: 9px;
+}
+
+.rf-campo-textarea textarea::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.04);
+  border-radius: 999px;
+}
+
+.rf-campo-textarea textarea::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, .38);
+  border-radius: 999px;
+}
+
+@media (max-width: 720px) {
+  .rf-textarea-header {
+    font-size: 13px !important;
+  }
+
+  textarea,
+  .rf-campo-textarea textarea {
+    min-height: 98px !important;
+    font-size: 13px !important;
+    padding: 12px 13px !important;
+  }
+}
