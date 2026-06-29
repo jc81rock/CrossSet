@@ -2965,7 +2965,7 @@ async function carregarMusicas() {
       <div class="card-projeto">
         <span class="tag">Cadastro</span>
         <h3 id="titulo-form-musica">Nova música</h3>
-        <p>Cadastre a biblioteca de músicas do projeto com tom, BPM, link, letra e material musical.</p>
+        <p>Cadastre a biblioteca de músicas do projeto com tom, BPM, link de referência, material, letra e observações.</p>
 
         <div class="form-musicas">
           <label>
@@ -2997,20 +2997,15 @@ async function carregarMusicas() {
             <small class="ajuda-campo-musica">Cole um link do YouTube, Spotify ou Deezer.</small>
           </label>
 
-          <label>
-            Material Musical
-            <textarea id="musica-material-musical" placeholder="Cole aqui a cifra, tablatura ou partitura da música (opcional)."></textarea>
-          </label>
-
           <div class="upload-musica-card">
             <div class="upload-musica-card-topo">
-              <span>♪ Upload de cifra / partitura / tablatura</span>
+              <span>🎼 Material da Música</span>
               <span class="upload-musica-badge">Opcional</span>
             </div>
             <div class="upload-musica-acoes">
               <label class="upload-musica-botao">
                 Selecionar arquivo
-                <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp5,.gpx" />
+                <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" />
               </label>
               <small class="upload-musica-ajuda">PDF, imagem, texto, Word ou Guitar Pro.</small>
             </div>
@@ -3022,20 +3017,6 @@ async function carregarMusicas() {
             <textarea id="musica-letra" placeholder="Cole aqui a letra da música (opcional)."></textarea>
           </label>
 
-          <div class="upload-musica-card">
-            <div class="upload-musica-card-topo">
-              <span>▤ Upload da letra</span>
-              <span class="upload-musica-badge">Opcional</span>
-            </div>
-            <div class="upload-musica-acoes">
-              <label class="upload-musica-botao">
-                Selecionar arquivo
-                <input id="musica-letra-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx" />
-              </label>
-              <small class="upload-musica-ajuda">PDF, imagem, texto ou Word.</small>
-            </div>
-            <small id="musica-letra-arquivo-atual" class="upload-musica-atual"></small>
-          </div>
 
           <label>
             Observações
@@ -3112,8 +3093,7 @@ function configurarEventosMusicas() {
   }
 
   [
-    { input: "musica-material-arquivo", info: "musica-material-arquivo-atual" },
-    { input: "musica-letra-arquivo", info: "musica-letra-arquivo-atual" }
+    { input: "musica-material-arquivo", info: "musica-material-arquivo-atual" }
   ].forEach(function(config) {
     const campoArquivo = elemento(config.input);
     const infoArquivo = elemento(config.info);
@@ -3329,7 +3309,6 @@ function renderizarListaMusicas() {
         item.tom,
         item.bpm,
         obterLinkMusica(item),
-        item.material_musical,
         obterArquivoMaterialMusica(item),
         item.letra,
         obterArquivoLetraMusica(item),
@@ -3368,16 +3347,14 @@ function renderizarListaMusicas() {
     const link = obterLinkMusica(item);
     const linkSeguro = escaparHtml(link);
     const arquivoMaterial = obterArquivoMaterialMusica(item);
-    const arquivoLetra = obterArquivoLetraMusica(item);
-    const temLetra = limparTexto(item.letra).length > 0 || limparTexto(arquivoLetra).length > 0;
-    const temMaterial = limparTexto(item.material_musical).length > 0 || limparTexto(arquivoMaterial).length > 0;
+    const temLetra = limparTexto(item.letra).length > 0;
+    const temMaterial = limparTexto(arquivoMaterial).length > 0;
     const indicadores = [
       temLetra ? `<span class="indicador-conteudo-musica" title="Letra disponível" aria-label="Letra disponível">📄</span>` : "",
       temMaterial ? `<span class="indicador-conteudo-musica" title="Material musical disponível" aria-label="Material musical disponível">🎼</span>` : ""
     ].filter(Boolean).join("");
     const linksArquivos = [
-      montarLinkArquivoMusica(arquivoLetra, "Arquivo da letra", "📄 "),
-      montarLinkArquivoMusica(arquivoMaterial, "Arquivo musical", "🎼 ")
+      montarLinkArquivoMusica(arquivoMaterial, "Material da música", "🎼 ")
     ].filter(Boolean).join("");
 
     return `
@@ -3508,7 +3485,6 @@ function obterDadosFormularioMusica() {
     tom: limparTexto(elemento("musica-tom")?.value),
     bpm: limparTexto(elemento("musica-bpm")?.value),
     link_url: limparTexto(elemento("musica-link")?.value),
-    material_musical: limparTexto(elemento("musica-material-musical")?.value),
     letra: limparTexto(elemento("musica-letra")?.value),
     observacoes: limparTexto(elemento("musica-observacoes")?.value)
   };
@@ -3603,12 +3579,10 @@ function preencherFormularioMusica(item) {
   elemento("musica-tom").value = item.tom || "";
   elemento("musica-bpm").value = item.bpm || "";
   elemento("musica-link").value = obterLinkMusica(item);
-  elemento("musica-material-musical").value = item.material_musical || "";
   elemento("musica-letra").value = item.letra || "";
   elemento("musica-observacoes").value = item.observacoes || "";
 
   atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", obterArquivoMaterialMusica(item), "Abrir material musical");
-  atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", obterArquivoLetraMusica(item), "Abrir letra");
 
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
@@ -3633,7 +3607,7 @@ function preencherFormularioMusica(item) {
 function limparFormularioMusica() {
   appState.musicaEditandoId = null;
 
-  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-material-musical", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-letra", "musica-observacoes", "musica-material-arquivo"].forEach(function(id) {
     const campo = elemento(id);
     if (campo) {
       campo.value = "";
@@ -3641,7 +3615,6 @@ function limparFormularioMusica() {
   });
 
   atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", "", "Abrir material musical");
-  atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", "", "Abrir letra");
 
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
@@ -3679,18 +3652,13 @@ async function salvarMusica() {
 
   const musicaAtual = obterMusicaEditandoAtual();
   let materialArquivoUrl = musicaAtual ? obterArquivoMaterialMusica(musicaAtual) : "";
-  let letraArquivoUrl = musicaAtual ? obterArquivoLetraMusica(musicaAtual) : "";
+
 
   try {
     const novoMaterialArquivo = await enviarArquivoMusica("musica-material-arquivo", "material-musical", projetoId);
-    const novaLetraArquivo = await enviarArquivoMusica("musica-letra-arquivo", "letras", projetoId);
 
     if (novoMaterialArquivo) {
       materialArquivoUrl = novoMaterialArquivo;
-    }
-
-    if (novaLetraArquivo) {
-      letraArquivoUrl = novaLetraArquivo;
     }
   } catch (erroUpload) {
     alert(erroUpload.message || "Erro ao enviar arquivo.");
@@ -3705,10 +3673,8 @@ async function salvarMusica() {
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: dados.link_url,
     youtube_url: dados.link_url,
-    material_musical: dados.material_musical,
     material_arquivo_url: materialArquivoUrl,
     letra: dados.letra,
-    letra_arquivo_url: letraArquivoUrl,
     observacoes: dados.observacoes,
     updated_at: new Date().toISOString()
   };
@@ -7646,7 +7612,7 @@ function rfTituloCampoTexto(label, textarea) {
   if (texto) return texto;
 
   const id = textarea.id || '';
-  if (id.includes('material')) return 'Material Musical';
+  if (id.includes('material')) return 'Material da Música';
   if (id.includes('letra')) return 'Letra';
   if (id.includes('observ')) return 'Observações';
   if (id.includes('descricao')) return 'Descrição';
