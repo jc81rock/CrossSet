@@ -1267,5 +1267,41 @@
     })();
   </script>
 
+
+
+  <style>
+    /* v0.9.26 - Remove apenas o label duplicado "Letra" acima da seção de letra */
+    #tela-musicas .rf-hide-letra-label-duplicado {
+      display: none !important;
+    }
+  </style>
+
+  <script>
+    // v0.9.26 - Ajuste pontual: remove somente o "Letra" pequeno duplicado acima da seção.
+    (function () {
+      function removerLetraDuplicado() {
+        const scope = document.querySelector('#tela-musicas') || document;
+        const labels = Array.from(scope.querySelectorAll('label'));
+
+        labels.forEach((label) => {
+          const texto = (label.textContent || '').trim().toLowerCase();
+          if (texto !== 'letra') return;
+
+          // Mantém se o label estiver dentro da linha principal que tem o botão "Anexar letra".
+          if (label.closest('.rf-letra-topline')) return;
+
+          // Esconde somente o label simples duplicado, sem mexer no bloco principal "Letra".
+          label.classList.add('rf-hide-letra-label-duplicado');
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', removerLetraDuplicado);
+      window.addEventListener('load', removerLetraDuplicado);
+      const observer = new MutationObserver(removerLetraDuplicado);
+      observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+      setInterval(removerLetraDuplicado, 1000);
+    })();
+  </script>
+
 </body>
 </html>
