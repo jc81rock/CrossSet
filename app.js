@@ -315,14 +315,21 @@ async function verificarSessao() {
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
 
-    // Só continua o fluxo de convite se existir um convite REAL na URL
-    // ou dados temporários salvos antes do login pelo Gmail.
-    if (codigoConviteParaFinalizar && dadosConvitePendentes) {
-      await carregarConvitePublico(codigoConviteParaFinalizar);
+    // Se o login voltou de um link de convite, o convite é prioridade absoluta.
+    // Não manda para Meus Projetos antes de vincular/abrir o projeto convidado.
+    if (codigoConviteUrl) {
+      localStorage.setItem("convite_pendente", codigoConviteUrl);
+      await carregarConvitePublico(codigoConviteUrl);
       return;
     }
 
-    // Login normal pelo Gmail deve abrir Meus Projetos, nunca tela de convite vazia.
+    // Convite pendente só continua sozinho quando há dados temporários do fluxo Gmail.
+    if (codigoConvitePendente && dadosConvitePendentes) {
+      await carregarConvitePublico(codigoConvitePendente);
+      return;
+    }
+
+    // Login normal pelo Gmail deve abrir Meus Projetos.
     limparConvitePendente();
     limparDadosConviteTemporario();
     mostrarTela("tela-projetos", { registrar: false });
@@ -516,6 +523,73 @@ async function sair() {
   mostrarTela("tela-login", { registrar: false });
 }
 
+
+function obterProjetosConvidadoCache(usuarioId) {
+  if (!usuarioId) {
+    return [];
+  }
+
+  try {
+    const bruto = localStorage.getItem("projetos_convidado_cache") || "[]";
+    const lista = JSON.parse(bruto);
+
+    if (!Array.isArray(lista)) {
+      return [];
+    }
+
+    return lista
+      .filter(function(item) {
+        return item && item.usuario_id === usuarioId && item.projeto && item.projeto.id;
+      })
+      .map(function(item) {
+        return item.projeto;
+      });
+  } catch (erro) {
+    console.warn("Cache de projetos convidados inválido.", erro);
+    return [];
+  }
+}
+
+function salvarProjetoConvidadoCache(usuarioId, projeto) {
+  if (!usuarioId || !projeto || !projeto.id) {
+    return;
+  }
+
+  try {
+    const bruto = localStorage.getItem("projetos_convidado_cache") || "[]";
+    const lista = JSON.parse(bruto);
+    const base = Array.isArray(lista) ? lista : [];
+    const filtrada = base.filter(function(item) {
+      return !(item && item.usuario_id === usuarioId && item.projeto && item.projeto.id === projeto.id);
+    });
+
+    filtrada.push({
+      usuario_id: usuarioId,
+      projeto: projeto
+    });
+
+    localStorage.setItem("projetos_convidado_cache", JSON.stringify(filtrada.slice(-20)));
+  } catch (erro) {
+    console.warn("Não foi possível salvar cache de projeto convidado.", erro);
+  }
+}
+
+function mesclarProjetosSemDuplicar(listaBase, listaExtra) {
+  const resultado = Array.isArray(listaBase) ? listaBase.slice() : [];
+  const ids = new Set(resultado.map(function(projeto) {
+    return projeto && projeto.id;
+  }).filter(Boolean));
+
+  (Array.isArray(listaExtra) ? listaExtra : []).forEach(function(projeto) {
+    if (projeto && projeto.id && !ids.has(projeto.id)) {
+      resultado.push(projeto);
+      ids.add(projeto.id);
+    }
+  });
+
+  return resultado;
+}
+
 async function carregarProjetos() {
   const grid = elemento("lista-projetos") || document.querySelector(".grid-projetos");
   const cliente = sb();
@@ -556,6 +630,10 @@ async function carregarProjetos() {
   }
 
   let projetos = data || [];
+
+  // Inclui cache local de projetos aceitos por convite.
+  // Isso evita tela vazia logo após aceitar convite, mesmo antes da consulta consolidar.
+  projetos = mesclarProjetosSemDuplicar(projetos, obterProjetosConvidadoCache(usuario.id));
 
   const filtrosIntegrante = [`usuario_id.eq.${usuario.id}`];
   if (usuario.email) {
@@ -3245,7 +3323,7 @@ async function carregarConvitePublico(codigo) {
       appState.sessao = sessaoAtual.session;
       appState.usuario = usuarioLogado;
       preencherUsuario(appState.usuario);
-      mostrarTela("tela-projetos", { registrar: false });
+      await abrirProjetoDoConvite(data, usuarioLogado);
       return;
     }
 
@@ -3629,6 +3707,54 @@ async function aceitarConviteAtual() {
   await aceitarConviteComUsuario(usuario);
 }
 
+
+async function abrirProjetoDoConvite(convite, usuario) {
+  const cliente = sb();
+
+  if (!cliente || !convite || !convite.projeto_id || !usuario) {
+    mostrarTela("tela-projetos", { registrar: false });
+    return;
+  }
+
+  let projeto = null;
+  const { data: projetoData, error: erroProjeto } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("*")
+    .eq("id", convite.projeto_id)
+    .maybeSingle();
+
+  if (!erroProjeto && projetoData) {
+    projeto = projetoData;
+  } else {
+    projeto = {
+      id: convite.projeto_id,
+      nome: convite.projeto_nome || "Projeto musical",
+      tipo: "Projeto",
+      estilo: "Projeto musical",
+      cidade: "",
+      estado: ""
+    };
+  }
+
+  appState.sessao = appState.sessao || null;
+  appState.usuario = usuario;
+  salvarProjetoAtual(projeto);
+  salvarProjetoConvidadoCache(usuario.id, projeto);
+  limparConvitePendente();
+  limparDadosConviteTemporario();
+  appState.conviteAtual = null;
+
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+  } catch (erroUrl) {
+    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
+  }
+
+  abrirPainelProjeto();
+}
+
 async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   const cliente = sb();
   const convite = appState.conviteAtual;
@@ -3727,36 +3853,8 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     })
     .eq("id", convite.id);
 
-  let projeto = null;
-  const { data: projetoData } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", projetoId)
-    .maybeSingle();
-
-  projeto = projetoData || {
-    id: projetoId,
-    nome: convite.projeto_nome || "Projeto musical",
-    estilo: "Projeto musical",
-    cidade: "",
-    estado: ""
-  };
-
-  salvarProjetoAtual(projeto);
-  limparConvitePendente();
-  limparDadosConviteTemporario();
-  appState.conviteAtual = null;
-
-  try {
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-    }
-  } catch (erroUrl) {
-    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
-  }
-
-  mostrarToast?.("Cadastro salvo. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
-  abrirPainelProjeto();
+  mostrarToast?.("Cadastro salvo. Bem-vindo ao projeto " + (convite.projeto_nome || "musical") + "!");
+  await abrirProjetoDoConvite(convite, usuario);
 }
 
 async function carregarMusicas() {
