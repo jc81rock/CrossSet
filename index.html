@@ -644,7 +644,7 @@
           el.dataset.rfUploadClean = '1';
           el.classList.add('rf-upload-clean');
           let label = 'Anexar';
-          if (txt.includes('letra')) label = 'Cole ou anexe aqui a letra da música';
+          if (txt.includes('letra')) label = 'Anexar letra';
           el.innerHTML = uploadIcon + '<span>' + label + '</span>';
           if (!el.getAttribute('title')) el.setAttribute('title', label);
           if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', label);
@@ -876,6 +876,183 @@
       }
     }
   </style>
+
+
+  <script>
+    // v0.9.24 - Letra limpa: botão único "Anexar letra" e importação para o campo Letra.
+    (function () {
+      function normalizarTextoLetra(texto) {
+        return String(texto || '')
+          .replace(/\r\n/g, '\n')
+          .replace(/\r/g, '\n')
+          .replace(/[\t ]+\n/g, '\n')
+          .replace(/\n{4,}/g, '\n\n\n')
+          .trim();
+      }
+
+      function textoDoNo(el) {
+        return (el && el.textContent ? el.textContent : '').toLowerCase();
+      }
+
+      function encontrarCampoLetra() {
+        const seletores = [
+          '#musica-letra',
+          '#letra-musica',
+          '#campo-letra',
+          'textarea[name*="letra" i]',
+          'textarea[id*="letra" i]',
+          'textarea[placeholder*="letra" i]'
+        ];
+
+        for (const seletor of seletores) {
+          const campo = document.querySelector(seletor);
+          if (campo) return campo;
+        }
+
+        const textareas = Array.from(document.querySelectorAll('textarea'));
+        const porLabel = textareas.find((campo) => {
+          const label = campo.closest('label');
+          const bloco = campo.closest('.campo, .form-group, .rf-field, div');
+          return textoDoNo(label).includes('letra') || textoDoNo(bloco).includes('letra');
+        });
+
+        return porLabel || textareas[0] || null;
+      }
+
+      function aplicarLetraNoCampo(texto) {
+        const campo = encontrarCampoLetra();
+        if (!campo) {
+          alert('Campo de letra não encontrado.');
+          return;
+        }
+
+        campo.value = normalizarTextoLetra(texto);
+        campo.dispatchEvent(new Event('input', { bubbles: true }));
+        campo.dispatchEvent(new Event('change', { bubbles: true }));
+        campo.focus();
+      }
+
+      async function importarTxt(file) {
+        return await file.text();
+      }
+
+      async function importarDocx(file) {
+        if (!window.mammoth) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js';
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+        const buffer = await file.arrayBuffer();
+        const result = await window.mammoth.extractRawText({ arrayBuffer: buffer });
+        return result.value || '';
+      }
+
+      async function importarPdf(file) {
+        if (!window.pdfjsLib) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
+            s.type = 'module';
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+
+        const pdfjsLib = window.pdfjsLib;
+        if (!pdfjsLib) throw new Error('PDF.js não carregou.');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs';
+
+        const buffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        let texto = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          texto += content.items.map((item) => item.str || '').join(' ') + '\n\n';
+        }
+        return texto;
+      }
+
+      async function processarArquivoLetra(file) {
+        if (!file) return;
+        const nome = (file.name || '').toLowerCase();
+        const tipo = (file.type || '').toLowerCase();
+
+        try {
+          let texto = '';
+          if (nome.endsWith('.txt') || tipo.includes('text/plain')) {
+            texto = await importarTxt(file);
+          } else if (nome.endsWith('.docx')) {
+            texto = await importarDocx(file);
+          } else if (nome.endsWith('.pdf') || tipo.includes('pdf')) {
+            texto = await importarPdf(file);
+          } else {
+            alert('Use TXT, DOCX ou PDF para importar a letra.');
+            return;
+          }
+
+          aplicarLetraNoCampo(texto);
+        } catch (erro) {
+          console.error(erro);
+          alert('Não foi possível importar a letra deste arquivo.');
+        }
+      }
+
+      function criarInputLetra() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.txt,.docx,.pdf,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+        input.addEventListener('change', function () {
+          processarArquivoLetra(input.files && input.files[0]);
+          input.value = '';
+        });
+        return input;
+      }
+
+      let inputLetra;
+
+      function limparAreaLetra() {
+        Array.from(document.querySelectorAll('button, label, a, span, small, p')).forEach((el) => {
+          const txt = (el.textContent || '').trim().toLowerCase();
+          if (txt === 'colar e salvar' || txt === 'cole ou anexe aqui a letra da música') {
+            el.style.display = 'none';
+          }
+        });
+      }
+
+      function configurarAnexarLetra() {
+        limparAreaLetra();
+        const botoes = Array.from(document.querySelectorAll('button, label, .rf-upload-clean, .botao-upload, .upload-button, .file-label'))
+          .filter((el) => (el.textContent || '').toLowerCase().includes('anexar letra'));
+
+        botoes.forEach((botao) => {
+          if (botao.dataset.rfImportaLetra === '1') return;
+          botao.dataset.rfImportaLetra = '1';
+          botao.setAttribute('title', 'Anexar letra');
+          botao.setAttribute('aria-label', 'Anexar letra');
+          botao.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            inputLetra = inputLetra || criarInputLetra();
+            inputLetra.click();
+          }, true);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', configurarAnexarLetra);
+      window.addEventListener('load', configurarAnexarLetra);
+      const observer = new MutationObserver(configurarAnexarLetra);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      setInterval(configurarAnexarLetra, 1200);
+    })();
+  </script>
 
 </body>
 </html>
