@@ -1380,6 +1380,144 @@ async function carregarIntegrantes() {
       }
 
 
+      /* CrossSet - Integrantes: padrão oficial compacto */
+      .btn-whatsapp-padrao {
+        position: relative;
+        padding: 0 14px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+      }
+
+      .btn-whatsapp-padrao .texto-btn {
+        flex: 1 1 auto;
+        text-align: center;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .btn-whatsapp-padrao .icone-btn {
+        flex: 0 0 23px;
+      }
+
+      .btn-whatsapp-padrao .seta-btn {
+        flex: 0 0 auto;
+        margin-left: 10px !important;
+        padding-right: 0 !important;
+      }
+
+      .lista-integrantes {
+        display: grid !important;
+        gap: 7px !important;
+      }
+
+      .item-integrante.item-integrante-compacto {
+        min-height: 60px !important;
+        max-height: 70px !important;
+        padding: 9px 12px !important;
+        border-radius: 13px !important;
+        background: #1f2937 !important;
+        border: 1px solid rgba(255, 255, 255, .12) !important;
+        color: #ffffff !important;
+        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+
+      .integrante-linha-compacta {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: minmax(170px, 1.4fr) auto minmax(105px, .8fr) auto minmax(98px, .7fr) minmax(130px, 180px) auto !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+      }
+
+      .integrante-nome-compacto,
+      .integrante-funcao-compacta,
+      .integrante-admin-compacto {
+        min-width: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        line-height: 1.15 !important;
+      }
+
+      .integrante-nome-compacto {
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+      }
+
+      .integrante-funcao-compacta,
+      .integrante-admin-compacto,
+      .separador-integrante {
+        color: #d1d5db !important;
+        font-size: 12px !important;
+        font-weight: 650 !important;
+      }
+
+      .integrante-admin-compacto.admin-sim { color: #ffffff !important; }
+      .integrante-admin-compacto.admin-nao { color: #9ca3af !important; }
+
+      .desenvolvimento-integrante.desenvolvimento-integrante-compacto {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        display: grid !important;
+        grid-template-columns: 1fr 38px !important;
+        align-items: center !important;
+        gap: 7px !important;
+        min-width: 0 !important;
+      }
+
+      .barra-desenvolvimento-integrante.barra-desenvolvimento-integrante-compacta {
+        height: 5px !important;
+        width: 100% !important;
+        min-width: 74px !important;
+        background: rgba(255, 255, 255, .16) !important;
+      }
+
+      .desenvolvimento-integrante-compacto .desenvolvimento-integrante-percentual {
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        text-align: right !important;
+      }
+
+      .botoes-item-integrante.botoes-item-integrante-compactos {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+        gap: 7px !important;
+        flex-wrap: nowrap !important;
+      }
+
+      .botoes-item-integrante-compactos .btn-icone-integrante {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, .08) !important;
+        color: #ffffff !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+      }
+
+      .botoes-item-integrante-compactos .btn-icone-integrante:hover {
+        background: rgba(255, 255, 255, .16) !important;
+        transform: translateY(-1px) !important;
+      }
+
+
 
       /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
       .lista-musicas {
@@ -1595,7 +1733,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☏</span><span>Convidar por WhatsApp</span><span class="seta-btn">→</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☎</span><span class="texto-btn">Convidar pelo WhatsApp</span><span class="seta-btn">→</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -1767,24 +1905,12 @@ function obterDesenvolvimentoIntegrante(integranteId) {
 function montarDesenvolvimentoIntegrante(integranteId) {
   const dados = obterDesenvolvimentoIntegrante(integranteId);
 
-  const textoTotal = dados.total === 1 ? "1 música" : `${dados.total} músicas`;
-
   return `
-    <div class="desenvolvimento-integrante">
-      <div class="desenvolvimento-integrante-topo">
-        <span>📈 Desenvolvimento no projeto</span>
-        <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
-      </div>
-      <div class="barra-desenvolvimento-integrante" title="Desenvolvimento no projeto">
+    <div class="desenvolvimento-integrante desenvolvimento-integrante-compacto" title="Desenvolvimento: ${dados.percentual}% | Prontas: ${dados.prontas} | Em estudo: ${dados.emEstudo} | Não iniciadas: ${dados.naoIniciadas}">
+      <div class="barra-desenvolvimento-integrante barra-desenvolvimento-integrante-compacta" aria-label="Desenvolvimento ${dados.percentual}%">
         <span class="${dados.cor}" style="width:${dados.percentual}%"></span>
       </div>
-      <div class="desenvolvimento-integrante-contadores">
-        <span class="contador-prontas"><strong>${dados.prontas}</strong> prontas</span>
-        <span class="contador-estudo"><strong>${dados.emEstudo}</strong> em estudo</span>
-        <span class="contador-nao"><strong>${dados.naoIniciadas}</strong> não iniciadas</span>
-        <span>Total: ${textoTotal}</span>
-      </div>
-      <small class="desenvolvimento-integrante-ajuda">ⓘ O desenvolvimento é calculado com base no progresso individual deste integrante nas músicas da biblioteca do projeto.</small>
+      <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
     </div>
   `;
 }
@@ -1841,26 +1967,21 @@ function renderizarListaIntegrantes() {
   }
 
   lista.innerHTML = itens.map(function(item) {
-    const inicial = escaparHtml((item.nome || "?").trim().charAt(0).toUpperCase() || "?");
+    const tipoIntegrante = item.administrador ? "Administrador" : "Integrante";
 
     return `
-      <div class="item-integrante">
-        <div class="item-integrante-topo">
-          <div class="foto-integrante-placeholder">${inicial}</div>
-
-          <div class="dados-integrante">
-            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-            <p><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")}</p>
-            <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
-            <p><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")}</p>
-            <p><strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
-            ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
-            ${montarDesenvolvimentoIntegrante(item.id)}
-          </div>
-
-          <div class="botoes-item-integrante">
-            <button class="btn-editar-integrante btn-acao-editar" type="button" data-editar-integrante="${escaparHtml(item.id)}">✎ Editar</button>
-            <button class="btn-excluir-integrante btn-acao-excluir" type="button" data-excluir-integrante="${escaparHtml(item.id)}">🗑 Excluir</button>
+      <div class="item-integrante item-integrante-compacto">
+        <div class="integrante-linha-compacta">
+          <strong class="integrante-nome-compacto" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</strong>
+          <span class="separador-integrante">|</span>
+          <span class="integrante-funcao-compacta" title="${escaparHtml(item.funcao || "Função não informada")}">${escaparHtml(item.funcao || "Função não informada")}</span>
+          <span class="separador-integrante">|</span>
+          <span class="integrante-admin-compacto ${item.administrador ? "admin-sim" : "admin-nao"}">${tipoIntegrante}</span>
+          ${montarDesenvolvimentoIntegrante(item.id)}
+          <div class="botoes-item-integrante botoes-item-integrante-compactos">
+            <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}">✏️</button>
+            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}">🔗</button>
+            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">🗑️</button>
           </div>
         </div>
       </div>
@@ -1873,11 +1994,53 @@ function renderizarListaIntegrantes() {
     });
   });
 
+  lista.querySelectorAll("[data-compartilhar-integrante]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      compartilharIntegrante(botao.dataset.compartilharIntegrante);
+    });
+  });
+
   lista.querySelectorAll("[data-excluir-integrante]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       excluirIntegrante(botao.dataset.excluirIntegrante);
     });
   });
+}
+
+function compartilharIntegrante(id) {
+  const item = (appState.integrantes || []).find(function(integrante) {
+    return integrante.id === id;
+  });
+
+  if (!item) {
+    alert("Integrante não encontrado.");
+    return;
+  }
+
+  const projeto = appState.projetoAtual || {};
+  const dados = obterDesenvolvimentoIntegrante(id);
+  const mensagem = [
+    "Integrante CrossSet",
+    "Projeto: " + (projeto.nome || "Projeto musical"),
+    "Nome: " + (item.nome || "Sem nome"),
+    "Função: " + (item.funcao || "Não informada"),
+    "Perfil: " + (item.administrador ? "Administrador" : "Integrante"),
+    "Desenvolvimento: " + dados.percentual + "%"
+  ].join("\n");
+
+  try {
+    if (navigator.share) {
+      navigator.share({
+        title: "Integrante CrossSet",
+        text: mensagem
+      });
+      return;
+    }
+  } catch (erroCompartilhar) {
+    console.warn("Compartilhamento cancelado ou indisponível.", erroCompartilhar);
+  }
+
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensagem), "_blank");
 }
 
 function compararTexto(a, b) {
