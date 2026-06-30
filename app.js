@@ -2682,7 +2682,10 @@ async function abrirProjetoDoConvite(projetoId, nomeProjeto) {
     console.warn("Não foi possível limpar a URL do convite.", erroUrl);
   }
 
-  mostrarToast?.("Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  if (typeof mostrarToast === "function") {
+    mostrarToast("Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  }
+
   abrirPainelProjeto();
 }
 
