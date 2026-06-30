@@ -2034,6 +2034,279 @@ async function carregarIntegrantes() {
         }
       }
 
+      /* CrossSet - Feature 006: integrantes cadastrados em linha fina + WhatsApp padrão */
+      .modulo-integrantes > .card-projeto:nth-child(2) {
+        padding: 10px 12px 12px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) > .tag {
+        margin-bottom: 5px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) > h3 {
+        font-size: 20px !important;
+        line-height: 1.05 !important;
+        margin: 0 0 3px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) > p {
+        font-size: 11.5px !important;
+        line-height: 1.15 !important;
+        margin: 0 0 7px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes {
+        margin: 5px 0 7px !important;
+        gap: 8px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes label {
+        gap: 2px !important;
+        font-size: 10.5px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes input,
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes select {
+        height: 31px !important;
+        min-height: 31px !important;
+        padding: 5px 9px !important;
+        font-size: 11.5px !important;
+        border-radius: 9px !important;
+      }
+
+      .lista-integrantes {
+        gap: 6px !important;
+      }
+
+      .item-integrante {
+        height: 54px !important;
+        min-height: 54px !important;
+        max-height: 54px !important;
+        padding: 4px 8px !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+        overflow: hidden !important;
+      }
+
+      .item-integrante-topo {
+        display: grid !important;
+        grid-template-columns: 26px minmax(0, 1fr) 46px !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      .foto-integrante-placeholder {
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
+        font-size: 11px !important;
+      }
+
+      .dados-integrante {
+        display: grid !important;
+        grid-template-columns: minmax(150px, 1.25fr) minmax(78px, .55fr) auto minmax(210px, .95fr) !important;
+        align-items: center !important;
+        gap: 8px !important;
+        min-width: 0 !important;
+      }
+
+      .dados-integrante h4,
+      .dados-integrante p,
+      .dados-integrante .tag-admin,
+      .dados-integrante .tag-integrante,
+      .dados-integrante .desenvolvimento-integrante {
+        margin: 0 !important;
+        min-width: 0 !important;
+      }
+
+      .dados-integrante h4 {
+        font-size: 12.5px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .dados-integrante p.integrante-meta {
+        font-size: 10.5px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        color: #e5e7eb !important;
+      }
+
+      .tag-admin,
+      .tag-integrante {
+        padding: 3px 7px !important;
+        font-size: 9px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        justify-self: start !important;
+      }
+
+      .desenvolvimento-integrante {
+        width: 100% !important;
+        max-width: none !important;
+        height: 34px !important;
+        padding: 3px 5px !important;
+        border-radius: 8px !important;
+        gap: 2px !important;
+        align-self: center !important;
+        display: grid !important;
+        grid-template-columns: 20px minmax(58px, 1fr) 34px !important;
+        grid-template-rows: 12px 12px !important;
+        align-items: center !important;
+      }
+
+      .desenvolvimento-integrante-topo {
+        display: contents !important;
+      }
+
+      .icone-desenvolvimento {
+        grid-column: 1 !important;
+        grid-row: 1 / 3 !important;
+        color: #ffffff !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+        opacity: .92 !important;
+      }
+
+      .desenvolvimento-integrante-percentual {
+        grid-column: 3 !important;
+        grid-row: 1 / 3 !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+        text-align: right !important;
+      }
+
+      .barra-desenvolvimento-integrante {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        height: 4px !important;
+        margin: 0 !important;
+      }
+
+      .desenvolvimento-integrante-contadores {
+        grid-column: 2 / 4 !important;
+        grid-row: 2 !important;
+        display: flex !important;
+        gap: 6px !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        font-size: 8.2px !important;
+        line-height: 1 !important;
+        color: #d1d5db !important;
+      }
+
+      .desenvolvimento-integrante-contadores strong {
+        font-size: 9.2px !important;
+        margin-right: 1px !important;
+      }
+
+      .botoes-item-integrante {
+        width: 46px !important;
+        min-width: 46px !important;
+        gap: 7px !important;
+        justify-content: flex-end !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+        color: #ffffff !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica svg {
+        width: 14px !important;
+        height: 14px !important;
+        stroke: #ffffff !important;
+        stroke-width: 1.8 !important;
+      }
+
+      .btn-whatsapp-padrao,
+      .botao-whatsapp-repertorio,
+      .botao-whatsapp,
+      .botao-convidar-whatsapp {
+        min-height: 34px !important;
+        height: 34px !important;
+        border-radius: 11px !important;
+        padding: 0 14px !important;
+        gap: 8px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 18px rgba(22, 163, 74, .16) !important;
+      }
+
+      .btn-whatsapp-padrao::before,
+      .btn-whatsapp-padrao::after,
+      .botao-whatsapp-repertorio::before,
+      .botao-whatsapp-repertorio::after,
+      .botao-whatsapp::before,
+      .botao-whatsapp::after,
+      .botao-convidar-whatsapp::before,
+      .botao-convidar-whatsapp::after,
+      .btn-whatsapp-padrao .seta-btn {
+        display: none !important;
+        content: none !important;
+      }
+
+      .btn-whatsapp-padrao .icone-btn,
+      .botao-whatsapp-repertorio .icone-limpo,
+      .botao-whatsapp .icone-limpo,
+      .botao-convidar-whatsapp .icone-limpo {
+        width: 17px !important;
+        height: 17px !important;
+        min-width: 17px !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        color: #ffffff !important;
+        flex: 0 0 17px !important;
+      }
+
+      .btn-whatsapp-padrao .icone-btn svg,
+      .botao-whatsapp-repertorio svg,
+      .botao-whatsapp svg,
+      .botao-convidar-whatsapp svg {
+        width: 17px !important;
+        height: 17px !important;
+      }
+
+      @media (max-width: 860px) {
+        .item-integrante {
+          height: 82px !important;
+          min-height: 82px !important;
+          max-height: 82px !important;
+        }
+
+        .dados-integrante {
+          grid-template-columns: 1fr auto !important;
+          grid-template-rows: auto auto auto !important;
+          gap: 3px 6px !important;
+        }
+
+        .dados-integrante h4,
+        .dados-integrante p,
+        .dados-integrante .tag-admin,
+        .dados-integrante .tag-integrante {
+          grid-column: 1 / 2 !important;
+        }
+
+        .desenvolvimento-integrante {
+          grid-column: 1 / -1 !important;
+          height: 30px !important;
+        }
+      }
+
+
 
 
       /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
@@ -2422,24 +2695,20 @@ function obterDesenvolvimentoIntegrante(integranteId) {
 function montarDesenvolvimentoIntegrante(integranteId) {
   const dados = obterDesenvolvimentoIntegrante(integranteId);
 
-  const textoTotal = dados.total === 1 ? "1 música" : `${dados.total} músicas`;
-
   return `
-    <div class="desenvolvimento-integrante">
+    <div class="desenvolvimento-integrante" title="Desenvolvimento no projeto">
       <div class="desenvolvimento-integrante-topo">
-        <span>📈 Desenvolvimento no projeto</span>
+        <span class="icone-desenvolvimento" aria-hidden="true">▥</span>
         <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
       </div>
-      <div class="barra-desenvolvimento-integrante" title="Desenvolvimento no projeto">
+      <div class="barra-desenvolvimento-integrante" aria-label="Desenvolvimento no projeto">
         <span class="${dados.cor}" style="width:${dados.percentual}%"></span>
       </div>
       <div class="desenvolvimento-integrante-contadores">
         <span class="contador-prontas"><strong>${dados.prontas}</strong> prontas</span>
         <span class="contador-estudo"><strong>${dados.emEstudo}</strong> em estudo</span>
         <span class="contador-nao"><strong>${dados.naoIniciadas}</strong> não iniciadas</span>
-        <span>Total: ${textoTotal}</span>
       </div>
-      <small class="desenvolvimento-integrante-ajuda">ⓘ O desenvolvimento é calculado com base no progresso individual deste integrante nas músicas da biblioteca do projeto.</small>
     </div>
   `;
 }
@@ -2505,8 +2774,7 @@ function renderizarListaIntegrantes() {
 
           <div class="dados-integrante">
             <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-            <p class="integrante-meta"><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")} <span>•</span> <strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
-            <p class="integrante-meta"><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")} <span>•</span> <strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
+            <p class="integrante-meta">${escaparHtml(item.funcao || "Função não informada")}</p>
             ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
             ${montarDesenvolvimentoIntegrante(item.id)}
           </div>
