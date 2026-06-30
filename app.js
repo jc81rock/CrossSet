@@ -1501,102 +1501,135 @@ async function carregarIntegrantes() {
         line-height: 1.35;
       }
 
-      /* CrossSet UX - Integrantes compacto e padronizado */
+      /* CrossSet - Integrantes ultracompacto e padronizado */
+      .lista-integrantes {
+        gap: 8px !important;
+      }
+
       .item-integrante {
-        padding: 10px 12px !important;
-        border-radius: 13px !important;
+        min-height: 118px !important;
+        max-height: 150px !important;
+        padding: 9px 12px !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
       }
 
       .item-integrante-topo {
         align-items: flex-start !important;
-        gap: 10px !important;
+        gap: 9px !important;
       }
 
       .foto-integrante-placeholder {
-        width: 34px !important;
-        height: 34px !important;
-        min-width: 34px !important;
-        font-size: 14px !important;
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        font-size: 13px !important;
+      }
+
+      .dados-integrante {
+        min-width: 0 !important;
       }
 
       .dados-integrante h4 {
         font-size: 14px !important;
-        line-height: 1.15 !important;
-        margin-bottom: 3px !important;
+        line-height: 1.1 !important;
+        margin: 0 0 3px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
 
       .dados-integrante p {
-        margin: 1px 0 !important;
-        font-size: 12px !important;
-        line-height: 1.25 !important;
+        margin: 0 !important;
+        font-size: 11.5px !important;
+        line-height: 1.22 !important;
+        color: #d1d5db !important;
+      }
+
+      .dados-integrante p.integrante-meta {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
       }
 
       .tag-admin,
       .tag-integrante {
-        margin-top: 5px !important;
-        padding: 3px 8px !important;
-        font-size: 11px !important;
+        margin-top: 4px !important;
+        padding: 2px 8px !important;
+        font-size: 10.5px !important;
+        line-height: 1.2 !important;
       }
 
       .botoes-item-integrante {
-        gap: 7px !important;
+        gap: 8px !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
+        justify-content: flex-end !important;
+        min-width: 58px !important;
       }
 
       .botoes-item-integrante .btn-acao-musica {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        min-height: 22px !important;
         border: 0 !important;
         padding: 0 !important;
         background: transparent !important;
         color: #ffffff !important;
-        opacity: .9 !important;
+        opacity: .92 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
       }
 
       .botoes-item-integrante .btn-acao-musica svg {
-        width: 17px !important;
-        height: 17px !important;
+        width: 16px !important;
+        height: 16px !important;
+        fill: none !important;
+        stroke: currentColor !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
       }
 
       .botoes-item-integrante .btn-acao-musica:hover {
-        color: #d8b4fe !important;
+        color: #ffffff !important;
         opacity: 1 !important;
         transform: translateY(-1px) scale(1.05) !important;
       }
 
-      .botoes-item-integrante .btn-acao-musica.excluir:hover {
-        color: #fca5a5 !important;
-      }
-
       .desenvolvimento-integrante {
-        margin-top: 8px !important;
-        padding: 8px 10px !important;
-        border-radius: 11px !important;
-        gap: 5px !important;
+        margin-top: 6px !important;
+        padding: 6px 8px !important;
+        border-radius: 9px !important;
+        gap: 4px !important;
         max-width: 420px !important;
       }
 
       .desenvolvimento-integrante-topo {
-        font-size: 10.5px !important;
+        font-size: 10px !important;
+        line-height: 1.1 !important;
       }
 
       .desenvolvimento-integrante-percentual {
-        font-size: 15px !important;
+        font-size: 14px !important;
       }
 
       .barra-desenvolvimento-integrante {
-        height: 5px !important;
+        height: 4px !important;
       }
 
       .desenvolvimento-integrante-contadores {
-        gap: 8px !important;
-        font-size: 11px !important;
+        gap: 7px !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        font-size: 10.5px !important;
       }
 
       .desenvolvimento-integrante-contadores strong {
-        font-size: 12px !important;
+        font-size: 11px !important;
       }
 
       .desenvolvimento-integrante-ajuda {
@@ -1604,27 +1637,20 @@ async function carregarIntegrantes() {
       }
 
       .btn-whatsapp-padrao {
-        min-height: 44px !important;
         height: 44px !important;
+        min-height: 44px !important;
         border-radius: 14px !important;
         gap: 10px !important;
         font-size: 15px !important;
-        letter-spacing: .1px !important;
-        box-shadow: 0 12px 26px rgba(22, 163, 74, .22) !important;
       }
 
-      .btn-whatsapp-padrao .icone-whatsapp-padrao {
+      .btn-whatsapp-padrao .icone-btn {
         width: 24px !important;
         height: 24px !important;
         min-width: 24px !important;
-        border: 2px solid rgba(255,255,255,.9) !important;
         border-radius: 50% !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 13px !important;
-        line-height: 1 !important;
       }
+
 
 
 
@@ -1842,7 +1868,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-whatsapp-padrao" aria-hidden="true">☏</span><span>Convidar por WhatsApp</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn" aria-hidden="true">☎</span><span>Convidar por WhatsApp</span><span class="seta-btn" aria-hidden="true">→</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -2097,10 +2123,8 @@ function renderizarListaIntegrantes() {
 
           <div class="dados-integrante">
             <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-            <p><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")}</p>
-            <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
-            <p><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")}</p>
-            <p><strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
+            <p class="integrante-meta"><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")} <span>•</span> <strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
+            <p class="integrante-meta"><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")} <span>•</span> <strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
             ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
             ${montarDesenvolvimentoIntegrante(item.id)}
           </div>
