@@ -27,7 +27,8 @@ body {
 
 #tela-login,
 #tela-cadastro,
-#tela-novo-projeto {
+#tela-novo-projeto,
+#tela-convite {
   justify-content: center;
   align-items: center;
 }
@@ -1598,36 +1599,4 @@ textarea:focus,
 
 .btn-acao-projeto.excluir:hover {
   color: #fca5a5;
-}
-
-/* Correção convite: tela sempre centralizada e isolada de hashes internos */
-#tela-convite.tela-ativa {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: flex-start !important;
-  min-height: 100vh !important;
-  width: 100% !important;
-  padding: 24px 16px 96px !important;
-}
-
-#tela-convite .card-login {
-  width: 100% !important;
-  max-width: 620px !important;
-  margin: 0 auto !important;
-}
-
-@media (min-height: 860px) {
-  #tela-convite.tela-ativa {
-    align-items: center !important;
-  }
-}
-
-@media (max-width: 560px) {
-  #tela-convite.tela-ativa {
-    padding: 16px 12px 88px !important;
-  }
-
-  #tela-convite .card-login {
-    max-width: 100% !important;
-  }
 }

@@ -293,23 +293,6 @@ function limparConvitePendente() {
   }
 }
 
-function limparHashModuloEmConvite() {
-  const hashAtual = window.location.hash || "";
-  const hashesModulo = ["#inicio", "#integrantes", "#musicas", "#repertorios", "#eventos"];
-
-  if (!hashesModulo.includes(hashAtual)) {
-    return;
-  }
-
-  try {
-    const url = new URL(window.location.href);
-    url.hash = "";
-    window.history.replaceState({}, document.title, url.pathname + url.search);
-  } catch (erroUrl) {
-    console.warn("Não foi possível limpar hash de módulo durante o convite.", erroUrl);
-  }
-}
-
 async function verificarSessao() {
   const cliente = sb();
 
@@ -318,27 +301,16 @@ async function verificarSessao() {
     return;
   }
 
-  const codigoConviteUrl = obterCodigoConviteDaURL();
-  const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
-  const codigoConvite = codigoConviteUrl || codigoConvitePendente;
-
   const { data, error } = await cliente.auth.getSession();
 
   if (!error && data && data.session) {
     appState.sessao = data.session;
     appState.usuario = data.session.user;
-    preencherUsuario(appState.usuario);
 
-    if (codigoConvite && (codigoConviteUrl || obterDadosConviteTemporario(codigoConvite))) {
-      if (codigoConviteUrl) {
-        localStorage.setItem("convite_pendente", codigoConvite);
-      }
-      await carregarConvitePublico(codigoConvite);
-      return;
-    }
-
+    // Se o usuário já está logado, convite antigo na URL não deve reabrir a tela de convite.
     limparConvitePendente();
-    limparDadosConviteTemporario();
+
+    preencherUsuario(appState.usuario);
     mostrarTela("tela-projetos", { registrar: false });
     return;
   }
@@ -352,9 +324,10 @@ async function verificarSessao() {
     return;
   }
 
-  if (codigoConviteUrl) {
-    localStorage.setItem("convite_pendente", codigoConviteUrl);
-    await carregarConvitePublico(codigoConviteUrl);
+  const codigoConvite = obterCodigoConviteDaURL();
+  if (codigoConvite) {
+    localStorage.setItem("convite_pendente", codigoConvite);
+    await carregarConvitePublico(codigoConvite);
     return;
   }
 
@@ -2320,8 +2293,6 @@ function garantirTelaConvite() {
   const tela = document.createElement("section");
   tela.id = "tela-convite";
   tela.className = "tela";
-  tela.style.justifyContent = "center";
-  tela.style.alignItems = "center";
 
   tela.innerHTML = `
     <div class="card-login" style="max-width:620px;">
@@ -2357,7 +2328,6 @@ async function carregarConvitePublico(codigo) {
     return;
   }
 
-  limparHashModuloEmConvite();
   garantirTelaConvite();
   mostrarTela("tela-convite", { registrar: false });
 
@@ -2376,6 +2346,21 @@ async function carregarConvitePublico(codigo) {
     .single();
 
   if (error || !data) {
+    const { data: sessaoAtual } = await cliente.auth.getSession();
+    const usuarioLogado = sessaoAtual.session?.user;
+
+    limparConvitePendente();
+    limparDadosConviteTemporario();
+    appState.conviteAtual = null;
+
+    if (usuarioLogado) {
+      appState.sessao = sessaoAtual.session;
+      appState.usuario = usuarioLogado;
+      preencherUsuario(appState.usuario);
+      mostrarTela("tela-projetos", { registrar: false });
+      return;
+    }
+
     if (descricao) {
       descricao.textContent = "Convite não encontrado ou expirado.";
     }
@@ -2394,30 +2379,33 @@ async function carregarConvitePublico(codigo) {
   appState.conviteAtual = data;
 
   if (data.status && data.status !== "pendente") {
-    localStorage.removeItem("convite_pendente");
+    const { data: sessaoAtual } = await cliente.auth.getSession();
+    const usuarioLogado = sessaoAtual.session?.user;
+
+    limparConvitePendente();
     limparDadosConviteTemporario();
+    appState.conviteAtual = null;
+
+    if (usuarioLogado) {
+      appState.sessao = sessaoAtual.session;
+      appState.usuario = usuarioLogado;
+      preencherUsuario(appState.usuario);
+      mostrarTela("tela-projetos", { registrar: false });
+      return;
+    }
 
     if (descricao) {
       descricao.textContent = "Este convite já foi utilizado ou não está mais disponível.";
     }
-
     if (detalhes) {
-      detalhes.innerHTML = `
-        <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
-          <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
-          <h3 style="margin:0 0 10px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-          <p style="margin:0; color:#d1d5db; font-size:13px;">O cadastro desse convite já foi finalizado.</p>
-        </div>
-      `;
+      detalhes.innerHTML = "";
     }
-
     if (acoes) {
       acoes.innerHTML = `<button class="botao-principal" type="button" id="btn-ir-login-convite-usado">Ir para o login</button>`;
       elemento("btn-ir-login-convite-usado")?.addEventListener("click", function() {
         mostrarTela("tela-login", { registrar: false });
       });
     }
-
     return;
   }
 
@@ -2602,7 +2590,7 @@ async function entrarComGmailEAceitarConvite() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp,
+      redirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
