@@ -1,16 +1,19 @@
 
 // Auto-clear stale invite
 (function(){
- const h=window.location.hash||"";
- if(!h.includes("convite=")){
+ const temConviteNaUrl = function(){
+   const h = window.location.hash || "";
+   const q = window.location.search || "";
+   return h.includes("convite=") || h.includes("convite/") || q.includes("convite=");
+ };
+ if(!temConviteNaUrl()){
    ["convitePendente","codigoConvitePendente","convite","inviteCode","convite_pendente","convite_dados_pendentes"].forEach(k=>{
      try{localStorage.removeItem(k);}catch(e){}
      try{sessionStorage.removeItem(k);}catch(e){}
    });
  }
  window.addEventListener("hashchange",()=>{
-   const hh=window.location.hash||"";
-   if(!hh.includes("convite=")){
+   if(!temConviteNaUrl()){
      ["convitePendente","codigoConvitePendente","convite","inviteCode","convite_pendente","convite_dados_pendentes"].forEach(k=>{
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
@@ -3105,18 +3108,18 @@ function garantirTelaConvite() {
 
   const tela = document.createElement("section");
   tela.id = "tela-convite";
-  tela.className = "tela";
+  tela.className = "tela convite-tela-padrao";
 
   tela.innerHTML = `
-    <div class="card-login" style="max-width:620px;">
-      <img src="logo.png" alt="CrossSet" class="logo-login" />
-      <span class="tag">Convite</span>
-      <h1 id="convite-titulo">Convite para projeto musical</h1>
+    <div class="card-login convite-card-padrao">
+      <img src="logo.png" alt="CrossSet" class="logo-login convite-logo-padrao" />
+      <span class="tag convite-tag-padrao">Convite</span>
+      <h1 id="convite-titulo">Convite para projeto</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
+      <div id="convite-detalhes" class="convite-detalhes-padrao"></div>
 
-      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
+      <div id="convite-acoes" class="convite-acoes-padrao"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
@@ -3129,6 +3132,8 @@ function garantirTelaConvite() {
   const voltar = elemento("btn-voltar-login-convite");
   if (voltar) {
     voltar.addEventListener("click", function() {
+      limparConvitePendente();
+      limparDadosConviteTemporario();
       mostrarTela("tela-login", { registrar: false });
     });
   }
@@ -3233,7 +3238,7 @@ async function carregarConvitePublico(codigo) {
       descricao.textContent = "Finalizando seu cadastro no projeto...";
     }
     if (detalhes) {
-      detalhes.innerHTML = `<p>Salvando seus dados em ${escaparHtml(data.projeto_nome || "Projeto musical")}...</p>`;
+      detalhes.innerHTML = `<div class="convite-resumo-projeto"><p>Projeto</p><h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3><div><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</div></div>`;
     }
     if (acoes) {
       acoes.innerHTML = "";
@@ -3249,77 +3254,112 @@ async function carregarConvitePublico(codigo) {
   }
 
   if (descricao) {
-    descricao.textContent = "Preencha seus dados para aceitar o convite. Este cadastro será vinculado somente ao projeto informado abaixo.";
+    descricao.textContent = usuarioLogado
+      ? "Complete seus dados para entrar neste projeto."
+      : "Confira o projeto e escolha como deseja aceitar o convite.";
   }
 
   if (detalhes) {
     detalhes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
-        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
-        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-        <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
-        <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
-        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Você não escolherá outro projeto: ao aceitar, seus dados serão salvos diretamente aqui.</p>
+      <div class="convite-resumo-projeto">
+        <p>Projeto</p>
+        <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+        <div><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</div>
+        <div><strong>Função no projeto:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</div>
       </div>
     `;
   }
 
+  if (usuarioLogado) {
+    const nomeLogado = obterNomeUsuario(usuarioLogado);
+    if (acoes) {
+      acoes.innerHTML = `
+        <div class="convite-form-padrao">
+          <h3>Completar cadastro</h3>
+          <label>
+            Nome completo
+            <input id="convite-cadastro-nome" type="text" value="${escaparHtml(nomeLogado)}" placeholder="Seu nome" />
+          </label>
+          <div class="convite-grid-2">
+            <label>
+              Função
+              <input id="convite-cadastro-funcao" type="text" placeholder="Ex: Guitarrista" />
+            </label>
+            <label>
+              Instrumento
+              <input id="convite-cadastro-instrumento" type="text" placeholder="Ex: Guitarra" />
+            </label>
+          </div>
+          <label>
+            WhatsApp / Telefone
+            <input id="convite-cadastro-telefone" type="tel" placeholder="(00) 00000-0000" />
+          </label>
+          <button class="botao-principal" id="btn-aceitar-convite-logado" type="button">Salvar e entrar no projeto</button>
+        </div>
+      `;
+      elemento("btn-aceitar-convite-logado")?.addEventListener("click", function() {
+        const dados = obterDadosCadastroConvite();
+        if (!dados.nome) {
+          alert("Informe seu nome.");
+          return;
+        }
+        aceitarConviteComUsuario(usuarioLogado, {
+          nome: dados.nome,
+          funcao: dados.funcao,
+          instrumento: dados.instrumento,
+          telefone: dados.telefone,
+          email: usuarioLogado.email || ""
+        });
+      });
+    }
+    return;
+  }
+
   if (acoes) {
     acoes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
-        <h3 style="margin:0; color:#ffffff;">Criar cadastro e aceitar convite</h3>
-        <p style="margin:0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para o projeto <strong>${escaparHtml(data.projeto_nome || 'Projeto musical')}</strong>. Para entrar nele, preencha seus dados abaixo. Você pode criar acesso com e-mail e senha ou entrar com Gmail. O cadastro será salvo diretamente como integrante deste projeto.</p>
-
-        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+      <div class="convite-form-padrao">
+        <h3>Criar cadastro e aceitar convite</h3>
+        <label>
           Nome completo
           <input id="convite-cadastro-nome" type="text" placeholder="Seu nome" />
         </label>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        <div class="convite-grid-2">
+          <label>
             Função
             <input id="convite-cadastro-funcao" type="text" placeholder="Ex: Guitarrista" />
           </label>
-
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+          <label>
             Instrumento
             <input id="convite-cadastro-instrumento" type="text" placeholder="Ex: Guitarra" />
           </label>
         </div>
-
-        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        <label>
           WhatsApp / Telefone
           <input id="convite-cadastro-telefone" type="tel" placeholder="(00) 00000-0000" />
         </label>
-
-        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        <label>
           E-mail
           <input id="convite-cadastro-email" type="email" placeholder="email@exemplo.com" />
         </label>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+        <div class="convite-grid-2">
+          <label>
             Senha
             <input id="convite-cadastro-senha" type="password" placeholder="Senha" />
           </label>
-
-          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+          <label>
             Repetir senha
             <input id="convite-cadastro-repetir-senha" type="password" placeholder="Repetir senha" />
           </label>
         </div>
-
         <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Aceitar convite e entrar no projeto</button>
-
-        <div class="divisor" style="margin:4px 0;">
+        <div class="divisor convite-divisor">
           <span></span>
           <p>ou</p>
           <span></span>
         </div>
-
-        <button class="botao-google" id="btn-gmail-aceitar-convite" type="button" style="min-height:42px;">
-          <img src="logo_gmail.webp" alt="Gmail" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;" />
-          Entrar com Gmail e entrar no projeto
+        <button class="botao-google" id="btn-gmail-aceitar-convite" type="button">
+          <span class="icone-gmail" aria-hidden="true"><img src="logo_gmail.webp" alt="" /></span>
+          <span>Entrar com Gmail</span>
         </button>
       </div>
     `;
@@ -3328,7 +3368,6 @@ async function carregarConvitePublico(codigo) {
     elemento("btn-gmail-aceitar-convite")?.addEventListener("click", entrarComGmailEAceitarConvite);
   }
 }
-
 
 function obterDadosCadastroConvite() {
   return {
