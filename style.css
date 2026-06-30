@@ -1606,3 +1606,84 @@ textarea:focus,
 .btn-whatsapp-padrao .seta-btn {
   display: none !important;
 }
+
+/* CrossSet - correção final SOMENTE do botão WhatsApp */
+#btn-convidar-integrante::before,
+button#btn-convidar-integrante::before,
+.botao-whatsapp::before,
+.botao-convidar-whatsapp::before,
+#btn-convidar-integrante::after,
+button#btn-convidar-integrante::after,
+.botao-whatsapp::after,
+.botao-convidar-whatsapp::after {
+  content: none !important;
+  display: none !important;
+}
+
+#btn-convidar-integrante.btn-whatsapp-padrao,
+button#btn-convidar-integrante.btn-whatsapp-padrao,
+.btn-whatsapp-padrao {
+  width: 100% !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  margin-top: 8px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #18c761 0%, #16b957 100%) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 24px rgba(24, 199, 97, .22) !important;
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease !important;
+}
+
+#btn-convidar-integrante.btn-whatsapp-padrao:hover,
+button#btn-convidar-integrante.btn-whatsapp-padrao:hover,
+.btn-whatsapp-padrao:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.05) !important;
+  box-shadow: 0 14px 30px rgba(24, 199, 97, .26) !important;
+}
+
+.btn-whatsapp-padrao .icone-whats-box {
+  width: 56px !important;
+  height: 56px !important;
+  min-height: 56px !important;
+  flex: 0 0 56px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: transparent !important;
+}
+
+.btn-whatsapp-padrao .icone-whats-box .icone-whatsapp {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: #ffffff !important;
+}
+
+.btn-whatsapp-padrao .texto-btn {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding: 0 18px 0 0 !important;
+  text-align: center !important;
+  color: #ffffff !important;
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.btn-whatsapp-padrao .seta-btn {
+  display: none !important;
+}
