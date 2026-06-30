@@ -1054,5 +1054,218 @@
     })();
   </script>
 
+
+
+  <style>
+    /* v0.9.25 - Letra final: campo limpo + botão Anexar letra */
+    #tela-musicas textarea[name*="letra" i],
+    #tela-musicas textarea[id*="letra" i],
+    #tela-musicas textarea[placeholder*="letra" i] {
+      min-height: 62px !important;
+      max-height: 86px !important;
+    }
+
+    .rf-letra-topline {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 8px !important;
+      margin-bottom: 4px !important;
+    }
+
+    .rf-letra-topline .rf-upload-clean {
+      margin-left: auto !important;
+    }
+
+    .rf-hide-letra-extra {
+      display: none !important;
+    }
+  </style>
+
+  <script>
+    // v0.9.25 - Ajuste pontual: Letra + Anexar letra, sem textos repetidos.
+    (function () {
+      const uploadIcon = '<svg class="rf-upload-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M20 16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"></path></svg>';
+
+      function txt(el) { return (el && el.textContent ? el.textContent : '').trim().toLowerCase(); }
+      function cleanText(v) {
+        return String(v || '')
+          .replace(/\r\n/g, '\n')
+          .replace(/\r/g, '\n')
+          .replace(/[\t ]+\n/g, '\n')
+          .replace(/\n{4,}/g, '\n\n\n')
+          .trim();
+      }
+
+      function findLetraField() {
+        const selectors = [
+          '#musica-letra', '#letra-musica', '#campo-letra',
+          'textarea[name*="letra" i]', 'textarea[id*="letra" i]', 'textarea[placeholder*="letra" i]'
+        ];
+        for (const sel of selectors) {
+          const el = document.querySelector(sel);
+          if (el) return el;
+        }
+        return Array.from(document.querySelectorAll('#tela-musicas textarea, textarea')).find((t) => {
+          const block = t.closest('label, .campo, .form-group, .rf-field, div');
+          return txt(block).includes('letra');
+        }) || null;
+      }
+
+      function setLetraText(value) {
+        const field = findLetraField();
+        if (!field) {
+          alert('Campo de letra não encontrado.');
+          return;
+        }
+        field.value = cleanText(value);
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+        field.focus();
+      }
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const existing = Array.from(document.scripts).find((s) => s.src === src);
+          if (existing) { resolve(); return; }
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+
+      async function readDocx(file) {
+        if (!window.mammoth) await loadScript('https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js');
+        const buffer = await file.arrayBuffer();
+        const result = await window.mammoth.extractRawText({ arrayBuffer: buffer });
+        return result.value || '';
+      }
+
+      async function readPdf(file) {
+        if (!window.pdfjsLib) await loadScript('https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js');
+        const pdfjsLib = window.pdfjsLib;
+        if (!pdfjsLib) throw new Error('PDF.js não carregou.');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+        const data = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data }).promise;
+        let out = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          out += content.items.map((item) => item.str || '').join(' ') + '\n\n';
+        }
+        return out;
+      }
+
+      async function importLetraFile(file) {
+        if (!file) return;
+        const name = (file.name || '').toLowerCase();
+        const type = (file.type || '').toLowerCase();
+        try {
+          let content = '';
+          if (name.endsWith('.txt') || type.includes('text/plain')) {
+            content = await file.text();
+          } else if (name.endsWith('.docx')) {
+            content = await readDocx(file);
+          } else if (name.endsWith('.pdf') || type.includes('pdf')) {
+            content = await readPdf(file);
+          } else {
+            alert('Use TXT, DOCX ou PDF para importar a letra.');
+            return;
+          }
+          setLetraText(content);
+        } catch (err) {
+          console.error(err);
+          alert('Não foi possível importar a letra deste arquivo.');
+        }
+      }
+
+      let letraInput;
+      function getLetraInput() {
+        if (letraInput) return letraInput;
+        letraInput = document.createElement('input');
+        letraInput.type = 'file';
+        letraInput.accept = '.txt,.docx,.pdf,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        letraInput.style.display = 'none';
+        document.body.appendChild(letraInput);
+        letraInput.addEventListener('change', () => {
+          importLetraFile(letraInput.files && letraInput.files[0]);
+          letraInput.value = '';
+        });
+        return letraInput;
+      }
+
+      function styleUploadButton(btn, label) {
+        if (!btn) return;
+        btn.classList.add('rf-upload-clean');
+        btn.innerHTML = uploadIcon + '<span>' + label + '</span>';
+        btn.setAttribute('title', label);
+        btn.setAttribute('aria-label', label);
+      }
+
+      function normalizeLetraArea() {
+        const field = findLetraField();
+        if (!field) return;
+        field.placeholder = '';
+
+        // Esconde textos antigos/redundantes.
+        Array.from(document.querySelectorAll('#tela-musicas button, #tela-musicas label, #tela-musicas a, #tela-musicas span, #tela-musicas small, #tela-musicas p, #tela-musicas div')).forEach((el) => {
+          const t = txt(el);
+          if (!t) return;
+          if (t === 'colar e salvar' || t === 'cole ou anexe aqui a letra da música' || t === 'letra em arquivo') {
+            el.classList.add('rf-hide-letra-extra');
+          }
+        });
+
+        // Encontra ou cria botão de anexar letra.
+        let btn = Array.from(document.querySelectorAll('#tela-musicas button, #tela-musicas label, #tela-musicas .rf-upload-clean, #tela-musicas .botao-upload, #tela-musicas .upload-button, #tela-musicas .file-label'))
+          .find((el) => txt(el).includes('anexar letra'));
+
+        // Se existir um botão antigo de letra em arquivo, aproveita.
+        if (!btn) {
+          btn = Array.from(document.querySelectorAll('#tela-musicas button, #tela-musicas label, #tela-musicas .botao-upload, #tela-musicas .upload-button, #tela-musicas .file-label'))
+            .find((el) => txt(el).includes('letra em arquivo') || (txt(el).includes('anexar') && txt(el.closest('div') || '').includes('letra')));
+        }
+
+        if (btn) {
+          btn.classList.remove('rf-hide-letra-extra');
+          styleUploadButton(btn, 'Anexar letra');
+          if (btn.dataset.rfLetraImport !== '1') {
+            btn.dataset.rfLetraImport = '1';
+            btn.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              getLetraInput().click();
+            }, true);
+          }
+        }
+
+        // Remove duplicidade visual: deixa o botão junto do título/label quando possível.
+        const container = field.closest('.campo, .form-group, .rf-field, label, div') || field.parentElement;
+        if (container && btn && !container.querySelector('.rf-letra-topline')) {
+          const label = Array.from(container.querySelectorAll('label, span, strong, p, div')).find((el) => {
+            const t = txt(el);
+            return t === 'letra' || t.includes('📝 letra');
+          });
+          if (label && !label.contains(field) && !label.contains(btn)) {
+            const line = document.createElement('div');
+            line.className = 'rf-letra-topline';
+            label.parentNode.insertBefore(line, label);
+            line.appendChild(label);
+            line.appendChild(btn);
+          }
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', normalizeLetraArea);
+      window.addEventListener('load', normalizeLetraArea);
+      const observer = new MutationObserver(normalizeLetraArea);
+      observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+      setInterval(normalizeLetraArea, 1000);
+    })();
+  </script>
+
 </body>
 </html>
