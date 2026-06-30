@@ -1555,3 +1555,47 @@ textarea:focus,
     white-space: normal !important;
   }
 }
+
+/* Feature 001 - Excluir projeto: reutiliza o padrão visual dos ícones de ação */
+.projeto-item {
+  position: relative;
+}
+
+.btn-acao-projeto {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .9;
+  transition: color .15s ease, opacity .15s ease, transform .15s ease;
+  z-index: 2;
+}
+
+.btn-acao-projeto svg {
+  width: 17px;
+  height: 17px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn-acao-projeto:hover {
+  color: #d8b4fe;
+  opacity: 1;
+  transform: translateY(-1px) scale(1.05);
+}
+
+.btn-acao-projeto.excluir:hover {
+  color: #fca5a5;
+}

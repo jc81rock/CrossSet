@@ -566,6 +566,10 @@ function montarListaProjetos(lista) {
   lista.forEach(function(projeto) {
     grid.innerHTML += `
       <div class="card-projeto projeto-item">
+        <button class="btn-acao-projeto excluir" type="button" title="Excluir projeto" aria-label="Excluir projeto" data-excluir-projeto="${escaparHtml(projeto.id)}" data-nome-projeto="${escaparHtml(projeto.nome || "Sem nome")}">
+          ${iconeExcluirProjeto()}
+        </button>
+
         <div class="projeto-item-conteudo">
           <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
           <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
@@ -592,6 +596,116 @@ function montarListaProjetos(lista) {
       acessarProjeto(botao.dataset.id);
     });
   });
+
+  document.querySelectorAll("[data-excluir-projeto]").forEach(function(botao) {
+    botao.addEventListener("click", function(evento) {
+      evento.preventDefault();
+      evento.stopPropagation();
+      excluirProjeto(botao.dataset.excluirProjeto, botao.dataset.nomeProjeto);
+    });
+  });
+}
+
+function iconeExcluirProjeto() {
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`;
+}
+
+async function excluirProjeto(id, nome) {
+  const cliente = sb();
+
+  if (!cliente || !id) {
+    return;
+  }
+
+  const nomeProjeto = limparTexto(nome) || "este projeto";
+  const confirmar = confirm(
+    "Excluir projeto
+
+" +
+    nomeProjeto + "
+
+" +
+    "Esta ação excluirá integrantes, músicas, repertórios, eventos e convites vinculados ao projeto.
+
+" +
+    "Esta ação não poderá ser desfeita."
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const { data: repertoriosDoProjeto, error: erroRepertorios } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.repertorios)
+    .select("id")
+    .eq("projeto_id", id);
+
+  if (erroRepertorios) {
+    alert("Erro ao preparar exclusão: " + erroRepertorios.message);
+    return;
+  }
+
+  const repertorioIds = (repertoriosDoProjeto || []).map(function(item) {
+    return item.id;
+  }).filter(Boolean);
+
+  async function executarExclusao(tabela, coluna, valor) {
+    const { error } = await cliente
+      .from(tabela)
+      .delete()
+      .eq(coluna, valor);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  try {
+    await executarExclusao(REPERTORIO_FACIL.tabelas.convites, "projeto_id", id);
+    await executarExclusao(REPERTORIO_FACIL.tabelas.progressoMusicas, "projeto_id", id);
+
+    if (repertorioIds.length > 0) {
+      const { error: erroVinculos } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+        .delete()
+        .in("repertorio_id", repertorioIds);
+
+      if (erroVinculos) {
+        throw erroVinculos;
+      }
+    }
+
+    await executarExclusao(REPERTORIO_FACIL.tabelas.eventos, "projeto_id", id);
+    await executarExclusao(REPERTORIO_FACIL.tabelas.repertorios, "projeto_id", id);
+    await executarExclusao(REPERTORIO_FACIL.tabelas.musicas, "projeto_id", id);
+    await executarExclusao(REPERTORIO_FACIL.tabelas.integrantes, "projeto_id", id);
+
+    const { error: erroProjeto } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.projetos)
+      .delete()
+      .eq("id", id)
+      .eq("usuario_id", usuario.id);
+
+    if (erroProjeto) {
+      throw erroProjeto;
+    }
+
+    if (obterProjetoAtualId() === id) {
+      salvarProjetoAtual(null);
+    }
+
+    await carregarProjetos();
+  } catch (erro) {
+    alert("Erro ao excluir projeto: " + (erro.message || erro));
+  }
 }
 
 async function criarProjeto() {
