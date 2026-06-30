@@ -293,6 +293,23 @@ function limparConvitePendente() {
   }
 }
 
+function limparHashModuloEmConvite() {
+  const hashAtual = window.location.hash || "";
+  const hashesModulo = ["#inicio", "#integrantes", "#musicas", "#repertorios", "#eventos"];
+
+  if (!hashesModulo.includes(hashAtual)) {
+    return;
+  }
+
+  try {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+  } catch (erroUrl) {
+    console.warn("Não foi possível limpar hash de módulo durante o convite.", erroUrl);
+  }
+}
+
 async function verificarSessao() {
   const cliente = sb();
 
@@ -2328,6 +2345,7 @@ async function carregarConvitePublico(codigo) {
     return;
   }
 
+  limparHashModuloEmConvite();
   garantirTelaConvite();
   mostrarTela("tela-convite", { registrar: false });
 
@@ -2362,6 +2380,35 @@ async function carregarConvitePublico(codigo) {
   }
 
   appState.conviteAtual = data;
+
+  if (data.status && data.status !== "pendente") {
+    localStorage.removeItem("convite_pendente");
+    limparDadosConviteTemporario();
+
+    if (descricao) {
+      descricao.textContent = "Este convite já foi utilizado ou não está mais disponível.";
+    }
+
+    if (detalhes) {
+      detalhes.innerHTML = `
+        <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
+          <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
+          <h3 style="margin:0 0 10px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+          <p style="margin:0; color:#d1d5db; font-size:13px;">O cadastro desse convite já foi finalizado.</p>
+        </div>
+      `;
+    }
+
+    if (acoes) {
+      acoes.innerHTML = `<button class="botao-principal" type="button" id="btn-ir-login-convite-usado">Ir para o login</button>`;
+      elemento("btn-ir-login-convite-usado")?.addEventListener("click", function() {
+        mostrarTela("tela-login", { registrar: false });
+      });
+    }
+
+    return;
+  }
+
   localStorage.setItem("convite_pendente", codigo);
 
   const dadosPendentesGmail = obterDadosConviteTemporario(codigo);
