@@ -581,5 +581,83 @@
   <script src="supabaseClient.js?v=18"></script>
   <script src="app.js?v=18"></script>
 
+
+
+  <style>
+    /* v0.9.22 - Upload mais elegante e padronizado */
+    .rf-upload-clean,
+    button.rf-upload-clean,
+    label.rf-upload-clean {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 7px !important;
+      min-height: 32px !important;
+      height: 32px !important;
+      padding: 0 12px !important;
+      border-radius: 9px !important;
+      border: 1px solid rgba(255,255,255,.16) !important;
+      background: rgba(255,255,255,.045) !important;
+      color: #fff !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+    }
+
+    .rf-upload-clean:hover {
+      color: #fff !important;
+      border-color: rgba(184,77,255,.55) !important;
+      background: rgba(184,77,255,.16) !important;
+    }
+
+    .rf-upload-clean svg,
+    .rf-upload-icon {
+      width: 16px !important;
+      height: 16px !important;
+      min-width: 16px !important;
+      color: #fff !important;
+      stroke: currentColor !important;
+      stroke-width: 2 !important;
+      fill: none !important;
+      display: inline-block !important;
+      vertical-align: -2px !important;
+    }
+
+    .rf-upload-clean .emoji,
+    .rf-upload-clean .icone-colorido {
+      display: none !important;
+    }
+  </style>
+
+  <script>
+    // v0.9.22 - Padroniza botões de upload/anexo com ícone branco outline.
+    (function () {
+      const uploadIcon = '<svg class="rf-upload-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4"></path><path d="M7 9l5-5 5 5"></path><path d="M20 16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4"></path></svg>';
+
+      function normalizeUploadButtons() {
+        const candidates = Array.from(document.querySelectorAll('button, label, .botao-upload, .upload-button, .file-label'));
+        candidates.forEach((el) => {
+          const txt = (el.textContent || '').toLowerCase();
+          if (!txt.includes('anexar') && !txt.includes('selecionar arquivo') && !txt.includes('escolher arquivo') && !txt.includes('upload')) return;
+          if (el.dataset.rfUploadClean === '1') return;
+          el.dataset.rfUploadClean = '1';
+          el.classList.add('rf-upload-clean');
+          let label = 'Anexar';
+          if (txt.includes('letra')) label = 'Anexar letra';
+          el.innerHTML = uploadIcon + '<span>' + label + '</span>';
+          if (!el.getAttribute('title')) el.setAttribute('title', label);
+          if (!el.getAttribute('aria-label')) el.setAttribute('aria-label', label);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', normalizeUploadButtons);
+      window.addEventListener('load', normalizeUploadButtons);
+      const observer = new MutationObserver(normalizeUploadButtons);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      setInterval(normalizeUploadButtons, 1200);
+    })();
+  </script>
+
 </body>
 </html>
