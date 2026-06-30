@@ -3038,10 +3038,25 @@ async function carregarMusicas() {
         min-width: 0;
       }
 
-      .upload-musica-card-topo span:first-child {
+      .upload-musica-card-topo span:first-child,
+      .label-upload-musica {
         display: inline-flex;
         align-items: center;
-        gap: 7px;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .label-upload-musica svg,
+      .upload-musica-botao svg,
+      .botao-colar-letra svg {
+        width: 16px;
+        height: 16px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex: 0 0 auto;
       }
 
       .upload-musica-badge {
@@ -3059,6 +3074,7 @@ async function carregarMusicas() {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        gap: 5px;
         min-height: 28px;
         height: 28px;
         padding: 0 9px;
@@ -3218,6 +3234,24 @@ async function carregarMusicas() {
         white-space: nowrap;
       }
 
+      .meta-icone-svg,
+      .indicador-conteudo-musica {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .meta-icone-svg svg,
+      .indicador-conteudo-musica svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
       .musica-meta-link {
         color: #c4b5fd;
         text-decoration: none;
@@ -3338,6 +3372,10 @@ async function carregarMusicas() {
       }
 
       .botao-colar-letra {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
         min-height: 24px !important;
         height: 24px !important;
         padding: 0 8px !important;
@@ -3428,11 +3466,11 @@ async function carregarMusicas() {
 
           <div class="upload-musica-card">
             <div class="upload-musica-card-topo">
-              <span>🎼 Cifra / Partitura</span>
+              <span class="label-upload-musica">${iconeAcaoMusica("material")}<span>Cifra / Partitura</span></span>
             </div>
             <div class="upload-musica-acoes">
               <label class="upload-musica-botao">
-                Anexar
+                ${iconeAcaoMusica("anexar")}<span>Anexar</span>
                 <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" />
               </label>
             </div>
@@ -3442,18 +3480,18 @@ async function carregarMusicas() {
           <label>
             <span class="linha-letra-acoes">
               <span>Letra</span>
-              <button class="botao-colar-letra" id="btn-colar-salvar-letra" type="button">📋 Copiar e salvar</button>
+              <button class="botao-colar-letra" id="btn-colar-salvar-letra" type="button">${iconeAcaoMusica("colar")}<span>Colar e salvar</span></button>
             </span>
             <textarea id="musica-letra" placeholder="Cole a letra aqui"></textarea>
           </label>
 
           <div class="upload-musica-card">
             <div class="upload-musica-card-topo">
-              <span>📝 Letra em arquivo</span>
+              <span class="label-upload-musica">${iconeAcaoMusica("letra")}<span>Anexar letra</span></span>
             </div>
             <div class="upload-musica-acoes">
               <label class="upload-musica-botao">
-                Anexar
+                ${iconeAcaoMusica("anexar")}<span>Anexar</span>
                 <input id="musica-letra-arquivo" type="file" accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png,.webp" />
               </label>
             </div>
@@ -3800,7 +3838,11 @@ function iconeAcaoMusica(tipo) {
     editar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
     compartilhar: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg>`,
     pdf: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 17v-4h1.6a1.2 1.2 0 0 1 0 2.4H8"/><path d="M12 17v-4h1.1a2 2 0 0 1 0 4H12"/><path d="M17 13h-2v4"/><path d="M15 15h1.7"/></svg>`,
-    excluir: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`
+    excluir: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`,
+    material: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+    letra: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></svg>`,
+    anexar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>`,
+    colar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M8 11h8"/><path d="M8 15h6"/></svg>`
   };
 
   return icones[tipo] || "";
@@ -3891,11 +3933,11 @@ function renderizarListaMusicas() {
     const temLetra = limparTexto(item.letra).length > 0;
     const temMaterial = limparTexto(arquivoMaterial).length > 0;
     const indicadores = [
-      temLetra ? `<span class="indicador-conteudo-musica" title="Letra disponível" aria-label="Letra disponível">📄</span>` : "",
-      temMaterial ? `<span class="indicador-conteudo-musica" title="Material musical disponível" aria-label="Material musical disponível">🎼</span>` : ""
+      temLetra ? `<span class="indicador-conteudo-musica" title="Letra disponível" aria-label="Letra disponível">${iconeAcaoMusica("letra")}</span>` : "",
+      temMaterial ? `<span class="indicador-conteudo-musica" title="Cifra / Partitura disponível" aria-label="Cifra / Partitura disponível">${iconeAcaoMusica("material")}</span>` : ""
     ].filter(Boolean).join("");
     const linksArquivos = [
-      montarLinkArquivoMusica(arquivoMaterial, "Material da música", "🎼 ")
+      montarLinkArquivoMusica(arquivoMaterial, "Cifra / Partitura", "")
     ].filter(Boolean).join("");
 
     const arquivoLetra = obterArquivoLetraMusica(item);
@@ -3922,8 +3964,8 @@ function renderizarListaMusicas() {
           <span class="musica-meta-chip">🎼 ${escaparHtml(item.tom || "-")}</span>
           <span class="musica-meta-chip">🥁 ${escaparHtml(item.bpm || "-")}</span>
           ${link ? `<a class="musica-meta-link" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Link</a>` : ""}
-          ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer">🎼 Material</a>` : ""}
-          ${temLetraCompleta ? `<span class="musica-meta-chip">📝 Letra</span>` : ""}
+          ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
+          ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
           <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
@@ -8263,7 +8305,7 @@ function rfTituloCampoTexto(label, textarea) {
   if (texto) return texto;
 
   const id = textarea.id || '';
-  if (id.includes('material')) return 'Material da Música';
+  if (id.includes('material')) return 'Cifra / Partitura';
   if (id.includes('letra')) return 'Letra';
   if (id.includes('observ')) return 'Observações';
   if (id.includes('descricao')) return 'Descrição';
@@ -8302,7 +8344,6 @@ function aprimorarCamposTextoGrandes(contexto) {
     header.innerHTML = `
       <span class="rf-textarea-icon">${rfSvgIconeCampoTexto(tipo)}</span>
       <span>${escaparHtml(titulo)}</span>
-      ${obrigatorio ? '' : '<span class="rf-textarea-badge">Opcional</span>'}
     `;
 
     label.insertBefore(header, textarea);
