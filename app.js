@@ -2642,6 +2642,50 @@ async function aceitarConviteAtual() {
   await aceitarConviteComUsuario(usuario);
 }
 
+async function abrirProjetoDoConvite(projetoId, nomeProjeto) {
+  const cliente = sb();
+
+  let projeto = {
+    id: projetoId,
+    nome: nomeProjeto || "Projeto musical",
+    estilo: "Projeto musical",
+    cidade: "",
+    estado: ""
+  };
+
+  if (cliente && projetoId) {
+    try {
+      const { data: projetoData } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.projetos)
+        .select("*")
+        .eq("id", projetoId)
+        .maybeSingle();
+
+      if (projetoData) {
+        projeto = projetoData;
+      }
+    } catch (erroProjeto) {
+      console.warn("Projeto não pôde ser carregado pela política de leitura. Usando dados do convite.", erroProjeto);
+    }
+  }
+
+  salvarProjetoAtual(projeto);
+  limparConvitePendente();
+  limparDadosConviteTemporario();
+  appState.conviteAtual = null;
+
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+  } catch (erroUrl) {
+    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
+  }
+
+  mostrarToast?.("Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  abrirPainelProjeto();
+}
+
 async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   const cliente = sb();
   const convite = appState.conviteAtual;
@@ -2650,12 +2694,17 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     return;
   }
 
-  if (convite.status && convite.status !== "pendente") {
-    alert("Este convite já foi utilizado ou não está mais disponível.");
+  const projetoId = convite.projeto_id;
+  const nomeProjeto = convite.projeto_nome || "Projeto musical";
+
+  if (!projetoId) {
+    alert("Convite sem projeto vinculado. Gere um novo convite.");
     return;
   }
 
-  const projetoId = convite.projeto_id;
+  const statusConvite = limparTexto(convite.status).toLowerCase();
+  const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto"].includes(statusConvite);
+
   const nomeUsuario = limparTexto(dadosPerfil.nome) || obterNomeUsuario(usuario);
   const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
   const funcaoUsuario = limparTexto(dadosPerfil.funcao) || "Integrante";
@@ -2691,70 +2740,52 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     emailJaCadastrado = existenteEmail;
   }
 
+  // Se o integrante já existe no projeto, não bloqueia o fluxo.
+  // Apenas entra direto no projeto, que é o comportamento aprovado para convites.
   if (existente || emailJaCadastrado) {
-    alert("Este e-mail já está cadastrado como integrante deste projeto.");
+    await abrirProjetoDoConvite(projetoId, nomeProjeto);
     return;
   }
 
-  if (!existente) {
-    const { error: erroInserir } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .insert({
-        projeto_id: projetoId,
-        usuario_id: usuario.id,
-        nome: nomeUsuario,
-        funcao: funcaoUsuario,
-        instrumento: instrumentoUsuario,
-        administrador: convite.papel === "administrador",
-        email: emailUsuario,
-        telefone: telefoneUsuario
-      });
-
-    if (erroInserir) {
-      alert("Erro ao aceitar convite: " + erroInserir.message);
-      return;
-    }
+  if (conviteBloqueado) {
+    alert("Este convite já foi utilizado ou não está mais disponível.");
+    return;
   }
 
-  await cliente
-    .from(REPERTORIO_FACIL.tabelas.convites)
-    .update({
-      status: "aceito",
-      aceito_em: new Date().toISOString(),
-      aceito_por: usuario.id
-    })
-    .eq("id", convite.id);
+  const { error: erroInserir } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .insert({
+      projeto_id: projetoId,
+      usuario_id: usuario.id,
+      nome: nomeUsuario,
+      funcao: funcaoUsuario,
+      instrumento: instrumentoUsuario,
+      administrador: convite.papel === "administrador",
+      email: emailUsuario,
+      telefone: telefoneUsuario
+    });
 
-  let projeto = null;
-  const { data: projetoData } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", projetoId)
-    .maybeSingle();
+  if (erroInserir) {
+    alert("Erro ao aceitar convite: " + erroInserir.message);
+    return;
+  }
 
-  projeto = projetoData || {
-    id: projetoId,
-    nome: convite.projeto_nome || "Projeto musical",
-    estilo: "Projeto musical",
-    cidade: "",
-    estado: ""
+  const atualizacaoConvite = {
+    status: "aceito",
+    aceito_em: new Date().toISOString(),
+    aceito_por: usuario.id
   };
 
-  salvarProjetoAtual(projeto);
-  limparConvitePendente();
-  limparDadosConviteTemporario();
-  appState.conviteAtual = null;
+  const { error: erroAtualizarConvite } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.convites)
+    .update(atualizacaoConvite)
+    .eq("id", convite.id);
 
-  try {
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-    }
-  } catch (erroUrl) {
-    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
+  if (erroAtualizarConvite) {
+    console.warn("Cadastro salvo, mas não foi possível marcar o convite como aceito.", erroAtualizarConvite);
   }
 
-  mostrarToast?.("Cadastro salvo. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
-  abrirPainelProjeto();
+  await abrirProjetoDoConvite(projetoId, nomeProjeto);
 }
 
 async function carregarMusicas() {
