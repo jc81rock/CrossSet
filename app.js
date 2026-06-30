@@ -1766,6 +1766,66 @@ async function carregarIntegrantes() {
         box-shadow: none !important;
       }
 
+
+
+      /* CrossSet - WhatsApp: botão oficial aprovado */
+      .btn-whatsapp-padrao {
+        width: 100% !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        justify-content: flex-start !important;
+        overflow: hidden !important;
+        border: 0 !important;
+        background: linear-gradient(180deg, #18d65f 0%, #14b94f 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 22px rgba(20, 185, 79, .22) !important;
+      }
+
+      .btn-whatsapp-padrao .icone-whats-box {
+        width: 56px !important;
+        height: 100% !important;
+        min-height: inherit !important;
+        align-self: stretch !important;
+        flex: 0 0 56px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(0, 0, 0, .13) !important;
+      }
+
+      .btn-whatsapp-padrao .icone-whats-box .icone-whatsapp {
+        width: 31px !important;
+        height: 31px !important;
+        min-width: 31px !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        font-size: 0 !important;
+        background-color: #ffffff !important;
+        display: inline-block !important;
+        -webkit-mask-repeat: no-repeat !important;
+        -webkit-mask-position: center !important;
+        -webkit-mask-size: contain !important;
+        mask-repeat: no-repeat !important;
+        mask-position: center !important;
+        mask-size: contain !important;
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.02 3C8.85 3 3.02 8.82 3.02 15.98c0 2.29.6 4.53 1.75 6.5L3 29l6.69-1.74a12.94 12.94 0 0 0 6.33 1.62h.01c7.16 0 12.98-5.82 12.98-12.98C29.01 8.82 23.18 3 16.02 3zm0 23.7h-.01c-1.95 0-3.86-.52-5.53-1.5l-.4-.24-3.97 1.03 1.06-3.86-.26-.4a10.73 10.73 0 0 1-1.65-5.75c0-5.92 4.82-10.74 10.75-10.74 2.87 0 5.57 1.12 7.6 3.15a10.68 10.68 0 0 1 3.15 7.6c0 5.92-4.82 10.73-10.74 10.73zm5.89-8.04c-.32-.16-1.9-.94-2.2-1.04-.29-.11-.5-.16-.72.16-.21.32-.83 1.04-1.02 1.25-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.79-2.22-.19-.32-.02-.5.14-.66.15-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37z'/%3E%3C/svg%3E") !important;
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.02 3C8.85 3 3.02 8.82 3.02 15.98c0 2.29.6 4.53 1.75 6.5L3 29l6.69-1.74a12.94 12.94 0 0 0 6.33 1.62h.01c7.16 0 12.98-5.82 12.98-12.98C29.01 8.82 23.18 3 16.02 3zm0 23.7h-.01c-1.95 0-3.86-.52-5.53-1.5l-.4-.24-3.97 1.03 1.06-3.86-.26-.4a10.73 10.73 0 0 1-1.65-5.75c0-5.92 4.82-10.74 10.75-10.74 2.87 0 5.57 1.12 7.6 3.15a10.68 10.68 0 0 1 3.15 7.6c0 5.92-4.82 10.73-10.74 10.73zm5.89-8.04c-.32-.16-1.9-.94-2.2-1.04-.29-.11-.5-.16-.72.16-.21.32-.83 1.04-1.02 1.25-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.79-2.22-.19-.32-.02-.5.14-.66.15-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37z'/%3E%3C/svg%3E") !important;
+      }
+
+      .btn-whatsapp-padrao .texto-btn {
+        flex: 1 1 auto !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        padding: 0 14px 0 8px !important;
+        font-weight: 800 !important;
+      }
+
+      .btn-whatsapp-padrao .seta-btn {
+        display: none !important;
+      }
+
       @media (max-width: 820px) {
         .modulo-integrantes,
         .linha-form-integrantes,
@@ -1827,7 +1887,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn icone-whatsapp" aria-hidden="true">☎</span><span class="texto-btn">Convidar pelo WhatsApp</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-whats-box" aria-hidden="true"><span class="icone-btn icone-whatsapp"></span></span><span class="texto-btn">Convidar pelo WhatsApp</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
