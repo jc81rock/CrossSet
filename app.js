@@ -301,23 +301,6 @@ async function verificarSessao() {
     return;
   }
 
-  const { data, error } = await cliente.auth.getSession();
-
-  if (!error && data && data.session) {
-    appState.sessao = data.session;
-    appState.usuario = data.session.user;
-
-    // Se o usuário já está logado, convite antigo na URL não deve reabrir a tela de convite.
-    limparConvitePendente();
-
-    preencherUsuario(appState.usuario);
-    mostrarTela("tela-projetos", { registrar: false });
-    return;
-  }
-
-  appState.sessao = null;
-  appState.usuario = null;
-
   const codigoRepertorio = obterCodigoRepertorioDaURL();
   if (codigoRepertorio) {
     await carregarRepertorioPublico(codigoRepertorio);
@@ -327,6 +310,29 @@ async function verificarSessao() {
   const codigoConvite = obterCodigoConviteDaURL();
   if (codigoConvite) {
     localStorage.setItem("convite_pendente", codigoConvite);
+  }
+
+  const { data, error } = await cliente.auth.getSession();
+
+  if (!error && data && data.session) {
+    appState.sessao = data.session;
+    appState.usuario = data.session.user;
+    preencherUsuario(appState.usuario);
+
+    if (codigoConvite) {
+      await carregarConvitePublico(codigoConvite);
+      return;
+    }
+
+    limparConvitePendente();
+    mostrarTela("tela-projetos", { registrar: false });
+    return;
+  }
+
+  appState.sessao = null;
+  appState.usuario = null;
+
+  if (codigoConvite) {
     await carregarConvitePublico(codigoConvite);
     return;
   }
@@ -1380,311 +1386,6 @@ async function carregarIntegrantes() {
       }
 
 
-      /* CrossSet - Integrantes: padrão oficial compacto */
-      .btn-whatsapp-padrao {
-        position: relative;
-        padding: 0 14px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-      }
-
-      .btn-whatsapp-padrao .texto-btn {
-        flex: 1 1 auto;
-        text-align: center;
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .btn-whatsapp-padrao .icone-btn {
-        flex: 0 0 23px;
-      }
-
-      .btn-whatsapp-padrao .seta-btn {
-        flex: 0 0 auto;
-        margin-left: 10px !important;
-        padding-right: 0 !important;
-      }
-
-      .lista-integrantes {
-        display: grid !important;
-        gap: 7px !important;
-      }
-
-      .item-integrante.item-integrante-compacto {
-        min-height: 60px !important;
-        max-height: 70px !important;
-        padding: 9px 12px !important;
-        border-radius: 13px !important;
-        background: #1f2937 !important;
-        border: 1px solid rgba(255, 255, 255, .12) !important;
-        color: #ffffff !important;
-        overflow: hidden !important;
-        display: flex !important;
-        align-items: center !important;
-      }
-
-      .integrante-linha-compacta {
-        width: 100% !important;
-        display: grid !important;
-        grid-template-columns: minmax(170px, 1.4fr) auto minmax(105px, .8fr) auto minmax(98px, .7fr) minmax(130px, 180px) auto !important;
-        align-items: center !important;
-        gap: 8px !important;
-        min-width: 0 !important;
-      }
-
-      .integrante-nome-compacto,
-      .integrante-funcao-compacta,
-      .integrante-admin-compacto {
-        min-width: 0 !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        white-space: nowrap !important;
-        line-height: 1.15 !important;
-      }
-
-      .integrante-nome-compacto {
-        color: #ffffff !important;
-        font-size: 14px !important;
-        font-weight: 800 !important;
-      }
-
-      .integrante-funcao-compacta,
-      .integrante-admin-compacto,
-      .separador-integrante {
-        color: #d1d5db !important;
-        font-size: 12px !important;
-        font-weight: 650 !important;
-      }
-
-      .integrante-admin-compacto.admin-sim { color: #ffffff !important; }
-      .integrante-admin-compacto.admin-nao { color: #9ca3af !important; }
-
-      .desenvolvimento-integrante.desenvolvimento-integrante-compacto {
-        margin: 0 !important;
-        padding: 0 !important;
-        border: 0 !important;
-        background: transparent !important;
-        display: grid !important;
-        grid-template-columns: 1fr 38px !important;
-        align-items: center !important;
-        gap: 7px !important;
-        min-width: 0 !important;
-      }
-
-      .barra-desenvolvimento-integrante.barra-desenvolvimento-integrante-compacta {
-        height: 5px !important;
-        width: 100% !important;
-        min-width: 74px !important;
-        background: rgba(255, 255, 255, .16) !important;
-      }
-
-      .desenvolvimento-integrante-compacto .desenvolvimento-integrante-percentual {
-        font-size: 12px !important;
-        font-weight: 800 !important;
-        text-align: right !important;
-      }
-
-      .botoes-item-integrante.botoes-item-integrante-compactos {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        gap: 7px !important;
-        flex-wrap: nowrap !important;
-      }
-
-      .botoes-item-integrante-compactos .btn-icone-integrante {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
-        min-height: 24px !important;
-        padding: 0 !important;
-        border: 0 !important;
-        border-radius: 8px !important;
-        background: rgba(255, 255, 255, .08) !important;
-        color: #ffffff !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 13px !important;
-        line-height: 1 !important;
-        cursor: pointer !important;
-      }
-
-      .botoes-item-integrante-compactos .btn-icone-integrante:hover {
-        background: rgba(255, 255, 255, .16) !important;
-        transform: translateY(-1px) !important;
-      }
-
-      /* CrossSet - Integrantes: ajuste final aprovado */
-      .btn-whatsapp-padrao {
-        justify-content: center !important;
-        padding: 0 18px !important;
-        gap: 12px !important;
-      }
-
-      .btn-whatsapp-padrao .texto-btn {
-        flex: 0 1 auto !important;
-        text-align: center !important;
-        overflow: visible !important;
-        text-overflow: clip !important;
-      }
-
-      .btn-whatsapp-padrao .seta-btn {
-        display: none !important;
-      }
-
-      .btn-whatsapp-padrao .icone-whatsapp {
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        border: 2px solid rgba(255,255,255,.95) !important;
-        border-radius: 50% !important;
-        font-size: 15px !important;
-        color: #ffffff !important;
-      }
-
-      .barra-desenvolvimento-integrante span.verde,
-      .desenvolvimento-integrante-percentual.verde { color: #22c55e !important; }
-      .barra-desenvolvimento-integrante span.verde { background: #22c55e !important; }
-
-      .barra-desenvolvimento-integrante span.amarela,
-      .desenvolvimento-integrante-percentual.amarela { color: #facc15 !important; }
-      .barra-desenvolvimento-integrante span.amarela { background: #facc15 !important; }
-
-      .barra-desenvolvimento-integrante span.vermelha,
-      .desenvolvimento-integrante-percentual.vermelha { color: #ef4444 !important; }
-      .barra-desenvolvimento-integrante span.vermelha { background: #ef4444 !important; }
-
-      .botoes-item-integrante-compactos .btn-icone-integrante {
-        background: transparent !important;
-        color: #ffffff !important;
-      }
-
-      .icone-acao-svg {
-        width: 17px !important;
-        height: 17px !important;
-        display: inline-block !important;
-        background-color: #ffffff !important;
-        mask-repeat: no-repeat !important;
-        mask-position: center !important;
-        mask-size: contain !important;
-        -webkit-mask-repeat: no-repeat !important;
-        -webkit-mask-position: center !important;
-        -webkit-mask-size: contain !important;
-      }
-
-      .icone-editar {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.8 9.95l-3.75-3.75L3 17.25zm17.7-10.2c.4-.4.4-1 0-1.4l-2.35-2.35a.98.98 0 0 0-1.4 0l-1.85 1.85 3.75 3.75 1.85-1.85z'/%3E%3C/svg%3E") !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 17.25V21h3.75L17.8 9.95l-3.75-3.75L3 17.25zm17.7-10.2c.4-.4.4-1 0-1.4l-2.35-2.35a.98.98 0 0 0-1.4 0l-1.85 1.85 3.75 3.75 1.85-1.85z'/%3E%3C/svg%3E") !important;
-      }
-
-      .icone-link {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
-      }
-
-      .icone-lixeira {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4h-3.5z'/%3E%3C/svg%3E") !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 19c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V7H6v12zM8 9h8v10H8V9zm7.5-5-1-1h-5l-1 1H5v2h14V4h-3.5z'/%3E%3C/svg%3E") !important;
-      }
-
-
-      .btn-whatsapp-padrao .icone-whatsapp {
-        border: 0 !important;
-        border-radius: 0 !important;
-        width: 29px !important;
-        height: 29px !important;
-        min-width: 29px !important;
-        font-size: 0 !important;
-        background-color: #ffffff !important;
-        display: inline-block !important;
-        -webkit-mask-repeat: no-repeat !important;
-        -webkit-mask-position: center !important;
-        -webkit-mask-size: contain !important;
-        mask-repeat: no-repeat !important;
-        mask-position: center !important;
-        mask-size: contain !important;
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.02 3C8.85 3 3.02 8.82 3.02 15.98c0 2.29.6 4.53 1.75 6.5L3 29l6.69-1.74a12.94 12.94 0 0 0 6.33 1.62h.01c7.16 0 12.98-5.82 12.98-12.98C29.01 8.82 23.18 3 16.02 3zm0 23.7h-.01c-1.95 0-3.86-.52-5.53-1.5l-.4-.24-3.97 1.03 1.06-3.86-.26-.4a10.73 10.73 0 0 1-1.65-5.75c0-5.92 4.82-10.74 10.75-10.74 2.87 0 5.57 1.12 7.6 3.15a10.68 10.68 0 0 1 3.15 7.6c0 5.92-4.82 10.73-10.74 10.73zm5.89-8.04c-.32-.16-1.9-.94-2.2-1.04-.29-.11-.5-.16-.72.16-.21.32-.83 1.04-1.02 1.25-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.79-2.22-.19-.32-.02-.5.14-.66.15-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37z'/%3E%3C/svg%3E") !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.02 3C8.85 3 3.02 8.82 3.02 15.98c0 2.29.6 4.53 1.75 6.5L3 29l6.69-1.74a12.94 12.94 0 0 0 6.33 1.62h.01c7.16 0 12.98-5.82 12.98-12.98C29.01 8.82 23.18 3 16.02 3zm0 23.7h-.01c-1.95 0-3.86-.52-5.53-1.5l-.4-.24-3.97 1.03 1.06-3.86-.26-.4a10.73 10.73 0 0 1-1.65-5.75c0-5.92 4.82-10.74 10.75-10.74 2.87 0 5.57 1.12 7.6 3.15a10.68 10.68 0 0 1 3.15 7.6c0 5.92-4.82 10.73-10.74 10.73zm5.89-8.04c-.32-.16-1.9-.94-2.2-1.04-.29-.11-.5-.16-.72.16-.21.32-.83 1.04-1.02 1.25-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.79-2.22-.19-.32-.02-.5.14-.66.15-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37z'/%3E%3C/svg%3E") !important;
-      }
-
-      /* CrossSet - FINAL aprovado: WhatsApp limpo e ícone compartilhar padrão */
-      #btn-convidar-integrante.btn-whatsapp-padrao,
-      button#btn-convidar-integrante.btn-whatsapp-padrao,
-      .btn-whatsapp-padrao {
-        width: 100% !important;
-        height: 42px !important;
-        min-height: 42px !important;
-        padding: 0 14px !important;
-        border: 0 !important;
-        border-radius: 13px !important;
-        background: linear-gradient(135deg, #18c761 0%, #16b957 100%) !important;
-        color: #ffffff !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 10px !important;
-        overflow: hidden !important;
-        box-shadow: 0 10px 24px rgba(24, 199, 97, .22) !important;
-      }
-
-      #btn-convidar-integrante.btn-whatsapp-padrao::before,
-      #btn-convidar-integrante.btn-whatsapp-padrao::after,
-      .btn-whatsapp-padrao::before,
-      .btn-whatsapp-padrao::after {
-        content: none !important;
-        display: none !important;
-      }
-
-      .btn-whatsapp-padrao .icone-whats-box {
-        width: auto !important;
-        height: auto !important;
-        min-height: 0 !important;
-        flex: 0 0 auto !important;
-        background: transparent !important;
-        align-self: center !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-
-      .btn-whatsapp-padrao .icone-whatsapp {
-        width: 23px !important;
-        height: 23px !important;
-        min-width: 23px !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        background-color: #ffffff !important;
-        font-size: 0 !important;
-      }
-
-      .btn-whatsapp-padrao .texto-btn {
-        flex: 0 1 auto !important;
-        padding: 0 !important;
-        text-align: center !important;
-        white-space: nowrap !important;
-        overflow: visible !important;
-        text-overflow: clip !important;
-        color: #ffffff !important;
-        font-size: 15px !important;
-        font-weight: 800 !important;
-        line-height: 1 !important;
-      }
-
-      .btn-whatsapp-padrao .seta-btn {
-        display: none !important;
-      }
-
-      .icone-link {
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
-      }
-
-
-
-
 
       /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
       .lista-musicas {
@@ -1839,66 +1540,6 @@ async function carregarIntegrantes() {
         box-shadow: none !important;
       }
 
-
-
-      /* CrossSet - WhatsApp: botão oficial aprovado */
-      .btn-whatsapp-padrao {
-        width: 100% !important;
-        padding: 0 !important;
-        gap: 0 !important;
-        justify-content: flex-start !important;
-        overflow: hidden !important;
-        border: 0 !important;
-        background: linear-gradient(180deg, #18d65f 0%, #14b94f 100%) !important;
-        color: #ffffff !important;
-        box-shadow: 0 10px 22px rgba(20, 185, 79, .22) !important;
-      }
-
-      .btn-whatsapp-padrao .icone-whats-box {
-        width: 56px !important;
-        height: 100% !important;
-        min-height: inherit !important;
-        align-self: stretch !important;
-        flex: 0 0 56px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: rgba(0, 0, 0, .13) !important;
-      }
-
-      .btn-whatsapp-padrao .icone-whats-box .icone-whatsapp {
-        width: 31px !important;
-        height: 31px !important;
-        min-width: 31px !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        font-size: 0 !important;
-        background-color: #ffffff !important;
-        display: inline-block !important;
-        -webkit-mask-repeat: no-repeat !important;
-        -webkit-mask-position: center !important;
-        -webkit-mask-size: contain !important;
-        mask-repeat: no-repeat !important;
-        mask-position: center !important;
-        mask-size: contain !important;
-        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.02 3C8.85 3 3.02 8.82 3.02 15.98c0 2.29.6 4.53 1.75 6.5L3 29l6.69-1.74a12.94 12.94 0 0 0 6.33 1.62h.01c7.16 0 12.98-5.82 12.98-12.98C29.01 8.82 23.18 3 16.02 3zm0 23.7h-.01c-1.95 0-3.86-.52-5.53-1.5l-.4-.24-3.97 1.03 1.06-3.86-.26-.4a10.73 10.73 0 0 1-1.65-5.75c0-5.92 4.82-10.74 10.75-10.74 2.87 0 5.57 1.12 7.6 3.15a10.68 10.68 0 0 1 3.15 7.6c0 5.92-4.82 10.73-10.74 10.73zm5.89-8.04c-.32-.16-1.9-.94-2.2-1.04-.29-.11-.5-.16-.72.16-.21.32-.83 1.04-1.02 1.25-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.79-2.22-.19-.32-.02-.5.14-.66.15-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37z'/%3E%3C/svg%3E") !important;
-        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16.02 3C8.85 3 3.02 8.82 3.02 15.98c0 2.29.6 4.53 1.75 6.5L3 29l6.69-1.74a12.94 12.94 0 0 0 6.33 1.62h.01c7.16 0 12.98-5.82 12.98-12.98C29.01 8.82 23.18 3 16.02 3zm0 23.7h-.01c-1.95 0-3.86-.52-5.53-1.5l-.4-.24-3.97 1.03 1.06-3.86-.26-.4a10.73 10.73 0 0 1-1.65-5.75c0-5.92 4.82-10.74 10.75-10.74 2.87 0 5.57 1.12 7.6 3.15a10.68 10.68 0 0 1 3.15 7.6c0 5.92-4.82 10.73-10.74 10.73zm5.89-8.04c-.32-.16-1.9-.94-2.2-1.04-.29-.11-.5-.16-.72.16-.21.32-.83 1.04-1.02 1.25-.19.21-.38.24-.7.08-.32-.16-1.36-.5-2.59-1.6-.96-.85-1.6-1.9-1.79-2.22-.19-.32-.02-.5.14-.66.15-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.72-1.74-.99-2.38-.26-.62-.52-.54-.72-.55h-.61c-.21 0-.56.08-.85.4-.29.32-1.12 1.1-1.12 2.67s1.15 3.1 1.31 3.31c.16.21 2.26 3.45 5.47 4.84.76.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.9-.78 2.17-1.52.27-.75.27-1.39.19-1.52-.08-.13-.29-.21-.61-.37z'/%3E%3C/svg%3E") !important;
-      }
-
-      .btn-whatsapp-padrao .texto-btn {
-        flex: 1 1 auto !important;
-        text-align: center !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        padding: 0 14px 0 8px !important;
-        font-weight: 800 !important;
-      }
-
-      .btn-whatsapp-padrao .seta-btn {
-        display: none !important;
-      }
-
       @media (max-width: 820px) {
         .modulo-integrantes,
         .linha-form-integrantes,
@@ -1960,7 +1601,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-whats-box" aria-hidden="true"><span class="icone-btn icone-whatsapp"></span></span><span class="texto-btn">Convidar pelo WhatsApp</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☏</span><span>Convidar por WhatsApp</span><span class="seta-btn">→</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -2206,9 +1847,9 @@ function renderizarListaIntegrantes() {
           <span class="integrante-admin-compacto ${item.administrador ? "admin-sim" : "admin-nao"}">${tipoIntegrante}</span>
           ${montarDesenvolvimentoIntegrante(item.id)}
           <div class="botoes-item-integrante botoes-item-integrante-compactos">
-            <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}"><span class="icone-acao-svg icone-editar" aria-hidden="true"></span></button>
-            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><span class="icone-acao-svg icone-link" aria-hidden="true"></span></button>
-            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><span class="icone-acao-svg icone-lixeira" aria-hidden="true"></span></button>
+            <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}">✏️</button>
+            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}">🔗</button>
+            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">🗑️</button>
           </div>
         </div>
       </div>
@@ -2577,8 +2218,8 @@ function garantirTelaConvite() {
   tela.className = "tela";
 
   tela.innerHTML = `
-    <div class="card-login" style="max-width:620px;">
-      <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+    <div class="card-login card-convite">
+      <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
@@ -2625,7 +2266,7 @@ async function carregarConvitePublico(codigo) {
     .from(REPERTORIO_FACIL.tabelas.convites)
     .select("*")
     .eq("codigo", codigo)
-    .single();
+    .maybeSingle();
 
   if (error || !data) {
     if (descricao) {
@@ -2667,6 +2308,32 @@ async function carregarConvitePublico(codigo) {
       telefone: dadosPendentesGmail.telefone,
       email: usuarioLogado.email || ""
     });
+    return;
+  }
+
+  if (usuarioLogado) {
+    if (descricao) {
+      descricao.textContent = "Você já está logado. Aceite o convite para entrar diretamente neste projeto.";
+    }
+
+    if (detalhes) {
+      detalhes.innerHTML = `
+        <div class="convite-resumo-projeto">
+          <p>Projeto</p>
+          <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+          <span><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</span>
+          <span><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</span>
+        </div>
+      `;
+    }
+
+    if (acoes) {
+      acoes.innerHTML = `
+        <button class="botao-principal" id="btn-aceitar-convite-logado" type="button">Aceitar convite e entrar no projeto</button>
+      `;
+      elemento("btn-aceitar-convite-logado")?.addEventListener("click", aceitarConviteAtual);
+    }
+
     return;
   }
 
@@ -8835,4 +8502,3 @@ document.addEventListener("DOMContentLoaded", async function() {
   await verificarSessao();
   await restaurarProjetoAtual();
 });
-/* CrossSet - WhatsApp: ícone oficial branco, sem seta */
