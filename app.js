@@ -198,6 +198,90 @@ function obterProjetoAtualId() {
   return localStorage.getItem("projeto_atual");
 }
 
+
+function salvarProjetoConviteCache(projeto) {
+  if (!projeto || !projeto.id) {
+    return;
+  }
+
+  try {
+    localStorage.setItem("projeto_convite_atual", JSON.stringify({
+      id: projeto.id,
+      nome: projeto.nome || "Projeto musical",
+      estilo: projeto.estilo || "Projeto musical",
+      cidade: projeto.cidade || "",
+      estado: projeto.estado || ""
+    }));
+  } catch (erro) {
+    console.warn("Não foi possível salvar cache do projeto do convite.", erro);
+  }
+}
+
+function obterProjetoConviteCache(idEsperado) {
+  const bruto = localStorage.getItem("projeto_convite_atual");
+
+  if (!bruto) {
+    return null;
+  }
+
+  try {
+    const projeto = JSON.parse(bruto);
+
+    if (!projeto || !projeto.id) {
+      return null;
+    }
+
+    if (idEsperado && projeto.id !== idEsperado) {
+      return null;
+    }
+
+    return projeto;
+  } catch (erro) {
+    console.warn("Cache do projeto do convite inválido.", erro);
+    return null;
+  }
+}
+
+async function abrirProjetoSalvoSeExistir() {
+  const projetoId = obterProjetoAtualId();
+
+  if (!projetoId) {
+    return false;
+  }
+
+  const cliente = sb();
+  let projeto = null;
+
+  if (cliente) {
+    try {
+      const { data } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.projetos)
+        .select("*")
+        .eq("id", projetoId)
+        .maybeSingle();
+
+      if (data) {
+        projeto = data;
+      }
+    } catch (erro) {
+      console.warn("Projeto salvo não pôde ser lido. Usando cache se existir.", erro);
+    }
+  }
+
+  if (!projeto) {
+    projeto = obterProjetoConviteCache(projetoId);
+  }
+
+  if (!projeto) {
+    return false;
+  }
+
+  salvarProjetoAtual(projeto);
+  salvarProjetoConviteCache(projeto);
+  abrirPainelProjeto();
+  return true;
+}
+
 function obterCodigoConviteDaURL() {
   const params = new URLSearchParams(window.location.search);
   const codigoBusca = limparTexto(params.get("convite"));
@@ -325,6 +409,11 @@ async function verificarSessao() {
     }
 
     limparConvitePendente();
+
+    if (await abrirProjetoSalvoSeExistir()) {
+      return;
+    }
+
     mostrarTela("tela-projetos", { registrar: false });
     return;
   }
@@ -2639,6 +2728,12 @@ async function aceitarConviteAtual() {
     return;
   }
 
+  const botao = elemento("btn-aceitar-convite-logado");
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "Entrando no projeto...";
+  }
+
   await aceitarConviteComUsuario(usuario);
 }
 
@@ -2670,6 +2765,8 @@ async function abrirProjetoDoConvite(projetoId, nomeProjeto) {
   }
 
   salvarProjetoAtual(projeto);
+  salvarProjetoConviteCache(projeto);
+  sessionStorage.setItem("abrir_projeto_convite_id", projeto.id);
   limparConvitePendente();
   limparDadosConviteTemporario();
   appState.conviteAtual = null;
@@ -2687,6 +2784,12 @@ async function abrirProjetoDoConvite(projetoId, nomeProjeto) {
   }
 
   abrirPainelProjeto();
+
+  setTimeout(function() {
+    if (appState.projetoAtual && appState.projetoAtual.id === projeto.id) {
+      abrirPainelProjeto();
+    }
+  }, 150);
 }
 
 async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
@@ -8144,11 +8247,19 @@ async function restaurarProjetoAtual() {
     .single();
 
   if (error) {
+    const projetoCache = obterProjetoConviteCache(id);
+
+    if (projetoCache) {
+      salvarProjetoAtual(projetoCache);
+      return;
+    }
+
     localStorage.removeItem("projeto_atual");
     return;
   }
 
   salvarProjetoAtual(data);
+  salvarProjetoConviteCache(data);
 }
 
 function configurarBotoesFixos() {
@@ -8401,11 +8512,21 @@ function configurarAuthListener() {
         return;
       }
 
+      const projetoConviteAberto = sessionStorage.getItem("abrir_projeto_convite_id");
+      if (projetoConviteAberto) {
+        abrirProjetoSalvoSeExistir();
+        return;
+      }
+
       if (
         appState.telaAtual === "tela-login" ||
         appState.telaAtual === "tela-cadastro"
       ) {
-        mostrarTela("tela-projetos", { registrar: false });
+        abrirProjetoSalvoSeExistir().then(function(abriu) {
+          if (!abriu) {
+            mostrarTela("tela-projetos", { registrar: false });
+          }
+        });
       }
     }
 
