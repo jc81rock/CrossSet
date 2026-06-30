@@ -1501,6 +1501,131 @@ async function carregarIntegrantes() {
         line-height: 1.35;
       }
 
+      /* CrossSet UX - Integrantes compacto e padronizado */
+      .item-integrante {
+        padding: 10px 12px !important;
+        border-radius: 13px !important;
+      }
+
+      .item-integrante-topo {
+        align-items: flex-start !important;
+        gap: 10px !important;
+      }
+
+      .foto-integrante-placeholder {
+        width: 34px !important;
+        height: 34px !important;
+        min-width: 34px !important;
+        font-size: 14px !important;
+      }
+
+      .dados-integrante h4 {
+        font-size: 14px !important;
+        line-height: 1.15 !important;
+        margin-bottom: 3px !important;
+      }
+
+      .dados-integrante p {
+        margin: 1px 0 !important;
+        font-size: 12px !important;
+        line-height: 1.25 !important;
+      }
+
+      .tag-admin,
+      .tag-integrante {
+        margin-top: 5px !important;
+        padding: 3px 8px !important;
+        font-size: 11px !important;
+      }
+
+      .botoes-item-integrante {
+        gap: 7px !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        border: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        color: #ffffff !important;
+        opacity: .9 !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica svg {
+        width: 17px !important;
+        height: 17px !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica:hover {
+        color: #d8b4fe !important;
+        opacity: 1 !important;
+        transform: translateY(-1px) scale(1.05) !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica.excluir:hover {
+        color: #fca5a5 !important;
+      }
+
+      .desenvolvimento-integrante {
+        margin-top: 8px !important;
+        padding: 8px 10px !important;
+        border-radius: 11px !important;
+        gap: 5px !important;
+        max-width: 420px !important;
+      }
+
+      .desenvolvimento-integrante-topo {
+        font-size: 10.5px !important;
+      }
+
+      .desenvolvimento-integrante-percentual {
+        font-size: 15px !important;
+      }
+
+      .barra-desenvolvimento-integrante {
+        height: 5px !important;
+      }
+
+      .desenvolvimento-integrante-contadores {
+        gap: 8px !important;
+        font-size: 11px !important;
+      }
+
+      .desenvolvimento-integrante-contadores strong {
+        font-size: 12px !important;
+      }
+
+      .desenvolvimento-integrante-ajuda {
+        display: none !important;
+      }
+
+      .btn-whatsapp-padrao {
+        min-height: 44px !important;
+        height: 44px !important;
+        border-radius: 14px !important;
+        gap: 10px !important;
+        font-size: 15px !important;
+        letter-spacing: .1px !important;
+        box-shadow: 0 12px 26px rgba(22, 163, 74, .22) !important;
+      }
+
+      .btn-whatsapp-padrao .icone-whatsapp-padrao {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        border: 2px solid rgba(255,255,255,.9) !important;
+        border-radius: 50% !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 13px !important;
+        line-height: 1 !important;
+      }
+
 
 
       /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
@@ -1717,7 +1842,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☏</span><span>Convidar por WhatsApp</span><span class="seta-btn">→</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-whatsapp-padrao" aria-hidden="true">☏</span><span>Convidar por WhatsApp</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -1981,8 +2106,8 @@ function renderizarListaIntegrantes() {
           </div>
 
           <div class="botoes-item-integrante">
-            <button class="btn-editar-integrante btn-acao-editar" type="button" data-editar-integrante="${escaparHtml(item.id)}">✎ Editar</button>
-            <button class="btn-excluir-integrante btn-acao-excluir" type="button" data-excluir-integrante="${escaparHtml(item.id)}">🗑 Excluir</button>
+            <button class="btn-acao-musica btn-editar-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
+            <button class="btn-acao-musica btn-excluir-integrante excluir" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
           </div>
         </div>
       </div>
