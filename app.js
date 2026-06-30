@@ -57,7 +57,8 @@ let appState = {
   meuIntegranteAtual: null,
   eventos: [],
   eventoEditandoId: null,
-  conviteAtual: null
+  conviteAtual: null,
+  abrindoProjetoConvite: false
 };
 
 function sb() {
@@ -274,6 +275,96 @@ function obterCodigoConvitePendente() {
   return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
 }
 
+function salvarDestinoProjetoConvite(convite) {
+  if (!convite || !convite.projeto_id) {
+    return;
+  }
+
+  localStorage.setItem("projeto_convite", convite.projeto_id);
+
+  if (convite.codigo) {
+    localStorage.setItem("codigo_convite", convite.codigo);
+  }
+
+  if (convite.projeto_nome) {
+    localStorage.setItem("projeto_convite_nome", convite.projeto_nome);
+  }
+}
+
+function limparDestinoProjetoConvite() {
+  localStorage.removeItem("projeto_convite");
+  localStorage.removeItem("codigo_convite");
+  localStorage.removeItem("projeto_convite_nome");
+}
+
+async function abrirProjetoConviteSalvo(usuario) {
+  const projetoId = localStorage.getItem("projeto_convite");
+
+  if (!projetoId || !usuario) {
+    return false;
+  }
+
+  const nomeProjetoSalvo = localStorage.getItem("projeto_convite_nome") || "Projeto musical";
+  await abrirProjetoPorIdConvite(projetoId, usuario, nomeProjetoSalvo);
+  return true;
+}
+
+async function abrirProjetoPorIdConvite(projetoId, usuario, nomeFallback = "Projeto musical") {
+  const cliente = sb();
+
+  if (!cliente || !projetoId || !usuario) {
+    return false;
+  }
+
+  appState.abrindoProjetoConvite = true;
+
+  let projeto = null;
+  const { data: projetoData, error: erroProjeto } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("*")
+    .eq("id", projetoId)
+    .maybeSingle();
+
+  if (!erroProjeto && projetoData) {
+    projeto = projetoData;
+  } else {
+    projeto = {
+      id: projetoId,
+      nome: nomeFallback || "Projeto musical",
+      tipo: "Projeto",
+      estilo: "Projeto musical",
+      cidade: "",
+      estado: ""
+    };
+  }
+
+  appState.usuario = usuario;
+  salvarProjetoAtual(projeto);
+  salvarProjetoConvidadoCache(usuario.id, projeto);
+  limparConvitePendente();
+  limparDadosConviteTemporario();
+  limparDestinoProjetoConvite();
+  appState.conviteAtual = null;
+
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+  } catch (erroUrl) {
+    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
+  }
+
+  garantirTelasInternas();
+  carregarPainelProjeto();
+  mostrarTela("tela-painel-projeto", { registrar: false });
+
+  setTimeout(function() {
+    appState.abrindoProjetoConvite = false;
+  }, 900);
+
+  return true;
+}
+
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
 
@@ -315,6 +406,10 @@ async function verificarSessao() {
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
 
+    if (appState.abrindoProjetoConvite) {
+      return;
+    }
+
     // Se o login voltou de um link de convite, o convite é prioridade absoluta.
     // Não manda para Meus Projetos antes de vincular/abrir o projeto convidado.
     if (codigoConviteUrl) {
@@ -323,9 +418,14 @@ async function verificarSessao() {
       return;
     }
 
-    // Convite pendente só continua sozinho quando há dados temporários do fluxo Gmail.
-    if (codigoConvitePendente && dadosConvitePendentes) {
+    // Convite pendente continua o fluxo mesmo que o OAuth tenha limpado a URL.
+    if (codigoConvitePendente) {
       await carregarConvitePublico(codigoConvitePendente);
+      return;
+    }
+
+    // Se já sabemos o projeto do convite, abre direto nele.
+    if (await abrirProjetoConviteSalvo(appState.usuario)) {
       return;
     }
 
@@ -3310,6 +3410,7 @@ async function carregarConvitePublico(codigo) {
   }
 
   appState.conviteAtual = data;
+  salvarDestinoProjetoConvite(data);
 
   if (data.status && data.status !== "pendente") {
     const { data: sessaoAtual } = await cliente.auth.getSession();
@@ -3553,6 +3654,7 @@ async function entrarComGmailEAceitarConvite() {
 
   salvarDadosConviteTemporario(convite.codigo, dados);
   localStorage.setItem("convite_pendente", convite.codigo);
+  salvarDestinoProjetoConvite(convite);
 
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
@@ -3709,53 +3811,13 @@ async function aceitarConviteAtual() {
 
 
 async function abrirProjetoDoConvite(convite, usuario) {
-  const cliente = sb();
-
-  if (!cliente || !convite || !convite.projeto_id || !usuario) {
+  if (!convite || !convite.projeto_id || !usuario) {
     mostrarTela("tela-projetos", { registrar: false });
     return;
   }
 
-  let projeto = null;
-  const { data: projetoData, error: erroProjeto } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", convite.projeto_id)
-    .maybeSingle();
-
-  if (!erroProjeto && projetoData) {
-    projeto = projetoData;
-  } else {
-    projeto = {
-      id: convite.projeto_id,
-      nome: convite.projeto_nome || "Projeto musical",
-      tipo: "Projeto",
-      estilo: "Projeto musical",
-      cidade: "",
-      estado: ""
-    };
-  }
-
-  appState.sessao = appState.sessao || null;
-  appState.usuario = usuario;
-  salvarProjetoAtual(projeto);
-  salvarProjetoConvidadoCache(usuario.id, projeto);
-  limparConvitePendente();
-  limparDadosConviteTemporario();
-  appState.conviteAtual = null;
-
-  try {
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-    }
-  } catch (erroUrl) {
-    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
-  }
-
-  // Abre diretamente o projeto do convite. Este é o ponto crítico do fluxo.
-  garantirTelasInternas();
-  carregarPainelProjeto();
-  mostrarTela("tela-painel-projeto", { registrar: false });
+  salvarDestinoProjetoConvite(convite);
+  await abrirProjetoPorIdConvite(convite.projeto_id, usuario, convite.projeto_nome || "Projeto musical");
 }
 
 async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
@@ -9298,11 +9360,15 @@ function configurarAuthListener() {
     return;
   }
 
-  cliente.auth.onAuthStateChange(function(event, session) {
+  cliente.auth.onAuthStateChange(async function(event, session) {
     if (session && session.user) {
       appState.sessao = session;
       appState.usuario = session.user;
       preencherUsuario(session.user);
+
+      if (appState.abrindoProjetoConvite) {
+        return;
+      }
 
       const codigoConviteUrl = obterCodigoConviteDaURL();
       const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
@@ -9313,7 +9379,11 @@ function configurarAuthListener() {
       // Não pode cair em Meus Projetos antes de concluir o vínculo com o projeto convidado.
       if (codigoConviteParaFinalizar) {
         localStorage.setItem("convite_pendente", codigoConviteParaFinalizar);
-        carregarConvitePublico(codigoConviteParaFinalizar);
+        await carregarConvitePublico(codigoConviteParaFinalizar);
+        return;
+      }
+
+      if (await abrirProjetoConviteSalvo(session.user)) {
         return;
       }
 
@@ -9335,6 +9405,7 @@ function configurarAuthListener() {
       appState.projetoAtual = null;
 
       localStorage.removeItem("projeto_atual");
+      limparDestinoProjetoConvite();
 
       mostrarTela("tela-login", { registrar: false });
     }
