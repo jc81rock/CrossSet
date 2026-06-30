@@ -15,7 +15,6 @@
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
      });
-     try{history.replaceState(null,"",location.pathname+location.search);}catch(e){}
    }
  });
 })();
@@ -123,6 +122,7 @@ function mostrarTela(idTela, opcoes = {}) {
 
   if (idTela === "tela-painel-projeto") {
     carregarPainelProjeto();
+    abrirModuloPeloHash();
   }
 }
 
@@ -670,6 +670,20 @@ function abrirPainelProjeto() {
   mostrarTela("tela-painel-projeto");
 }
 
+function abrirUltimoProjetoModulo(modulo) {
+  if (!appState.projetoAtual) {
+    alert("Abra um projeto primeiro.");
+    mostrarTela("tela-projetos");
+    return;
+  }
+
+  mostrarTela("tela-painel-projeto");
+
+  setTimeout(function() {
+    abrirModulo(modulo);
+  }, 50);
+}
+
 function carregarPainelProjeto() {
   const projeto = appState.projetoAtual;
 
@@ -827,12 +841,12 @@ function garantirTelasInternas() {
 
       <section id="area-modulo" class="grid-projetos" style="margin-top:24px;"></section>
 
-      <nav class="menu-inferior">
-        <button id="menu-projeto-inicio" class="ativo" type="button">Início</button>
-        <button type="button" data-modulo="integrantes">Integrantes</button>
-        <button type="button" data-modulo="musicas">Músicas</button>
-        <button type="button" data-modulo="repertorios">Repertórios</button>
-        <button type="button" data-modulo="eventos">Eventos</button>
+      <nav class="menu-inferior" aria-label="Menu do projeto">
+        <a id="menu-projeto-inicio" class="ativo" href="#inicio">Início</a>
+        <a href="#integrantes" data-modulo="integrantes">Integrantes</a>
+        <a href="#musicas" data-modulo="musicas">Músicas</a>
+        <a href="#repertorios" data-modulo="repertorios">Repertórios</a>
+        <a href="#eventos" data-modulo="eventos">Eventos</a>
       </nav>
     </div>
   `;
@@ -847,6 +861,7 @@ function configurarEventosPainelProjeto() {
   if (botaoVoltar && !botaoVoltar.dataset.configurado) {
     botaoVoltar.dataset.configurado = "true";
     botaoVoltar.addEventListener("click", function() {
+      limparHashModulo();
       mostrarTela("tela-projetos");
     });
   }
@@ -857,7 +872,10 @@ function configurarEventosPainelProjeto() {
     }
 
     botao.dataset.configurado = "true";
-    botao.addEventListener("click", function() {
+    botao.addEventListener("click", function(evento) {
+      if (botao.tagName === "A") {
+        evento.preventDefault();
+      }
       abrirModulo(botao.dataset.modulo);
     });
   });
@@ -866,31 +884,66 @@ function configurarEventosPainelProjeto() {
 
   if (menuInicio && !menuInicio.dataset.configurado) {
     menuInicio.dataset.configurado = "true";
-    menuInicio.addEventListener("click", function() {
-      limparAreaModulo();
-
-      document.querySelectorAll("#tela-painel-projeto .menu-inferior button").forEach(function(botao) {
-        botao.classList.remove("ativo");
-      });
-
-      menuInicio.classList.add("ativo");
+    menuInicio.addEventListener("click", function(evento) {
+      evento.preventDefault();
+      abrirInicioProjeto();
     });
   }
 }
 
+function limparHashModulo() {
+  if (["#inicio", "#integrantes", "#musicas", "#repertorios", "#eventos"].includes(window.location.hash)) {
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+}
+
 function definirMenuModulo(modulo) {
-  document.querySelectorAll("#tela-painel-projeto .menu-inferior button").forEach(function(botao) {
-    botao.classList.remove("ativo");
+  document.querySelectorAll("#tela-painel-projeto .menu-inferior a").forEach(function(item) {
+    item.classList.remove("ativo");
   });
 
-  const botao = document.querySelector(
-    "#tela-painel-projeto .menu-inferior button[data-modulo='" + modulo + "']"
-  );
+  const botao = modulo === "inicio"
+    ? elemento("menu-projeto-inicio")
+    : document.querySelector("#tela-painel-projeto .menu-inferior a[data-modulo='" + modulo + "']");
 
   if (botao) {
     botao.classList.add("ativo");
   }
 }
+
+function abrirInicioProjeto() {
+  limparAreaModulo();
+  definirMenuModulo("inicio");
+  if (window.location.hash !== "#inicio") {
+    history.pushState(null, "", "#inicio");
+  }
+}
+
+function obterModuloDoHash() {
+  const hash = (window.location.hash || "").replace("#", "").trim();
+  return ["integrantes", "musicas", "repertorios", "eventos"].includes(hash) ? hash : "";
+}
+
+function abrirModuloPeloHash() {
+  const modulo = obterModuloDoHash();
+  if (modulo && appState.projetoAtual) {
+    abrirModulo(modulo, { atualizarHash: false });
+  }
+}
+
+window.addEventListener("hashchange", function() {
+  if (appState.telaAtual !== "tela-painel-projeto") {
+    return;
+  }
+
+  if (window.location.hash === "#inicio") {
+    limparAreaModulo();
+    definirMenuModulo("inicio");
+    return;
+  }
+
+  abrirModuloPeloHash();
+});
 
 function limparAreaModulo() {
   const area = elemento("area-modulo");
@@ -900,7 +953,7 @@ function limparAreaModulo() {
   }
 }
 
-function abrirModulo(modulo) {
+function abrirModulo(modulo, opcoes = {}) {
   if (!appState.projetoAtual) {
     alert("Abra um projeto primeiro.");
     mostrarTela("tela-projetos");
@@ -908,6 +961,10 @@ function abrirModulo(modulo) {
   }
 
   definirMenuModulo(modulo);
+
+  if (opcoes.atualizarHash !== false && window.location.hash !== "#" + modulo) {
+    history.pushState(null, "", "#" + modulo);
+  }
 
   const area = elemento("area-modulo");
   if (area) {
