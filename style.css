@@ -1520,8 +1520,8 @@ textarea:focus,
 }
 
 .icone-link {
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.9 12a5 5 0 0 1 5-5h4v2h-4a3 3 0 0 0 0 6h4v2h-4a5 5 0 0 1-5-5zm6-1h4.2v2H9.9v-2zm1.2 6h4a3 3 0 0 0 0-6h-4V9h4a5 5 0 0 1 0 10h-4v-2z'/%3E%3C/svg%3E") !important;
-  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3.9 12a5 5 0 0 1 5-5h4v2h-4a3 3 0 0 0 0 6h4v2h-4a5 5 0 0 1-5-5zm6-1h4.2v2H9.9v-2zm1.2 6h4a3 3 0 0 0 0-6h-4V9h4a5 5 0 0 1 0 10h-4v-2z'/%3E%3C/svg%3E") !important;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
 }
 
 .icone-lixeira {
@@ -1686,4 +1686,66 @@ button#btn-convidar-integrante.btn-whatsapp-padrao:hover,
 
 .btn-whatsapp-padrao .seta-btn {
   display: none !important;
+}
+
+
+/* CrossSet - FINAL aprovado: somente botão WhatsApp e ícone compartilhar */
+#btn-convidar-integrante.btn-whatsapp-padrao,
+button#btn-convidar-integrante.btn-whatsapp-padrao,
+.btn-whatsapp-padrao {
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border: 0 !important;
+  border-radius: 13px !important;
+  background: linear-gradient(135deg, #18c761 0%, #16b957 100%) !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 24px rgba(24, 199, 97, .22) !important;
+}
+#btn-convidar-integrante.btn-whatsapp-padrao::before,
+#btn-convidar-integrante.btn-whatsapp-padrao::after,
+.btn-whatsapp-padrao::before,
+.btn-whatsapp-padrao::after {
+  content: none !important;
+  display: none !important;
+}
+.btn-whatsapp-padrao .icone-whats-box {
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+  background: transparent !important;
+  align-self: center !important;
+}
+.btn-whatsapp-padrao .icone-whatsapp {
+  width: 23px !important;
+  height: 23px !important;
+  min-width: 23px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background-color: #ffffff !important;
+  font-size: 0 !important;
+}
+.btn-whatsapp-padrao .texto-btn {
+  flex: 0 1 auto !important;
+  padding: 0 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+}
+.btn-whatsapp-padrao .seta-btn { display: none !important; }
+.icone-link {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='18' cy='5' r='3'/%3E%3Ccircle cx='6' cy='12' r='3'/%3E%3Ccircle cx='18' cy='19' r='3'/%3E%3Cpath d='m8.6 10.7 6.8-4.4'/%3E%3Cpath d='m8.6 13.3 6.8 4.4'/%3E%3C/svg%3E") !important;
 }
