@@ -619,15 +619,9 @@ async function excluirProjeto(id, nome) {
 
   const nomeProjeto = limparTexto(nome) || "este projeto";
   const confirmar = confirm(
-    "Excluir projeto
-
-" +
-    nomeProjeto + "
-
-" +
-    "Esta ação excluirá integrantes, músicas, repertórios, eventos e convites vinculados ao projeto.
-
-" +
+    "Excluir projeto\n\n" +
+    nomeProjeto + "\n\n" +
+    "Esta ação excluirá integrantes, músicas, repertórios, eventos e convites vinculados ao projeto.\n\n" +
     "Esta ação não poderá ser desfeita."
   );
 
