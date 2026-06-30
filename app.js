@@ -555,7 +555,44 @@ async function carregarProjetos() {
     return;
   }
 
-  montarListaProjetos(data || []);
+  let projetos = data || [];
+
+  const filtrosIntegrante = [`usuario_id.eq.${usuario.id}`];
+  if (usuario.email) {
+    filtrosIntegrante.push(`email.eq.${usuario.email}`);
+  }
+
+  const { data: vinculos, error: erroVinculos } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .select("projeto_id")
+    .or(filtrosIntegrante.join(","));
+
+  if (!erroVinculos && vinculos && vinculos.length) {
+    const idsVinculados = [...new Set(vinculos.map(function(item) {
+      return item.projeto_id;
+    }).filter(Boolean))];
+
+    const idsJaListados = new Set(projetos.map(function(projeto) {
+      return projeto.id;
+    }));
+
+    const idsParaBuscar = idsVinculados.filter(function(id) {
+      return !idsJaListados.has(id);
+    });
+
+    if (idsParaBuscar.length) {
+      const { data: projetosVinculados } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.projetos)
+        .select("*")
+        .in("id", idsParaBuscar);
+
+      if (projetosVinculados && projetosVinculados.length) {
+        projetos = projetos.concat(projetosVinculados);
+      }
+    }
+  }
+
+  montarListaProjetos(projetos || []);
 }
 
 function montarListaProjetos(lista) {
@@ -3641,12 +3678,27 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     emailJaCadastrado = existenteEmail;
   }
 
-  if (existente || emailJaCadastrado) {
-    alert("Este e-mail já está cadastrado como integrante deste projeto.");
-    return;
-  }
+  const integranteExistenteId = existente?.id || emailJaCadastrado?.id || null;
 
-  if (!existente) {
+  if (integranteExistenteId) {
+    const { error: erroAtualizarIntegrante } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .update({
+        usuario_id: usuario.id,
+        nome: nomeUsuario,
+        funcao: funcaoUsuario,
+        instrumento: instrumentoUsuario,
+        administrador: convite.papel === "administrador",
+        email: emailUsuario,
+        telefone: telefoneUsuario
+      })
+      .eq("id", integranteExistenteId);
+
+    if (erroAtualizarIntegrante) {
+      alert("Erro ao vincular integrante ao projeto: " + erroAtualizarIntegrante.message);
+      return;
+    }
+  } else {
     const { error: erroInserir } = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
       .insert({
