@@ -1,20 +1,17 @@
 
 // Auto-clear stale invite
 (function(){
- const temConviteNaUrl = function(){
-   const h = window.location.hash || "";
-   const q = window.location.search || "";
-   return h.includes("convite=") || h.includes("convite/") || q.includes("convite=");
- };
- if(!temConviteNaUrl()){
-   ["convitePendente","codigoConvitePendente","convite","inviteCode","convite_pendente","convite_dados_pendentes"].forEach(k=>{
+ const h=window.location.hash||"";
+ if(!h.includes("convite=")){
+   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
      try{localStorage.removeItem(k);}catch(e){}
      try{sessionStorage.removeItem(k);}catch(e){}
    });
  }
  window.addEventListener("hashchange",()=>{
-   if(!temConviteNaUrl()){
-     ["convitePendente","codigoConvitePendente","convite","inviteCode","convite_pendente","convite_dados_pendentes"].forEach(k=>{
+   const hh=window.location.hash||"";
+   if(!hh.includes("convite=")){
+     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
      });
@@ -57,8 +54,7 @@ let appState = {
   meuIntegranteAtual: null,
   eventos: [],
   eventoEditandoId: null,
-  conviteAtual: null,
-  abrindoProjetoConvite: false
+  conviteAtual: null
 };
 
 function sb() {
@@ -275,96 +271,6 @@ function obterCodigoConvitePendente() {
   return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
 }
 
-function salvarDestinoProjetoConvite(convite) {
-  if (!convite || !convite.projeto_id) {
-    return;
-  }
-
-  localStorage.setItem("projeto_convite", convite.projeto_id);
-
-  if (convite.codigo) {
-    localStorage.setItem("codigo_convite", convite.codigo);
-  }
-
-  if (convite.projeto_nome) {
-    localStorage.setItem("projeto_convite_nome", convite.projeto_nome);
-  }
-}
-
-function limparDestinoProjetoConvite() {
-  localStorage.removeItem("projeto_convite");
-  localStorage.removeItem("codigo_convite");
-  localStorage.removeItem("projeto_convite_nome");
-}
-
-async function abrirProjetoConviteSalvo(usuario) {
-  const projetoId = localStorage.getItem("projeto_convite");
-
-  if (!projetoId || !usuario) {
-    return false;
-  }
-
-  const nomeProjetoSalvo = localStorage.getItem("projeto_convite_nome") || "Projeto musical";
-  await abrirProjetoPorIdConvite(projetoId, usuario, nomeProjetoSalvo);
-  return true;
-}
-
-async function abrirProjetoPorIdConvite(projetoId, usuario, nomeFallback = "Projeto musical") {
-  const cliente = sb();
-
-  if (!cliente || !projetoId || !usuario) {
-    return false;
-  }
-
-  appState.abrindoProjetoConvite = true;
-
-  let projeto = null;
-  const { data: projetoData, error: erroProjeto } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("*")
-    .eq("id", projetoId)
-    .maybeSingle();
-
-  if (!erroProjeto && projetoData) {
-    projeto = projetoData;
-  } else {
-    projeto = {
-      id: projetoId,
-      nome: nomeFallback || "Projeto musical",
-      tipo: "Projeto",
-      estilo: "Projeto musical",
-      cidade: "",
-      estado: ""
-    };
-  }
-
-  appState.usuario = usuario;
-  salvarProjetoAtual(projeto);
-  salvarProjetoConvidadoCache(usuario.id, projeto);
-  limparConvitePendente();
-  limparDadosConviteTemporario();
-  limparDestinoProjetoConvite();
-  appState.conviteAtual = null;
-
-  try {
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-    }
-  } catch (erroUrl) {
-    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
-  }
-
-  garantirTelasInternas();
-  carregarPainelProjeto();
-  mostrarTela("tela-painel-projeto", { registrar: false });
-
-  setTimeout(function() {
-    appState.abrindoProjetoConvite = false;
-  }, 900);
-
-  return true;
-}
-
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
 
@@ -396,42 +302,15 @@ async function verificarSessao() {
   }
 
   const { data, error } = await cliente.auth.getSession();
-  const codigoConviteUrl = obterCodigoConviteDaURL();
-  const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
-  const codigoConviteParaFinalizar = codigoConviteUrl || codigoConvitePendente;
-  const dadosConvitePendentes = codigoConviteParaFinalizar ? obterDadosConviteTemporario(codigoConviteParaFinalizar) : null;
 
   if (!error && data && data.session) {
     appState.sessao = data.session;
     appState.usuario = data.session.user;
-    preencherUsuario(appState.usuario);
 
-    if (appState.abrindoProjetoConvite) {
-      return;
-    }
-
-    // Se o login voltou de um link de convite, o convite é prioridade absoluta.
-    // Não manda para Meus Projetos antes de vincular/abrir o projeto convidado.
-    if (codigoConviteUrl) {
-      localStorage.setItem("convite_pendente", codigoConviteUrl);
-      await carregarConvitePublico(codigoConviteUrl);
-      return;
-    }
-
-    // Convite pendente continua o fluxo mesmo que o OAuth tenha limpado a URL.
-    if (codigoConvitePendente) {
-      await carregarConvitePublico(codigoConvitePendente);
-      return;
-    }
-
-    // Se já sabemos o projeto do convite, abre direto nele.
-    if (await abrirProjetoConviteSalvo(appState.usuario)) {
-      return;
-    }
-
-    // Login normal pelo Gmail deve abrir Meus Projetos.
+    // Se o usuário já está logado, convite antigo na URL não deve reabrir a tela de convite.
     limparConvitePendente();
-    limparDadosConviteTemporario();
+
+    preencherUsuario(appState.usuario);
     mostrarTela("tela-projetos", { registrar: false });
     return;
   }
@@ -445,14 +324,13 @@ async function verificarSessao() {
     return;
   }
 
-  if (codigoConviteUrl) {
-    localStorage.setItem("convite_pendente", codigoConviteUrl);
-    await carregarConvitePublico(codigoConviteUrl);
+  const codigoConvite = obterCodigoConviteDaURL();
+  if (codigoConvite) {
+    localStorage.setItem("convite_pendente", codigoConvite);
+    await carregarConvitePublico(codigoConvite);
     return;
   }
 
-  limparConvitePendente();
-  limparDadosConviteTemporario();
   mostrarTela("tela-login", { registrar: false });
 }
 
@@ -466,7 +344,7 @@ async function entrarComGoogle() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp,
+      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -514,15 +392,13 @@ async function entrarComEmail() {
 
   preencherUsuario(appState.usuario);
 
-  const codigoConvite = obterCodigoConviteDaURL();
+  const codigoConvite = obterCodigoConvitePendente();
   if (codigoConvite) {
     localStorage.setItem("convite_pendente", codigoConvite);
     await carregarConvitePublico(codigoConvite);
     return;
   }
 
-  limparConvitePendente();
-  limparDadosConviteTemporario();
   mostrarTela("tela-projetos");
 }
 
@@ -623,73 +499,6 @@ async function sair() {
   mostrarTela("tela-login", { registrar: false });
 }
 
-
-function obterProjetosConvidadoCache(usuarioId) {
-  if (!usuarioId) {
-    return [];
-  }
-
-  try {
-    const bruto = localStorage.getItem("projetos_convidado_cache") || "[]";
-    const lista = JSON.parse(bruto);
-
-    if (!Array.isArray(lista)) {
-      return [];
-    }
-
-    return lista
-      .filter(function(item) {
-        return item && item.usuario_id === usuarioId && item.projeto && item.projeto.id;
-      })
-      .map(function(item) {
-        return item.projeto;
-      });
-  } catch (erro) {
-    console.warn("Cache de projetos convidados inválido.", erro);
-    return [];
-  }
-}
-
-function salvarProjetoConvidadoCache(usuarioId, projeto) {
-  if (!usuarioId || !projeto || !projeto.id) {
-    return;
-  }
-
-  try {
-    const bruto = localStorage.getItem("projetos_convidado_cache") || "[]";
-    const lista = JSON.parse(bruto);
-    const base = Array.isArray(lista) ? lista : [];
-    const filtrada = base.filter(function(item) {
-      return !(item && item.usuario_id === usuarioId && item.projeto && item.projeto.id === projeto.id);
-    });
-
-    filtrada.push({
-      usuario_id: usuarioId,
-      projeto: projeto
-    });
-
-    localStorage.setItem("projetos_convidado_cache", JSON.stringify(filtrada.slice(-20)));
-  } catch (erro) {
-    console.warn("Não foi possível salvar cache de projeto convidado.", erro);
-  }
-}
-
-function mesclarProjetosSemDuplicar(listaBase, listaExtra) {
-  const resultado = Array.isArray(listaBase) ? listaBase.slice() : [];
-  const ids = new Set(resultado.map(function(projeto) {
-    return projeto && projeto.id;
-  }).filter(Boolean));
-
-  (Array.isArray(listaExtra) ? listaExtra : []).forEach(function(projeto) {
-    if (projeto && projeto.id && !ids.has(projeto.id)) {
-      resultado.push(projeto);
-      ids.add(projeto.id);
-    }
-  });
-
-  return resultado;
-}
-
 async function carregarProjetos() {
   const grid = elemento("lista-projetos") || document.querySelector(".grid-projetos");
   const cliente = sb();
@@ -729,48 +538,7 @@ async function carregarProjetos() {
     return;
   }
 
-  let projetos = data || [];
-
-  // Inclui cache local de projetos aceitos por convite.
-  // Isso evita tela vazia logo após aceitar convite, mesmo antes da consulta consolidar.
-  projetos = mesclarProjetosSemDuplicar(projetos, obterProjetosConvidadoCache(usuario.id));
-
-  const filtrosIntegrante = [`usuario_id.eq.${usuario.id}`];
-  if (usuario.email) {
-    filtrosIntegrante.push(`email.eq.${usuario.email}`);
-  }
-
-  const { data: vinculos, error: erroVinculos } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.integrantes)
-    .select("projeto_id")
-    .or(filtrosIntegrante.join(","));
-
-  if (!erroVinculos && vinculos && vinculos.length) {
-    const idsVinculados = [...new Set(vinculos.map(function(item) {
-      return item.projeto_id;
-    }).filter(Boolean))];
-
-    const idsJaListados = new Set(projetos.map(function(projeto) {
-      return projeto.id;
-    }));
-
-    const idsParaBuscar = idsVinculados.filter(function(id) {
-      return !idsJaListados.has(id);
-    });
-
-    if (idsParaBuscar.length) {
-      const { data: projetosVinculados } = await cliente
-        .from(REPERTORIO_FACIL.tabelas.projetos)
-        .select("*")
-        .in("id", idsParaBuscar);
-
-      if (projetosVinculados && projetosVinculados.length) {
-        projetos = projetos.concat(projetosVinculados);
-      }
-    }
-  }
-
-  montarListaProjetos(projetos || []);
+  montarListaProjetos(data || []);
 }
 
 function montarListaProjetos(lista) {
@@ -798,10 +566,6 @@ function montarListaProjetos(lista) {
   lista.forEach(function(projeto) {
     grid.innerHTML += `
       <div class="card-projeto projeto-item">
-        <button class="btn-acao-projeto excluir" type="button" title="Excluir projeto" aria-label="Excluir projeto" data-excluir-projeto="${escaparHtml(projeto.id)}" data-nome-projeto="${escaparHtml(projeto.nome || "Sem nome")}">
-          ${iconeExcluirProjeto()}
-        </button>
-
         <div class="projeto-item-conteudo">
           <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
           <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
@@ -828,110 +592,6 @@ function montarListaProjetos(lista) {
       acessarProjeto(botao.dataset.id);
     });
   });
-
-  document.querySelectorAll("[data-excluir-projeto]").forEach(function(botao) {
-    botao.addEventListener("click", function(evento) {
-      evento.preventDefault();
-      evento.stopPropagation();
-      excluirProjeto(botao.dataset.excluirProjeto, botao.dataset.nomeProjeto);
-    });
-  });
-}
-
-function iconeExcluirProjeto() {
-  return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`;
-}
-
-async function excluirProjeto(id, nome) {
-  const cliente = sb();
-
-  if (!cliente || !id) {
-    return;
-  }
-
-  const nomeProjeto = limparTexto(nome) || "este projeto";
-  const confirmar = confirm(
-    "Excluir projeto\n\n" +
-    nomeProjeto + "\n\n" +
-    "Esta ação excluirá integrantes, músicas, repertórios, eventos e convites vinculados ao projeto.\n\n" +
-    "Esta ação não poderá ser desfeita."
-  );
-
-  if (!confirmar) {
-    return;
-  }
-
-  const { data: sessionData } = await cliente.auth.getSession();
-  const usuario = sessionData.session?.user;
-
-  if (!usuario) {
-    mostrarTela("tela-login", { registrar: false });
-    return;
-  }
-
-  const { data: repertoriosDoProjeto, error: erroRepertorios } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.repertorios)
-    .select("id")
-    .eq("projeto_id", id);
-
-  if (erroRepertorios) {
-    alert("Erro ao preparar exclusão: " + erroRepertorios.message);
-    return;
-  }
-
-  const repertorioIds = (repertoriosDoProjeto || []).map(function(item) {
-    return item.id;
-  }).filter(Boolean);
-
-  async function executarExclusao(tabela, coluna, valor) {
-    const { error } = await cliente
-      .from(tabela)
-      .delete()
-      .eq(coluna, valor);
-
-    if (error) {
-      throw error;
-    }
-  }
-
-  try {
-    await executarExclusao(REPERTORIO_FACIL.tabelas.convites, "projeto_id", id);
-    await executarExclusao(REPERTORIO_FACIL.tabelas.progressoMusicas, "projeto_id", id);
-
-    if (repertorioIds.length > 0) {
-      const { error: erroVinculos } = await cliente
-        .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-        .delete()
-        .in("repertorio_id", repertorioIds);
-
-      if (erroVinculos) {
-        throw erroVinculos;
-      }
-    }
-
-    await executarExclusao(REPERTORIO_FACIL.tabelas.eventos, "projeto_id", id);
-    await executarExclusao(REPERTORIO_FACIL.tabelas.repertorios, "projeto_id", id);
-    await executarExclusao(REPERTORIO_FACIL.tabelas.musicas, "projeto_id", id);
-    await executarExclusao(REPERTORIO_FACIL.tabelas.integrantes, "projeto_id", id);
-
-    const { error: erroProjeto } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.projetos)
-      .delete()
-      .eq("id", id)
-      .eq("usuario_id", usuario.id);
-
-    if (erroProjeto) {
-      throw erroProjeto;
-    }
-
-    if (obterProjetoAtualId() === id) {
-      salvarProjetoAtual(null);
-    }
-
-    await carregarProjetos();
-  } catch (erro) {
-    alert("Erro ao excluir projeto: " + (erro.message || erro));
-  }
 }
 
 async function criarProjeto() {
@@ -1130,7 +790,7 @@ function garantirTelasInternas() {
     <div class="container">
       <header class="topo">
         <div class="topo-logo">
-          <img src="logo.png" alt="CrossSet" />
+          <img src="logo.png" alt="Repertório Fácil" />
           <div>
             <h1 id="titulo-projeto">Projeto</h1>
             <p id="subtitulo-projeto">Painel interno do projeto</p>
@@ -1719,812 +1379,6 @@ async function carregarIntegrantes() {
         line-height: 1.35;
       }
 
-      /* CrossSet - Integrantes ultracompacto e padronizado */
-      .lista-integrantes {
-        gap: 8px !important;
-      }
-
-      .item-integrante {
-        min-height: 118px !important;
-        max-height: 150px !important;
-        padding: 9px 12px !important;
-        border-radius: 12px !important;
-        overflow: hidden !important;
-      }
-
-      .item-integrante-topo {
-        align-items: flex-start !important;
-        gap: 9px !important;
-      }
-
-      .foto-integrante-placeholder {
-        width: 32px !important;
-        height: 32px !important;
-        min-width: 32px !important;
-        font-size: 13px !important;
-      }
-
-      .dados-integrante {
-        min-width: 0 !important;
-      }
-
-      .dados-integrante h4 {
-        font-size: 14px !important;
-        line-height: 1.1 !important;
-        margin: 0 0 3px !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .dados-integrante p {
-        margin: 0 !important;
-        font-size: 11.5px !important;
-        line-height: 1.22 !important;
-        color: #d1d5db !important;
-      }
-
-      .dados-integrante p.integrante-meta {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .tag-admin,
-      .tag-integrante {
-        margin-top: 4px !important;
-        padding: 2px 8px !important;
-        font-size: 10.5px !important;
-        line-height: 1.2 !important;
-      }
-
-      .botoes-item-integrante {
-        gap: 8px !important;
-        flex-wrap: nowrap !important;
-        align-items: center !important;
-        justify-content: flex-end !important;
-        min-width: 58px !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica {
-        width: 22px !important;
-        height: 22px !important;
-        min-width: 22px !important;
-        min-height: 22px !important;
-        border: 0 !important;
-        padding: 0 !important;
-        background: transparent !important;
-        color: #ffffff !important;
-        opacity: .92 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica svg {
-        width: 16px !important;
-        height: 16px !important;
-        fill: none !important;
-        stroke: currentColor !important;
-        stroke-width: 2 !important;
-        stroke-linecap: round !important;
-        stroke-linejoin: round !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica:hover {
-        color: #ffffff !important;
-        opacity: 1 !important;
-        transform: translateY(-1px) scale(1.05) !important;
-      }
-
-      .desenvolvimento-integrante {
-        margin-top: 6px !important;
-        padding: 6px 8px !important;
-        border-radius: 9px !important;
-        gap: 4px !important;
-        max-width: 420px !important;
-      }
-
-      .desenvolvimento-integrante-topo {
-        font-size: 10px !important;
-        line-height: 1.1 !important;
-      }
-
-      .desenvolvimento-integrante-percentual {
-        font-size: 14px !important;
-      }
-
-      .barra-desenvolvimento-integrante {
-        height: 4px !important;
-      }
-
-      .desenvolvimento-integrante-contadores {
-        gap: 7px !important;
-        flex-wrap: nowrap !important;
-        overflow: hidden !important;
-        white-space: nowrap !important;
-        font-size: 10.5px !important;
-      }
-
-      .desenvolvimento-integrante-contadores strong {
-        font-size: 11px !important;
-      }
-
-      .desenvolvimento-integrante-ajuda {
-        display: none !important;
-      }
-
-      .btn-whatsapp-padrao {
-        height: 44px !important;
-        min-height: 44px !important;
-        border-radius: 14px !important;
-        gap: 10px !important;
-        font-size: 15px !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
-        border-radius: 50% !important;
-      }
-
-
-
-
-      /* CrossSet - ajuste fino pedido: somente botão WhatsApp e cards dos integrantes cadastrados */
-      .lista-integrantes {
-        gap: 6px !important;
-      }
-
-      .item-integrante {
-        height: 112px !important;
-        min-height: 112px !important;
-        max-height: 112px !important;
-        padding: 7px 10px !important;
-        border-radius: 11px !important;
-        overflow: hidden !important;
-      }
-
-      .item-integrante-topo {
-        gap: 7px !important;
-      }
-
-      .foto-integrante-placeholder {
-        width: 28px !important;
-        height: 28px !important;
-        min-width: 28px !important;
-        font-size: 12px !important;
-      }
-
-      .dados-integrante h4 {
-        font-size: 13px !important;
-        line-height: 1.05 !important;
-        margin: 0 0 2px !important;
-      }
-
-      .dados-integrante p {
-        font-size: 10.5px !important;
-        line-height: 1.14 !important;
-      }
-
-      .tag-admin,
-      .tag-integrante {
-        margin-top: 2px !important;
-        padding: 2px 7px !important;
-        font-size: 9.5px !important;
-      }
-
-      .botoes-item-integrante {
-        gap: 7px !important;
-        min-width: 54px !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica {
-        width: 20px !important;
-        height: 20px !important;
-        min-width: 20px !important;
-        min-height: 20px !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica svg {
-        width: 15px !important;
-        height: 15px !important;
-        stroke-width: 1.9 !important;
-      }
-
-      .desenvolvimento-integrante {
-        margin-top: 4px !important;
-        padding: 4px 6px !important;
-        border-radius: 8px !important;
-        gap: 2px !important;
-      }
-
-      .desenvolvimento-integrante-topo {
-        font-size: 9px !important;
-        line-height: 1 !important;
-      }
-
-      .desenvolvimento-integrante-percentual {
-        font-size: 12px !important;
-      }
-
-      .barra-desenvolvimento-integrante {
-        height: 3px !important;
-      }
-
-      .desenvolvimento-integrante-contadores {
-        gap: 6px !important;
-        font-size: 9px !important;
-        line-height: 1 !important;
-      }
-
-      .desenvolvimento-integrante-contadores strong {
-        font-size: 10px !important;
-      }
-
-      .btn-whatsapp-padrao {
-        height: 42px !important;
-        min-height: 42px !important;
-        border-radius: 13px !important;
-        gap: 8px !important;
-        font-size: 15px !important;
-        background: linear-gradient(135deg, #16a34a, #128c3f) !important;
-        color: #ffffff !important;
-        box-shadow: 0 8px 20px rgba(22, 163, 74, .16) !important;
-      }
-
-      .btn-whatsapp-padrao .seta-btn {
-        display: none !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn {
-        width: 20px !important;
-        height: 20px !important;
-        min-width: 20px !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: #ffffff !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn svg {
-        width: 18px !important;
-        height: 18px !important;
-        display: block !important;
-      }
-
-      /* CrossSet - Feature 005: integrantes em linha + WhatsApp padrão compacto */
-      .modulo-integrantes > .card-projeto:nth-child(2) {
-        padding-top: 12px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) > .tag {
-        margin-bottom: 6px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) > h3 {
-        font-size: 21px !important;
-        line-height: 1.05 !important;
-        margin: 0 0 4px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) > p {
-        font-size: 12px !important;
-        line-height: 1.2 !important;
-        margin: 0 0 8px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes {
-        margin: 6px 0 8px !important;
-        gap: 8px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes label {
-        gap: 3px !important;
-        font-size: 10.5px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes input,
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes select {
-        height: 32px !important;
-        min-height: 32px !important;
-        padding: 6px 9px !important;
-        font-size: 11.5px !important;
-        border-radius: 9px !important;
-      }
-
-      .lista-integrantes {
-        gap: 5px !important;
-      }
-
-      .item-integrante {
-        height: 66px !important;
-        min-height: 66px !important;
-        max-height: 66px !important;
-        padding: 5px 8px !important;
-        border-radius: 10px !important;
-        display: flex !important;
-        align-items: center !important;
-      }
-
-      .item-integrante-topo {
-        display: grid !important;
-        grid-template-columns: 26px minmax(0, 1fr) 46px !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-      }
-
-      .foto-integrante-placeholder {
-        width: 26px !important;
-        height: 26px !important;
-        min-width: 26px !important;
-        font-size: 11px !important;
-      }
-
-      .dados-integrante {
-        display: grid !important;
-        grid-template-columns: minmax(120px, 1.05fr) minmax(115px, .95fr) minmax(150px, 1.1fr) auto minmax(132px, .78fr) !important;
-        align-items: center !important;
-        gap: 7px !important;
-        min-width: 0 !important;
-      }
-
-      .dados-integrante h4,
-      .dados-integrante p,
-      .dados-integrante .tag-admin,
-      .dados-integrante .tag-integrante,
-      .dados-integrante .desenvolvimento-integrante {
-        margin: 0 !important;
-        min-width: 0 !important;
-      }
-
-      .dados-integrante h4 {
-        font-size: 12.2px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .dados-integrante p {
-        font-size: 9.7px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .dados-integrante p strong {
-        font-weight: 700 !important;
-      }
-
-      .tag-admin,
-      .tag-integrante {
-        padding: 2px 6px !important;
-        font-size: 8.8px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        justify-self: start !important;
-      }
-
-      .desenvolvimento-integrante {
-        width: 100% !important;
-        max-width: none !important;
-        height: 44px !important;
-        padding: 3px 5px !important;
-        border-radius: 8px !important;
-        gap: 2px !important;
-        align-self: center !important;
-      }
-
-      .desenvolvimento-integrante-topo {
-        height: 12px !important;
-        font-size: 8.5px !important;
-        line-height: 1 !important;
-      }
-
-      .desenvolvimento-integrante-topo span:first-child {
-        max-width: 72px !important;
-        overflow: hidden !important;
-        white-space: nowrap !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .desenvolvimento-integrante-percentual {
-        font-size: 11px !important;
-        line-height: 1 !important;
-      }
-
-      .barra-desenvolvimento-integrante {
-        height: 3px !important;
-      }
-
-      .desenvolvimento-integrante-contadores {
-        gap: 4px !important;
-        flex-wrap: nowrap !important;
-        overflow: hidden !important;
-        white-space: nowrap !important;
-        font-size: 8px !important;
-        line-height: 1 !important;
-      }
-
-      .desenvolvimento-integrante-contadores strong {
-        font-size: 8.8px !important;
-        margin-right: 1px !important;
-      }
-
-      .botoes-item-integrante {
-        width: 46px !important;
-        min-width: 46px !important;
-        gap: 7px !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica {
-        width: 18px !important;
-        height: 18px !important;
-        min-width: 18px !important;
-        min-height: 18px !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica svg {
-        width: 14px !important;
-        height: 14px !important;
-        stroke-width: 1.8 !important;
-      }
-
-      .btn-whatsapp-padrao,
-      .botao-whatsapp-repertorio,
-      .botao-whatsapp,
-      .botao-convidar-whatsapp {
-        min-height: 34px !important;
-        height: 34px !important;
-        border-radius: 11px !important;
-        padding: 0 14px !important;
-        gap: 8px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        background: linear-gradient(135deg, #16a34a, #22c55e) !important;
-        color: #ffffff !important;
-        box-shadow: 0 8px 18px rgba(22, 163, 74, .16) !important;
-      }
-
-      .btn-whatsapp-padrao::before,
-      .btn-whatsapp-padrao::after,
-      .botao-whatsapp-repertorio::before,
-      .botao-whatsapp-repertorio::after,
-      .botao-whatsapp::before,
-      .botao-whatsapp::after,
-      .botao-convidar-whatsapp::before,
-      .botao-convidar-whatsapp::after,
-      .btn-whatsapp-padrao .seta-btn {
-        display: none !important;
-        content: none !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn,
-      .botao-whatsapp-repertorio .icone-limpo,
-      .botao-whatsapp .icone-limpo,
-      .botao-convidar-whatsapp .icone-limpo {
-        width: 17px !important;
-        height: 17px !important;
-        min-width: 17px !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        color: #ffffff !important;
-        flex: 0 0 17px !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn svg,
-      .botao-whatsapp-repertorio svg,
-      .botao-whatsapp svg,
-      .botao-convidar-whatsapp svg {
-        width: 17px !important;
-        height: 17px !important;
-      }
-
-      @media (max-width: 860px) {
-        .item-integrante {
-          height: 92px !important;
-          min-height: 92px !important;
-          max-height: 92px !important;
-        }
-
-        .dados-integrante {
-          grid-template-columns: 1fr auto !important;
-          grid-template-rows: repeat(4, auto) !important;
-          gap: 3px 6px !important;
-        }
-
-        .dados-integrante h4,
-        .dados-integrante p,
-        .dados-integrante .tag-admin,
-        .dados-integrante .tag-integrante {
-          grid-column: 1 / 2 !important;
-        }
-
-        .desenvolvimento-integrante {
-          grid-column: 1 / -1 !important;
-          height: 34px !important;
-        }
-      }
-
-      /* CrossSet - Feature 006: integrantes cadastrados em linha fina + WhatsApp padrão */
-      .modulo-integrantes > .card-projeto:nth-child(2) {
-        padding: 10px 12px 12px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) > .tag {
-        margin-bottom: 5px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) > h3 {
-        font-size: 20px !important;
-        line-height: 1.05 !important;
-        margin: 0 0 3px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) > p {
-        font-size: 11.5px !important;
-        line-height: 1.15 !important;
-        margin: 0 0 7px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes {
-        margin: 5px 0 7px !important;
-        gap: 8px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes label {
-        gap: 2px !important;
-        font-size: 10.5px !important;
-      }
-
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes input,
-      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes select {
-        height: 31px !important;
-        min-height: 31px !important;
-        padding: 5px 9px !important;
-        font-size: 11.5px !important;
-        border-radius: 9px !important;
-      }
-
-      .lista-integrantes {
-        gap: 6px !important;
-      }
-
-      .item-integrante {
-        height: 54px !important;
-        min-height: 54px !important;
-        max-height: 54px !important;
-        padding: 4px 8px !important;
-        border-radius: 10px !important;
-        display: flex !important;
-        align-items: center !important;
-        overflow: hidden !important;
-      }
-
-      .item-integrante-topo {
-        display: grid !important;
-        grid-template-columns: 26px minmax(0, 1fr) 46px !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-        min-width: 0 !important;
-      }
-
-      .foto-integrante-placeholder {
-        width: 26px !important;
-        height: 26px !important;
-        min-width: 26px !important;
-        font-size: 11px !important;
-      }
-
-      .dados-integrante {
-        display: grid !important;
-        grid-template-columns: minmax(150px, 1.25fr) minmax(78px, .55fr) auto minmax(210px, .95fr) !important;
-        align-items: center !important;
-        gap: 8px !important;
-        min-width: 0 !important;
-      }
-
-      .dados-integrante h4,
-      .dados-integrante p,
-      .dados-integrante .tag-admin,
-      .dados-integrante .tag-integrante,
-      .dados-integrante .desenvolvimento-integrante {
-        margin: 0 !important;
-        min-width: 0 !important;
-      }
-
-      .dados-integrante h4 {
-        font-size: 12.5px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-      }
-
-      .dados-integrante p.integrante-meta {
-        font-size: 10.5px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        color: #e5e7eb !important;
-      }
-
-      .tag-admin,
-      .tag-integrante {
-        padding: 3px 7px !important;
-        font-size: 9px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        justify-self: start !important;
-      }
-
-      .desenvolvimento-integrante {
-        width: 100% !important;
-        max-width: none !important;
-        height: 34px !important;
-        padding: 3px 5px !important;
-        border-radius: 8px !important;
-        gap: 2px !important;
-        align-self: center !important;
-        display: grid !important;
-        grid-template-columns: 20px minmax(58px, 1fr) 34px !important;
-        grid-template-rows: 12px 12px !important;
-        align-items: center !important;
-      }
-
-      .desenvolvimento-integrante-topo {
-        display: contents !important;
-      }
-
-      .icone-desenvolvimento {
-        grid-column: 1 !important;
-        grid-row: 1 / 3 !important;
-        color: #ffffff !important;
-        font-size: 12px !important;
-        line-height: 1 !important;
-        opacity: .92 !important;
-      }
-
-      .desenvolvimento-integrante-percentual {
-        grid-column: 3 !important;
-        grid-row: 1 / 3 !important;
-        font-size: 12px !important;
-        line-height: 1 !important;
-        text-align: right !important;
-      }
-
-      .barra-desenvolvimento-integrante {
-        grid-column: 2 !important;
-        grid-row: 1 !important;
-        height: 4px !important;
-        margin: 0 !important;
-      }
-
-      .desenvolvimento-integrante-contadores {
-        grid-column: 2 / 4 !important;
-        grid-row: 2 !important;
-        display: flex !important;
-        gap: 6px !important;
-        flex-wrap: nowrap !important;
-        overflow: hidden !important;
-        white-space: nowrap !important;
-        font-size: 8.2px !important;
-        line-height: 1 !important;
-        color: #d1d5db !important;
-      }
-
-      .desenvolvimento-integrante-contadores strong {
-        font-size: 9.2px !important;
-        margin-right: 1px !important;
-      }
-
-      .botoes-item-integrante {
-        width: 46px !important;
-        min-width: 46px !important;
-        gap: 7px !important;
-        justify-content: flex-end !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica {
-        width: 18px !important;
-        height: 18px !important;
-        min-width: 18px !important;
-        min-height: 18px !important;
-        color: #ffffff !important;
-      }
-
-      .botoes-item-integrante .btn-acao-musica svg {
-        width: 14px !important;
-        height: 14px !important;
-        stroke: #ffffff !important;
-        stroke-width: 1.8 !important;
-      }
-
-      .btn-whatsapp-padrao,
-      .botao-whatsapp-repertorio,
-      .botao-whatsapp,
-      .botao-convidar-whatsapp {
-        min-height: 34px !important;
-        height: 34px !important;
-        border-radius: 11px !important;
-        padding: 0 14px !important;
-        gap: 8px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-        background: linear-gradient(135deg, #16a34a, #22c55e) !important;
-        color: #ffffff !important;
-        box-shadow: 0 8px 18px rgba(22, 163, 74, .16) !important;
-      }
-
-      .btn-whatsapp-padrao::before,
-      .btn-whatsapp-padrao::after,
-      .botao-whatsapp-repertorio::before,
-      .botao-whatsapp-repertorio::after,
-      .botao-whatsapp::before,
-      .botao-whatsapp::after,
-      .botao-convidar-whatsapp::before,
-      .botao-convidar-whatsapp::after,
-      .btn-whatsapp-padrao .seta-btn {
-        display: none !important;
-        content: none !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn,
-      .botao-whatsapp-repertorio .icone-limpo,
-      .botao-whatsapp .icone-limpo,
-      .botao-convidar-whatsapp .icone-limpo {
-        width: 17px !important;
-        height: 17px !important;
-        min-width: 17px !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        color: #ffffff !important;
-        flex: 0 0 17px !important;
-      }
-
-      .btn-whatsapp-padrao .icone-btn svg,
-      .botao-whatsapp-repertorio svg,
-      .botao-whatsapp svg,
-      .botao-convidar-whatsapp svg {
-        width: 17px !important;
-        height: 17px !important;
-      }
-
-      @media (max-width: 860px) {
-        .item-integrante {
-          height: 82px !important;
-          min-height: 82px !important;
-          max-height: 82px !important;
-        }
-
-        .dados-integrante {
-          grid-template-columns: 1fr auto !important;
-          grid-template-rows: auto auto auto !important;
-          gap: 3px 6px !important;
-        }
-
-        .dados-integrante h4,
-        .dados-integrante p,
-        .dados-integrante .tag-admin,
-        .dados-integrante .tag-integrante {
-          grid-column: 1 / 2 !important;
-        }
-
-        .desenvolvimento-integrante {
-          grid-column: 1 / -1 !important;
-          height: 30px !important;
-        }
-      }
-
-
 
 
       /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
@@ -2741,7 +1595,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.4-4.1A8 8 0 1 1 20 11.5Z"></path><path d="M9.5 8.8c.2-.5.4-.5.7-.5h.5c.2 0 .4.1.5.4l.6 1.4c.1.3.1.5-.1.7l-.4.5c.8 1.4 1.9 2.3 3.4 2.9l.5-.6c.2-.2.4-.3.7-.2l1.3.6c.3.1.4.3.4.6v.5c0 .4-.2.7-.5.9-.5.3-1.1.4-1.8.3-3.1-.5-5.8-3.1-6.4-6.1-.1-.6 0-1.1.3-1.4Z"></path></svg></span><span>Convidar por WhatsApp</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☏</span><span>Convidar por WhatsApp</span><span class="seta-btn">→</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -2913,20 +1767,24 @@ function obterDesenvolvimentoIntegrante(integranteId) {
 function montarDesenvolvimentoIntegrante(integranteId) {
   const dados = obterDesenvolvimentoIntegrante(integranteId);
 
+  const textoTotal = dados.total === 1 ? "1 música" : `${dados.total} músicas`;
+
   return `
-    <div class="desenvolvimento-integrante" title="Desenvolvimento no projeto">
+    <div class="desenvolvimento-integrante">
       <div class="desenvolvimento-integrante-topo">
-        <span class="icone-desenvolvimento" aria-hidden="true">▥</span>
+        <span>📈 Desenvolvimento no projeto</span>
         <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
       </div>
-      <div class="barra-desenvolvimento-integrante" aria-label="Desenvolvimento no projeto">
+      <div class="barra-desenvolvimento-integrante" title="Desenvolvimento no projeto">
         <span class="${dados.cor}" style="width:${dados.percentual}%"></span>
       </div>
       <div class="desenvolvimento-integrante-contadores">
         <span class="contador-prontas"><strong>${dados.prontas}</strong> prontas</span>
         <span class="contador-estudo"><strong>${dados.emEstudo}</strong> em estudo</span>
         <span class="contador-nao"><strong>${dados.naoIniciadas}</strong> não iniciadas</span>
+        <span>Total: ${textoTotal}</span>
       </div>
+      <small class="desenvolvimento-integrante-ajuda">ⓘ O desenvolvimento é calculado com base no progresso individual deste integrante nas músicas da biblioteca do projeto.</small>
     </div>
   `;
 }
@@ -2992,14 +1850,17 @@ function renderizarListaIntegrantes() {
 
           <div class="dados-integrante">
             <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-            <p class="integrante-meta">${escaparHtml(item.funcao || "Função não informada")}</p>
+            <p><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")}</p>
+            <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
+            <p><strong>E-mail:</strong> ${escaparHtml(item.email || "Não informado")}</p>
+            <p><strong>Telefone:</strong> ${escaparHtml(item.telefone || "Não informado")}</p>
             ${item.administrador ? `<span class="tag-admin">Administrador</span>` : `<span class="tag-integrante">Integrante</span>`}
             ${montarDesenvolvimentoIntegrante(item.id)}
           </div>
 
           <div class="botoes-item-integrante">
-            <button class="btn-acao-musica btn-editar-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
-            <button class="btn-acao-musica btn-excluir-integrante excluir" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
+            <button class="btn-editar-integrante btn-acao-editar" type="button" data-editar-integrante="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-excluir-integrante btn-acao-excluir" type="button" data-excluir-integrante="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
       </div>
@@ -3252,7 +2113,7 @@ async function gerarConviteIntegrante() {
     "",
     "Olá!",
     "",
-    nomeAdmin + " convidou você para entrar no projeto " + nomeProjeto + " pelo CrossSet.",
+    nomeAdmin + " convidou você para entrar no projeto " + nomeProjeto + " pelo Repertório Fácil.",
     "",
     "Este convite é exclusivo para esse projeto. Ao aceitar, seus dados serão cadastrados diretamente dentro de " + nomeProjeto + ".",
     "",
@@ -3288,7 +2149,7 @@ async function gerarConviteIntegrante() {
   try {
     if (navigator.share) {
       await navigator.share({
-        title: "Convite CrossSet",
+        title: "Convite Repertório Fácil",
         text: mensagem,
         url: link
       });
@@ -3323,18 +2184,18 @@ function garantirTelaConvite() {
 
   const tela = document.createElement("section");
   tela.id = "tela-convite";
-  tela.className = "tela convite-tela-padrao";
+  tela.className = "tela";
 
   tela.innerHTML = `
-    <div class="card-login convite-card-padrao">
-      <img src="logo.png" alt="CrossSet" class="logo-login convite-logo-padrao" />
-      <span class="tag convite-tag-padrao">Convite</span>
-      <h1 id="convite-titulo">Convite para projeto</h1>
+    <div class="card-login" style="max-width:620px;">
+      <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+      <span class="tag">Convite</span>
+      <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes" class="convite-detalhes-padrao"></div>
+      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
 
-      <div id="convite-acoes" class="convite-acoes-padrao"></div>
+      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
@@ -3347,8 +2208,6 @@ function garantirTelaConvite() {
   const voltar = elemento("btn-voltar-login-convite");
   if (voltar) {
     voltar.addEventListener("click", function() {
-      limparConvitePendente();
-      limparDadosConviteTemporario();
       mostrarTela("tela-login", { registrar: false });
     });
   }
@@ -3379,21 +2238,6 @@ async function carregarConvitePublico(codigo) {
     .single();
 
   if (error || !data) {
-    const { data: sessaoAtual } = await cliente.auth.getSession();
-    const usuarioLogado = sessaoAtual.session?.user;
-
-    limparConvitePendente();
-    limparDadosConviteTemporario();
-    appState.conviteAtual = null;
-
-    if (usuarioLogado) {
-      appState.sessao = sessaoAtual.session;
-      appState.usuario = usuarioLogado;
-      preencherUsuario(appState.usuario);
-      mostrarTela("tela-projetos", { registrar: false });
-      return;
-    }
-
     if (descricao) {
       descricao.textContent = "Convite não encontrado ou expirado.";
     }
@@ -3410,39 +2254,6 @@ async function carregarConvitePublico(codigo) {
   }
 
   appState.conviteAtual = data;
-  salvarDestinoProjetoConvite(data);
-
-  if (data.status && data.status !== "pendente") {
-    const { data: sessaoAtual } = await cliente.auth.getSession();
-    const usuarioLogado = sessaoAtual.session?.user;
-
-    limparConvitePendente();
-    limparDadosConviteTemporario();
-    appState.conviteAtual = null;
-
-    if (usuarioLogado) {
-      appState.sessao = sessaoAtual.session;
-      appState.usuario = usuarioLogado;
-      preencherUsuario(appState.usuario);
-      await abrirProjetoDoConvite(data, usuarioLogado);
-      return;
-    }
-
-    if (descricao) {
-      descricao.textContent = "Este convite já foi utilizado ou não está mais disponível.";
-    }
-    if (detalhes) {
-      detalhes.innerHTML = "";
-    }
-    if (acoes) {
-      acoes.innerHTML = `<button class="botao-principal" type="button" id="btn-ir-login-convite-usado">Ir para o login</button>`;
-      elemento("btn-ir-login-convite-usado")?.addEventListener("click", function() {
-        mostrarTela("tela-login", { registrar: false });
-      });
-    }
-    return;
-  }
-
   localStorage.setItem("convite_pendente", codigo);
 
   const dadosPendentesGmail = obterDadosConviteTemporario(codigo);
@@ -3454,7 +2265,7 @@ async function carregarConvitePublico(codigo) {
       descricao.textContent = "Finalizando seu cadastro no projeto...";
     }
     if (detalhes) {
-      detalhes.innerHTML = `<div class="convite-resumo-projeto"><p>Projeto</p><h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3><div><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</div></div>`;
+      detalhes.innerHTML = `<p>Salvando seus dados em ${escaparHtml(data.projeto_nome || "Projeto musical")}...</p>`;
     }
     if (acoes) {
       acoes.innerHTML = "";
@@ -3470,112 +2281,77 @@ async function carregarConvitePublico(codigo) {
   }
 
   if (descricao) {
-    descricao.textContent = usuarioLogado
-      ? "Complete seus dados para entrar neste projeto."
-      : "Confira o projeto e escolha como deseja aceitar o convite.";
+    descricao.textContent = "Preencha seus dados para aceitar o convite. Este cadastro será vinculado somente ao projeto informado abaixo.";
   }
 
   if (detalhes) {
     detalhes.innerHTML = `
-      <div class="convite-resumo-projeto">
-        <p>Projeto</p>
-        <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-        <div><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</div>
-        <div><strong>Função no projeto:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</div>
+      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
+        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
+        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+        <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
+        <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
+        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Você não escolherá outro projeto: ao aceitar, seus dados serão salvos diretamente aqui.</p>
       </div>
     `;
   }
 
-  if (usuarioLogado) {
-    const nomeLogado = obterNomeUsuario(usuarioLogado);
-    if (acoes) {
-      acoes.innerHTML = `
-        <div class="convite-form-padrao">
-          <h3>Completar cadastro</h3>
-          <label>
-            Nome completo
-            <input id="convite-cadastro-nome" type="text" value="${escaparHtml(nomeLogado)}" placeholder="Seu nome" />
-          </label>
-          <div class="convite-grid-2">
-            <label>
-              Função
-              <input id="convite-cadastro-funcao" type="text" placeholder="Ex: Guitarrista" />
-            </label>
-            <label>
-              Instrumento
-              <input id="convite-cadastro-instrumento" type="text" placeholder="Ex: Guitarra" />
-            </label>
-          </div>
-          <label>
-            WhatsApp / Telefone
-            <input id="convite-cadastro-telefone" type="tel" placeholder="(00) 00000-0000" />
-          </label>
-          <button class="botao-principal" id="btn-aceitar-convite-logado" type="button">Salvar e entrar no projeto</button>
-        </div>
-      `;
-      elemento("btn-aceitar-convite-logado")?.addEventListener("click", function() {
-        const dados = obterDadosCadastroConvite();
-        if (!dados.nome) {
-          alert("Informe seu nome.");
-          return;
-        }
-        aceitarConviteComUsuario(usuarioLogado, {
-          nome: dados.nome,
-          funcao: dados.funcao,
-          instrumento: dados.instrumento,
-          telefone: dados.telefone,
-          email: usuarioLogado.email || ""
-        });
-      });
-    }
-    return;
-  }
-
   if (acoes) {
     acoes.innerHTML = `
-      <div class="convite-form-padrao">
-        <h3>Criar cadastro e aceitar convite</h3>
-        <label>
+      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
+        <h3 style="margin:0; color:#ffffff;">Criar cadastro e aceitar convite</h3>
+        <p style="margin:0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para o projeto <strong>${escaparHtml(data.projeto_nome || 'Projeto musical')}</strong>. Para entrar nele, preencha seus dados abaixo. Você pode criar acesso com e-mail e senha ou entrar com Gmail. O cadastro será salvo diretamente como integrante deste projeto.</p>
+
+        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
           Nome completo
           <input id="convite-cadastro-nome" type="text" placeholder="Seu nome" />
         </label>
-        <div class="convite-grid-2">
-          <label>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
             Função
             <input id="convite-cadastro-funcao" type="text" placeholder="Ex: Guitarrista" />
           </label>
-          <label>
+
+          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
             Instrumento
             <input id="convite-cadastro-instrumento" type="text" placeholder="Ex: Guitarra" />
           </label>
         </div>
-        <label>
+
+        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
           WhatsApp / Telefone
           <input id="convite-cadastro-telefone" type="tel" placeholder="(00) 00000-0000" />
         </label>
-        <label>
+
+        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
           E-mail
           <input id="convite-cadastro-email" type="email" placeholder="email@exemplo.com" />
         </label>
-        <div class="convite-grid-2">
-          <label>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
             Senha
             <input id="convite-cadastro-senha" type="password" placeholder="Senha" />
           </label>
-          <label>
+
+          <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
             Repetir senha
             <input id="convite-cadastro-repetir-senha" type="password" placeholder="Repetir senha" />
           </label>
         </div>
+
         <button class="botao-principal" id="btn-criar-conta-aceitar-convite" type="button">Aceitar convite e entrar no projeto</button>
-        <div class="divisor convite-divisor">
+
+        <div class="divisor" style="margin:4px 0;">
           <span></span>
           <p>ou</p>
           <span></span>
         </div>
-        <button class="botao-google" id="btn-gmail-aceitar-convite" type="button">
-          <span class="icone-gmail" aria-hidden="true"><img src="logo_gmail.webp" alt="" /></span>
-          <span>Entrar com Gmail</span>
+
+        <button class="botao-google" id="btn-gmail-aceitar-convite" type="button" style="min-height:42px;">
+          <img src="logo_gmail.webp" alt="Gmail" style="width:22px;height:22px;object-fit:contain;margin-right:8px;vertical-align:middle;" />
+          Entrar com Gmail e entrar no projeto
         </button>
       </div>
     `;
@@ -3584,6 +2360,7 @@ async function carregarConvitePublico(codigo) {
     elemento("btn-gmail-aceitar-convite")?.addEventListener("click", entrarComGmailEAceitarConvite);
   }
 }
+
 
 function obterDadosCadastroConvite() {
   return {
@@ -3654,12 +2431,11 @@ async function entrarComGmailEAceitarConvite() {
 
   salvarDadosConviteTemporario(convite.codigo, dados);
   localStorage.setItem("convite_pendente", convite.codigo);
-  salvarDestinoProjetoConvite(convite);
 
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
+      redirectTo: REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(convite.codigo),
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -3809,17 +2585,6 @@ async function aceitarConviteAtual() {
   await aceitarConviteComUsuario(usuario);
 }
 
-
-async function abrirProjetoDoConvite(convite, usuario) {
-  if (!convite || !convite.projeto_id || !usuario) {
-    mostrarTela("tela-projetos", { registrar: false });
-    return;
-  }
-
-  salvarDestinoProjetoConvite(convite);
-  await abrirProjetoPorIdConvite(convite.projeto_id, usuario, convite.projeto_nome || "Projeto musical");
-}
-
 async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   const cliente = sb();
   const convite = appState.conviteAtual;
@@ -3869,27 +2634,12 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     emailJaCadastrado = existenteEmail;
   }
 
-  const integranteExistenteId = existente?.id || emailJaCadastrado?.id || null;
+  if (existente || emailJaCadastrado) {
+    alert("Este e-mail já está cadastrado como integrante deste projeto.");
+    return;
+  }
 
-  if (integranteExistenteId) {
-    const { error: erroAtualizarIntegrante } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .update({
-        usuario_id: usuario.id,
-        nome: nomeUsuario,
-        funcao: funcaoUsuario,
-        instrumento: instrumentoUsuario,
-        administrador: convite.papel === "administrador",
-        email: emailUsuario,
-        telefone: telefoneUsuario
-      })
-      .eq("id", integranteExistenteId);
-
-    if (erroAtualizarIntegrante) {
-      alert("Erro ao vincular integrante ao projeto: " + erroAtualizarIntegrante.message);
-      return;
-    }
-  } else {
+  if (!existente) {
     const { error: erroInserir } = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
       .insert({
@@ -3918,8 +2668,36 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     })
     .eq("id", convite.id);
 
-  mostrarToast?.("Cadastro salvo. Bem-vindo ao projeto " + (convite.projeto_nome || "musical") + "!");
-  await abrirProjetoDoConvite(convite, usuario);
+  let projeto = null;
+  const { data: projetoData } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("*")
+    .eq("id", projetoId)
+    .maybeSingle();
+
+  projeto = projetoData || {
+    id: projetoId,
+    nome: convite.projeto_nome || "Projeto musical",
+    estilo: "Projeto musical",
+    cidade: "",
+    estado: ""
+  };
+
+  salvarProjetoAtual(projeto);
+  limparConvitePendente();
+  limparDadosConviteTemporario();
+  appState.conviteAtual = null;
+
+  try {
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+    }
+  } catch (erroUrl) {
+    console.warn("Não foi possível limpar a URL do convite.", erroUrl);
+  }
+
+  mostrarToast?.("Cadastro salvo. Bem-vindo ao projeto " + (projeto.nome || "musical") + "!");
+  abrirPainelProjeto();
 }
 
 async function carregarMusicas() {
@@ -6483,7 +5261,7 @@ async function carregarRepertorios() {
             </button>
             <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
-              <span>Compartilhar repertório</span>
+              <span>Compartilhar repertório</span><span>→</span>
             </button>
             <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
@@ -7892,7 +6670,7 @@ function garantirTelaRepertorioPublico() {
     </style>
     <div class="pagina-repertorio-publico">
       <div class="card-repertorio-publico" id="conteudo-repertorio-publico">
-        <span class="publico-tag">CrossSet</span>
+        <span class="publico-tag">Repertório Fácil</span>
         <div class="publico-titulo">
           <h1>Carregando repertório...</h1>
           <p>Buscando informações atualizadas.</p>
@@ -7937,7 +6715,7 @@ async function carregarRepertorioPublico(repertorioId) {
   }
 
   conteudo.innerHTML = `
-    <span class="publico-tag">CrossSet</span>
+    <span class="publico-tag">Repertório Fácil</span>
     <div class="publico-titulo">
       <h1>Carregando repertório...</h1>
       <p>Buscando informações atualizadas.</p>
@@ -7950,7 +6728,7 @@ async function carregarRepertorioPublico(repertorioId) {
 
   if (error) {
     conteudo.innerHTML = `
-      <span class="publico-tag">CrossSet</span>
+      <span class="publico-tag">Repertório Fácil</span>
       <div class="publico-titulo">
         <h1>Repertório não disponível</h1>
         <p>Não foi possível carregar este repertório.</p>
@@ -8029,7 +6807,7 @@ async function carregarRepertorioPublico(repertorioId) {
     </div>
 
     <div class="publico-rodape">
-      <strong>CrossSet</strong><br>
+      <strong>Repertório Fácil</strong><br>
       Este repertório é atualizado automaticamente.<br>
       Sempre consulte este link antes do ensaio ou show.
     </div>
@@ -8185,7 +6963,7 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
   const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
   const linhas = [];
 
-  linhas.push("CrossSet");
+  linhas.push("Repertório Fácil");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Repertório: " + (repertorio.nome || "Repertório"));
@@ -8229,7 +7007,7 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
 
   linhas.push("");
   linhas.push("Total de músicas: " + itens.length);
-  linhas.push("Compartilhado pelo CrossSet");
+  linhas.push("Compartilhado pelo Repertório Fácil");
 
   return linhas.join("\n");
 }
@@ -8278,7 +7056,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   const projeto = appState.projetoAtual || {};
   const linhas = [];
 
-  linhas.push("CrossSet");
+  linhas.push("Repertório Fácil");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Evento: " + (evento.nome || "Evento"));
@@ -8306,7 +7084,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   }
 
   linhas.push("");
-  linhas.push("Compartilhado pelo CrossSet");
+  linhas.push("Compartilhado pelo Repertório Fácil");
 
   return linhas.join("\n");
 }
@@ -8475,7 +7253,7 @@ async function gerarPDFDoRepertorio(repertorioId) {
     </head>
     <body>
       <section class="cabecalho">
-        <div class="marca">CrossSet</div>
+        <div class="marca">Repertório Fácil</div>
         <h1>${nomeProjeto}</h1>
         <h2>${nomeRepertorio}</h2>
         <div class="info">
@@ -8501,7 +7279,7 @@ async function gerarPDFDoRepertorio(repertorioId) {
       </table>
 
       <div class="rodape">
-        <span>Gerado pelo CrossSet</span>
+        <span>Gerado pelo Repertório Fácil</span>
         <span>${nomeRepertorio}</span>
       </div>
 
@@ -8564,92 +7342,276 @@ async function carregarEventos() {
   }
 
   area.innerHTML = `
-    <div class="modulo-eventos rf-modulo-padrao">
-      <div class="card-projeto rf-card-formulario">
-        <div class="rf-card-topo">
-          <span class="tag">Cadastro</span>
-          <h3 id="titulo-form-evento">Novo evento</h3>
-        </div>
+    <style>
+      .modulo-eventos {
+        display: grid;
+        grid-template-columns: minmax(280px, 420px) 1fr;
+        gap: 18px;
+        width: 100%;
+      }
 
-        <div class="form-eventos rf-form-compacto">
+      .form-eventos,
+      .filtros-eventos {
+        display: grid;
+        gap: 10px;
+      }
+
+      .form-eventos label,
+      .filtros-eventos label {
+        display: grid;
+        gap: 6px;
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+
+      .form-eventos input,
+      .form-eventos select,
+      .form-eventos textarea,
+      .filtros-eventos input,
+      .filtros-eventos select {
+        width: 100%;
+      }
+
+      .form-eventos textarea {
+        min-height: 92px;
+        resize: vertical;
+      }
+
+      .linha-form-eventos {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .acoes-evento {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+      }
+
+      .lista-eventos {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item-evento {
+        border: 1px solid rgba(255, 255, 255, .16);
+        border-radius: 14px;
+        padding: 14px;
+        background: #1f2937;
+        color: #f9fafb;
+      }
+
+      .item-evento-topo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .item-evento-conteudo {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        flex: 1;
+      }
+
+      .icone-evento-placeholder {
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        border-radius: 50%;
+        background: #6d28d9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .dados-evento h4 {
+        margin: 0 0 6px;
+        color: #ffffff;
+        font-size: 17px;
+      }
+
+      .dados-evento p {
+        margin: 3px 0;
+        font-size: 13px;
+        color: #d1d5db;
+      }
+
+      .dados-evento strong {
+        color: #f3f4f6;
+      }
+
+      .tag-status-evento {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: #374151;
+        color: #e5e7eb;
+      }
+
+      .tag-status-confirmado {
+        background: #166534;
+        color: #dcfce7;
+      }
+
+      .tag-status-cancelado {
+        background: #7f1d1d;
+        color: #fee2e2;
+      }
+
+      .tag-status-realizado {
+        background: #1e3a8a;
+        color: #dbeafe;
+      }
+
+      .botoes-item-evento {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .botoes-item-evento button {
+        border: 0;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      .btn-editar-evento,
+      .btn-compartilhar-evento {
+        background: #e5e7eb;
+        color: #111827;
+      }
+
+      .btn-excluir-evento {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+
+
+      /* UX v0.9.20 - cadastro ultracompacto */
+      .modulo-musicas > .card-projeto:first-child {
+        align-self: start;
+      }
+
+      .modulo-musicas > .card-projeto:first-child label {
+        margin: 0 !important;
+      }
+
+      .modulo-musicas > .card-projeto:first-child input,
+      .modulo-musicas > .card-projeto:first-child textarea {
+        box-shadow: none !important;
+      }
+
+      @media (max-width: 820px) {
+        .modulo-eventos,
+        .linha-form-eventos,
+        .filtros-eventos,
+        .item-evento-topo {
+          grid-template-columns: 1fr;
+          flex-direction: column;
+        }
+
+        .botoes-item-evento {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+
+    <div class="modulo-eventos">
+      <div class="card-projeto">
+        <span class="tag">Cadastro</span>
+        <h3 id="titulo-form-evento">Novo evento</h3>
+        <p>Cadastre shows, ensaios e compromissos do projeto.</p>
+
+        <div class="form-eventos">
           <label>
-            Evento
-            <input id="evento-nome" type="text" placeholder="Nome do evento" />
+            Nome do evento
+            <input id="evento-nome" type="text" placeholder="Ex: Festa Pinga Óleo MC" />
           </label>
 
-          <div class="linha-form-eventos rf-linha-2">
+          <div class="linha-form-eventos">
             <label>
               Data
               <input id="evento-data" type="date" />
             </label>
 
             <label>
-              Hora
+              Horário
               <input id="evento-hora" type="time" />
             </label>
           </div>
 
           <label>
             Local
-            <input id="evento-local" type="text" placeholder="Local" />
+            <input id="evento-local" type="text" placeholder="Ex: Águias do Sol MC" />
           </label>
 
-          <div class="linha-form-eventos rf-linha-2">
+          <div class="linha-form-eventos">
             <label>
               Cidade
-              <input id="evento-cidade" type="text" placeholder="Cidade" />
+              <input id="evento-cidade" type="text" placeholder="Ex: Diadema" />
             </label>
 
             <label>
-              UF
+              Estado (UF)
               <input id="evento-estado" type="text" maxlength="2" placeholder="SP" />
             </label>
           </div>
 
-          <div class="linha-form-eventos rf-linha-2">
-            <label>
-              Repertório
-              <select id="evento-repertorio">
-                <option value="">Sem repertório</option>
-              </select>
-            </label>
+          <label>
+            Repertório
+            <select id="evento-repertorio">
+              <option value="">Sem repertório definido</option>
+            </select>
+          </label>
 
-            <label>
-              Status
-              <select id="evento-status">
-                <option value="Agendado">Agendado</option>
-                <option value="Confirmado">Confirmado</option>
-                <option value="Cancelado">Cancelado</option>
-                <option value="Realizado">Realizado</option>
-              </select>
-            </label>
-          </div>
+          <label>
+            Status
+            <select id="evento-status">
+              <option value="Agendado">Agendado</option>
+              <option value="Confirmado">Confirmado</option>
+              <option value="Cancelado">Cancelado</option>
+              <option value="Realizado">Realizado</option>
+            </select>
+          </label>
 
           <label>
             Observações
-            <textarea id="evento-observacoes" placeholder="Passagem de som, chegada, cachê..."></textarea>
+            <textarea id="evento-observacoes" placeholder="Ex: Chegar às 18h para passagem de som"></textarea>
           </label>
 
-          <div class="acoes-evento rf-acoes-formulario">
-            <button class="botao-card" id="btn-salvar-evento" type="button">Salvar</button>
-            <button class="botao-secundario-modulo" id="btn-cancelar-evento" type="button" style="display:none;">Cancelar</button>
+          <div class="acoes-evento">
+            <button class="botao-card" id="btn-salvar-evento" type="button">Salvar evento</button>
+            <button class="botao-secundario-modulo" id="btn-cancelar-evento" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
       </div>
 
-      <div class="card-projeto rf-card-lista">
-        <div class="rf-lista-topo">
-          <div>
-            <span class="tag">Lista</span>
-            <h3>Eventos</h3>
-          </div>
+      <div class="card-projeto">
+        <span class="tag">Lista</span>
+        <h3>Eventos cadastrados</h3>
+        <p>Cadastre, edite ou exclua eventos do projeto.</p>
+
+        <div class="filtros-eventos">
+          <label>
+            Pesquisar
+            <input id="busca-eventos" type="text" placeholder="Buscar por evento, local, cidade, status ou repertório" />
+          </label>
         </div>
 
-        <div class="filtros-eventos rf-filtros-compactos">
-          <input id="busca-eventos" type="text" placeholder="Buscar evento, local ou status" />
-        </div>
-
-        <div id="lista-eventos" class="lista-eventos rf-lista-compacta">
+        <div id="lista-eventos" class="lista-eventos">
           <p>Carregando eventos...</p>
         </div>
       </div>
@@ -8762,27 +7724,6 @@ function formatarDataBR(data) {
   return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
-function iconeAcaoEvento(tipo) {
-  const icones = {
-    editar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
-    compartilhar: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg>`,
-    excluir: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`,
-    calendario: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>`,
-    local: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
-    repertorio: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
-  };
-
-  return icones[tipo] || "";
-}
-
-function formatarHoraEvento(hora) {
-  if (!hora) {
-    return "";
-  }
-
-  return String(hora).slice(0, 5);
-}
-
 function renderizarListaEventos() {
   const lista = elemento("lista-eventos");
   const busca = limparTexto(elemento("busca-eventos")?.value).toLowerCase();
@@ -8824,33 +7765,29 @@ function renderizarListaEventos() {
           ? "tag-status-realizado"
           : "";
 
-    const dataHora = `${formatarDataBR(item.data_evento)}${item.hora_evento ? " • " + formatarHoraEvento(item.hora_evento) : ""}`;
-    const local = [item.local, item.cidade, item.estado].filter(Boolean).join(" • ");
-    const repertorio = obterNomeRepertorioPorId(item.repertorio_id);
-
     return `
-      <div class="item-evento rf-item-evento">
-        <div class="evento-linha-principal">
-          <div class="evento-identidade">
-            <span class="evento-icone-mini">${iconeAcaoEvento("calendario")}</span>
-            <span class="evento-nome-mini" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</span>
-            <span class="tag-status-evento ${classeStatus}">${escaparHtml(status)}</span>
+      <div class="item-evento">
+        <div class="item-evento-topo">
+          <div class="item-evento-conteudo">
+            <div class="icone-evento-placeholder">📅</div>
+
+            <div class="dados-evento">
+              <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+              <p><strong>Data:</strong> ${escaparHtml(formatarDataBR(item.data_evento))}${item.hora_evento ? " • " + escaparHtml(item.hora_evento) : ""}</p>
+              <p><strong>Local:</strong> ${escaparHtml(item.local || "Não informado")}</p>
+              <p><strong>Cidade:</strong> ${escaparHtml(item.cidade || "Não informada")}${item.estado ? " - " + escaparHtml(item.estado) : ""}</p>
+              <p><strong>Repertório:</strong> ${escaparHtml(obterNomeRepertorioPorId(item.repertorio_id))}</p>
+              ${item.observacoes ? `<p><strong>Obs:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
+              <span class="tag-status-evento ${classeStatus}">${escaparHtml(status)}</span>
+            </div>
           </div>
 
-          <div class="acoes-icone-evento">
-            <button class="btn-acao-evento" type="button" title="Editar" data-editar-evento="${escaparHtml(item.id)}">${iconeAcaoEvento("editar")}</button>
-            <button class="btn-acao-evento" type="button" title="Compartilhar" data-compartilhar-evento="${escaparHtml(item.id)}">${iconeAcaoEvento("compartilhar")}</button>
-            <button class="btn-acao-evento excluir" type="button" title="Excluir" data-excluir-evento="${escaparHtml(item.id)}">${iconeAcaoEvento("excluir")}</button>
+          <div class="botoes-item-evento">
+            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">✎ Editar</button>
+            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">↗ Compartilhar</button>
+            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">🗑 Excluir</button>
           </div>
         </div>
-
-        <div class="evento-linha-meta">
-          <span class="evento-meta-chip">${iconeAcaoEvento("calendario")} ${escaparHtml(dataHora)}</span>
-          ${local ? `<span class="evento-meta-chip">${iconeAcaoEvento("local")} ${escaparHtml(local)}</span>` : ""}
-          <span class="evento-meta-chip">${iconeAcaoEvento("repertorio")} ${escaparHtml(repertorio)}</span>
-        </div>
-
-        ${item.observacoes ? `<div class="evento-observacao-mini">${escaparHtml(item.observacoes)}</div>` : ""}
       </div>
     `;
   }).join("");
@@ -9360,40 +8297,22 @@ function configurarAuthListener() {
     return;
   }
 
-  cliente.auth.onAuthStateChange(async function(event, session) {
+  cliente.auth.onAuthStateChange(function(event, session) {
     if (session && session.user) {
       appState.sessao = session;
       appState.usuario = session.user;
+
       preencherUsuario(session.user);
 
-      if (appState.abrindoProjetoConvite) {
+      const codigoConvite = obterCodigoConvitePendente();
+      if (codigoConvite) {
+        carregarConvitePublico(codigoConvite);
         return;
       }
-
-      const codigoConviteUrl = obterCodigoConviteDaURL();
-      const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
-      const codigoConviteParaFinalizar = codigoConviteUrl || codigoConvitePendente;
-      const dadosConvitePendentes = codigoConviteParaFinalizar ? obterDadosConviteTemporario(codigoConviteParaFinalizar) : null;
-
-      // Convite tem prioridade absoluta no retorno do Gmail/cadastro.
-      // Não pode cair em Meus Projetos antes de concluir o vínculo com o projeto convidado.
-      if (codigoConviteParaFinalizar) {
-        localStorage.setItem("convite_pendente", codigoConviteParaFinalizar);
-        await carregarConvitePublico(codigoConviteParaFinalizar);
-        return;
-      }
-
-      if (await abrirProjetoConviteSalvo(session.user)) {
-        return;
-      }
-
-      limparConvitePendente();
-      limparDadosConviteTemporario();
 
       if (
         appState.telaAtual === "tela-login" ||
-        appState.telaAtual === "tela-cadastro" ||
-        appState.telaAtual === "tela-convite"
+        appState.telaAtual === "tela-cadastro"
       ) {
         mostrarTela("tela-projetos", { registrar: false });
       }
@@ -9405,7 +8324,6 @@ function configurarAuthListener() {
       appState.projetoAtual = null;
 
       localStorage.removeItem("projeto_atual");
-      limparDestinoProjetoConvite();
 
       mostrarTela("tela-login", { registrar: false });
     }
