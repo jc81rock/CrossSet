@@ -318,16 +318,27 @@ async function verificarSessao() {
     return;
   }
 
+  const codigoConviteUrl = obterCodigoConviteDaURL();
+  const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
+  const codigoConvite = codigoConviteUrl || codigoConvitePendente;
+
   const { data, error } = await cliente.auth.getSession();
 
   if (!error && data && data.session) {
     appState.sessao = data.session;
     appState.usuario = data.session.user;
-
-    // Se o usuário já está logado, convite antigo na URL não deve reabrir a tela de convite.
-    limparConvitePendente();
-
     preencherUsuario(appState.usuario);
+
+    if (codigoConvite && (codigoConviteUrl || obterDadosConviteTemporario(codigoConvite))) {
+      if (codigoConviteUrl) {
+        localStorage.setItem("convite_pendente", codigoConvite);
+      }
+      await carregarConvitePublico(codigoConvite);
+      return;
+    }
+
+    limparConvitePendente();
+    limparDadosConviteTemporario();
     mostrarTela("tela-projetos", { registrar: false });
     return;
   }
@@ -341,10 +352,9 @@ async function verificarSessao() {
     return;
   }
 
-  const codigoConvite = obterCodigoConviteDaURL();
-  if (codigoConvite) {
-    localStorage.setItem("convite_pendente", codigoConvite);
-    await carregarConvitePublico(codigoConvite);
+  if (codigoConviteUrl) {
+    localStorage.setItem("convite_pendente", codigoConviteUrl);
+    await carregarConvitePublico(codigoConviteUrl);
     return;
   }
 
@@ -2310,6 +2320,8 @@ function garantirTelaConvite() {
   const tela = document.createElement("section");
   tela.id = "tela-convite";
   tela.className = "tela";
+  tela.style.justifyContent = "center";
+  tela.style.alignItems = "center";
 
   tela.innerHTML = `
     <div class="card-login" style="max-width:620px;">
@@ -2590,7 +2602,7 @@ async function entrarComGmailEAceitarConvite() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(convite.codigo),
+      redirectTo: REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
