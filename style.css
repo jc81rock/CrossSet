@@ -1599,3 +1599,33 @@ textarea:focus,
 .btn-acao-projeto.excluir:hover {
   color: #fca5a5;
 }
+
+
+/* CrossSet padrão global — botões verdes de WhatsApp/compartilhamento */
+.btn-whatsapp-padrao,
+.botao-whatsapp-repertorio,
+.botao-whatsapp,
+.botao-convidar-whatsapp {
+  min-height: 34px !important;
+  height: 34px !important;
+  border-radius: 11px !important;
+  padding: 0 14px !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(22, 163, 74, .16) !important;
+}
+.btn-whatsapp-padrao::before,
+.btn-whatsapp-padrao::after,
+.botao-whatsapp-repertorio::before,
+.botao-whatsapp-repertorio::after,
+.botao-whatsapp::before,
+.botao-whatsapp::after,
+.botao-convidar-whatsapp::before,
+.botao-convidar-whatsapp::after,
+.btn-whatsapp-padrao .seta-btn {
+  display: none !important;
+  content: none !important;
+}

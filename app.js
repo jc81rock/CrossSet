@@ -1654,6 +1654,388 @@ async function carregarIntegrantes() {
 
 
 
+      /* CrossSet - ajuste fino pedido: somente botão WhatsApp e cards dos integrantes cadastrados */
+      .lista-integrantes {
+        gap: 6px !important;
+      }
+
+      .item-integrante {
+        height: 112px !important;
+        min-height: 112px !important;
+        max-height: 112px !important;
+        padding: 7px 10px !important;
+        border-radius: 11px !important;
+        overflow: hidden !important;
+      }
+
+      .item-integrante-topo {
+        gap: 7px !important;
+      }
+
+      .foto-integrante-placeholder {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        font-size: 12px !important;
+      }
+
+      .dados-integrante h4 {
+        font-size: 13px !important;
+        line-height: 1.05 !important;
+        margin: 0 0 2px !important;
+      }
+
+      .dados-integrante p {
+        font-size: 10.5px !important;
+        line-height: 1.14 !important;
+      }
+
+      .tag-admin,
+      .tag-integrante {
+        margin-top: 2px !important;
+        padding: 2px 7px !important;
+        font-size: 9.5px !important;
+      }
+
+      .botoes-item-integrante {
+        gap: 7px !important;
+        min-width: 54px !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        min-height: 20px !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica svg {
+        width: 15px !important;
+        height: 15px !important;
+        stroke-width: 1.9 !important;
+      }
+
+      .desenvolvimento-integrante {
+        margin-top: 4px !important;
+        padding: 4px 6px !important;
+        border-radius: 8px !important;
+        gap: 2px !important;
+      }
+
+      .desenvolvimento-integrante-topo {
+        font-size: 9px !important;
+        line-height: 1 !important;
+      }
+
+      .desenvolvimento-integrante-percentual {
+        font-size: 12px !important;
+      }
+
+      .barra-desenvolvimento-integrante {
+        height: 3px !important;
+      }
+
+      .desenvolvimento-integrante-contadores {
+        gap: 6px !important;
+        font-size: 9px !important;
+        line-height: 1 !important;
+      }
+
+      .desenvolvimento-integrante-contadores strong {
+        font-size: 10px !important;
+      }
+
+      .btn-whatsapp-padrao {
+        height: 42px !important;
+        min-height: 42px !important;
+        border-radius: 13px !important;
+        gap: 8px !important;
+        font-size: 15px !important;
+        background: linear-gradient(135deg, #16a34a, #128c3f) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 20px rgba(22, 163, 74, .16) !important;
+      }
+
+      .btn-whatsapp-padrao .seta-btn {
+        display: none !important;
+      }
+
+      .btn-whatsapp-padrao .icone-btn {
+        width: 20px !important;
+        height: 20px !important;
+        min-width: 20px !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #ffffff !important;
+      }
+
+      .btn-whatsapp-padrao .icone-btn svg {
+        width: 18px !important;
+        height: 18px !important;
+        display: block !important;
+      }
+
+      /* CrossSet - Feature 005: integrantes em linha + WhatsApp padrão compacto */
+      .modulo-integrantes > .card-projeto:nth-child(2) {
+        padding-top: 12px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) > .tag {
+        margin-bottom: 6px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) > h3 {
+        font-size: 21px !important;
+        line-height: 1.05 !important;
+        margin: 0 0 4px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) > p {
+        font-size: 12px !important;
+        line-height: 1.2 !important;
+        margin: 0 0 8px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes {
+        margin: 6px 0 8px !important;
+        gap: 8px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes label {
+        gap: 3px !important;
+        font-size: 10.5px !important;
+      }
+
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes input,
+      .modulo-integrantes > .card-projeto:nth-child(2) .filtros-integrantes select {
+        height: 32px !important;
+        min-height: 32px !important;
+        padding: 6px 9px !important;
+        font-size: 11.5px !important;
+        border-radius: 9px !important;
+      }
+
+      .lista-integrantes {
+        gap: 5px !important;
+      }
+
+      .item-integrante {
+        height: 66px !important;
+        min-height: 66px !important;
+        max-height: 66px !important;
+        padding: 5px 8px !important;
+        border-radius: 10px !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+
+      .item-integrante-topo {
+        display: grid !important;
+        grid-template-columns: 26px minmax(0, 1fr) 46px !important;
+        align-items: center !important;
+        gap: 8px !important;
+        width: 100% !important;
+      }
+
+      .foto-integrante-placeholder {
+        width: 26px !important;
+        height: 26px !important;
+        min-width: 26px !important;
+        font-size: 11px !important;
+      }
+
+      .dados-integrante {
+        display: grid !important;
+        grid-template-columns: minmax(120px, 1.05fr) minmax(115px, .95fr) minmax(150px, 1.1fr) auto minmax(132px, .78fr) !important;
+        align-items: center !important;
+        gap: 7px !important;
+        min-width: 0 !important;
+      }
+
+      .dados-integrante h4,
+      .dados-integrante p,
+      .dados-integrante .tag-admin,
+      .dados-integrante .tag-integrante,
+      .dados-integrante .desenvolvimento-integrante {
+        margin: 0 !important;
+        min-width: 0 !important;
+      }
+
+      .dados-integrante h4 {
+        font-size: 12.2px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .dados-integrante p {
+        font-size: 9.7px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .dados-integrante p strong {
+        font-weight: 700 !important;
+      }
+
+      .tag-admin,
+      .tag-integrante {
+        padding: 2px 6px !important;
+        font-size: 8.8px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        justify-self: start !important;
+      }
+
+      .desenvolvimento-integrante {
+        width: 100% !important;
+        max-width: none !important;
+        height: 44px !important;
+        padding: 3px 5px !important;
+        border-radius: 8px !important;
+        gap: 2px !important;
+        align-self: center !important;
+      }
+
+      .desenvolvimento-integrante-topo {
+        height: 12px !important;
+        font-size: 8.5px !important;
+        line-height: 1 !important;
+      }
+
+      .desenvolvimento-integrante-topo span:first-child {
+        max-width: 72px !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .desenvolvimento-integrante-percentual {
+        font-size: 11px !important;
+        line-height: 1 !important;
+      }
+
+      .barra-desenvolvimento-integrante {
+        height: 3px !important;
+      }
+
+      .desenvolvimento-integrante-contadores {
+        gap: 4px !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        font-size: 8px !important;
+        line-height: 1 !important;
+      }
+
+      .desenvolvimento-integrante-contadores strong {
+        font-size: 8.8px !important;
+        margin-right: 1px !important;
+      }
+
+      .botoes-item-integrante {
+        width: 46px !important;
+        min-width: 46px !important;
+        gap: 7px !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica {
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
+      }
+
+      .botoes-item-integrante .btn-acao-musica svg {
+        width: 14px !important;
+        height: 14px !important;
+        stroke-width: 1.8 !important;
+      }
+
+      .btn-whatsapp-padrao,
+      .botao-whatsapp-repertorio,
+      .botao-whatsapp,
+      .botao-convidar-whatsapp {
+        min-height: 34px !important;
+        height: 34px !important;
+        border-radius: 11px !important;
+        padding: 0 14px !important;
+        gap: 8px !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+        color: #ffffff !important;
+        box-shadow: 0 8px 18px rgba(22, 163, 74, .16) !important;
+      }
+
+      .btn-whatsapp-padrao::before,
+      .btn-whatsapp-padrao::after,
+      .botao-whatsapp-repertorio::before,
+      .botao-whatsapp-repertorio::after,
+      .botao-whatsapp::before,
+      .botao-whatsapp::after,
+      .botao-convidar-whatsapp::before,
+      .botao-convidar-whatsapp::after,
+      .btn-whatsapp-padrao .seta-btn {
+        display: none !important;
+        content: none !important;
+      }
+
+      .btn-whatsapp-padrao .icone-btn,
+      .botao-whatsapp-repertorio .icone-limpo,
+      .botao-whatsapp .icone-limpo,
+      .botao-convidar-whatsapp .icone-limpo {
+        width: 17px !important;
+        height: 17px !important;
+        min-width: 17px !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        color: #ffffff !important;
+        flex: 0 0 17px !important;
+      }
+
+      .btn-whatsapp-padrao .icone-btn svg,
+      .botao-whatsapp-repertorio svg,
+      .botao-whatsapp svg,
+      .botao-convidar-whatsapp svg {
+        width: 17px !important;
+        height: 17px !important;
+      }
+
+      @media (max-width: 860px) {
+        .item-integrante {
+          height: 92px !important;
+          min-height: 92px !important;
+          max-height: 92px !important;
+        }
+
+        .dados-integrante {
+          grid-template-columns: 1fr auto !important;
+          grid-template-rows: repeat(4, auto) !important;
+          gap: 3px 6px !important;
+        }
+
+        .dados-integrante h4,
+        .dados-integrante p,
+        .dados-integrante .tag-admin,
+        .dados-integrante .tag-integrante {
+          grid-column: 1 / 2 !important;
+        }
+
+        .desenvolvimento-integrante {
+          grid-column: 1 / -1 !important;
+          height: 34px !important;
+        }
+      }
+
+
+
       /* UX v0.9.19 - lista ultracompacta (1,5cm a 2cm) */
       .lista-musicas {
         display: block !important;
@@ -1868,7 +2250,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn" aria-hidden="true">☎</span><span>Convidar por WhatsApp</span><span class="seta-btn" aria-hidden="true">→</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.4-4.1A8 8 0 1 1 20 11.5Z"></path><path d="M9.5 8.8c.2-.5.4-.5.7-.5h.5c.2 0 .4.1.5.4l.6 1.4c.1.3.1.5-.1.7l-.4.5c.8 1.4 1.9 2.3 3.4 2.9l.5-.6c.2-.2.4-.3.7-.2l1.3.6c.3.1.4.3.4.6v.5c0 .4-.2.7-.5.9-.5.3-1.1.4-1.8.3-3.1-.5-5.8-3.1-6.4-6.1-.1-.6 0-1.1.3-1.4Z"></path></svg></span><span>Convidar por WhatsApp</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -5579,7 +5961,7 @@ async function carregarRepertorios() {
             </button>
             <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
-              <span>Compartilhar repertório</span><span>→</span>
+              <span>Compartilhar repertório</span>
             </button>
             <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
