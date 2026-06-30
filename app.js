@@ -3752,7 +3752,10 @@ async function abrirProjetoDoConvite(convite, usuario) {
     console.warn("Não foi possível limpar a URL do convite.", erroUrl);
   }
 
-  abrirPainelProjeto();
+  // Abre diretamente o projeto do convite. Este é o ponto crítico do fluxo.
+  garantirTelasInternas();
+  carregarPainelProjeto();
+  mostrarTela("tela-painel-projeto", { registrar: false });
 }
 
 async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
@@ -9306,7 +9309,10 @@ function configurarAuthListener() {
       const codigoConviteParaFinalizar = codigoConviteUrl || codigoConvitePendente;
       const dadosConvitePendentes = codigoConviteParaFinalizar ? obterDadosConviteTemporario(codigoConviteParaFinalizar) : null;
 
-      if (codigoConviteParaFinalizar && dadosConvitePendentes) {
+      // Convite tem prioridade absoluta no retorno do Gmail/cadastro.
+      // Não pode cair em Meus Projetos antes de concluir o vínculo com o projeto convidado.
+      if (codigoConviteParaFinalizar) {
+        localStorage.setItem("convite_pendente", codigoConviteParaFinalizar);
         carregarConvitePublico(codigoConviteParaFinalizar);
         return;
       }
