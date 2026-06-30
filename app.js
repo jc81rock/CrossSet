@@ -7342,276 +7342,92 @@ async function carregarEventos() {
   }
 
   area.innerHTML = `
-    <style>
-      .modulo-eventos {
-        display: grid;
-        grid-template-columns: minmax(280px, 420px) 1fr;
-        gap: 18px;
-        width: 100%;
-      }
+    <div class="modulo-eventos rf-modulo-padrao">
+      <div class="card-projeto rf-card-formulario">
+        <div class="rf-card-topo">
+          <span class="tag">Cadastro</span>
+          <h3 id="titulo-form-evento">Novo evento</h3>
+        </div>
 
-      .form-eventos,
-      .filtros-eventos {
-        display: grid;
-        gap: 10px;
-      }
-
-      .form-eventos label,
-      .filtros-eventos label {
-        display: grid;
-        gap: 6px;
-        font-size: 13px;
-        color: #e5e7eb;
-      }
-
-      .form-eventos input,
-      .form-eventos select,
-      .form-eventos textarea,
-      .filtros-eventos input,
-      .filtros-eventos select {
-        width: 100%;
-      }
-
-      .form-eventos textarea {
-        min-height: 92px;
-        resize: vertical;
-      }
-
-      .linha-form-eventos {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-      }
-
-      .acoes-evento {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 4px;
-      }
-
-      .lista-eventos {
-        display: grid;
-        gap: 10px;
-      }
-
-      .item-evento {
-        border: 1px solid rgba(255, 255, 255, .16);
-        border-radius: 14px;
-        padding: 14px;
-        background: #1f2937;
-        color: #f9fafb;
-      }
-
-      .item-evento-topo {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 12px;
-      }
-
-      .item-evento-conteudo {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        flex: 1;
-      }
-
-      .icone-evento-placeholder {
-        width: 42px;
-        height: 42px;
-        min-width: 42px;
-        border-radius: 50%;
-        background: #6d28d9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 800;
-        color: #ffffff;
-      }
-
-      .dados-evento h4 {
-        margin: 0 0 6px;
-        color: #ffffff;
-        font-size: 17px;
-      }
-
-      .dados-evento p {
-        margin: 3px 0;
-        font-size: 13px;
-        color: #d1d5db;
-      }
-
-      .dados-evento strong {
-        color: #f3f4f6;
-      }
-
-      .tag-status-evento {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 4px 9px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-        background: #374151;
-        color: #e5e7eb;
-      }
-
-      .tag-status-confirmado {
-        background: #166534;
-        color: #dcfce7;
-      }
-
-      .tag-status-cancelado {
-        background: #7f1d1d;
-        color: #fee2e2;
-      }
-
-      .tag-status-realizado {
-        background: #1e3a8a;
-        color: #dbeafe;
-      }
-
-      .botoes-item-evento {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-      }
-
-      .botoes-item-evento button {
-        border: 0;
-        border-radius: 10px;
-        padding: 8px 10px;
-        cursor: pointer;
-        font-weight: 700;
-      }
-
-      .btn-editar-evento,
-      .btn-compartilhar-evento {
-        background: #e5e7eb;
-        color: #111827;
-      }
-
-      .btn-excluir-evento {
-        background: #fee2e2;
-        color: #991b1b;
-      }
-
-
-
-      /* UX v0.9.20 - cadastro ultracompacto */
-      .modulo-musicas > .card-projeto:first-child {
-        align-self: start;
-      }
-
-      .modulo-musicas > .card-projeto:first-child label {
-        margin: 0 !important;
-      }
-
-      .modulo-musicas > .card-projeto:first-child input,
-      .modulo-musicas > .card-projeto:first-child textarea {
-        box-shadow: none !important;
-      }
-
-      @media (max-width: 820px) {
-        .modulo-eventos,
-        .linha-form-eventos,
-        .filtros-eventos,
-        .item-evento-topo {
-          grid-template-columns: 1fr;
-          flex-direction: column;
-        }
-
-        .botoes-item-evento {
-          justify-content: flex-start;
-        }
-      }
-    </style>
-
-    <div class="modulo-eventos">
-      <div class="card-projeto">
-        <span class="tag">Cadastro</span>
-        <h3 id="titulo-form-evento">Novo evento</h3>
-        <p>Cadastre shows, ensaios e compromissos do projeto.</p>
-
-        <div class="form-eventos">
+        <div class="form-eventos rf-form-compacto">
           <label>
-            Nome do evento
-            <input id="evento-nome" type="text" placeholder="Ex: Festa Pinga Óleo MC" />
+            Evento
+            <input id="evento-nome" type="text" placeholder="Nome do evento" />
           </label>
 
-          <div class="linha-form-eventos">
+          <div class="linha-form-eventos rf-linha-2">
             <label>
               Data
               <input id="evento-data" type="date" />
             </label>
 
             <label>
-              Horário
+              Hora
               <input id="evento-hora" type="time" />
             </label>
           </div>
 
           <label>
             Local
-            <input id="evento-local" type="text" placeholder="Ex: Águias do Sol MC" />
+            <input id="evento-local" type="text" placeholder="Local" />
           </label>
 
-          <div class="linha-form-eventos">
+          <div class="linha-form-eventos rf-linha-2">
             <label>
               Cidade
-              <input id="evento-cidade" type="text" placeholder="Ex: Diadema" />
+              <input id="evento-cidade" type="text" placeholder="Cidade" />
             </label>
 
             <label>
-              Estado (UF)
+              UF
               <input id="evento-estado" type="text" maxlength="2" placeholder="SP" />
             </label>
           </div>
 
-          <label>
-            Repertório
-            <select id="evento-repertorio">
-              <option value="">Sem repertório definido</option>
-            </select>
-          </label>
+          <div class="linha-form-eventos rf-linha-2">
+            <label>
+              Repertório
+              <select id="evento-repertorio">
+                <option value="">Sem repertório</option>
+              </select>
+            </label>
 
-          <label>
-            Status
-            <select id="evento-status">
-              <option value="Agendado">Agendado</option>
-              <option value="Confirmado">Confirmado</option>
-              <option value="Cancelado">Cancelado</option>
-              <option value="Realizado">Realizado</option>
-            </select>
-          </label>
+            <label>
+              Status
+              <select id="evento-status">
+                <option value="Agendado">Agendado</option>
+                <option value="Confirmado">Confirmado</option>
+                <option value="Cancelado">Cancelado</option>
+                <option value="Realizado">Realizado</option>
+              </select>
+            </label>
+          </div>
 
           <label>
             Observações
-            <textarea id="evento-observacoes" placeholder="Ex: Chegar às 18h para passagem de som"></textarea>
+            <textarea id="evento-observacoes" placeholder="Passagem de som, chegada, cachê..."></textarea>
           </label>
 
-          <div class="acoes-evento">
-            <button class="botao-card" id="btn-salvar-evento" type="button">Salvar evento</button>
-            <button class="botao-secundario-modulo" id="btn-cancelar-evento" type="button" style="display:none;">Cancelar edição</button>
+          <div class="acoes-evento rf-acoes-formulario">
+            <button class="botao-card" id="btn-salvar-evento" type="button">Salvar</button>
+            <button class="botao-secundario-modulo" id="btn-cancelar-evento" type="button" style="display:none;">Cancelar</button>
           </div>
         </div>
       </div>
 
-      <div class="card-projeto">
-        <span class="tag">Lista</span>
-        <h3>Eventos cadastrados</h3>
-        <p>Cadastre, edite ou exclua eventos do projeto.</p>
-
-        <div class="filtros-eventos">
-          <label>
-            Pesquisar
-            <input id="busca-eventos" type="text" placeholder="Buscar por evento, local, cidade, status ou repertório" />
-          </label>
+      <div class="card-projeto rf-card-lista">
+        <div class="rf-lista-topo">
+          <div>
+            <span class="tag">Lista</span>
+            <h3>Eventos</h3>
+          </div>
         </div>
 
-        <div id="lista-eventos" class="lista-eventos">
+        <div class="filtros-eventos rf-filtros-compactos">
+          <input id="busca-eventos" type="text" placeholder="Buscar evento, local ou status" />
+        </div>
+
+        <div id="lista-eventos" class="lista-eventos rf-lista-compacta">
           <p>Carregando eventos...</p>
         </div>
       </div>
@@ -7724,6 +7540,27 @@ function formatarDataBR(data) {
   return partes[2] + "/" + partes[1] + "/" + partes[0];
 }
 
+function iconeAcaoEvento(tipo) {
+  const icones = {
+    editar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+    compartilhar: `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg>`,
+    excluir: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>`,
+    calendario: `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>`,
+    local: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`,
+    repertorio: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`
+  };
+
+  return icones[tipo] || "";
+}
+
+function formatarHoraEvento(hora) {
+  if (!hora) {
+    return "";
+  }
+
+  return String(hora).slice(0, 5);
+}
+
 function renderizarListaEventos() {
   const lista = elemento("lista-eventos");
   const busca = limparTexto(elemento("busca-eventos")?.value).toLowerCase();
@@ -7765,29 +7602,33 @@ function renderizarListaEventos() {
           ? "tag-status-realizado"
           : "";
 
-    return `
-      <div class="item-evento">
-        <div class="item-evento-topo">
-          <div class="item-evento-conteudo">
-            <div class="icone-evento-placeholder">📅</div>
+    const dataHora = `${formatarDataBR(item.data_evento)}${item.hora_evento ? " • " + formatarHoraEvento(item.hora_evento) : ""}`;
+    const local = [item.local, item.cidade, item.estado].filter(Boolean).join(" • ");
+    const repertorio = obterNomeRepertorioPorId(item.repertorio_id);
 
-            <div class="dados-evento">
-              <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
-              <p><strong>Data:</strong> ${escaparHtml(formatarDataBR(item.data_evento))}${item.hora_evento ? " • " + escaparHtml(item.hora_evento) : ""}</p>
-              <p><strong>Local:</strong> ${escaparHtml(item.local || "Não informado")}</p>
-              <p><strong>Cidade:</strong> ${escaparHtml(item.cidade || "Não informada")}${item.estado ? " - " + escaparHtml(item.estado) : ""}</p>
-              <p><strong>Repertório:</strong> ${escaparHtml(obterNomeRepertorioPorId(item.repertorio_id))}</p>
-              ${item.observacoes ? `<p><strong>Obs:</strong> ${escaparHtml(item.observacoes)}</p>` : ""}
-              <span class="tag-status-evento ${classeStatus}">${escaparHtml(status)}</span>
-            </div>
+    return `
+      <div class="item-evento rf-item-evento">
+        <div class="evento-linha-principal">
+          <div class="evento-identidade">
+            <span class="evento-icone-mini">${iconeAcaoEvento("calendario")}</span>
+            <span class="evento-nome-mini" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</span>
+            <span class="tag-status-evento ${classeStatus}">${escaparHtml(status)}</span>
           </div>
 
-          <div class="botoes-item-evento">
-            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">✎ Editar</button>
-            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">↗ Compartilhar</button>
-            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">🗑 Excluir</button>
+          <div class="acoes-icone-evento">
+            <button class="btn-acao-evento" type="button" title="Editar" data-editar-evento="${escaparHtml(item.id)}">${iconeAcaoEvento("editar")}</button>
+            <button class="btn-acao-evento" type="button" title="Compartilhar" data-compartilhar-evento="${escaparHtml(item.id)}">${iconeAcaoEvento("compartilhar")}</button>
+            <button class="btn-acao-evento excluir" type="button" title="Excluir" data-excluir-evento="${escaparHtml(item.id)}">${iconeAcaoEvento("excluir")}</button>
           </div>
         </div>
+
+        <div class="evento-linha-meta">
+          <span class="evento-meta-chip">${iconeAcaoEvento("calendario")} ${escaparHtml(dataHora)}</span>
+          ${local ? `<span class="evento-meta-chip">${iconeAcaoEvento("local")} ${escaparHtml(local)}</span>` : ""}
+          <span class="evento-meta-chip">${iconeAcaoEvento("repertorio")} ${escaparHtml(repertorio)}</span>
+        </div>
+
+        ${item.observacoes ? `<div class="evento-observacao-mini">${escaparHtml(item.observacoes)}</div>` : ""}
       </div>
     `;
   }).join("");
