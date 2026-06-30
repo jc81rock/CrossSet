@@ -3,7 +3,7 @@
 (function(){
  const h=window.location.hash||"";
  if(!h.includes("convite=")){
-   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+   ["convitePendente","codigoConvitePendente","convite","inviteCode","convite_pendente","convite_dados_pendentes"].forEach(k=>{
      try{localStorage.removeItem(k);}catch(e){}
      try{sessionStorage.removeItem(k);}catch(e){}
    });
@@ -11,7 +11,7 @@
  window.addEventListener("hashchange",()=>{
    const hh=window.location.hash||"";
    if(!hh.includes("convite=")){
-     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+     ["convitePendente","codigoConvitePendente","convite","inviteCode","convite_pendente","convite_dados_pendentes"].forEach(k=>{
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
      });
@@ -302,15 +302,26 @@ async function verificarSessao() {
   }
 
   const { data, error } = await cliente.auth.getSession();
+  const codigoConviteUrl = obterCodigoConviteDaURL();
+  const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
+  const codigoConviteParaFinalizar = codigoConviteUrl || codigoConvitePendente;
+  const dadosConvitePendentes = codigoConviteParaFinalizar ? obterDadosConviteTemporario(codigoConviteParaFinalizar) : null;
 
   if (!error && data && data.session) {
     appState.sessao = data.session;
     appState.usuario = data.session.user;
-
-    // Se o usuário já está logado, convite antigo na URL não deve reabrir a tela de convite.
-    limparConvitePendente();
-
     preencherUsuario(appState.usuario);
+
+    // Só continua o fluxo de convite se existir um convite REAL na URL
+    // ou dados temporários salvos antes do login pelo Gmail.
+    if (codigoConviteParaFinalizar && dadosConvitePendentes) {
+      await carregarConvitePublico(codigoConviteParaFinalizar);
+      return;
+    }
+
+    // Login normal pelo Gmail deve abrir Meus Projetos, nunca tela de convite vazia.
+    limparConvitePendente();
+    limparDadosConviteTemporario();
     mostrarTela("tela-projetos", { registrar: false });
     return;
   }
@@ -324,13 +335,14 @@ async function verificarSessao() {
     return;
   }
 
-  const codigoConvite = obterCodigoConviteDaURL();
-  if (codigoConvite) {
-    localStorage.setItem("convite_pendente", codigoConvite);
-    await carregarConvitePublico(codigoConvite);
+  if (codigoConviteUrl) {
+    localStorage.setItem("convite_pendente", codigoConviteUrl);
+    await carregarConvitePublico(codigoConviteUrl);
     return;
   }
 
+  limparConvitePendente();
+  limparDadosConviteTemporario();
   mostrarTela("tela-login", { registrar: false });
 }
 
@@ -344,7 +356,7 @@ async function entrarComGoogle() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
+      redirectTo: REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -392,13 +404,15 @@ async function entrarComEmail() {
 
   preencherUsuario(appState.usuario);
 
-  const codigoConvite = obterCodigoConvitePendente();
+  const codigoConvite = obterCodigoConviteDaURL();
   if (codigoConvite) {
     localStorage.setItem("convite_pendente", codigoConvite);
     await carregarConvitePublico(codigoConvite);
     return;
   }
 
+  limparConvitePendente();
+  limparDadosConviteTemporario();
   mostrarTela("tela-projetos");
 }
 
@@ -8297,18 +8311,25 @@ function configurarAuthListener() {
     if (session && session.user) {
       appState.sessao = session;
       appState.usuario = session.user;
-
       preencherUsuario(session.user);
 
-      const codigoConvite = obterCodigoConvitePendente();
-      if (codigoConvite) {
-        carregarConvitePublico(codigoConvite);
+      const codigoConviteUrl = obterCodigoConviteDaURL();
+      const codigoConvitePendente = localStorage.getItem("convite_pendente") || "";
+      const codigoConviteParaFinalizar = codigoConviteUrl || codigoConvitePendente;
+      const dadosConvitePendentes = codigoConviteParaFinalizar ? obterDadosConviteTemporario(codigoConviteParaFinalizar) : null;
+
+      if (codigoConviteParaFinalizar && dadosConvitePendentes) {
+        carregarConvitePublico(codigoConviteParaFinalizar);
         return;
       }
 
+      limparConvitePendente();
+      limparDadosConviteTemporario();
+
       if (
         appState.telaAtual === "tela-login" ||
-        appState.telaAtual === "tela-cadastro"
+        appState.telaAtual === "tela-cadastro" ||
+        appState.telaAtual === "tela-convite"
       ) {
         mostrarTela("tela-projetos", { registrar: false });
       }

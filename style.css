@@ -27,8 +27,7 @@ body {
 
 #tela-login,
 #tela-cadastro,
-#tela-novo-projeto,
-#tela-convite {
+#tela-novo-projeto {
   justify-content: center;
   align-items: center;
 }
