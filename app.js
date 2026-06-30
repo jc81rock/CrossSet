@@ -790,7 +790,7 @@ function garantirTelasInternas() {
     <div class="container">
       <header class="topo">
         <div class="topo-logo">
-          <img src="logo.png" alt="Repertório Fácil" />
+          <img src="logo.png" alt="CrossSet" />
           <div>
             <h1 id="titulo-projeto">Projeto</h1>
             <p id="subtitulo-projeto">Painel interno do projeto</p>
@@ -2113,7 +2113,7 @@ async function gerarConviteIntegrante() {
     "",
     "Olá!",
     "",
-    nomeAdmin + " convidou você para entrar no projeto " + nomeProjeto + " pelo Repertório Fácil.",
+    nomeAdmin + " convidou você para entrar no projeto " + nomeProjeto + " pelo CrossSet.",
     "",
     "Este convite é exclusivo para esse projeto. Ao aceitar, seus dados serão cadastrados diretamente dentro de " + nomeProjeto + ".",
     "",
@@ -2149,7 +2149,7 @@ async function gerarConviteIntegrante() {
   try {
     if (navigator.share) {
       await navigator.share({
-        title: "Convite Repertório Fácil",
+        title: "Convite CrossSet",
         text: mensagem,
         url: link
       });
@@ -2188,7 +2188,7 @@ function garantirTelaConvite() {
 
   tela.innerHTML = `
     <div class="card-login" style="max-width:620px;">
-      <img src="logo.png" alt="Repertório Fácil" class="logo-login" />
+      <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
@@ -6670,7 +6670,7 @@ function garantirTelaRepertorioPublico() {
     </style>
     <div class="pagina-repertorio-publico">
       <div class="card-repertorio-publico" id="conteudo-repertorio-publico">
-        <span class="publico-tag">Repertório Fácil</span>
+        <span class="publico-tag">CrossSet</span>
         <div class="publico-titulo">
           <h1>Carregando repertório...</h1>
           <p>Buscando informações atualizadas.</p>
@@ -6715,7 +6715,7 @@ async function carregarRepertorioPublico(repertorioId) {
   }
 
   conteudo.innerHTML = `
-    <span class="publico-tag">Repertório Fácil</span>
+    <span class="publico-tag">CrossSet</span>
     <div class="publico-titulo">
       <h1>Carregando repertório...</h1>
       <p>Buscando informações atualizadas.</p>
@@ -6728,7 +6728,7 @@ async function carregarRepertorioPublico(repertorioId) {
 
   if (error) {
     conteudo.innerHTML = `
-      <span class="publico-tag">Repertório Fácil</span>
+      <span class="publico-tag">CrossSet</span>
       <div class="publico-titulo">
         <h1>Repertório não disponível</h1>
         <p>Não foi possível carregar este repertório.</p>
@@ -6807,7 +6807,7 @@ async function carregarRepertorioPublico(repertorioId) {
     </div>
 
     <div class="publico-rodape">
-      <strong>Repertório Fácil</strong><br>
+      <strong>CrossSet</strong><br>
       Este repertório é atualizado automaticamente.<br>
       Sempre consulte este link antes do ensaio ou show.
     </div>
@@ -6963,7 +6963,7 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
   const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
   const linhas = [];
 
-  linhas.push("Repertório Fácil");
+  linhas.push("CrossSet");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Repertório: " + (repertorio.nome || "Repertório"));
@@ -7007,7 +7007,7 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
 
   linhas.push("");
   linhas.push("Total de músicas: " + itens.length);
-  linhas.push("Compartilhado pelo Repertório Fácil");
+  linhas.push("Compartilhado pelo CrossSet");
 
   return linhas.join("\n");
 }
@@ -7056,7 +7056,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   const projeto = appState.projetoAtual || {};
   const linhas = [];
 
-  linhas.push("Repertório Fácil");
+  linhas.push("CrossSet");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Evento: " + (evento.nome || "Evento"));
@@ -7084,7 +7084,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   }
 
   linhas.push("");
-  linhas.push("Compartilhado pelo Repertório Fácil");
+  linhas.push("Compartilhado pelo CrossSet");
 
   return linhas.join("\n");
 }
@@ -7253,7 +7253,7 @@ async function gerarPDFDoRepertorio(repertorioId) {
     </head>
     <body>
       <section class="cabecalho">
-        <div class="marca">Repertório Fácil</div>
+        <div class="marca">CrossSet</div>
         <h1>${nomeProjeto}</h1>
         <h2>${nomeRepertorio}</h2>
         <div class="info">
@@ -7279,7 +7279,7 @@ async function gerarPDFDoRepertorio(repertorioId) {
       </table>
 
       <div class="rodape">
-        <span>Gerado pelo Repertório Fácil</span>
+        <span>Gerado pelo CrossSet</span>
         <span>${nomeRepertorio}</span>
       </div>
 
