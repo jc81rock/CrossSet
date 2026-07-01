@@ -1,0 +1,23 @@
+CrossSet Smart Beta - Músicas
+
+Alteração feita:
+- Adicionado bloco CrossSet Smart no topo do módulo Músicas.
+- Busca local beta para validar a experiência.
+- Sugestões de músicas.
+- Card de confirmação.
+- Confirmar cadastro salva direto na tabela musicas.
+
+Não altera:
+- Integrantes.
+- Convites.
+- Repertórios.
+- Eventos.
+- Estrutura das demais páginas.
+- Banco de dados.
+
+SQL:
+- Não precisa rodar SQL nesta etapa.
+
+Observação:
+- Esta versão ainda não consulta Spotify, MusicBrainz ou OpenAI.
+- É um MVP visual/funcional para validar o fluxo antes da integração real.

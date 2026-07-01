@@ -54,8 +54,7 @@ let appState = {
   meuIntegranteAtual: null,
   eventos: [],
   eventoEditandoId: null,
-  conviteAtual: null,
-  crossSetSmartSelecionada: null
+  conviteAtual: null
 };
 
 function sb() {
@@ -1622,6 +1621,129 @@ async function carregarIntegrantes() {
       .indicador-conteudo-musica {
         font-size: 11px !important;
       }
+
+      .crossset-smart-card {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, rgba(51,196,255,.10), rgba(122,92,255,.16), rgba(184,77,255,.10));
+        border: 1px solid rgba(255,255,255,.12);
+        display: grid;
+        gap: 8px;
+      }
+
+      .crossset-smart-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .crossset-smart-topo strong {
+        color: #ffffff;
+        font-size: 14px;
+      }
+
+      .crossset-smart-topo span {
+        color: #aebff2;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .crossset-smart-busca {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+      }
+
+      .crossset-smart-busca input {
+        margin-bottom: 0 !important;
+      }
+
+      .crossset-smart-busca button,
+      .crossset-smart-confirmar {
+        min-height: 34px !important;
+        height: 34px !important;
+        border: 0;
+        border-radius: 9px;
+        padding: 0 12px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .crossset-smart-sugestoes {
+        display: grid;
+        gap: 6px;
+      }
+
+      .crossset-smart-sugestao {
+        width: 100%;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 10px;
+        background: rgba(255,255,255,.055);
+        color: #ffffff;
+        text-align: left;
+        padding: 8px;
+        cursor: pointer;
+        display: grid;
+        gap: 2px;
+      }
+
+      .crossset-smart-sugestao:hover {
+        background: rgba(122,92,255,.18);
+      }
+
+      .crossset-smart-sugestao strong,
+      .crossset-smart-preview strong {
+        font-size: 13px;
+        color: #ffffff;
+      }
+
+      .crossset-smart-sugestao span,
+      .crossset-smart-preview span {
+        font-size: 11.5px;
+        color: #cbd5e1;
+      }
+
+      .crossset-smart-preview {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 12px;
+        padding: 9px;
+        background: rgba(7,17,31,.72);
+        display: none;
+        gap: 5px;
+      }
+
+      .crossset-smart-preview.ativo {
+        display: grid;
+      }
+
+      .crossset-smart-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 4px 0;
+      }
+
+      .crossset-smart-meta span {
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.075);
+        border: 1px solid rgba(255,255,255,.10);
+        color: #dbeafe;
+        font-weight: 700;
+      }
+
+      .crossset-smart-ajuda {
+        color: #9ca3af;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
 
 
 
@@ -3656,32 +3778,14 @@ async function carregarMusicas() {
         gap: 8px;
       }
 
-
-
-      /* UX v0.9.20 - cadastro ultracompacto */
-      .modulo-musicas > .card-projeto:first-child {
-        align-self: start;
-      }
-
-      .modulo-musicas > .card-projeto:first-child label {
-        margin: 0 !important;
-      }
-
-      .modulo-musicas > .card-projeto:first-child input,
-      .modulo-musicas > .card-projeto:first-child textarea {
-        box-shadow: none !important;
-      }
-
-
-      /* CrossSet Smart Beta - busca inteligente de músicas */
       .crossset-smart-card {
-        display: grid;
-        gap: 8px;
         margin-bottom: 10px;
         padding: 10px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, rgba(51,196,255,.10), rgba(122,92,255,.14), rgba(184,77,255,.10));
+        border-radius: 13px;
+        background: linear-gradient(135deg, rgba(51,196,255,.10), rgba(122,92,255,.16), rgba(184,77,255,.10));
         border: 1px solid rgba(255,255,255,.12);
+        display: grid;
+        gap: 8px;
       }
 
       .crossset-smart-topo {
@@ -3694,12 +3798,12 @@ async function carregarMusicas() {
       .crossset-smart-topo strong {
         color: #ffffff;
         font-size: 14px;
-        line-height: 1.1;
       }
 
       .crossset-smart-topo span {
-        color: #b7c4dd;
+        color: #aebff2;
         font-size: 11px;
+        font-weight: 700;
       }
 
       .crossset-smart-busca {
@@ -3709,9 +3813,7 @@ async function carregarMusicas() {
       }
 
       .crossset-smart-busca input {
-        min-height: 34px !important;
-        height: 34px !important;
-        margin: 0 !important;
+        margin-bottom: 0 !important;
       }
 
       .crossset-smart-busca button,
@@ -3731,68 +3833,88 @@ async function carregarMusicas() {
 
       .crossset-smart-sugestoes {
         display: grid;
-        gap: 5px;
+        gap: 6px;
       }
 
       .crossset-smart-sugestao {
         width: 100%;
-        border: 1px solid rgba(255,255,255,.11);
+        border: 1px solid rgba(255,255,255,.10);
         border-radius: 10px;
-        padding: 7px 9px;
-        cursor: pointer;
         background: rgba(255,255,255,.055);
         color: #ffffff;
+        text-align: left;
+        padding: 8px;
+        cursor: pointer;
         display: grid;
         gap: 2px;
-        text-align: left;
       }
 
-      .crossset-smart-sugestao strong {
-        font-size: 12.5px;
+      .crossset-smart-sugestao:hover {
+        background: rgba(122,92,255,.18);
       }
 
-      .crossset-smart-sugestao span {
-        color: #b7c4dd;
-        font-size: 11px;
-      }
-
-      .crossset-smart-resultado {
-        display: none;
-        gap: 8px;
-        padding: 10px;
-        border-radius: 12px;
-        background: rgba(5,11,20,.44);
-        border: 1px solid rgba(255,255,255,.10);
-      }
-
-      .crossset-smart-resultado.ativo {
-        display: grid;
-      }
-
-      .crossset-smart-resultado h4 {
-        margin: 0 !important;
-        font-size: 15px !important;
+      .crossset-smart-sugestao strong,
+      .crossset-smart-preview strong {
+        font-size: 13px;
         color: #ffffff;
       }
 
-      .crossset-smart-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 6px;
-        color: #d7e1f6;
+      .crossset-smart-sugestao span,
+      .crossset-smart-preview span {
         font-size: 11.5px;
+        color: #cbd5e1;
       }
 
-      .crossset-smart-grid span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+      .crossset-smart-preview {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 12px;
+        padding: 9px;
+        background: rgba(7,17,31,.72);
+        display: none;
+        gap: 5px;
       }
 
-      .crossset-smart-aviso {
-        color: #94a3b8;
-        font-size: 10.5px;
+      .crossset-smart-preview.ativo {
+        display: grid;
+      }
+
+      .crossset-smart-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 4px 0;
+      }
+
+      .crossset-smart-meta span {
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.075);
+        border: 1px solid rgba(255,255,255,.10);
+        color: #dbeafe;
+        font-weight: 700;
+      }
+
+      .crossset-smart-ajuda {
+        color: #9ca3af;
+        font-size: 11px;
         line-height: 1.35;
+      }
+
+
+
+
+      /* UX v0.9.20 - cadastro ultracompacto */
+      .modulo-musicas > .card-projeto:first-child {
+        align-self: start;
+      }
+
+      .modulo-musicas > .card-projeto:first-child label {
+        margin: 0 !important;
+      }
+
+      .modulo-musicas > .card-projeto:first-child input,
+      .modulo-musicas > .card-projeto:first-child textarea {
+        box-shadow: none !important;
       }
 
       @media (max-width: 820px) {
@@ -3818,27 +3940,27 @@ async function carregarMusicas() {
 
     <div class="modulo-musicas">
       <div class="card-projeto">
-        <div class="crossset-smart-card" aria-label="CrossSet Smart Beta">
-          <div class="crossset-smart-topo">
-            <div>
-              <strong>✨ CrossSet Smart</strong><br />
-              <span>Digite o nome da música e confirme o cadastro.</span>
-            </div>
-            <span>Beta</span>
-          </div>
-
-          <div class="crossset-smart-busca">
-            <input id="crossset-smart-busca" type="text" placeholder="Ex: Sweet Child O' Mine" autocomplete="off" />
-            <button id="btn-crossset-smart-buscar" type="button">Buscar</button>
-          </div>
-
-          <div id="crossset-smart-sugestoes" class="crossset-smart-sugestoes"></div>
-
-          <div id="crossset-smart-resultado" class="crossset-smart-resultado"></div>
-
-          <small class="crossset-smart-aviso">MVP local para teste. Depois ligamos Spotify, MusicBrainz e IA.</small>
-        </div>
         <h3 id="titulo-form-musica">Nova música</h3>
+
+
+
+          <div class="crossset-smart-card" aria-label="CrossSet Smart Beta">
+            <div class="crossset-smart-topo">
+              <strong>✨ CrossSet Smart</strong>
+              <span>Beta</span>
+            </div>
+
+            <div class="crossset-smart-busca">
+              <input id="smart-musica-busca" type="text" placeholder="Digite o nome da música..." autocomplete="off" />
+              <button id="btn-smart-musica-buscar" type="button">Buscar</button>
+            </div>
+
+            <div id="smart-musica-sugestoes" class="crossset-smart-sugestoes"></div>
+
+            <div id="smart-musica-preview" class="crossset-smart-preview"></div>
+
+            <small class="crossset-smart-ajuda">Digite, escolha uma sugestão e confirme. O cadastro manual continua disponível abaixo.</small>
+          </div>
 
         <div class="form-musicas">
           <label>
@@ -3954,230 +4076,6 @@ async function carregarMusicas() {
   await buscarMusicas();
 }
 
-
-const CROSSSET_SMART_CATALOGO = [
-  { nome: "Sweet Child O' Mine", artista: "Guns N' Roses", album: "Appetite for Destruction", ano: "1987", tom: "D", bpm: 125, duracao: "5:56", genero: "Hard rock" },
-  { nome: "Hotel California", artista: "Eagles", album: "Hotel California", ano: "1976", tom: "Bm", bpm: 74, duracao: "6:30", genero: "Classic rock" },
-  { nome: "Nothing Else Matters", artista: "Metallica", album: "Metallica", ano: "1991", tom: "Em", bpm: 142, duracao: "6:28", genero: "Rock / Metal" },
-  { nome: "Enter Sandman", artista: "Metallica", album: "Metallica", ano: "1991", tom: "Em", bpm: 123, duracao: "5:31", genero: "Heavy metal" },
-  { nome: "Zombie", artista: "The Cranberries", album: "No Need to Argue", ano: "1994", tom: "Em", bpm: 83, duracao: "5:06", genero: "Alternative rock" },
-  { nome: "Creep", artista: "Radiohead", album: "Pablo Honey", ano: "1992", tom: "G", bpm: 92, duracao: "3:58", genero: "Alternative rock" },
-  { nome: "Losing My Religion", artista: "R.E.M.", album: "Out of Time", ano: "1991", tom: "Am", bpm: 126, duracao: "4:28", genero: "Alternative rock" },
-  { nome: "Come As You Are", artista: "Nirvana", album: "Nevermind", ano: "1991", tom: "Em", bpm: 120, duracao: "3:39", genero: "Grunge" },
-  { nome: "Lithium", artista: "Nirvana", album: "Nevermind", ano: "1991", tom: "D", bpm: 124, duracao: "4:17", genero: "Grunge" },
-  { nome: "Smells Like Teen Spirit", artista: "Nirvana", album: "Nevermind", ano: "1991", tom: "F", bpm: 117, duracao: "5:01", genero: "Grunge" },
-  { nome: "Back In Black", artista: "AC/DC", album: "Back in Black", ano: "1980", tom: "E", bpm: 94, duracao: "4:15", genero: "Hard rock" },
-  { nome: "You Shook Me All Night Long", artista: "AC/DC", album: "Back in Black", ano: "1980", tom: "G", bpm: 127, duracao: "3:30", genero: "Hard rock" },
-  { nome: "Livin' On A Prayer", artista: "Bon Jovi", album: "Slippery When Wet", ano: "1986", tom: "Em", bpm: 123, duracao: "4:09", genero: "Hard rock" },
-  { nome: "You Give Love A Bad Name", artista: "Bon Jovi", album: "Slippery When Wet", ano: "1986", tom: "C#m", bpm: 123, duracao: "3:43", genero: "Hard rock" },
-  { nome: "It's My Life", artista: "Bon Jovi", album: "Crush", ano: "2000", tom: "Cm", bpm: 120, duracao: "3:44", genero: "Rock" },
-  { nome: "I Was Made For Lovin' You", artista: "Kiss", album: "Dynasty", ano: "1979", tom: "Em", bpm: 128, duracao: "4:31", genero: "Rock" },
-  { nome: "Rock and Roll All Nite", artista: "Kiss", album: "Dressed to Kill", ano: "1975", tom: "G", bpm: 145, duracao: "2:49", genero: "Rock" },
-  { nome: "American Idiot", artista: "Green Day", album: "American Idiot", ano: "2004", tom: "Ab", bpm: 186, duracao: "2:54", genero: "Punk rock" },
-  { nome: "Holiday", artista: "Green Day", album: "American Idiot", ano: "2004", tom: "F", bpm: 147, duracao: "3:52", genero: "Punk rock" },
-  { nome: "In The End", artista: "Linkin Park", album: "Hybrid Theory", ano: "2000", tom: "Eb minor", bpm: 105, duracao: "3:36", genero: "Nu metal" },
-  { nome: "What’s Up?", artista: "4 Non Blondes", album: "Bigger, Better, Faster, More!", ano: "1992", tom: "A", bpm: 134, duracao: "4:55", genero: "Alternative rock" },
-  { nome: "Wish You Were Here", artista: "Pink Floyd", album: "Wish You Were Here", ano: "1975", tom: "G", bpm: 122, duracao: "5:34", genero: "Progressive rock" },
-  { nome: "I Want To Break Free", artista: "Queen", album: "The Works", ano: "1984", tom: "E", bpm: 109, duracao: "4:18", genero: "Rock" },
-  { nome: "Tempo Perdido", artista: "Legião Urbana", album: "Dois", ano: "1986", tom: "C", bpm: 112, duracao: "5:01", genero: "Rock nacional" },
-  { nome: "Será", artista: "Legião Urbana", album: "Legião Urbana", ano: "1985", tom: "D", bpm: 152, duracao: "2:30", genero: "Rock nacional" },
-  { nome: "Primeiros Erros", artista: "Capital Inicial", album: "Acústico MTV", ano: "2000", tom: "D", bpm: 76, duracao: "4:20", genero: "Rock nacional" },
-  { nome: "Fátima", artista: "Capital Inicial", album: "Capital Inicial", ano: "1986", tom: "Em", bpm: 136, duracao: "3:52", genero: "Rock nacional" },
-  { nome: "Bete Balanço", artista: "Barão Vermelho", album: "Maior Abandonado", ano: "1984", tom: "A", bpm: 136, duracao: "3:31", genero: "Rock nacional" },
-  { nome: "O Tempo Não Para", artista: "Cazuza", album: "O Tempo Não Para", ano: "1988", tom: "A", bpm: 120, duracao: "4:39", genero: "Rock nacional" },
-  { nome: "Malandragem", artista: "Cássia Eller", album: "Cássia Eller", ano: "1994", tom: "G", bpm: 82, duracao: "4:04", genero: "Rock nacional" },
-  { nome: "Mulher de Fases", artista: "Raimundos", album: "Só no Forévis", ano: "1999", tom: "A", bpm: 174, duracao: "3:33", genero: "Rock nacional" },
-  { nome: "Easy", artista: "Faith No More", album: "Angel Dust", ano: "1992", tom: "G", bpm: 63, duracao: "3:07", genero: "Rock" },
-  { nome: "Have You Ever Seen the Rain", artista: "Creedence Clearwater Revival", album: "Pendulum", ano: "1970", tom: "C", bpm: 116, duracao: "2:40", genero: "Classic rock" },
-  { nome: "Learn to Fly", artista: "Foo Fighters", album: "There Is Nothing Left to Lose", ano: "1999", tom: "B", bpm: 136, duracao: "3:58", genero: "Rock" },
-  { nome: "My Hero", artista: "Foo Fighters", album: "The Colour and the Shape", ano: "1997", tom: "E", bpm: 77, duracao: "4:20", genero: "Rock" }
-];
-
-function normalizarBuscaCrossSetSmart(valor) {
-  return limparTexto(valor)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function buscarSugestoesCrossSetSmart(termo) {
-  const busca = normalizarBuscaCrossSetSmart(termo);
-
-  if (!busca || busca.length < 2) {
-    return [];
-  }
-
-  return CROSSSET_SMART_CATALOGO
-    .map(function(musica, indice) {
-      const nome = normalizarBuscaCrossSetSmart(musica.nome);
-      const artista = normalizarBuscaCrossSetSmart(musica.artista);
-      const texto = nome + " " + artista;
-      let pontos = 0;
-
-      if (nome === busca) { pontos += 100; }
-      if (nome.startsWith(busca)) { pontos += 60; }
-      if (texto.includes(busca)) { pontos += 30; }
-      busca.split(/\s+/).forEach(function(parte) {
-        if (parte && texto.includes(parte)) { pontos += 8; }
-      });
-
-      return { musica, indice, pontos };
-    })
-    .filter(function(item) { return item.pontos > 0; })
-    .sort(function(a, b) { return b.pontos - a.pontos || compararTexto(a.musica.nome, b.musica.nome); })
-    .slice(0, 5);
-}
-
-function renderizarSugestoesCrossSetSmart() {
-  const campo = elemento("crossset-smart-busca");
-  const lista = elemento("crossset-smart-sugestoes");
-  const resultado = elemento("crossset-smart-resultado");
-
-  if (!campo || !lista) {
-    return;
-  }
-
-  const sugestoes = buscarSugestoesCrossSetSmart(campo.value);
-  appState.crossSetSmartSelecionada = null;
-
-  if (resultado) {
-    resultado.classList.remove("ativo");
-    resultado.innerHTML = "";
-  }
-
-  if (!limparTexto(campo.value)) {
-    lista.innerHTML = "";
-    return;
-  }
-
-  if (sugestoes.length === 0) {
-    lista.innerHTML = `<small class="crossset-smart-aviso">Nenhuma sugestão local encontrada. Na próxima fase ligamos APIs externas.</small>`;
-    return;
-  }
-
-  lista.innerHTML = sugestoes.map(function(item) {
-    const musica = item.musica;
-    return `
-      <button class="crossset-smart-sugestao" type="button" data-crossset-smart-indice="${item.indice}">
-        <strong>${escaparHtml(musica.nome)}</strong>
-        <span>${escaparHtml(musica.artista)} • ${escaparHtml(musica.album)} • ${escaparHtml(musica.ano)}</span>
-      </button>
-    `;
-  }).join("");
-
-  lista.querySelectorAll("[data-crossset-smart-indice]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      selecionarMusicaCrossSetSmart(Number(botao.dataset.crosssetSmartIndice));
-    });
-  });
-}
-
-function selecionarMusicaCrossSetSmart(indice) {
-  const musica = CROSSSET_SMART_CATALOGO[indice];
-  const lista = elemento("crossset-smart-sugestoes");
-  const resultado = elemento("crossset-smart-resultado");
-
-  if (!musica || !resultado) {
-    return;
-  }
-
-  appState.crossSetSmartSelecionada = musica;
-
-  if (lista) {
-    lista.innerHTML = "";
-  }
-
-  resultado.classList.add("ativo");
-  resultado.innerHTML = `
-    <h4>🎵 ${escaparHtml(musica.nome)}</h4>
-    <div class="crossset-smart-grid">
-      <span>👤 ${escaparHtml(musica.artista)}</span>
-      <span>💿 ${escaparHtml(musica.album)}</span>
-      <span>📅 ${escaparHtml(musica.ano)}</span>
-      <span>🎼 ${escaparHtml(musica.tom || "Tom a confirmar")}</span>
-      <span>🥁 ${escaparHtml(String(musica.bpm || "BPM a confirmar"))}</span>
-      <span>⏱️ ${escaparHtml(musica.duracao || "Duração a confirmar")}</span>
-    </div>
-    <button class="crossset-smart-confirmar" id="btn-crossset-smart-confirmar" type="button">Confirmar cadastro</button>
-  `;
-
-  const botaoConfirmar = elemento("btn-crossset-smart-confirmar");
-  if (botaoConfirmar) {
-    botaoConfirmar.addEventListener("click", confirmarCadastroCrossSetSmart);
-  }
-}
-
-async function confirmarCadastroCrossSetSmart() {
-  const cliente = sb();
-  const projetoId = obterProjetoAtualId();
-  const musica = appState.crossSetSmartSelecionada;
-
-  if (!cliente || !projetoId || !musica) {
-    return;
-  }
-
-  const existente = (appState.musicas || []).find(function(item) {
-    return normalizarBuscaCrossSetSmart(item.nome) === normalizarBuscaCrossSetSmart(musica.nome)
-      && normalizarBuscaCrossSetSmart(item.artista) === normalizarBuscaCrossSetSmart(musica.artista);
-  });
-
-  if (existente) {
-    alert("Essa música já está cadastrada neste projeto.");
-    return;
-  }
-
-  const observacoesSmart = [
-    "Cadastro via CrossSet Smart Beta.",
-    musica.album ? "Álbum: " + musica.album : "",
-    musica.ano ? "Ano: " + musica.ano : "",
-    musica.duracao ? "Duração: " + musica.duracao : "",
-    musica.genero ? "Gênero: " + musica.genero : ""
-  ].filter(Boolean).join("\n");
-
-  const linkBusca = "https://www.youtube.com/results?search_query=" + encodeURIComponent(musica.nome + " " + musica.artista);
-
-  const payload = {
-    projeto_id: projetoId,
-    nome: musica.nome,
-    artista: musica.artista,
-    tom: musica.tom || "",
-    bpm: Number.isFinite(Number(musica.bpm)) ? Number(musica.bpm) : null,
-    link_url: linkBusca,
-    youtube_url: linkBusca,
-    letra: "",
-    observacoes: observacoesSmart,
-    updated_at: new Date().toISOString()
-  };
-
-  const { error } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.musicas)
-    .insert(payload);
-
-  if (error) {
-    alert("Erro ao cadastrar música pelo CrossSet Smart: " + error.message);
-    return;
-  }
-
-  appState.crossSetSmartSelecionada = null;
-
-  const campo = elemento("crossset-smart-busca");
-  const lista = elemento("crossset-smart-sugestoes");
-  const resultado = elemento("crossset-smart-resultado");
-
-  if (campo) { campo.value = ""; }
-  if (lista) { lista.innerHTML = ""; }
-  if (resultado) {
-    resultado.innerHTML = `<small class="crossset-smart-aviso">Música cadastrada com sucesso.</small>`;
-    resultado.classList.add("ativo");
-    setTimeout(function() {
-      resultado.classList.remove("ativo");
-      resultado.innerHTML = "";
-    }, 1800);
-  }
-
-  await buscarMusicas();
-}
-
 function configurarEventosMusicas() {
   const botaoSalvar = elemento("btn-salvar-musica");
   const botaoCancelar = elemento("btn-cancelar-musica");
@@ -4187,32 +4085,27 @@ function configurarEventosMusicas() {
   const botaoAnexarLetra = elemento("btn-anexar-letra-musica");
   const inputMaterial = elemento("musica-material-arquivo");
   const inputLetra = elemento("musica-letra-arquivo");
-  const campoSmart = elemento("crossset-smart-busca");
-  const botaoSmart = elemento("btn-crossset-smart-buscar");
+  const smartBusca = elemento("smart-musica-busca");
+  const smartBotaoBuscar = elemento("btn-smart-musica-buscar");
 
-  if (campoSmart) {
-    campoSmart.addEventListener("input", renderizarSugestoesCrossSetSmart);
-    campoSmart.addEventListener("keydown", function(evento) {
+
+
+  if (smartBusca) {
+    smartBusca.addEventListener("input", function() {
+      renderizarSugestoesSmartMusicas(smartBusca.value);
+    });
+
+    smartBusca.addEventListener("keydown", function(evento) {
       if (evento.key === "Enter") {
         evento.preventDefault();
-        const sugestoes = buscarSugestoesCrossSetSmart(campoSmart.value);
-        if (sugestoes.length > 0) {
-          selecionarMusicaCrossSetSmart(sugestoes[0].indice);
-        } else {
-          renderizarSugestoesCrossSetSmart();
-        }
+        renderizarSugestoesSmartMusicas(smartBusca.value, true);
       }
     });
   }
 
-  if (botaoSmart) {
-    botaoSmart.addEventListener("click", function() {
-      const sugestoes = buscarSugestoesCrossSetSmart(campoSmart ? campoSmart.value : "");
-      if (sugestoes.length > 0) {
-        selecionarMusicaCrossSetSmart(sugestoes[0].indice);
-      } else {
-        renderizarSugestoesCrossSetSmart();
-      }
+  if (smartBotaoBuscar && smartBusca) {
+    smartBotaoBuscar.addEventListener("click", function() {
+      renderizarSugestoesSmartMusicas(smartBusca.value, true);
     });
   }
 
@@ -4270,6 +4163,192 @@ function configurarEventosMusicas() {
       campoLetra.focus();
     });
   }
+}
+
+
+function obterCatalogoSmartMusicas() {
+  const cadastradas = (appState.musicas || []).map(function(musica) {
+    return {
+      nome: musica.nome || "",
+      artista: musica.artista || "",
+      album: "Catálogo do projeto",
+      ano: "",
+      tom: musica.tom || "",
+      bpm: musica.bpm || "",
+      duracao: "",
+      link_url: obterLinkMusica(musica),
+      origem: "Projeto"
+    };
+  });
+
+  const baseBeta = [
+    { nome: "Sweet Child O' Mine", artista: "Guns N' Roses", album: "Appetite for Destruction", ano: "1987", tom: "D", bpm: 125, duracao: "5:56", link_url: "", origem: "Beta" },
+    { nome: "Hotel California", artista: "Eagles", album: "Hotel California", ano: "1976", tom: "Bm", bpm: 74, duracao: "6:30", link_url: "", origem: "Beta" },
+    { nome: "Nothing Else Matters", artista: "Metallica", album: "Metallica", ano: "1991", tom: "Em", bpm: 142, duracao: "6:28", link_url: "", origem: "Beta" },
+    { nome: "Tempo Perdido", artista: "Legião Urbana", album: "Dois", ano: "1986", tom: "C", bpm: 104, duracao: "5:02", link_url: "", origem: "Beta" },
+    { nome: "Primeiros Erros", artista: "Capital Inicial", album: "Acústico MTV", ano: "2000", tom: "G", bpm: 76, duracao: "4:07", link_url: "", origem: "Beta" },
+    { nome: "Zombie", artista: "The Cranberries", album: "No Need to Argue", ano: "1994", tom: "Em", bpm: 83, duracao: "5:06", link_url: "", origem: "Beta" },
+    { nome: "Creep", artista: "Radiohead", album: "Pablo Honey", ano: "1992", tom: "G", bpm: 92, duracao: "3:58", link_url: "", origem: "Beta" },
+    { nome: "Smells Like Teen Spirit", artista: "Nirvana", album: "Nevermind", ano: "1991", tom: "F", bpm: 117, duracao: "5:01", link_url: "", origem: "Beta" }
+  ];
+
+  const mapa = new Map();
+  cadastradas.concat(baseBeta).forEach(function(item) {
+    const chave = (limparTexto(item.nome) + "|" + limparTexto(item.artista)).toLowerCase();
+    if (chave && !mapa.has(chave)) {
+      mapa.set(chave, item);
+    }
+  });
+
+  return Array.from(mapa.values());
+}
+
+function buscarSugestoesSmartMusicas(termo) {
+  const busca = limparTexto(termo).toLowerCase();
+
+  if (!busca || busca.length < 2) {
+    return [];
+  }
+
+  return obterCatalogoSmartMusicas()
+    .filter(function(item) {
+      const texto = [item.nome, item.artista, item.album, item.ano].join(" ").toLowerCase();
+      return texto.includes(busca);
+    })
+    .slice(0, 5);
+}
+
+function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
+  const sugestoes = buscarSugestoesSmartMusicas(termo);
+  const container = elemento("smart-musica-sugestoes");
+  const preview = elemento("smart-musica-preview");
+
+  if (!container) {
+    return;
+  }
+
+  if (preview) {
+    preview.classList.remove("ativo");
+    preview.innerHTML = "";
+  }
+
+  if (!sugestoes.length) {
+    container.innerHTML = forcarResultado && limparTexto(termo).length >= 2
+      ? `<small class="crossset-smart-ajuda">Nenhuma sugestão encontrada neste beta. Use o cadastro manual ou tente outro nome.</small>`
+      : "";
+    return;
+  }
+
+  container.innerHTML = sugestoes.map(function(item, indice) {
+    return `
+      <button class="crossset-smart-sugestao" type="button" data-smart-musica-indice="${indice}">
+        <strong>🎵 ${escaparHtml(item.nome || "Música")}</strong>
+        <span>${escaparHtml(item.artista || "Artista não informado")} ${item.album ? "• " + escaparHtml(item.album) : ""} ${item.ano ? "• " + escaparHtml(item.ano) : ""}</span>
+      </button>
+    `;
+  }).join("");
+
+  container.querySelectorAll("[data-smart-musica-indice]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      const indice = Number(botao.dataset.smartMusicaIndice);
+      mostrarPreviewSmartMusica(sugestoes[indice]);
+    });
+  });
+}
+
+function mostrarPreviewSmartMusica(musica) {
+  const preview = elemento("smart-musica-preview");
+  const container = elemento("smart-musica-sugestoes");
+
+  if (!preview || !musica) {
+    return;
+  }
+
+  if (container) {
+    container.innerHTML = "";
+  }
+
+  preview.classList.add("ativo");
+  preview.innerHTML = `
+    <strong>🎵 ${escaparHtml(musica.nome || "Música")}</strong>
+    <span>👤 ${escaparHtml(musica.artista || "Artista não informado")}</span>
+    <span>💿 ${escaparHtml(musica.album || "Álbum não informado")} ${musica.ano ? "• " + escaparHtml(musica.ano) : ""}</span>
+    <div class="crossset-smart-meta">
+      <span>🎼 Tom: ${escaparHtml(musica.tom || "-")}</span>
+      <span>🥁 BPM: ${escaparHtml(musica.bpm || "-")}</span>
+      <span>⏱️ ${escaparHtml(musica.duracao || "-")}</span>
+    </div>
+    <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
+  `;
+
+  const botaoConfirmar = elemento("btn-confirmar-smart-musica");
+  if (botaoConfirmar) {
+    botaoConfirmar.addEventListener("click", function() {
+      salvarMusicaSmart(musica);
+    });
+  }
+}
+
+async function salvarMusicaSmart(musica) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !projetoId || !musica) {
+    return;
+  }
+
+  const nome = limparTexto(musica.nome);
+
+  if (!nome) {
+    alert("Selecione uma música válida.");
+    return;
+  }
+
+  const bpmNumero = parseInt(musica.bpm, 10);
+  const observacoesSmart = [
+    musica.album ? "Álbum: " + musica.album : "",
+    musica.ano ? "Ano: " + musica.ano : "",
+    musica.duracao ? "Duração: " + musica.duracao : "",
+    musica.origem ? "Origem: CrossSet Smart Beta" : ""
+  ].filter(Boolean).join("\n");
+
+  const payload = {
+    projeto_id: projetoId,
+    nome: nome,
+    artista: limparTexto(musica.artista),
+    tom: limparTexto(musica.tom),
+    bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
+    link_url: limparTexto(musica.link_url),
+    youtube_url: limparTexto(musica.link_url),
+    material_arquivo_url: "",
+    letra_arquivo_url: "",
+    letra: "",
+    observacoes: observacoesSmart,
+    updated_at: new Date().toISOString()
+  };
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.musicas)
+    .insert(payload);
+
+  if (error) {
+    alert("Erro ao salvar música pelo CrossSet Smart: " + error.message);
+    return;
+  }
+
+  const busca = elemento("smart-musica-busca");
+  const sugestoes = elemento("smart-musica-sugestoes");
+  const preview = elemento("smart-musica-preview");
+
+  if (busca) { busca.value = ""; }
+  if (sugestoes) { sugestoes.innerHTML = ""; }
+  if (preview) {
+    preview.classList.remove("ativo");
+    preview.innerHTML = "";
+  }
+
+  await buscarMusicas();
+  alert("Música adicionada pelo CrossSet Smart.");
 }
 
 async function buscarMusicas() {
@@ -8111,6 +8190,129 @@ async function carregarEventos() {
         background: #fee2e2;
         color: #991b1b;
       }
+
+      .crossset-smart-card {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 13px;
+        background: linear-gradient(135deg, rgba(51,196,255,.10), rgba(122,92,255,.16), rgba(184,77,255,.10));
+        border: 1px solid rgba(255,255,255,.12);
+        display: grid;
+        gap: 8px;
+      }
+
+      .crossset-smart-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .crossset-smart-topo strong {
+        color: #ffffff;
+        font-size: 14px;
+      }
+
+      .crossset-smart-topo span {
+        color: #aebff2;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .crossset-smart-busca {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 6px;
+      }
+
+      .crossset-smart-busca input {
+        margin-bottom: 0 !important;
+      }
+
+      .crossset-smart-busca button,
+      .crossset-smart-confirmar {
+        min-height: 34px !important;
+        height: 34px !important;
+        border: 0;
+        border-radius: 9px;
+        padding: 0 12px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .crossset-smart-sugestoes {
+        display: grid;
+        gap: 6px;
+      }
+
+      .crossset-smart-sugestao {
+        width: 100%;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 10px;
+        background: rgba(255,255,255,.055);
+        color: #ffffff;
+        text-align: left;
+        padding: 8px;
+        cursor: pointer;
+        display: grid;
+        gap: 2px;
+      }
+
+      .crossset-smart-sugestao:hover {
+        background: rgba(122,92,255,.18);
+      }
+
+      .crossset-smart-sugestao strong,
+      .crossset-smart-preview strong {
+        font-size: 13px;
+        color: #ffffff;
+      }
+
+      .crossset-smart-sugestao span,
+      .crossset-smart-preview span {
+        font-size: 11.5px;
+        color: #cbd5e1;
+      }
+
+      .crossset-smart-preview {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 12px;
+        padding: 9px;
+        background: rgba(7,17,31,.72);
+        display: none;
+        gap: 5px;
+      }
+
+      .crossset-smart-preview.ativo {
+        display: grid;
+      }
+
+      .crossset-smart-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 4px 0;
+      }
+
+      .crossset-smart-meta span {
+        padding: 4px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.075);
+        border: 1px solid rgba(255,255,255,.10);
+        color: #dbeafe;
+        font-weight: 700;
+      }
+
+      .crossset-smart-ajuda {
+        color: #9ca3af;
+        font-size: 11px;
+        line-height: 1.35;
+      }
+
 
 
 
