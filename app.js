@@ -30,6 +30,7 @@ const REPERTORIO_FACIL = {
     repertorios: "repertorios",
     repertorioMusicas: "repertorio_musicas",
     progressoMusicas: "progresso_musicas",
+    projetoParticipantes: "projeto_participantes",
     eventos: "eventos",
     convites: "convites_projeto"
   }
@@ -1298,9 +1299,15 @@ async function carregarIntegrantes() {
       }
 
       .btn-whatsapp-padrao {
-        background: linear-gradient(135deg, #18c761, #16b957);
+        background: #16b957 !important;
         color: #ffffff;
         box-shadow: 0 10px 24px rgba(24, 199, 97, .22);
+      }
+
+      .btn-whatsapp-padrao::before,
+      .btn-whatsapp-padrao::after {
+        content: none !important;
+        display: none !important;
       }
 
       .btn-salvar-integrante-padrao:hover,
@@ -3028,6 +3035,53 @@ async function aceitarConviteAtual() {
   await aceitarConviteComUsuario(usuario);
 }
 
+
+async function garantirParticipanteProjeto(projetoId, usuario, dados = {}) {
+  const cliente = sb();
+
+  if (!cliente || !projetoId || !usuario || !usuario.id) {
+    return false;
+  }
+
+  const emailUsuario = limparTexto(dados.email) || usuario.email || "";
+  const nomeUsuario = limparTexto(dados.nome) || obterNomeUsuario(usuario);
+  const papelUsuario = limparTexto(dados.papel) || "integrante";
+
+  const { data: participanteExistente, error: erroBuscaParticipante } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes || "projeto_participantes")
+    .select("id")
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id)
+    .maybeSingle();
+
+  if (erroBuscaParticipante) {
+    console.warn("Não foi possível verificar participante do projeto.", erroBuscaParticipante);
+  }
+
+  if (participanteExistente) {
+    return true;
+  }
+
+  const { error: erroInserirParticipante } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes || "projeto_participantes")
+    .insert({
+      projeto_id: projetoId,
+      usuario_id: usuario.id,
+      email: emailUsuario,
+      nome: nomeUsuario,
+      papel: papelUsuario,
+      status: "ativo"
+    });
+
+  if (erroInserirParticipante) {
+    console.warn("Não foi possível registrar participante do projeto.", erroInserirParticipante);
+    alert("Convite aceito, mas não foi possível registrar o acesso ao projeto: " + erroInserirParticipante.message);
+    return false;
+  }
+
+  return true;
+}
+
 async function abrirProjetoDoConvite(projetoId, nomeProjeto) {
   const cliente = sb();
 
@@ -3140,6 +3194,16 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   // Se o integrante já existe no projeto, não bloqueia o fluxo.
   // Apenas entra direto no projeto, que é o comportamento aprovado para convites.
   if (existente || emailJaCadastrado) {
+    const participanteOk = await garantirParticipanteProjeto(projetoId, usuario, {
+      email: emailUsuario,
+      nome: nomeUsuario,
+      papel: convite.papel || "integrante"
+    });
+
+    if (!participanteOk) {
+      return;
+    }
+
     await abrirProjetoDoConvite(projetoId, nomeProjeto);
     return;
   }
@@ -3164,6 +3228,16 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
 
   if (erroInserir) {
     alert("Erro ao aceitar convite: " + erroInserir.message);
+    return;
+  }
+
+  const participanteOk = await garantirParticipanteProjeto(projetoId, usuario, {
+    email: emailUsuario,
+    nome: nomeUsuario,
+    papel: convite.papel || "integrante"
+  });
+
+  if (!participanteOk) {
     return;
   }
 
