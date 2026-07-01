@@ -3,7 +3,7 @@
 (function(){
  const h=window.location.hash||"";
  if(!h.includes("convite=")){
-   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+   ["convite_pendente","convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
      try{localStorage.removeItem(k);}catch(e){}
      try{sessionStorage.removeItem(k);}catch(e){}
    });
@@ -11,7 +11,7 @@
  window.addEventListener("hashchange",()=>{
    const hh=window.location.hash||"";
    if(!hh.includes("convite=")){
-     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+     ["convite_pendente","convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
      });
@@ -399,7 +399,10 @@ function obterCodigoConvitePendente() {
 }
 
 function limparConvitePendente() {
-  localStorage.removeItem("convite_pendente");
+  ["convite_pendente","convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(function(chave) {
+    try { localStorage.removeItem(chave); } catch (erro) {}
+    try { sessionStorage.removeItem(chave); } catch (erro) {}
+  });
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -2009,7 +2012,7 @@ function obterDesenvolvimentoIntegrante(integranteId) {
       return item.musica_id === musica.id && item.integrante_id === integranteId;
     });
 
-    const status = obterStatusRegistroMusica(registro);
+    const status = registro?.status || "nao_iniciada";
 
     if (status === "pronta") {
       pontos += 1;
@@ -2482,9 +2485,12 @@ function garantirTelaConvite() {
   const tela = document.createElement("section");
   tela.id = "tela-convite";
   tela.className = "tela";
+  tela.style.justifyContent = "center";
+  tela.style.alignItems = "center";
+  tela.style.padding = "16px";
 
   tela.innerHTML = `
-    <div class="card-login card-convite">
+    <div class="card-login card-convite" style="width:100%;max-width:430px;min-height:auto;align-self:center;">
       <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
@@ -2505,6 +2511,9 @@ function garantirTelaConvite() {
   const voltar = elemento("btn-voltar-login-convite");
   if (voltar) {
     voltar.addEventListener("click", function() {
+      limparConvitePendente();
+      limparDadosConviteTemporario();
+      appState.conviteAtual = null;
       mostrarTela("tela-login", { registrar: false });
     });
   }
@@ -3824,99 +3833,6 @@ async function carregarMusicas() {
         transform: translateY(-1px) scale(1.05);
       }
 
-      .prontidao-banda-musica {
-        margin: 5px 0 0 29px;
-        padding-top: 5px;
-        border-top: 1px solid rgba(255,255,255,.08);
-        display: grid;
-        gap: 4px;
-      }
-
-      .prontidao-banda-titulo {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        color: #94a3b8;
-        font-size: 10.8px;
-        font-weight: 800;
-        letter-spacing: .02em;
-        text-transform: uppercase;
-      }
-
-      .prontidao-banda-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-        gap: 4px 8px;
-      }
-
-      .status-integrante-linha,
-      .status-integrante-linha-botao {
-        min-width: 0;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: center;
-        gap: 6px;
-        min-height: 24px;
-        padding: 3px 7px;
-        border-radius: 9px;
-        border: 1px solid rgba(255,255,255,.08);
-        background: rgba(255,255,255,.035);
-        color: #e5e7eb;
-        font-size: 11.2px;
-        line-height: 1.1;
-      }
-
-      .status-integrante-linha-botao {
-        cursor: pointer;
-        font: inherit;
-        font-size: 11.2px;
-        background: rgba(122,92,255,.13);
-        border-color: rgba(122,92,255,.26);
-        transition: background .15s ease, transform .15s ease, border-color .15s ease;
-      }
-
-      .status-integrante-linha-botao:hover {
-        background: rgba(122,92,255,.24);
-        border-color: rgba(122,92,255,.42);
-        transform: translateY(-1px);
-      }
-
-      .status-integrante-nome {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: #f8fafc;
-        font-weight: 700;
-      }
-
-      .status-integrante-linha-botao .status-integrante-nome::after {
-        content: "";
-      }
-
-      .bolinha-status-integrante {
-        width: 13px;
-        height: 13px;
-        min-width: 13px;
-        border-radius: 50%;
-        display: inline-block;
-        box-shadow: 0 0 0 2px rgba(255,255,255,.10);
-      }
-
-      .bolinha-status-integrante.vermelha { background: #ef4444; }
-      .bolinha-status-integrante.amarela { background: #facc15; }
-      .bolinha-status-integrante.verde { background: #22c55e; }
-
-      @media (max-width: 720px) {
-        .prontidao-banda-musica {
-          margin-left: 0;
-        }
-
-        .prontidao-banda-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
-
       .botao-colar-letra {
         display: inline-flex;
         align-items: center;
@@ -4144,16 +4060,6 @@ async function carregarMusicas() {
               <option value="bpm">BPM</option>
             </select>
           </label>
-        </div>
-
-        <div class="card-legenda-preparo" style="margin:10px 0 14px;padding:12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.03);">
-          <h4 style="margin:0 0 8px;font-size:14px;color:#fff;">Nível de Execução por Integrante</h4>
-          <p style="margin:0 0 10px;font-size:12px;line-height:1.4;color:#bfc7d5;">Cada integrante deve atualizar apenas o seu nível de execução em cada música. Administradores podem atualizar qualquer integrante.</p>
-          <div style="display:grid;gap:6px;font-size:13px;">
-            <div>🔴 <strong>Não iniciada</strong></div>
-            <div>🟡 <strong>Em estudo</strong></div>
-            <div>🟢 <strong>Pronta</strong></div>
-          </div>
         </div>
 
         <div id="lista-musicas" class="lista-musicas">
@@ -4545,7 +4451,7 @@ function obterProgressoDaMusica(musicaId) {
       return item.musica_id === musicaId && item.integrante_id === integrante.id;
     });
 
-    const status = obterStatusRegistroMusica(registro);
+    const status = registro?.status || "nao_iniciada";
 
     if (status === "pronta") {
       pontos += 1;
@@ -4585,7 +4491,7 @@ function obterMeuStatusMusica(musicaId) {
     return item.musica_id === musicaId && item.integrante_id === meuIntegrante.id;
   });
 
-  return obterStatusRegistroMusica(registro);
+  return registro?.status || "nao_iniciada";
 }
 
 function montarControleMeuProgresso(musicaId) {
@@ -4644,91 +4550,31 @@ function proximoStatusMusica(statusAtual) {
   return "nao_iniciada";
 }
 
-function obterStatusRegistroMusica(registro) {
-  if (!registro) {
-    return "nao_iniciada";
-  }
-
-  if (registro.status) {
-    return registro.status;
-  }
-
-  if (registro.nivel === "verde") {
-    return "pronta";
-  }
-
-  if (registro.nivel === "amarelo") {
-    return "em_estudo";
-  }
-
-  return "nao_iniciada";
-}
-
-function usuarioPodeEditarProgressoIntegrante(integrante) {
-  const meuIntegrante = appState.meuIntegranteAtual;
-
-  if (!meuIntegrante || !integrante) {
-    return false;
-  }
-
-  if (meuIntegrante.administrador === true) {
-    return true;
-  }
-
-  return meuIntegrante.id === integrante.id;
-}
-
 function montarPreparacaoLinhaMusica(musicaId) {
   const integrantes = appState.integrantesProjetoMusicas || [];
   const progresso = appState.progressoMusicas || [];
+  const meuIntegrante = appState.meuIntegranteAtual;
 
   if (!integrantes.length) {
-    return `
-      <div class="prontidao-banda-musica">
-        <div class="prontidao-banda-titulo">Prontidão da Banda</div>
-        <span class="status-integrante-linha">Nenhum integrante cadastrado</span>
-      </div>
-    `;
+    return `<span class="status-integrante-mini">Sem integrantes</span>`;
   }
 
-  const linhas = integrantes.map(function(integrante) {
+  return integrantes.map(function(integrante) {
     const registro = progresso.find(function(item) {
       return item.musica_id === musicaId && item.integrante_id === integrante.id;
     });
 
-    const status = obterStatusRegistroMusica(registro);
+    const status = registro?.status || "nao_iniciada";
     const cor = corStatusMusica(status);
-    const nome = integrante.nome || integrante.email || "Integrante";
+    const nome = abreviarNomeIntegrante(integrante.nome || integrante.email || "Integrante");
     const titulo = status === "pronta" ? "Pronta" : (status === "em_estudo" ? "Em estudo" : "Não iniciada");
-    const podeEditar = usuarioPodeEditarProgressoIntegrante(integrante);
 
-    if (podeEditar) {
-      return `
-        <button class="status-integrante-linha-botao" type="button" title="${escaparHtml(nome)} - ${escaparHtml(titulo)}. Clique para alterar." data-ciclar-status-musica="${escaparHtml(musicaId)}" data-integrante-id="${escaparHtml(integrante.id)}" data-status-atual="${escaparHtml(status)}">
-          <span class="status-integrante-nome">${escaparHtml(nome)}</span>
-          <i class="bolinha-status-integrante ${cor}" aria-hidden="true"></i>
-        </button>
-      `;
+    if (meuIntegrante && meuIntegrante.id === integrante.id) {
+      return `<button class="status-integrante-mini-botao" type="button" title="${escaparHtml(titulo)} - clique para alterar" data-ciclar-status-musica="${escaparHtml(musicaId)}" data-status-atual="${escaparHtml(status)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</button>`;
     }
 
-    return `
-      <span class="status-integrante-linha" title="${escaparHtml(nome)} - ${escaparHtml(titulo)}">
-        <span class="status-integrante-nome">${escaparHtml(nome)}</span>
-        <i class="bolinha-status-integrante ${cor}" aria-hidden="true"></i>
-      </span>
-    `;
+    return `<span class="status-integrante-mini" title="${escaparHtml(titulo)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</span>`;
   }).join("");
-
-  return `
-    <div class="prontidao-banda-musica">
-      <div class="prontidao-banda-titulo">
-        <span>Prontidão da Banda</span>
-      </div>
-      <div class="prontidao-banda-grid">
-        ${linhas}
-      </div>
-    </div>
-  `;
 }
 
 function montarProgressoInlineMusica(musicaId) {
@@ -4877,9 +4723,8 @@ function renderizarListaMusicas() {
           ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
           ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
+          <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
-
-        ${montarPreparacaoLinhaMusica(item.id)}
       </div>
     `;
   }).join("");
@@ -4904,11 +4749,7 @@ function renderizarListaMusicas() {
 
   lista.querySelectorAll("[data-ciclar-status-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
-      salvarProgressoMusicaIntegrante(
-        botao.dataset.ciclarStatusMusica,
-        botao.dataset.integranteId,
-        proximoStatusMusica(botao.dataset.statusAtual)
-      );
+      salvarMeuProgressoMusica(botao.dataset.ciclarStatusMusica, proximoStatusMusica(botao.dataset.statusAtual));
     });
   });
 
@@ -4987,31 +4828,12 @@ function gerarPDFDaMusica(musicaId) {
 }
 
 async function salvarMeuProgressoMusica(musicaId, status) {
-  const meuIntegrante = appState.meuIntegranteAtual;
-
-  if (!meuIntegrante) {
-    alert("Seu cadastro de integrante não foi encontrado neste projeto.");
-    return;
-  }
-
-  await salvarProgressoMusicaIntegrante(musicaId, meuIntegrante.id, status);
-}
-
-async function salvarProgressoMusicaIntegrante(musicaId, integranteId, status) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
-  const integrantes = appState.integrantesProjetoMusicas || [];
-  const integrante = integrantes.find(function(item) {
-    return item.id === integranteId;
-  });
+  const meuIntegrante = appState.meuIntegranteAtual;
 
-  if (!cliente || !projetoId || !musicaId || !integrante) {
-    alert("Integrante não encontrado neste projeto.");
-    return;
-  }
-
-  if (!usuarioPodeEditarProgressoIntegrante(integrante)) {
-    alert("Você só pode alterar o seu próprio progresso. Administradores podem alterar todos.");
+  if (!cliente || !projetoId || !musicaId || !meuIntegrante) {
+    alert("Seu cadastro de integrante não foi encontrado neste projeto.");
     return;
   }
 
@@ -5033,8 +4855,8 @@ async function salvarProgressoMusicaIntegrante(musicaId, integranteId, status) {
   const payload = {
     projeto_id: projetoId,
     musica_id: musicaId,
-    integrante_id: integrante.id,
-    usuario_id: integrante.usuario_id || integrante.user_id || usuario.id,
+    integrante_id: meuIntegrante.id,
+    usuario_id: usuario.id,
     status: status,
     updated_at: new Date().toISOString()
   };
@@ -5043,7 +4865,7 @@ async function salvarProgressoMusicaIntegrante(musicaId, integranteId, status) {
     .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
     .select("id")
     .eq("musica_id", musicaId)
-    .eq("integrante_id", integrante.id)
+    .eq("integrante_id", meuIntegrante.id)
     .limit(1);
 
   if (erroBusca) {
@@ -5072,7 +4894,6 @@ async function salvarProgressoMusicaIntegrante(musicaId, integranteId, status) {
     return;
   }
 
-  mostrarToast("Progresso atualizado.");
   await buscarMusicas();
 }
 
