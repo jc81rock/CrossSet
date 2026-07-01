@@ -8124,17 +8124,43 @@ async function carregarEventos() {
         width: 100%;
       }
 
+      .modulo-eventos > .card-projeto:first-child {
+        align-self: start;
+        min-height: auto !important;
+        padding: 12px !important;
+        border-radius: 16px !important;
+      }
+
+      .modulo-eventos > .card-projeto:first-child .tag {
+        margin-bottom: 6px !important;
+        padding: 4px 9px !important;
+        font-size: 10px !important;
+      }
+
+      .modulo-eventos > .card-projeto:first-child h3 {
+        margin-bottom: 5px !important;
+        font-size: 19px !important;
+        line-height: 1.08 !important;
+      }
+
+      .modulo-eventos > .card-projeto:first-child p {
+        margin-bottom: 8px !important;
+        font-size: 11.5px !important;
+        line-height: 1.25 !important;
+      }
+
       .form-eventos,
       .filtros-eventos {
         display: grid;
-        gap: 10px;
+        gap: 7px;
       }
 
       .form-eventos label,
       .filtros-eventos label {
         display: grid;
-        gap: 6px;
-        font-size: 13px;
+        gap: 3px;
+        font-size: 11.5px;
+        line-height: 1.15;
         color: #e5e7eb;
       }
 
@@ -8146,22 +8172,71 @@ async function carregarEventos() {
         width: 100%;
       }
 
+      .form-eventos input,
+      .form-eventos select {
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 7px 10px !important;
+        font-size: 12px !important;
+        border-radius: 9px !important;
+        margin-bottom: 0 !important;
+      }
+
       .form-eventos textarea {
-        min-height: 92px;
+        min-height: 58px !important;
+        max-height: 72px !important;
+        padding: 8px 10px !important;
+        font-size: 12px !important;
+        line-height: 1.25 !important;
+        border-radius: 9px !important;
+        margin-bottom: 0 !important;
         resize: vertical;
       }
 
       .linha-form-eventos {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 7px;
       }
 
       .acoes-evento {
         display: flex;
         gap: 8px;
         flex-wrap: wrap;
-        margin-top: 4px;
+        margin-top: 2px;
+      }
+
+      #btn-salvar-evento {
+        min-height: 38px !important;
+        height: 38px !important;
+        padding: 0 16px !important;
+        border: 0 !important;
+        border-radius: 12px !important;
+        background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        font-weight: 800 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 9px !important;
+        box-shadow: 0 10px 24px rgba(122, 92, 255, .22) !important;
+      }
+
+      #btn-salvar-evento::before {
+        content: "✓";
+        width: 19px;
+        height: 19px;
+        min-width: 19px;
+        border: 2px solid rgba(255,255,255,.92);
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1;
       }
 
       .lista-eventos {
