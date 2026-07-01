@@ -3062,6 +3062,16 @@ async function carregarMusicas() {
         font-size: 17px !important;
       }
 
+      .card-crossset-smart-musicas {
+        min-height: 310px !important;
+        align-self: stretch !important;
+      }
+
+      .card-lista-musicas-smart {
+        min-height: 310px !important;
+        align-self: stretch !important;
+      }
+
       .form-musicas {
         display: grid;
         gap: 5px;
@@ -3935,34 +3945,29 @@ async function carregarMusicas() {
     </style>
 
     <div class="modulo-musicas">
-      <div class="card-projeto">
+      <div class="card-projeto card-crossset-smart-musicas">
         <h3 id="titulo-form-musica">Adicionar música</h3>
 
-
-
-          <div class="crossset-smart-card" aria-label="CrossSet Smart Beta">
-            <div class="crossset-smart-topo">
-              <strong>✨ CrossSet Smart</strong>
-              <span>Beta</span>
-            </div>
-
-            <div class="crossset-smart-busca">
-              <input id="smart-musica-busca" type="text" placeholder="Digite o nome da música..." autocomplete="off" />
-              <button id="btn-smart-musica-buscar" type="button">Buscar</button>
-            </div>
-
-            <div id="smart-musica-sugestoes" class="crossset-smart-sugestoes"></div>
-
-            <div id="smart-musica-preview" class="crossset-smart-preview"></div>
-
-            <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
+        <div class="crossset-smart-card" aria-label="CrossSet Smart Beta">
+          <div class="crossset-smart-topo">
+            <strong>✨ CrossSet Smart</strong>
+            <span>Beta</span>
           </div>
 
-        <!-- Formulário manual removido: CrossSet Smart é o fluxo principal de cadastro. -->
+          <div class="crossset-smart-busca">
+            <input id="smart-musica-busca" type="text" placeholder="Digite o nome da música..." autocomplete="off" />
+            <button id="btn-smart-musica-buscar" type="button">Buscar</button>
+          </div>
+
+          <div id="smart-musica-sugestoes" class="crossset-smart-sugestoes"></div>
+
+          <div id="smart-musica-preview" class="crossset-smart-preview"></div>
+
+          <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
       </div>
 
-      <div class="card-projeto">
+      <div class="card-projeto card-lista-musicas-smart">
         <span class="tag">Lista</span>
         <h3>Músicas cadastradas</h3>
         <p>Pesquise, ordene, edite ou exclua músicas deste projeto.</p>
