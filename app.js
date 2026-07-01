@@ -1252,9 +1252,9 @@ async function carregarIntegrantes() {
       }
 
       .btn-whatsapp-padrao {
-        background: linear-gradient(135deg, #18bf5b, #16a34a);
+        background: linear-gradient(135deg, #18c761, #16b957);
         color: #ffffff;
-        box-shadow: 0 10px 24px rgba(22, 163, 74, .18);
+        box-shadow: 0 10px 24px rgba(24, 199, 97, .22);
       }
 
       .btn-salvar-integrante-padrao:hover,
@@ -1263,22 +1263,31 @@ async function carregarIntegrantes() {
         filter: brightness(1.07);
       }
 
-      .btn-whatsapp-padrao .seta-btn {
-        margin-left: auto;
-        padding-right: 4px;
-        font-size: 18px;
-      }
-
-      .btn-whatsapp-padrao .icone-btn {
-        width: 23px;
-        height: 23px;
-        border: 2px solid rgba(255,255,255,.88);
-        border-radius: 50%;
+      .btn-whatsapp-padrao .icone-whatsapp-padrao {
+        width: 21px;
+        height: 21px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 13px;
-        line-height: 1;
+        flex: 0 0 21px;
+      }
+
+      .btn-whatsapp-padrao .icone-whatsapp-padrao svg {
+        width: 21px;
+        height: 21px;
+        display: block;
+        fill: currentColor;
+      }
+
+      .btn-icone-integrante svg.icone-share-padrao {
+        width: 15px;
+        height: 15px;
+        display: block;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
       }
 
       .botao-secundario-modulo {
@@ -1690,7 +1699,7 @@ async function carregarIntegrantes() {
 
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
-            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button"><span class="icone-btn">☏</span><span>Convidar por WhatsApp</span><span class="seta-btn">→</span></button>
+            <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button" aria-label="Convidar pelo WhatsApp"><span class="icone-whatsapp-padrao" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path d="M16.03 4.2c-6.46 0-11.72 5.1-11.72 11.38 0 2 .54 3.95 1.57 5.65L4.2 27.8l6.84-1.59a12.01 12.01 0 0 0 4.99 1.1c6.46 0 11.72-5.1 11.72-11.38S22.49 4.2 16.03 4.2Zm0 20.98c-1.6 0-3.17-.4-4.57-1.18l-.33-.18-3.92.91.96-3.72-.22-.36a9.36 9.36 0 0 1-1.43-4.98c0-5.1 4.27-9.25 9.51-9.25s9.51 4.15 9.51 9.25-4.27 9.51-9.51 9.51Zm5.24-6.93c-.29-.14-1.7-.82-1.96-.91-.26-.1-.45-.14-.64.14-.19.28-.74.91-.91 1.09-.17.19-.34.21-.62.07-.29-.14-1.21-.43-2.3-1.38-.85-.74-1.43-1.65-1.59-1.93-.17-.28-.02-.43.13-.57.13-.13.29-.34.43-.5.14-.17.19-.28.29-.47.1-.19.05-.35-.02-.5-.07-.14-.64-1.5-.88-2.05-.23-.55-.47-.47-.64-.48h-.55c-.19 0-.5.07-.76.35-.26.28-1 1-1 2.43s1.03 2.81 1.17 3c.14.19 2.03 3.02 4.92 4.23.69.29 1.22.46 1.64.59.69.21 1.31.18 1.8.11.55-.08 1.7-.68 1.94-1.34.24-.66.24-1.23.17-1.34-.07-.12-.26-.19-.55-.33Z"/></svg></span><span>Convidar pelo WhatsApp</span></button>
             <button class="botao-secundario-modulo" id="btn-cancelar-integrante" type="button" style="display:none;">Cancelar edição</button>
           </div>
         </div>
@@ -1937,7 +1946,7 @@ function renderizarListaIntegrantes() {
           ${montarDesenvolvimentoIntegrante(item.id)}
           <div class="botoes-item-integrante botoes-item-integrante-compactos">
             <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}">✏️</button>
-            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}">🔗</button>
+            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg></button>
             <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">🗑️</button>
           </div>
         </div>

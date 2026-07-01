@@ -1093,32 +1093,16 @@ button#btn-convidar-integrante,
 button#btn-convidar-integrante::before,
 .botao-whatsapp::before,
 .botao-convidar-whatsapp::before {
-  content: "☎";
-  width: 24px;
-  height: 24px;
-  border: 2px solid rgba(255,255,255,.94);
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  flex: 0 0 24px;
+  content: none !important;
+  display: none !important;
 }
 
 #btn-convidar-integrante::after,
 button#btn-convidar-integrante::after,
 .botao-whatsapp::after,
 .botao-convidar-whatsapp::after {
-  content: "→";
-  margin-left: auto;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1;
-  opacity: .96;
+  content: none !important;
+  display: none !important;
 }
 
 #btn-convidar-integrante:hover,
@@ -1534,4 +1518,48 @@ textarea:focus,
 .convite-resumo-projeto span {
   font-size: 13px;
   color: #e5e7eb;
+}
+
+
+/* CrossSet - padrão definitivo WhatsApp e compartilhar */
+#btn-convidar-integrante.btn-whatsapp-padrao,
+button#btn-convidar-integrante.btn-whatsapp-padrao {
+  background: linear-gradient(135deg, #18c761, #16b957) !important;
+  color: #ffffff !important;
+  justify-content: center !important;
+  gap: 9px !important;
+}
+
+#btn-convidar-integrante.btn-whatsapp-padrao::before,
+#btn-convidar-integrante.btn-whatsapp-padrao::after {
+  content: none !important;
+  display: none !important;
+}
+
+.icone-whatsapp-padrao {
+  width: 21px !important;
+  height: 21px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 21px !important;
+  color: #ffffff !important;
+}
+
+.icone-whatsapp-padrao svg {
+  width: 21px !important;
+  height: 21px !important;
+  display: block !important;
+  fill: currentColor !important;
+}
+
+.btn-icone-integrante .icone-share-padrao {
+  width: 15px !important;
+  height: 15px !important;
+  display: block !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
 }
