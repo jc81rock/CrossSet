@@ -3940,7 +3940,7 @@ async function carregarMusicas() {
 
     <div class="modulo-musicas">
       <div class="card-projeto">
-        <h3 id="titulo-form-musica">Nova música</h3>
+        <h3 id="titulo-form-musica">Adicionar música</h3>
 
 
 
@@ -3959,85 +3959,10 @@ async function carregarMusicas() {
 
             <div id="smart-musica-preview" class="crossset-smart-preview"></div>
 
-            <small class="crossset-smart-ajuda">Digite, escolha uma sugestão e confirme. O cadastro manual continua disponível abaixo.</small>
+            <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
           </div>
 
-        <div class="form-musicas">
-          <label>
-            Nome
-            <input id="musica-nome" type="text" placeholder="Sweet Child O' Mine" />
-          </label>
-
-          <label>
-            Artista
-            <input id="musica-artista" type="text" placeholder="Guns N' Roses" />
-          </label>
-
-          <div class="linha-form-musicas">
-            <label>
-              Tom
-              <input id="musica-tom" type="text" placeholder="D, Em, G" />
-            </label>
-
-            <label>
-              BPM
-              <input id="musica-bpm" type="number" inputmode="numeric" placeholder="120" />
-            </label>
-          </div>
-
-          <label>
-            Link de referência
-            <input id="musica-link" type="url" placeholder="YouTube, Spotify, Deezer..." />
-          </label>
-
-          <div class="upload-musica-card">
-            <div class="upload-musica-card-topo">
-              <span class="label-upload-musica">${iconeAcaoMusica("material")}<span>Cifra / Partitura</span></span>
-            </div>
-            <div class="upload-musica-acoes">
-              <button class="upload-musica-botao" id="btn-anexar-material-musica" type="button">
-                ${iconeAcaoMusica("anexar")}<span>Anexar</span>
-              </button>
-              <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" style="display:none" />
-            </div>
-            <small id="musica-material-arquivo-atual" class="upload-musica-atual"></small>
-          </div>
-
-          <label>
-            <span class="linha-letra-acoes">
-              <span>Letra</span>
-              <button class="botao-colar-letra" id="btn-colar-salvar-letra" type="button">${iconeAcaoMusica("colar")}<span>Colar e salvar</span></button>
-            </span>
-            <textarea id="musica-letra" placeholder="Cole a letra aqui"></textarea>
-          </label>
-
-          <div class="upload-musica-card">
-            <div class="upload-musica-card-topo">
-              <span class="label-upload-musica">${iconeAcaoMusica("letra")}<span>Anexar letra</span></span>
-            </div>
-            <div class="upload-musica-acoes">
-              <button class="upload-musica-botao" id="btn-anexar-letra-musica" type="button">
-                ${iconeAcaoMusica("anexar")}<span>Anexar</span>
-              </button>
-              <input id="musica-letra-arquivo" type="file" accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png,.webp" style="display:none" />
-            </div>
-            <small id="musica-letra-arquivo-atual" class="upload-musica-atual"></small>
-          </div>
-
-          <label>
-            Observações
-            <textarea id="musica-observacoes" placeholder="Solo, versão, observações do arranjo..."></textarea>
-          </label>
-
-          <div class="acoes-musica">
-            <button class="btn-principal-musica" id="btn-salvar-musica" type="button">
-              <span>＋</span>
-              <span>Salvar</span>
-            </button>
-            <button class="btn-secundario-musica" id="btn-cancelar-musica" type="button" style="display:none;">
-              Cancelar edição
-            </button>
-          </div>
+        <!-- Formulário manual removido: CrossSet Smart é o fluxo principal de cadastro. -->
         </div>
       </div>
 
@@ -4234,7 +4159,7 @@ function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
 
   if (!sugestoes.length) {
     container.innerHTML = forcarResultado && limparTexto(termo).length >= 2
-      ? `<small class="crossset-smart-ajuda">Nenhuma sugestão encontrada neste beta. Use o cadastro manual ou tente outro nome.</small>`
+      ? `<small class="crossset-smart-ajuda">Nenhuma sugestão encontrada neste beta. Tente outro nome.</small>`
       : "";
     return;
   }
@@ -5007,9 +4932,14 @@ function preencherFormularioMusica(item) {
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
   const botaoCancelar = elemento("btn-cancelar-musica");
+  const formManual = elemento("form-musicas-manual");
 
   if (titulo) {
     titulo.textContent = "Editar música";
+  }
+
+  if (formManual) {
+    formManual.style.display = "grid";
   }
 
   if (botaoSalvar) {
@@ -5040,9 +4970,14 @@ function limparFormularioMusica() {
   const titulo = elemento("titulo-form-musica");
   const botaoSalvar = elemento("btn-salvar-musica");
   const botaoCancelar = elemento("btn-cancelar-musica");
+  const formManual = elemento("form-musicas-manual");
 
   if (titulo) {
-    titulo.textContent = "Nova música";
+    titulo.textContent = "Adicionar música";
+  }
+
+  if (formManual) {
+    formManual.style.display = "none";
   }
 
   if (botaoSalvar) {
