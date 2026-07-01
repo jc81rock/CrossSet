@@ -4146,6 +4146,16 @@ async function carregarMusicas() {
           </label>
         </div>
 
+        <div class="card-legenda-preparo" style="margin:10px 0 14px;padding:12px;border:1px solid rgba(255,255,255,.10);border-radius:12px;background:rgba(255,255,255,.03);">
+          <h4 style="margin:0 0 8px;font-size:14px;color:#fff;">Nível de Execução por Integrante</h4>
+          <p style="margin:0 0 10px;font-size:12px;line-height:1.4;color:#bfc7d5;">Cada integrante deve atualizar apenas o seu nível de execução em cada música. Administradores podem atualizar qualquer integrante.</p>
+          <div style="display:grid;gap:6px;font-size:13px;">
+            <div>🔴 <strong>Não iniciada</strong></div>
+            <div>🟡 <strong>Em estudo</strong></div>
+            <div>🟢 <strong>Pronta</strong></div>
+          </div>
+        </div>
+
         <div id="lista-musicas" class="lista-musicas">
           <p>Carregando músicas...</p>
         </div>
