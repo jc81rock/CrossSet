@@ -1973,12 +1973,13 @@ async function buscarIntegrantes() {
   }
 
   if (progressoResultado.error) {
-    console.warn("Não foi possível carregar o desenvolvimento dos integrantes.", progressoResultado.error);
+    lista.innerHTML = `<p>Erro ao carregar desenvolvimento dos integrantes: ${escaparHtml(progressoResultado.error.message)}</p>`;
+    return;
   }
 
   appState.integrantes = integrantesResultado.data || [];
   appState.musicas = musicasResultado.data || [];
-  appState.progressoMusicas = progressoResultado.error ? [] : (progressoResultado.data || []);
+  appState.progressoMusicas = progressoResultado.data || [];
   renderizarListaIntegrantes();
 }
 
@@ -2039,11 +2040,19 @@ function montarDesenvolvimentoIntegrante(integranteId) {
   const dados = obterDesenvolvimentoIntegrante(integranteId);
 
   return `
-    <div class="desenvolvimento-integrante desenvolvimento-integrante-compacto" title="Desenvolvimento: ${dados.percentual}% | Prontas: ${dados.prontas} | Em estudo: ${dados.emEstudo} | Não iniciadas: ${dados.naoIniciadas}">
-      <div class="barra-desenvolvimento-integrante barra-desenvolvimento-integrante-compacta" aria-label="Desenvolvimento ${dados.percentual}%">
+    <div class="desenvolvimento-integrante" title="Desempenho: ${dados.percentual}% | Prontas: ${dados.prontas} | Em estudo: ${dados.emEstudo} | Não iniciadas: ${dados.naoIniciadas}">
+      <div class="desenvolvimento-integrante-topo">
+        <span>DESEMPENHO DO INTEGRANTE</span>
+        <strong class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</strong>
+      </div>
+      <div class="barra-desenvolvimento-integrante" aria-label="Desempenho ${dados.percentual}%">
         <span class="${dados.cor}" style="width:${dados.percentual}%"></span>
       </div>
-      <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
+      <div class="desenvolvimento-integrante-contadores">
+        <span class="contador-prontas"><strong>${dados.prontas}</strong> prontas</span>
+        <span class="contador-estudo"><strong>${dados.emEstudo}</strong> em estudo</span>
+        <span class="contador-nao"><strong>${dados.naoIniciadas}</strong> não iniciadas</span>
+      </div>
     </div>
   `;
 }
@@ -2101,22 +2110,27 @@ function renderizarListaIntegrantes() {
 
   lista.innerHTML = itens.map(function(item) {
     const tipoIntegrante = item.administrador ? "Administrador" : "Integrante";
+    const inicial = escaparHtml((item.nome || "?").slice(0, 1).toUpperCase());
 
     return `
-      <div class="item-integrante item-integrante-compacto">
-        <div class="integrante-linha-compacta">
-          <strong class="integrante-nome-compacto" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</strong>
-          <span class="separador-integrante">|</span>
-          <span class="integrante-funcao-compacta" title="${escaparHtml(item.funcao || "Função não informada")}">${escaparHtml(item.funcao || "Função não informada")}</span>
-          <span class="separador-integrante">|</span>
-          <span class="integrante-admin-compacto ${item.administrador ? "admin-sim" : "admin-nao"}">${tipoIntegrante}</span>
-          ${montarDesenvolvimentoIntegrante(item.id)}
-          <div class="botoes-item-integrante botoes-item-integrante-compactos">
+      <div class="item-integrante">
+        <div class="item-integrante-topo">
+          <div class="foto-integrante-placeholder">${inicial}</div>
+          <div class="dados-integrante">
+            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+            <p><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")}</p>
+            <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
+            ${item.email ? `<p><strong>E-mail:</strong> ${escaparHtml(item.email)}</p>` : ""}
+            ${item.telefone ? `<p><strong>Telefone:</strong> ${escaparHtml(item.telefone)}</p>` : ""}
+            <span class="${item.administrador ? "tag-admin" : "tag-integrante"}">${tipoIntegrante}</span>
+          </div>
+          <div class="botoes-item-integrante">
             <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
             <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg></button>
-            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
+            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
           </div>
         </div>
+        ${montarDesenvolvimentoIntegrante(item.id)}
       </div>
     `;
   }).join("");

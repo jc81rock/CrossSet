@@ -1458,3 +1458,35 @@ textarea:focus,
   .desenvolvimento-integrante-compacto { grid-area: barra !important; width: 130px !important; }
   .botoes-item-integrante-compactos { grid-area: acoes !important; }
 }
+
+
+/* CrossSet: correção permanente do botão WhatsApp dos integrantes.
+   Mantém somente o SVG interno aprovado, sem ícone extra e sem seta. */
+#btn-convidar-integrante::before,
+button#btn-convidar-integrante::before,
+.btn-whatsapp-padrao::before,
+#btn-convidar-integrante::after,
+button#btn-convidar-integrante::after,
+.btn-whatsapp-padrao::after {
+  content: none !important;
+  display: none !important;
+}
+
+#btn-convidar-integrante .icone-whatsapp-padrao,
+.btn-whatsapp-padrao .icone-whatsapp-padrao {
+  width: 21px !important;
+  height: 21px !important;
+  min-width: 21px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #ffffff !important;
+}
+
+#btn-convidar-integrante .icone-whatsapp-padrao svg,
+.btn-whatsapp-padrao .icone-whatsapp-padrao svg {
+  width: 21px !important;
+  height: 21px !important;
+  display: block !important;
+  fill: currentColor !important;
+}
