@@ -2490,15 +2490,120 @@ function garantirTelaConvite() {
   tela.style.padding = "16px";
 
   tela.innerHTML = `
-    <div class="card-login card-convite" style="width:100%;max-width:430px;min-height:auto;align-self:center;">
+    <style>
+      #tela-convite.tela-ativa {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        padding: 16px !important;
+      }
+
+      #tela-convite .card-convite {
+        width: min(100%, 430px) !important;
+        max-width: 430px !important;
+        min-height: auto !important;
+        margin: auto !important;
+        align-self: center !important;
+        padding: 22px 28px !important;
+        text-align: center !important;
+      }
+
+      #tela-convite .card-convite .logo-login {
+        width: 112px !important;
+        max-height: none !important;
+        height: auto !important;
+        object-fit: contain !important;
+        display: block !important;
+        margin: 0 auto 14px !important;
+        border-radius: 14px !important;
+      }
+
+      #tela-convite .card-convite .tag {
+        margin: 0 auto 14px !important;
+      }
+
+      #tela-convite .card-convite h1 {
+        font-size: 28px !important;
+        line-height: 1.12 !important;
+        margin: 0 0 8px !important;
+        color: #735cff !important;
+      }
+
+      #tela-convite .card-convite #convite-descricao {
+        margin: 0 auto 16px !important;
+        max-width: 340px !important;
+        color: #ffffff !important;
+        font-size: 13px !important;
+        line-height: 1.45 !important;
+      }
+
+      #tela-convite #convite-detalhes {
+        margin: 16px 0 !important;
+        display: grid !important;
+        gap: 8px !important;
+      }
+
+      #tela-convite #convite-acoes {
+        display: grid !important;
+        gap: 10px !important;
+      }
+
+      #tela-convite .convite-resumo-projeto {
+        border: 1px solid rgba(255,255,255,.12) !important;
+        border-radius: 16px !important;
+        padding: 14px !important;
+        background: rgba(255,255,255,.045) !important;
+        color: #f9fafb !important;
+        text-align: center !important;
+        display: grid !important;
+        gap: 6px !important;
+      }
+
+      #tela-convite .convite-resumo-projeto p {
+        margin: 0 !important;
+        color: #9db2d6 !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+      }
+
+      #tela-convite .convite-resumo-projeto h3 {
+        margin: 0 !important;
+        color: #ffffff !important;
+        font-size: 18px !important;
+        line-height: 1.15 !important;
+      }
+
+      #tela-convite .convite-resumo-projeto span {
+        color: #dce6ff !important;
+        font-size: 13px !important;
+        line-height: 1.35 !important;
+      }
+
+      #tela-convite .botao-principal {
+        min-height: 42px !important;
+        height: 42px !important;
+        margin-top: 0 !important;
+        border-radius: 13px !important;
+        font-size: 13px !important;
+      }
+
+      #tela-convite .botao-link {
+        margin-top: 10px !important;
+        color: #ffffff !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+      }
+    </style>
+
+    <div class="card-login card-convite">
       <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
+      <div id="convite-detalhes"></div>
 
-      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
+      <div id="convite-acoes"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
