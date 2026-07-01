@@ -2009,7 +2009,7 @@ function obterDesenvolvimentoIntegrante(integranteId) {
       return item.musica_id === musica.id && item.integrante_id === integranteId;
     });
 
-    const status = registro?.status || "nao_iniciada";
+    const status = obterStatusRegistroMusica(registro);
 
     if (status === "pronta") {
       pontos += 1;
@@ -3824,6 +3824,99 @@ async function carregarMusicas() {
         transform: translateY(-1px) scale(1.05);
       }
 
+      .prontidao-banda-musica {
+        margin: 5px 0 0 29px;
+        padding-top: 5px;
+        border-top: 1px solid rgba(255,255,255,.08);
+        display: grid;
+        gap: 4px;
+      }
+
+      .prontidao-banda-titulo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        color: #94a3b8;
+        font-size: 10.8px;
+        font-weight: 800;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+      }
+
+      .prontidao-banda-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+        gap: 4px 8px;
+      }
+
+      .status-integrante-linha,
+      .status-integrante-linha-botao {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 6px;
+        min-height: 24px;
+        padding: 3px 7px;
+        border-radius: 9px;
+        border: 1px solid rgba(255,255,255,.08);
+        background: rgba(255,255,255,.035);
+        color: #e5e7eb;
+        font-size: 11.2px;
+        line-height: 1.1;
+      }
+
+      .status-integrante-linha-botao {
+        cursor: pointer;
+        font: inherit;
+        font-size: 11.2px;
+        background: rgba(122,92,255,.13);
+        border-color: rgba(122,92,255,.26);
+        transition: background .15s ease, transform .15s ease, border-color .15s ease;
+      }
+
+      .status-integrante-linha-botao:hover {
+        background: rgba(122,92,255,.24);
+        border-color: rgba(122,92,255,.42);
+        transform: translateY(-1px);
+      }
+
+      .status-integrante-nome {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #f8fafc;
+        font-weight: 700;
+      }
+
+      .status-integrante-linha-botao .status-integrante-nome::after {
+        content: "";
+      }
+
+      .bolinha-status-integrante {
+        width: 13px;
+        height: 13px;
+        min-width: 13px;
+        border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 0 2px rgba(255,255,255,.10);
+      }
+
+      .bolinha-status-integrante.vermelha { background: #ef4444; }
+      .bolinha-status-integrante.amarela { background: #facc15; }
+      .bolinha-status-integrante.verde { background: #22c55e; }
+
+      @media (max-width: 720px) {
+        .prontidao-banda-musica {
+          margin-left: 0;
+        }
+
+        .prontidao-banda-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
       .botao-colar-letra {
         display: inline-flex;
         align-items: center;
@@ -4442,7 +4535,7 @@ function obterProgressoDaMusica(musicaId) {
       return item.musica_id === musicaId && item.integrante_id === integrante.id;
     });
 
-    const status = registro?.status || "nao_iniciada";
+    const status = obterStatusRegistroMusica(registro);
 
     if (status === "pronta") {
       pontos += 1;
@@ -4482,7 +4575,7 @@ function obterMeuStatusMusica(musicaId) {
     return item.musica_id === musicaId && item.integrante_id === meuIntegrante.id;
   });
 
-  return registro?.status || "nao_iniciada";
+  return obterStatusRegistroMusica(registro);
 }
 
 function montarControleMeuProgresso(musicaId) {
@@ -4541,31 +4634,91 @@ function proximoStatusMusica(statusAtual) {
   return "nao_iniciada";
 }
 
+function obterStatusRegistroMusica(registro) {
+  if (!registro) {
+    return "nao_iniciada";
+  }
+
+  if (registro.status) {
+    return registro.status;
+  }
+
+  if (registro.nivel === "verde") {
+    return "pronta";
+  }
+
+  if (registro.nivel === "amarelo") {
+    return "em_estudo";
+  }
+
+  return "nao_iniciada";
+}
+
+function usuarioPodeEditarProgressoIntegrante(integrante) {
+  const meuIntegrante = appState.meuIntegranteAtual;
+
+  if (!meuIntegrante || !integrante) {
+    return false;
+  }
+
+  if (meuIntegrante.administrador === true) {
+    return true;
+  }
+
+  return meuIntegrante.id === integrante.id;
+}
+
 function montarPreparacaoLinhaMusica(musicaId) {
   const integrantes = appState.integrantesProjetoMusicas || [];
   const progresso = appState.progressoMusicas || [];
-  const meuIntegrante = appState.meuIntegranteAtual;
 
   if (!integrantes.length) {
-    return `<span class="status-integrante-mini">Sem integrantes</span>`;
+    return `
+      <div class="prontidao-banda-musica">
+        <div class="prontidao-banda-titulo">Prontidão da Banda</div>
+        <span class="status-integrante-linha">Nenhum integrante cadastrado</span>
+      </div>
+    `;
   }
 
-  return integrantes.map(function(integrante) {
+  const linhas = integrantes.map(function(integrante) {
     const registro = progresso.find(function(item) {
       return item.musica_id === musicaId && item.integrante_id === integrante.id;
     });
 
-    const status = registro?.status || "nao_iniciada";
+    const status = obterStatusRegistroMusica(registro);
     const cor = corStatusMusica(status);
-    const nome = abreviarNomeIntegrante(integrante.nome || integrante.email || "Integrante");
+    const nome = integrante.nome || integrante.email || "Integrante";
     const titulo = status === "pronta" ? "Pronta" : (status === "em_estudo" ? "Em estudo" : "Não iniciada");
+    const podeEditar = usuarioPodeEditarProgressoIntegrante(integrante);
 
-    if (meuIntegrante && meuIntegrante.id === integrante.id) {
-      return `<button class="status-integrante-mini-botao" type="button" title="${escaparHtml(titulo)} - clique para alterar" data-ciclar-status-musica="${escaparHtml(musicaId)}" data-status-atual="${escaparHtml(status)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</button>`;
+    if (podeEditar) {
+      return `
+        <button class="status-integrante-linha-botao" type="button" title="${escaparHtml(nome)} - ${escaparHtml(titulo)}. Clique para alterar." data-ciclar-status-musica="${escaparHtml(musicaId)}" data-integrante-id="${escaparHtml(integrante.id)}" data-status-atual="${escaparHtml(status)}">
+          <span class="status-integrante-nome">${escaparHtml(nome)}</span>
+          <i class="bolinha-status-integrante ${cor}" aria-hidden="true"></i>
+        </button>
+      `;
     }
 
-    return `<span class="status-integrante-mini" title="${escaparHtml(titulo)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</span>`;
+    return `
+      <span class="status-integrante-linha" title="${escaparHtml(nome)} - ${escaparHtml(titulo)}">
+        <span class="status-integrante-nome">${escaparHtml(nome)}</span>
+        <i class="bolinha-status-integrante ${cor}" aria-hidden="true"></i>
+      </span>
+    `;
   }).join("");
+
+  return `
+    <div class="prontidao-banda-musica">
+      <div class="prontidao-banda-titulo">
+        <span>Prontidão da Banda</span>
+      </div>
+      <div class="prontidao-banda-grid">
+        ${linhas}
+      </div>
+    </div>
+  `;
 }
 
 function montarProgressoInlineMusica(musicaId) {
@@ -4714,8 +4867,9 @@ function renderizarListaMusicas() {
           ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
           ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
-          <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
+
+        ${montarPreparacaoLinhaMusica(item.id)}
       </div>
     `;
   }).join("");
@@ -4740,7 +4894,11 @@ function renderizarListaMusicas() {
 
   lista.querySelectorAll("[data-ciclar-status-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
-      salvarMeuProgressoMusica(botao.dataset.ciclarStatusMusica, proximoStatusMusica(botao.dataset.statusAtual));
+      salvarProgressoMusicaIntegrante(
+        botao.dataset.ciclarStatusMusica,
+        botao.dataset.integranteId,
+        proximoStatusMusica(botao.dataset.statusAtual)
+      );
     });
   });
 
@@ -4819,12 +4977,31 @@ function gerarPDFDaMusica(musicaId) {
 }
 
 async function salvarMeuProgressoMusica(musicaId, status) {
-  const cliente = sb();
-  const projetoId = obterProjetoAtualId();
   const meuIntegrante = appState.meuIntegranteAtual;
 
-  if (!cliente || !projetoId || !musicaId || !meuIntegrante) {
+  if (!meuIntegrante) {
     alert("Seu cadastro de integrante não foi encontrado neste projeto.");
+    return;
+  }
+
+  await salvarProgressoMusicaIntegrante(musicaId, meuIntegrante.id, status);
+}
+
+async function salvarProgressoMusicaIntegrante(musicaId, integranteId, status) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const integrantes = appState.integrantesProjetoMusicas || [];
+  const integrante = integrantes.find(function(item) {
+    return item.id === integranteId;
+  });
+
+  if (!cliente || !projetoId || !musicaId || !integrante) {
+    alert("Integrante não encontrado neste projeto.");
+    return;
+  }
+
+  if (!usuarioPodeEditarProgressoIntegrante(integrante)) {
+    alert("Você só pode alterar o seu próprio progresso. Administradores podem alterar todos.");
     return;
   }
 
@@ -4846,8 +5023,8 @@ async function salvarMeuProgressoMusica(musicaId, status) {
   const payload = {
     projeto_id: projetoId,
     musica_id: musicaId,
-    integrante_id: meuIntegrante.id,
-    usuario_id: usuario.id,
+    integrante_id: integrante.id,
+    usuario_id: integrante.usuario_id || integrante.user_id || usuario.id,
     status: status,
     updated_at: new Date().toISOString()
   };
@@ -4856,7 +5033,7 @@ async function salvarMeuProgressoMusica(musicaId, status) {
     .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
     .select("id")
     .eq("musica_id", musicaId)
-    .eq("integrante_id", meuIntegrante.id)
+    .eq("integrante_id", integrante.id)
     .limit(1);
 
   if (erroBusca) {
@@ -4885,6 +5062,7 @@ async function salvarMeuProgressoMusica(musicaId, status) {
     return;
   }
 
+  mostrarToast("Progresso atualizado.");
   await buscarMusicas();
 }
 
