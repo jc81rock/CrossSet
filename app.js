@@ -3,7 +3,7 @@
 (function(){
  const h=window.location.hash||"";
  if(!h.includes("convite=")){
-   ["convite_pendente","convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
      try{localStorage.removeItem(k);}catch(e){}
      try{sessionStorage.removeItem(k);}catch(e){}
    });
@@ -11,7 +11,7 @@
  window.addEventListener("hashchange",()=>{
    const hh=window.location.hash||"";
    if(!hh.includes("convite=")){
-     ["convite_pendente","convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
        try{localStorage.removeItem(k);}catch(e){}
        try{sessionStorage.removeItem(k);}catch(e){}
      });
@@ -30,7 +30,6 @@ const REPERTORIO_FACIL = {
     repertorios: "repertorios",
     repertorioMusicas: "repertorio_musicas",
     progressoMusicas: "progresso_musicas",
-    projetoParticipantes: "projeto_participantes",
     eventos: "eventos",
     convites: "convites_projeto"
   }
@@ -400,10 +399,7 @@ function obterCodigoConvitePendente() {
 }
 
 function limparConvitePendente() {
-  ["convite_pendente","convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(function(chave) {
-    try { localStorage.removeItem(chave); } catch (erro) {}
-    try { sessionStorage.removeItem(chave); } catch (erro) {}
-  });
+  localStorage.removeItem("convite_pendente");
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -1299,15 +1295,9 @@ async function carregarIntegrantes() {
       }
 
       .btn-whatsapp-padrao {
-        background: #16b957 !important;
+        background: linear-gradient(135deg, #18c761, #16b957);
         color: #ffffff;
         box-shadow: 0 10px 24px rgba(24, 199, 97, .22);
-      }
-
-      .btn-whatsapp-padrao::before,
-      .btn-whatsapp-padrao::after {
-        content: none !important;
-        display: none !important;
       }
 
       .btn-salvar-integrante-padrao:hover,
@@ -1983,13 +1973,12 @@ async function buscarIntegrantes() {
   }
 
   if (progressoResultado.error) {
-    lista.innerHTML = `<p>Erro ao carregar desenvolvimento dos integrantes: ${escaparHtml(progressoResultado.error.message)}</p>`;
-    return;
+    console.warn("Não foi possível carregar o desenvolvimento dos integrantes.", progressoResultado.error);
   }
 
   appState.integrantes = integrantesResultado.data || [];
   appState.musicas = musicasResultado.data || [];
-  appState.progressoMusicas = progressoResultado.data || [];
+  appState.progressoMusicas = progressoResultado.error ? [] : (progressoResultado.data || []);
   renderizarListaIntegrantes();
 }
 
@@ -2125,7 +2114,7 @@ function renderizarListaIntegrantes() {
           <div class="botoes-item-integrante botoes-item-integrante-compactos">
             <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
             <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg></button>
-            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">🗑️</button>
+            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
           </div>
         </div>
       </div>
@@ -2492,125 +2481,17 @@ function garantirTelaConvite() {
   const tela = document.createElement("section");
   tela.id = "tela-convite";
   tela.className = "tela";
-  tela.style.justifyContent = "center";
-  tela.style.alignItems = "center";
-  tela.style.padding = "16px";
 
   tela.innerHTML = `
-    <style>
-      #tela-convite.tela-ativa {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        padding: 16px !important;
-      }
-
-      #tela-convite .card-convite {
-        width: min(100%, 430px) !important;
-        max-width: 430px !important;
-        min-height: auto !important;
-        margin: auto !important;
-        align-self: center !important;
-        padding: 22px 28px !important;
-        text-align: center !important;
-      }
-
-      #tela-convite .card-convite .logo-login {
-        width: 112px !important;
-        max-height: none !important;
-        height: auto !important;
-        object-fit: contain !important;
-        display: block !important;
-        margin: 0 auto 14px !important;
-        border-radius: 14px !important;
-      }
-
-      #tela-convite .card-convite .tag {
-        margin: 0 auto 14px !important;
-      }
-
-      #tela-convite .card-convite h1 {
-        font-size: 28px !important;
-        line-height: 1.12 !important;
-        margin: 0 0 8px !important;
-        color: #735cff !important;
-      }
-
-      #tela-convite .card-convite #convite-descricao {
-        margin: 0 auto 16px !important;
-        max-width: 340px !important;
-        color: #ffffff !important;
-        font-size: 13px !important;
-        line-height: 1.45 !important;
-      }
-
-      #tela-convite #convite-detalhes {
-        margin: 16px 0 !important;
-        display: grid !important;
-        gap: 8px !important;
-      }
-
-      #tela-convite #convite-acoes {
-        display: grid !important;
-        gap: 10px !important;
-      }
-
-      #tela-convite .convite-resumo-projeto {
-        border: 1px solid rgba(255,255,255,.12) !important;
-        border-radius: 16px !important;
-        padding: 14px !important;
-        background: rgba(255,255,255,.045) !important;
-        color: #f9fafb !important;
-        text-align: center !important;
-        display: grid !important;
-        gap: 6px !important;
-      }
-
-      #tela-convite .convite-resumo-projeto p {
-        margin: 0 !important;
-        color: #9db2d6 !important;
-        font-size: 12px !important;
-        font-weight: 700 !important;
-      }
-
-      #tela-convite .convite-resumo-projeto h3 {
-        margin: 0 !important;
-        color: #ffffff !important;
-        font-size: 18px !important;
-        line-height: 1.15 !important;
-      }
-
-      #tela-convite .convite-resumo-projeto span {
-        color: #dce6ff !important;
-        font-size: 13px !important;
-        line-height: 1.35 !important;
-      }
-
-      #tela-convite .botao-principal {
-        min-height: 42px !important;
-        height: 42px !important;
-        margin-top: 0 !important;
-        border-radius: 13px !important;
-        font-size: 13px !important;
-      }
-
-      #tela-convite .botao-link {
-        margin-top: 10px !important;
-        color: #ffffff !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
-      }
-    </style>
-
     <div class="card-login card-convite">
       <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes"></div>
+      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
 
-      <div id="convite-acoes"></div>
+      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
@@ -2623,9 +2504,6 @@ function garantirTelaConvite() {
   const voltar = elemento("btn-voltar-login-convite");
   if (voltar) {
     voltar.addEventListener("click", function() {
-      limparConvitePendente();
-      limparDadosConviteTemporario();
-      appState.conviteAtual = null;
       mostrarTela("tela-login", { registrar: false });
     });
   }
@@ -3035,53 +2913,6 @@ async function aceitarConviteAtual() {
   await aceitarConviteComUsuario(usuario);
 }
 
-
-async function garantirParticipanteProjeto(projetoId, usuario, dados = {}) {
-  const cliente = sb();
-
-  if (!cliente || !projetoId || !usuario || !usuario.id) {
-    return false;
-  }
-
-  const emailUsuario = limparTexto(dados.email) || usuario.email || "";
-  const nomeUsuario = limparTexto(dados.nome) || obterNomeUsuario(usuario);
-  const papelUsuario = limparTexto(dados.papel) || "integrante";
-
-  const { data: participanteExistente, error: erroBuscaParticipante } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes || "projeto_participantes")
-    .select("id")
-    .eq("projeto_id", projetoId)
-    .eq("usuario_id", usuario.id)
-    .maybeSingle();
-
-  if (erroBuscaParticipante) {
-    console.warn("Não foi possível verificar participante do projeto.", erroBuscaParticipante);
-  }
-
-  if (participanteExistente) {
-    return true;
-  }
-
-  const { error: erroInserirParticipante } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetoParticipantes || "projeto_participantes")
-    .insert({
-      projeto_id: projetoId,
-      usuario_id: usuario.id,
-      email: emailUsuario,
-      nome: nomeUsuario,
-      papel: papelUsuario,
-      status: "ativo"
-    });
-
-  if (erroInserirParticipante) {
-    console.warn("Não foi possível registrar participante do projeto.", erroInserirParticipante);
-    alert("Convite aceito, mas não foi possível registrar o acesso ao projeto: " + erroInserirParticipante.message);
-    return false;
-  }
-
-  return true;
-}
-
 async function abrirProjetoDoConvite(projetoId, nomeProjeto) {
   const cliente = sb();
 
@@ -3194,16 +3025,6 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   // Se o integrante já existe no projeto, não bloqueia o fluxo.
   // Apenas entra direto no projeto, que é o comportamento aprovado para convites.
   if (existente || emailJaCadastrado) {
-    const participanteOk = await garantirParticipanteProjeto(projetoId, usuario, {
-      email: emailUsuario,
-      nome: nomeUsuario,
-      papel: convite.papel || "integrante"
-    });
-
-    if (!participanteOk) {
-      return;
-    }
-
     await abrirProjetoDoConvite(projetoId, nomeProjeto);
     return;
   }
@@ -3228,16 +3049,6 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
 
   if (erroInserir) {
     alert("Erro ao aceitar convite: " + erroInserir.message);
-    return;
-  }
-
-  const participanteOk = await garantirParticipanteProjeto(projetoId, usuario, {
-    email: emailUsuario,
-    nome: nomeUsuario,
-    papel: convite.papel || "integrante"
-  });
-
-  if (!participanteOk) {
     return;
   }
 
@@ -3893,13 +3704,11 @@ async function carregarMusicas() {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        min-width: 158px;
-        color: #dbeafe;
-        white-space: nowrap;
+        min-width: 92px;
       }
 
       .barra-fina-musica {
-        width: 46px;
+        width: 58px;
         height: 4px;
         border-radius: 999px;
         overflow: hidden;
@@ -3916,20 +3725,12 @@ async function carregarMusicas() {
       .barra-fina-musica span.amarela { background: #facc15; }
       .barra-fina-musica span.verde { background: #22c55e; }
 
-      .contador-progresso-mini {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        font-size: 11px;
-        color: #cbd5e1;
-      }
-
       .musica-linha-status {
         flex-wrap: wrap;
-        gap: 5px;
+        gap: 7px;
         margin-left: 29px;
-        margin-top: 3px;
-        font-size: 10.8px;
+        margin-top: 2px;
+        font-size: 11.5px;
         line-height: 1.2;
       }
 
@@ -3937,28 +3738,21 @@ async function carregarMusicas() {
       .status-integrante-mini-botao {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        color: #e5e7eb;
+        gap: 3px;
+        color: #dbe4f5;
         white-space: nowrap;
-        min-height: 21px;
-        padding: 2px 7px;
-        border-radius: 999px;
-        background: rgba(255,255,255,.055);
-        border: 1px solid rgba(255,255,255,.10);
       }
 
       .status-integrante-mini-botao {
+        background: transparent;
+        border: 0;
+        padding: 0;
         cursor: pointer;
         font: inherit;
-        font-weight: 800;
-        background: rgba(122,92,255,.16);
-        border-color: rgba(122,92,255,.35);
       }
 
       .status-integrante-mini-botao:hover {
-        color: #ffffff;
-        background: rgba(122,92,255,.28);
-        transform: translateY(-1px);
+        color: #d8b4fe;
       }
 
       .bolinha-status-mini {
@@ -3967,7 +3761,6 @@ async function carregarMusicas() {
         min-width: 8px;
         border-radius: 50%;
         display: inline-block;
-        box-shadow: 0 0 0 2px rgba(255,255,255,.08);
       }
 
       .bolinha-status-mini.vermelha { background: #ef4444; }
@@ -4617,13 +4410,11 @@ function obterProgressoDaMusica(musicaId) {
   const progresso = appState.progressoMusicas || [];
 
   if (!integrantes.length) {
-    return { percentual: 0, prontas: 0, emEstudo: 0, naoIniciadas: 0, total: 0, cor: "vermelha" };
+    return { percentual: 0, prontas: 0, total: 0, cor: "vermelha" };
   }
 
   let pontos = 0;
   let prontas = 0;
-  let emEstudo = 0;
-  let naoIniciadas = 0;
 
   integrantes.forEach(function(integrante) {
     const registro = progresso.find(function(item) {
@@ -4640,11 +4431,7 @@ function obterProgressoDaMusica(musicaId) {
 
     if (status === "em_estudo") {
       pontos += 0.5;
-      emEstudo += 1;
-      return;
     }
-
-    naoIniciadas += 1;
   });
 
   const percentual = Math.round((pontos / integrantes.length) * 100);
@@ -4656,7 +4443,7 @@ function obterProgressoDaMusica(musicaId) {
     cor = "amarela";
   }
 
-  return { percentual: percentual, prontas: prontas, emEstudo: emEstudo, naoIniciadas: naoIniciadas, total: integrantes.length, cor: cor };
+  return { percentual: percentual, prontas: prontas, total: integrantes.length, cor: cor };
 }
 
 function obterMeuStatusMusica(musicaId) {
@@ -4763,9 +4550,6 @@ function montarProgressoInlineMusica(musicaId) {
     <span class="progresso-musica-inline" title="Preparação da banda">
       <span class="barra-fina-musica"><span class="${progresso.cor}" style="width:${progresso.percentual}%"></span></span>
       <strong>${progresso.percentual}%</strong>
-      <span class="contador-progresso-mini" title="Prontos"><i class="bolinha-status-mini verde"></i>${progresso.prontas}</span>
-      <span class="contador-progresso-mini" title="Em estudo"><i class="bolinha-status-mini amarela"></i>${progresso.emEstudo}</span>
-      <span class="contador-progresso-mini" title="Não iniciadas"><i class="bolinha-status-mini vermelha"></i>${progresso.naoIniciadas}</span>
     </span>
   `;
 }
