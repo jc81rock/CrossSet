@@ -7831,7 +7831,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   const projeto = appState.projetoAtual || {};
   const linhas = [];
 
-  linhas.push("Repertório Fácil");
+  linhas.push("CrossSet");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Evento: " + (evento.nome || "Evento"));
@@ -8279,6 +8279,20 @@ async function carregarEventos() {
         stroke-linejoin: round;
       }
 
+      .btn-whatsapp-evento {
+        background: linear-gradient(135deg, #18c761, #16b957) !important;
+        border-color: rgba(24, 199, 97, .42) !important;
+        color: #ffffff !important;
+        box-shadow: 0 10px 24px rgba(24, 199, 97, .18);
+      }
+
+      .btn-whatsapp-evento svg {
+        fill: currentColor !important;
+        stroke: none !important;
+        width: 17px !important;
+        height: 17px !important;
+      }
+
       .btn-excluir-evento {
         background: rgba(239, 68, 68, .14);
         border-color: rgba(239, 68, 68, .32);
@@ -8694,7 +8708,7 @@ function renderizarListaEventos() {
 
           <div class="botoes-item-evento">
             <button class="btn-editar-evento btn-icone-evento" type="button" title="Editar" aria-label="Editar evento" data-editar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>
-            <button class="btn-compartilhar-evento btn-icone-evento" type="button" title="Compartilhar pelo WhatsApp" aria-label="Compartilhar evento pelo WhatsApp" data-compartilhar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg><span>Compartilhar</span></button>
+            <button class="btn-compartilhar-evento btn-icone-evento btn-whatsapp-evento" type="button" title="Compartilhar pelo WhatsApp" aria-label="Compartilhar evento pelo WhatsApp" data-compartilhar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16.03 4.2c-6.46 0-11.72 5.1-11.72 11.38 0 2 .54 3.95 1.57 5.65L4.2 27.8l6.84-1.59a12.01 12.01 0 0 0 4.99 1.1c6.46 0 11.72-5.1 11.72-11.38S22.49 4.2 16.03 4.2Zm0 20.98c-1.6 0-3.17-.4-4.57-1.18l-.33-.18-3.92.91.96-3.72-.22-.36a9.36 9.36 0 0 1-1.43-4.98c0-5.1 4.27-9.25 9.51-9.25s9.51 4.15 9.51 9.25-4.27 9.51-9.51 9.51Zm5.24-6.93c-.29-.14-1.7-.82-1.96-.91-.26-.1-.45-.14-.64.14-.19.28-.74.91-.91 1.09-.17.19-.34.21-.62.07-.29-.14-1.21-.43-2.3-1.38-.85-.74-1.43-1.65-1.59-1.93-.17-.28-.02-.43.13-.57.13-.13.29-.34.43-.5.14-.17.19-.28.29-.47.1-.19.05-.35-.02-.5-.07-.14-.64-1.5-.88-2.05-.23-.55-.47-.47-.64-.48h-.55c-.19 0-.5.07-.76.35-.26.28-1 1-1 2.43s1.03 2.81 1.17 3c.14.19 2.03 3.02 4.92 4.23.69.29 1.22.46 1.64.59.69.21 1.31.18 1.8.11.55-.08 1.7-.68 1.94-1.34.24-.66.24-1.23.17-1.34-.07-.12-.26-.19-.55-.33Z"/></svg><span>Compartilhar</span></button>
             <button class="btn-excluir-evento btn-icone-evento" type="button" title="Excluir" aria-label="Excluir evento" data-excluir-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>Excluir</span></button>
           </div>
         </div>
