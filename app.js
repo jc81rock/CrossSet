@@ -3729,10 +3729,10 @@ async function carregarMusicas() {
               <span class="label-upload-musica">${iconeAcaoMusica("material")}<span>Cifra / Partitura</span></span>
             </div>
             <div class="upload-musica-acoes">
-              <label class="upload-musica-botao">
+              <button class="upload-musica-botao" id="btn-anexar-material-musica" type="button">
                 ${iconeAcaoMusica("anexar")}<span>Anexar</span>
-                <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" />
-              </label>
+              </button>
+              <input id="musica-material-arquivo" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.txt,.doc,.docx,.gp,.gp3,.gp4,.gp5,.gpx" style="display:none" />
             </div>
             <small id="musica-material-arquivo-atual" class="upload-musica-atual"></small>
           </div>
@@ -3750,10 +3750,10 @@ async function carregarMusicas() {
               <span class="label-upload-musica">${iconeAcaoMusica("letra")}<span>Anexar letra</span></span>
             </div>
             <div class="upload-musica-acoes">
-              <label class="upload-musica-botao">
+              <button class="upload-musica-botao" id="btn-anexar-letra-musica" type="button">
                 ${iconeAcaoMusica("anexar")}<span>Anexar</span>
-                <input id="musica-letra-arquivo" type="file" accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png,.webp" />
-              </label>
+              </button>
+              <input id="musica-letra-arquivo" type="file" accept=".pdf,.txt,.doc,.docx,.jpg,.jpeg,.png,.webp" style="display:none" />
             </div>
             <small id="musica-letra-arquivo-atual" class="upload-musica-atual"></small>
           </div>
@@ -3815,6 +3815,22 @@ function configurarEventosMusicas() {
   const botaoCancelar = elemento("btn-cancelar-musica");
   const busca = elemento("busca-musicas");
   const ordenar = elemento("ordenar-musicas");
+  const botaoAnexarMaterial = elemento("btn-anexar-material-musica");
+  const botaoAnexarLetra = elemento("btn-anexar-letra-musica");
+  const inputMaterial = elemento("musica-material-arquivo");
+  const inputLetra = elemento("musica-letra-arquivo");
+
+  if (botaoAnexarMaterial && inputMaterial) {
+    botaoAnexarMaterial.addEventListener("click", function() {
+      inputMaterial.click();
+    });
+  }
+
+  if (botaoAnexarLetra && inputLetra) {
+    botaoAnexarLetra.addEventListener("click", function() {
+      inputLetra.click();
+    });
+  }
 
   if (botaoSalvar) {
     botaoSalvar.addEventListener("click", salvarMusica);
@@ -4223,7 +4239,6 @@ function renderizarListaMusicas() {
         <div class="musica-linha-meta">
           <span class="musica-meta-chip">🎼 ${escaparHtml(item.tom || "-")}</span>
           <span class="musica-meta-chip">🥁 ${escaparHtml(item.bpm || "-")}</span>
-          ${link ? `<a class="musica-meta-link" href="${linkSeguro}" target="_blank" rel="noopener noreferrer">▶ Link</a>` : ""}
           ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
           ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
