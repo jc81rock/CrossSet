@@ -7738,7 +7738,7 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
   const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
   const linhas = [];
 
-  linhas.push("Repertório Fácil");
+  linhas.push("CrossSet");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Repertório: " + (repertorio.nome || "Repertório"));
@@ -7859,7 +7859,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   }
 
   linhas.push("");
-  linhas.push("Compartilhado pelo Repertório Fácil");
+  linhas.push("Compartilhado pelo CrossSet");
 
   return linhas.join("\n");
 }
@@ -7875,8 +7875,7 @@ async function compartilharEvento(eventoId) {
   }
 
   const texto = montarTextoCompartilhamentoEvento(evento);
-  const url = montarUrlCompartilhavel("evento", eventoId);
-  await compartilharConteudo("Evento - " + (evento.nome || "Evento"), texto, url);
+  window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
 }
 
 async function gerarPDFDoRepertorio(repertorioId) {
@@ -8255,22 +8254,35 @@ async function carregarEventos() {
       }
 
       .botoes-item-evento button {
-        border: 0;
+        border: 1px solid rgba(255, 255, 255, .16);
         border-radius: 10px;
         padding: 8px 10px;
+        min-height: 34px;
         cursor: pointer;
         font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, .08);
+        color: #ffffff;
       }
 
-      .btn-editar-evento,
-      .btn-compartilhar-evento {
-        background: #e5e7eb;
-        color: #111827;
+      .btn-icone-evento svg {
+        width: 15px;
+        height: 15px;
+        display: block;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
       }
 
       .btn-excluir-evento {
-        background: #fee2e2;
-        color: #991b1b;
+        background: rgba(239, 68, 68, .14);
+        border-color: rgba(239, 68, 68, .32);
+        color: #ffffff;
       }
 
       .crossset-smart-card {
@@ -8681,9 +8693,9 @@ function renderizarListaEventos() {
           </div>
 
           <div class="botoes-item-evento">
-            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}">✎ Editar</button>
-            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}">↗ Compartilhar</button>
-            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}">🗑 Excluir</button>
+            <button class="btn-editar-evento btn-icone-evento" type="button" title="Editar" aria-label="Editar evento" data-editar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>
+            <button class="btn-compartilhar-evento btn-icone-evento" type="button" title="Compartilhar pelo WhatsApp" aria-label="Compartilhar evento pelo WhatsApp" data-compartilhar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg><span>Compartilhar</span></button>
+            <button class="btn-excluir-evento btn-icone-evento" type="button" title="Excluir" aria-label="Excluir evento" data-excluir-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>Excluir</span></button>
           </div>
         </div>
       </div>
