@@ -2497,15 +2497,111 @@ function garantirTelaConvite() {
   tela.className = "tela";
 
   tela.innerHTML = `
+    <style>
+      #tela-convite.tela-ativa {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 100vh !important;
+        padding: 16px !important;
+        background:
+          radial-gradient(circle at top left, rgba(51, 196, 255, .10), transparent 34%),
+          radial-gradient(circle at bottom right, rgba(184, 77, 255, .12), transparent 38%),
+          #0d1b2f !important;
+      }
+
+      #tela-convite .card-convite {
+        width: min(430px, 100%) !important;
+        max-width: 430px !important;
+        min-height: auto !important;
+        margin: 0 auto !important;
+        padding: 22px 24px !important;
+        border-radius: 24px !important;
+        text-align: center !important;
+      }
+
+      #tela-convite .card-convite .logo-login {
+        width: 112px !important;
+        max-height: none !important;
+        height: auto !important;
+        margin: 0 auto 12px !important;
+        display: block !important;
+        object-fit: contain !important;
+      }
+
+      #tela-convite .card-convite .tag {
+        margin: 0 auto 14px !important;
+      }
+
+      #tela-convite .card-convite h1 {
+        font-size: 27px !important;
+        line-height: 1.12 !important;
+        margin: 0 0 10px !important;
+        color: #735cff !important;
+      }
+
+      #tela-convite .card-convite p {
+        margin: 0 !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+      }
+
+      #convite-detalhes {
+        margin: 16px 0 !important;
+        display: grid !important;
+        gap: 8px !important;
+      }
+
+      .convite-resumo-projeto {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(255,255,255,.045);
+        color: #f9fafb;
+        text-align: center;
+      }
+
+      .convite-resumo-projeto p {
+        color: #9db2d6 !important;
+        font-size: 12px !important;
+        margin-bottom: 6px !important;
+      }
+
+      .convite-resumo-projeto h3 {
+        margin: 0 0 10px !important;
+        color: #ffffff !important;
+        font-size: 21px !important;
+        line-height: 1.15 !important;
+      }
+
+      .convite-resumo-projeto span {
+        display: block;
+        color: #ffffff;
+        font-size: 14px;
+        line-height: 1.35;
+        margin: 3px 0;
+      }
+
+      #convite-acoes {
+        display: grid !important;
+        gap: 10px !important;
+      }
+
+      #tela-convite .botao-principal {
+        margin-top: 0 !important;
+      }
+    </style>
+
     <div class="card-login card-convite">
       <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
+      <div id="convite-detalhes"></div>
 
-      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
+      <div id="convite-acoes"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
@@ -2622,12 +2718,11 @@ async function carregarConvitePublico(codigo) {
 
   if (detalhes) {
     detalhes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
-        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
-        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-        <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
-        <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
-        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Você não escolherá outro projeto: ao aceitar, seus dados serão salvos diretamente aqui.</p>
+      <div class="convite-resumo-projeto">
+        <p>Projeto</p>
+        <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+        <span><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</span>
+        <span><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</span>
       </div>
     `;
   }
