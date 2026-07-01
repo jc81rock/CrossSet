@@ -3705,11 +3705,13 @@ async function carregarMusicas() {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        min-width: 92px;
+        min-width: 158px;
+        color: #dbeafe;
+        white-space: nowrap;
       }
 
       .barra-fina-musica {
-        width: 58px;
+        width: 46px;
         height: 4px;
         border-radius: 999px;
         overflow: hidden;
@@ -3726,12 +3728,20 @@ async function carregarMusicas() {
       .barra-fina-musica span.amarela { background: #facc15; }
       .barra-fina-musica span.verde { background: #22c55e; }
 
+      .contador-progresso-mini {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 11px;
+        color: #cbd5e1;
+      }
+
       .musica-linha-status {
         flex-wrap: wrap;
-        gap: 7px;
+        gap: 5px;
         margin-left: 29px;
-        margin-top: 2px;
-        font-size: 11.5px;
+        margin-top: 3px;
+        font-size: 10.8px;
         line-height: 1.2;
       }
 
@@ -3739,21 +3749,28 @@ async function carregarMusicas() {
       .status-integrante-mini-botao {
         display: inline-flex;
         align-items: center;
-        gap: 3px;
-        color: #dbe4f5;
+        gap: 4px;
+        color: #e5e7eb;
         white-space: nowrap;
+        min-height: 21px;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.055);
+        border: 1px solid rgba(255,255,255,.10);
       }
 
       .status-integrante-mini-botao {
-        background: transparent;
-        border: 0;
-        padding: 0;
         cursor: pointer;
         font: inherit;
+        font-weight: 800;
+        background: rgba(122,92,255,.16);
+        border-color: rgba(122,92,255,.35);
       }
 
       .status-integrante-mini-botao:hover {
-        color: #d8b4fe;
+        color: #ffffff;
+        background: rgba(122,92,255,.28);
+        transform: translateY(-1px);
       }
 
       .bolinha-status-mini {
@@ -3762,6 +3779,7 @@ async function carregarMusicas() {
         min-width: 8px;
         border-radius: 50%;
         display: inline-block;
+        box-shadow: 0 0 0 2px rgba(255,255,255,.08);
       }
 
       .bolinha-status-mini.vermelha { background: #ef4444; }
@@ -4411,11 +4429,13 @@ function obterProgressoDaMusica(musicaId) {
   const progresso = appState.progressoMusicas || [];
 
   if (!integrantes.length) {
-    return { percentual: 0, prontas: 0, total: 0, cor: "vermelha" };
+    return { percentual: 0, prontas: 0, emEstudo: 0, naoIniciadas: 0, total: 0, cor: "vermelha" };
   }
 
   let pontos = 0;
   let prontas = 0;
+  let emEstudo = 0;
+  let naoIniciadas = 0;
 
   integrantes.forEach(function(integrante) {
     const registro = progresso.find(function(item) {
@@ -4432,7 +4452,11 @@ function obterProgressoDaMusica(musicaId) {
 
     if (status === "em_estudo") {
       pontos += 0.5;
+      emEstudo += 1;
+      return;
     }
+
+    naoIniciadas += 1;
   });
 
   const percentual = Math.round((pontos / integrantes.length) * 100);
@@ -4444,7 +4468,7 @@ function obterProgressoDaMusica(musicaId) {
     cor = "amarela";
   }
 
-  return { percentual: percentual, prontas: prontas, total: integrantes.length, cor: cor };
+  return { percentual: percentual, prontas: prontas, emEstudo: emEstudo, naoIniciadas: naoIniciadas, total: integrantes.length, cor: cor };
 }
 
 function obterMeuStatusMusica(musicaId) {
@@ -4551,6 +4575,9 @@ function montarProgressoInlineMusica(musicaId) {
     <span class="progresso-musica-inline" title="Preparação da banda">
       <span class="barra-fina-musica"><span class="${progresso.cor}" style="width:${progresso.percentual}%"></span></span>
       <strong>${progresso.percentual}%</strong>
+      <span class="contador-progresso-mini" title="Prontos"><i class="bolinha-status-mini verde"></i>${progresso.prontas}</span>
+      <span class="contador-progresso-mini" title="Em estudo"><i class="bolinha-status-mini amarela"></i>${progresso.emEstudo}</span>
+      <span class="contador-progresso-mini" title="Não iniciadas"><i class="bolinha-status-mini vermelha"></i>${progresso.naoIniciadas}</span>
     </span>
   `;
 }
