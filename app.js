@@ -2040,11 +2040,19 @@ function montarDesenvolvimentoIntegrante(integranteId) {
   const dados = obterDesenvolvimentoIntegrante(integranteId);
 
   return `
-    <div class="desenvolvimento-integrante desenvolvimento-integrante-compacto" title="Desenvolvimento: ${dados.percentual}% | Prontas: ${dados.prontas} | Em estudo: ${dados.emEstudo} | Não iniciadas: ${dados.naoIniciadas}">
-      <div class="barra-desenvolvimento-integrante barra-desenvolvimento-integrante-compacta" aria-label="Desenvolvimento ${dados.percentual}%">
+    <div class="desenvolvimento-integrante" title="Desempenho: ${dados.percentual}% | Prontas: ${dados.prontas} | Em estudo: ${dados.emEstudo} | Não iniciadas: ${dados.naoIniciadas}">
+      <div class="desenvolvimento-integrante-topo">
+        <span>DESEMPENHO DO INTEGRANTE</span>
+        <strong class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</strong>
+      </div>
+      <div class="barra-desenvolvimento-integrante" aria-label="Desempenho ${dados.percentual}%">
         <span class="${dados.cor}" style="width:${dados.percentual}%"></span>
       </div>
-      <span class="desenvolvimento-integrante-percentual ${dados.cor}">${dados.percentual}%</span>
+      <div class="desenvolvimento-integrante-contadores">
+        <span class="contador-prontas"><strong>${dados.prontas}</strong> prontas</span>
+        <span class="contador-estudo"><strong>${dados.emEstudo}</strong> em estudo</span>
+        <span class="contador-nao"><strong>${dados.naoIniciadas}</strong> não iniciadas</span>
+      </div>
     </div>
   `;
 }
@@ -2102,22 +2110,27 @@ function renderizarListaIntegrantes() {
 
   lista.innerHTML = itens.map(function(item) {
     const tipoIntegrante = item.administrador ? "Administrador" : "Integrante";
+    const inicial = escaparHtml((item.nome || "?").slice(0, 1).toUpperCase());
 
     return `
-      <div class="item-integrante item-integrante-compacto">
-        <div class="integrante-linha-compacta">
-          <strong class="integrante-nome-compacto" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</strong>
-          <span class="separador-integrante">|</span>
-          <span class="integrante-funcao-compacta" title="${escaparHtml(item.funcao || "Função não informada")}">${escaparHtml(item.funcao || "Função não informada")}</span>
-          <span class="separador-integrante">|</span>
-          <span class="integrante-admin-compacto ${item.administrador ? "admin-sim" : "admin-nao"}">${tipoIntegrante}</span>
-          ${montarDesenvolvimentoIntegrante(item.id)}
-          <div class="botoes-item-integrante botoes-item-integrante-compactos">
+      <div class="item-integrante">
+        <div class="item-integrante-topo">
+          <div class="foto-integrante-placeholder">${inicial}</div>
+          <div class="dados-integrante">
+            <h4>${escaparHtml(item.nome || "Sem nome")}</h4>
+            <p><strong>Função:</strong> ${escaparHtml(item.funcao || "Não informada")}</p>
+            <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
+            ${item.email ? `<p><strong>E-mail:</strong> ${escaparHtml(item.email)}</p>` : ""}
+            ${item.telefone ? `<p><strong>Telefone:</strong> ${escaparHtml(item.telefone)}</p>` : ""}
+            <span class="${item.administrador ? "tag-admin" : "tag-integrante"}">${tipoIntegrante}</span>
+          </div>
+          <div class="botoes-item-integrante">
             <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
             <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg></button>
-            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}">🗑️</button>
+            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
           </div>
         </div>
+        ${montarDesenvolvimentoIntegrante(item.id)}
       </div>
     `;
   }).join("");
@@ -2484,15 +2497,111 @@ function garantirTelaConvite() {
   tela.className = "tela";
 
   tela.innerHTML = `
+    <style>
+      #tela-convite.tela-ativa {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 100vh !important;
+        padding: 16px !important;
+        background:
+          radial-gradient(circle at top left, rgba(51, 196, 255, .10), transparent 34%),
+          radial-gradient(circle at bottom right, rgba(184, 77, 255, .12), transparent 38%),
+          #0d1b2f !important;
+      }
+
+      #tela-convite .card-convite {
+        width: min(430px, 100%) !important;
+        max-width: 430px !important;
+        min-height: auto !important;
+        margin: 0 auto !important;
+        padding: 22px 24px !important;
+        border-radius: 24px !important;
+        text-align: center !important;
+      }
+
+      #tela-convite .card-convite .logo-login {
+        width: 112px !important;
+        max-height: none !important;
+        height: auto !important;
+        margin: 0 auto 12px !important;
+        display: block !important;
+        object-fit: contain !important;
+      }
+
+      #tela-convite .card-convite .tag {
+        margin: 0 auto 14px !important;
+      }
+
+      #tela-convite .card-convite h1 {
+        font-size: 27px !important;
+        line-height: 1.12 !important;
+        margin: 0 0 10px !important;
+        color: #735cff !important;
+      }
+
+      #tela-convite .card-convite p {
+        margin: 0 !important;
+        color: #ffffff !important;
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+      }
+
+      #convite-detalhes {
+        margin: 16px 0 !important;
+        display: grid !important;
+        gap: 8px !important;
+      }
+
+      .convite-resumo-projeto {
+        border: 1px solid rgba(255,255,255,.12);
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(255,255,255,.045);
+        color: #f9fafb;
+        text-align: center;
+      }
+
+      .convite-resumo-projeto p {
+        color: #9db2d6 !important;
+        font-size: 12px !important;
+        margin-bottom: 6px !important;
+      }
+
+      .convite-resumo-projeto h3 {
+        margin: 0 0 10px !important;
+        color: #ffffff !important;
+        font-size: 21px !important;
+        line-height: 1.15 !important;
+      }
+
+      .convite-resumo-projeto span {
+        display: block;
+        color: #ffffff;
+        font-size: 14px;
+        line-height: 1.35;
+        margin: 3px 0;
+      }
+
+      #convite-acoes {
+        display: grid !important;
+        gap: 10px !important;
+      }
+
+      #tela-convite .botao-principal {
+        margin-top: 0 !important;
+      }
+    </style>
+
     <div class="card-login card-convite">
       <img src="logo.png" alt="CrossSet" class="logo-login" />
       <span class="tag">Convite</span>
       <h1 id="convite-titulo">Convite para projeto musical</h1>
       <p id="convite-descricao">Carregando convite...</p>
 
-      <div id="convite-detalhes" style="margin:16px 0; display:grid; gap:8px;"></div>
+      <div id="convite-detalhes"></div>
 
-      <div id="convite-acoes" style="display:grid; gap:10px;"></div>
+      <div id="convite-acoes"></div>
 
       <button class="botao-link" id="btn-voltar-login-convite" type="button">
         Voltar para o login
@@ -2609,12 +2718,11 @@ async function carregarConvitePublico(codigo) {
 
   if (detalhes) {
     detalhes.innerHTML = `
-      <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#111827; color:#f9fafb;">
-        <p style="margin:0 0 6px; color:#d1d5db; font-size:13px;">Projeto</p>
-        <h3 style="margin:0 0 12px; font-size:24px;">${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-        <p style="margin:3px 0;"><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</p>
-        <p style="margin:3px 0;"><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</p>
-        <p style="margin:10px 0 0; color:#d1d5db; font-size:13px;">Este convite é exclusivo para este projeto. Você não escolherá outro projeto: ao aceitar, seus dados serão salvos diretamente aqui.</p>
+      <div class="convite-resumo-projeto">
+        <p>Projeto</p>
+        <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+        <span><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</span>
+        <span><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</span>
       </div>
     `;
   }
@@ -7630,7 +7738,7 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
   const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
   const linhas = [];
 
-  linhas.push("Repertório Fácil");
+  linhas.push("CrossSet");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Repertório: " + (repertorio.nome || "Repertório"));
@@ -7723,7 +7831,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   const projeto = appState.projetoAtual || {};
   const linhas = [];
 
-  linhas.push("Repertório Fácil");
+  linhas.push("CrossSet");
   linhas.push("");
   linhas.push("Projeto: " + (projeto.nome || "Projeto"));
   linhas.push("Evento: " + (evento.nome || "Evento"));
@@ -7751,7 +7859,7 @@ function montarTextoCompartilhamentoEvento(evento) {
   }
 
   linhas.push("");
-  linhas.push("Compartilhado pelo Repertório Fácil");
+  linhas.push("Compartilhado pelo CrossSet");
 
   return linhas.join("\n");
 }
@@ -7767,8 +7875,7 @@ async function compartilharEvento(eventoId) {
   }
 
   const texto = montarTextoCompartilhamentoEvento(evento);
-  const url = montarUrlCompartilhavel("evento", eventoId);
-  await compartilharConteudo("Evento - " + (evento.nome || "Evento"), texto, url);
+  window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
 }
 
 async function gerarPDFDoRepertorio(repertorioId) {
@@ -8140,29 +8247,53 @@ async function carregarEventos() {
       }
 
       .botoes-item-evento {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
+        display: inline-flex;
+        align-items: center;
         justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: nowrap;
       }
 
-      .botoes-item-evento button {
-        border: 0;
-        border-radius: 10px;
-        padding: 8px 10px;
-        cursor: pointer;
-        font-weight: 700;
+      .botoes-item-evento .btn-icone-evento,
+      .botoes-item-evento .btn-editar-evento,
+      .botoes-item-evento .btn-compartilhar-evento,
+      .botoes-item-evento .btn-excluir-evento,
+      .botoes-item-evento .btn-whatsapp-evento {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: #ffffff !important;
+        box-shadow: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
       }
 
-      .btn-editar-evento,
-      .btn-compartilhar-evento {
-        background: #e5e7eb;
-        color: #111827;
+      .botoes-item-evento .btn-icone-evento:hover {
+        background: transparent !important;
+        transform: translateY(-1px);
+        filter: brightness(1.08);
       }
 
-      .btn-excluir-evento {
-        background: #fee2e2;
-        color: #991b1b;
+      .botoes-item-evento .btn-icone-evento svg {
+        width: 21px !important;
+        height: 21px !important;
+        display: block !important;
+        fill: none !important;
+        stroke: #ffffff !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+      }
+
+      .botoes-item-evento .btn-icone-evento span {
+        display: none !important;
       }
 
       .crossset-smart-card {
@@ -8573,9 +8704,9 @@ function renderizarListaEventos() {
           </div>
 
           <div class="botoes-item-evento">
-            <button class="btn-editar-evento" type="button" data-editar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:15px;height:15px;display:block;fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg> Editar</button>
-            <button class="btn-compartilhar-evento" type="button" data-compartilhar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:15px;height:15px;display:block;fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4"></path><path d="M8.7 13.4l6.6 4.2"></path></svg> Compartilhar</button>
-            <button class="btn-excluir-evento" type="button" data-excluir-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:15px;height:15px;display:block;fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg> Excluir</button>
+            <button class="btn-editar-evento btn-icone-evento" type="button" title="Editar" aria-label="Editar evento" data-editar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg><span>Editar</span></button>
+            <button class="btn-compartilhar-evento btn-icone-evento" type="button" title="Compartilhar pelo WhatsApp" aria-label="Compartilhar evento pelo WhatsApp" data-compartilhar-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4"></path><path d="M8.7 13.4l6.6 4.2"></path></svg><span>Compartilhar</span></button>
+            <button class="btn-excluir-evento btn-icone-evento" type="button" title="Excluir" aria-label="Excluir evento" data-excluir-evento="${escaparHtml(item.id)}"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 16h10l1-16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg><span>Excluir</span></button>
           </div>
         </div>
       </div>
