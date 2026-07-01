@@ -3750,10 +3750,6 @@ async function carregarMusicas() {
         transform: translateY(-1px) scale(1.05);
       }
 
-      .btn-acao-musica.excluir:hover {
-        color: #fca5a5;
-      }
-
       .botao-colar-letra {
         display: inline-flex;
         align-items: center;
@@ -4631,8 +4627,7 @@ function renderizarListaMusicas() {
           <div class="acoes-icone-musica">
             <button class="btn-acao-musica" type="button" title="Editar" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
             <button class="btn-acao-musica" type="button" title="Compartilhar" data-compartilhar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("compartilhar")}</button>
-            <button class="btn-acao-musica" type="button" title="Gerar PDF" data-pdf-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("pdf")}</button>
-            <button class="btn-acao-musica excluir" type="button" title="Excluir" data-excluir-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
+            <button class="btn-acao-musica" type="button" title="Excluir" data-excluir-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
           </div>
         </div>
 
@@ -4663,12 +4658,6 @@ function renderizarListaMusicas() {
   lista.querySelectorAll("[data-compartilhar-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       compartilharMusica(botao.dataset.compartilharMusica);
-    });
-  });
-
-  lista.querySelectorAll("[data-pdf-musica]").forEach(function(botao) {
-    botao.addEventListener("click", function() {
-      gerarPDFDaMusica(botao.dataset.pdfMusica);
     });
   });
 

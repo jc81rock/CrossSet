@@ -1093,16 +1093,32 @@ button#btn-convidar-integrante,
 button#btn-convidar-integrante::before,
 .botao-whatsapp::before,
 .botao-convidar-whatsapp::before {
-  content: none !important;
-  display: none !important;
+  content: "☎";
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255,255,255,.94);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  flex: 0 0 24px;
 }
 
 #btn-convidar-integrante::after,
 button#btn-convidar-integrante::after,
 .botao-whatsapp::after,
 .botao-convidar-whatsapp::after {
-  content: none !important;
-  display: none !important;
+  content: "→";
+  margin-left: auto;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  opacity: .96;
 }
 
 #btn-convidar-integrante:hover,
@@ -1441,125 +1457,4 @@ textarea:focus,
   .separador-integrante { display: none !important; }
   .desenvolvimento-integrante-compacto { grid-area: barra !important; width: 130px !important; }
   .botoes-item-integrante-compactos { grid-area: acoes !important; }
-}
-
-/* CrossSet - convite dentro do padrão aprovado */
-#tela-convite.tela-ativa {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  min-height: 100vh !important;
-  padding: 16px !important;
-  background: #0d1b2f !important;
-}
-
-#tela-convite .card-convite {
-  width: 100% !important;
-  max-width: 520px !important;
-  min-height: auto !important;
-  margin: 0 auto !important;
-  padding: 22px !important;
-  text-align: center !important;
-  border-radius: 24px !important;
-}
-
-#tela-convite .logo-login {
-  width: 112px !important;
-  height: auto !important;
-  max-height: none !important;
-  object-fit: contain !important;
-  display: block !important;
-  margin: 0 auto 14px !important;
-}
-
-#tela-convite h1 {
-  font-size: 28px !important;
-  line-height: 1.12 !important;
-  margin-bottom: 10px !important;
-}
-
-#tela-convite #convite-descricao {
-  color: #ffffff !important;
-  margin-bottom: 14px !important;
-}
-
-#tela-convite #convite-acoes .botao-principal,
-#tela-convite #convite-acoes .botao-google {
-  width: 100% !important;
-  min-height: 42px !important;
-  height: 42px !important;
-  border-radius: 13px !important;
-  font-size: 14px !important;
-}
-
-.convite-resumo-projeto {
-  border: 1px solid rgba(255,255,255,.12);
-  border-radius: 14px;
-  padding: 14px;
-  background: #111827;
-  color: #f9fafb;
-  text-align: left;
-  display: grid;
-  gap: 6px;
-}
-
-.convite-resumo-projeto p {
-  margin: 0;
-  color: #d1d5db;
-  font-size: 13px;
-}
-
-.convite-resumo-projeto h3 {
-  margin: 0 0 6px !important;
-  font-size: 22px !important;
-  color: #ffffff;
-}
-
-.convite-resumo-projeto span {
-  font-size: 13px;
-  color: #e5e7eb;
-}
-
-
-/* CrossSet - padrão definitivo WhatsApp e compartilhar */
-#btn-convidar-integrante.btn-whatsapp-padrao,
-button#btn-convidar-integrante.btn-whatsapp-padrao {
-  background: linear-gradient(135deg, #18c761, #16b957) !important;
-  color: #ffffff !important;
-  justify-content: center !important;
-  gap: 9px !important;
-}
-
-#btn-convidar-integrante.btn-whatsapp-padrao::before,
-#btn-convidar-integrante.btn-whatsapp-padrao::after {
-  content: none !important;
-  display: none !important;
-}
-
-.icone-whatsapp-padrao {
-  width: 21px !important;
-  height: 21px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex: 0 0 21px !important;
-  color: #ffffff !important;
-}
-
-.icone-whatsapp-padrao svg {
-  width: 21px !important;
-  height: 21px !important;
-  display: block !important;
-  fill: currentColor !important;
-}
-
-.btn-icone-integrante .icone-share-padrao {
-  width: 15px !important;
-  height: 15px !important;
-  display: block !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-width: 2 !important;
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
 }
