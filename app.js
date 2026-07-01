@@ -4297,10 +4297,45 @@ function buscarSugestoesSmartMusicas(termo) {
     .slice(0, 5);
 }
 
-function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
-  const sugestoes = buscarSugestoesSmartMusicas(termo);
+async function buscarMusicasSpotifySmart(termo) {
+  const cliente = sb();
+
+  if (!cliente) {
+    return [];
+  }
+
+  const { data, error } = await cliente.functions.invoke("spotify-search", {
+    body: { q: termo }
+  });
+
+  if (error) {
+    throw new Error(error.message || "Erro ao buscar música no Spotify.");
+  }
+
+  const resultados = data && Array.isArray(data.resultados) ? data.resultados : [];
+
+  return resultados.map(function(item) {
+    return {
+      nome: item.nome || "",
+      artista: item.artista || "",
+      album: item.album || "",
+      ano: item.ano || "",
+      tom: "",
+      bpm: "",
+      duracao: item.duracao || "",
+      link_url: item.spotify_url || "",
+      spotify_url: item.spotify_url || "",
+      spotify_id: item.spotify_id || "",
+      imagem: item.imagem || "",
+      origem: "Spotify"
+    };
+  });
+}
+
+async function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
   const container = elemento("smart-musica-sugestoes");
   const preview = elemento("smart-musica-preview");
+  const busca = limparTexto(termo);
 
   if (!container) {
     return;
@@ -4311,10 +4346,44 @@ function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
     preview.innerHTML = "";
   }
 
-  if (!sugestoes.length) {
-    container.innerHTML = forcarResultado && limparTexto(termo).length >= 2
-      ? `<small class="crossset-smart-ajuda">Nenhuma sugestão encontrada neste beta. Tente outro nome.</small>`
-      : "";
+  if (!forcarResultado) {
+    const sugestoesLocais = buscarSugestoesSmartMusicas(termo);
+
+    if (!sugestoesLocais.length) {
+      container.innerHTML = "";
+      return;
+    }
+
+    renderizarListaSugestoesSmartMusicas(sugestoesLocais);
+    return;
+  }
+
+  if (busca.length < 2) {
+    container.innerHTML = `<small class="crossset-smart-ajuda">Digite pelo menos 2 caracteres para buscar no Spotify.</small>`;
+    return;
+  }
+
+  container.innerHTML = `<small class="crossset-smart-ajuda">Buscando no Spotify...</small>`;
+
+  try {
+    const sugestoesSpotify = await buscarMusicasSpotifySmart(busca);
+
+    if (!sugestoesSpotify.length) {
+      container.innerHTML = `<small class="crossset-smart-ajuda">Nenhuma música encontrada no Spotify.</small>`;
+      return;
+    }
+
+    renderizarListaSugestoesSmartMusicas(sugestoesSpotify);
+  } catch (erro) {
+    container.innerHTML = `<small class="crossset-smart-ajuda">Não foi possível buscar no Spotify agora.</small>`;
+    console.error(erro);
+  }
+}
+
+function renderizarListaSugestoesSmartMusicas(sugestoes) {
+  const container = elemento("smart-musica-sugestoes");
+
+  if (!container) {
     return;
   }
 
@@ -4388,7 +4457,7 @@ async function salvarMusicaSmart(musica) {
     musica.album ? "Álbum: " + musica.album : "",
     musica.ano ? "Ano: " + musica.ano : "",
     musica.duracao ? "Duração: " + musica.duracao : "",
-    musica.origem ? "Origem: CrossSet Smart Beta" : ""
+    musica.origem ? "Origem: " + musica.origem : ""
   ].filter(Boolean).join("\n");
 
   const payload = {
