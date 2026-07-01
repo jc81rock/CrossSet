@@ -4475,6 +4475,19 @@ function nomeSeguroArquivo(nome) {
   return baseSeguro + "." + extensao;
 }
 
+const BUCKET_MUSICAS_ARQUIVOS = "musicas-arquivos";
+const LIMITE_UPLOAD_MUSICA_BYTES = 50 * 1024 * 1024;
+
+function formatarTamanhoArquivo(bytes) {
+  const numero = Number(bytes) || 0;
+
+  if (numero >= 1024 * 1024) {
+    return (numero / (1024 * 1024)).toFixed(1).replace(".0", "") + " MB";
+  }
+
+  return Math.max(1, Math.round(numero / 1024)) + " KB";
+}
+
 async function enviarArquivoMusica(campoId, tipo, projetoId) {
   const cliente = sb();
   const input = elemento(campoId);
@@ -4484,6 +4497,17 @@ async function enviarArquivoMusica(campoId, tipo, projetoId) {
   }
 
   const arquivo = input.files[0];
+
+  if (arquivo.size > LIMITE_UPLOAD_MUSICA_BYTES) {
+    throw new Error(
+      "Arquivo muito grande. Limite configurado: " +
+      formatarTamanhoArquivo(LIMITE_UPLOAD_MUSICA_BYTES) +
+      ". Arquivo selecionado: " +
+      formatarTamanhoArquivo(arquivo.size) +
+      "."
+    );
+  }
+
   const { data: sessionData } = await cliente.auth.getSession();
   const usuario = sessionData.session?.user;
 
@@ -4499,15 +4523,27 @@ async function enviarArquivoMusica(campoId, tipo, projetoId) {
   ].join("/");
 
   const { error } = await cliente.storage
-    .from("musicas-arquivos")
-    .upload(caminho, arquivo, { cacheControl: "3600", upsert: false });
+    .from(BUCKET_MUSICAS_ARQUIVOS)
+    .upload(caminho, arquivo, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: arquivo.type || "application/octet-stream"
+    });
 
   if (error) {
+    if (String(error.message || "").toLowerCase().includes("maximum allowed size")) {
+      throw new Error(
+        "Arquivo maior que o limite do Supabase Storage. Rode o SQL de limite para o bucket " +
+        BUCKET_MUSICAS_ARQUIVOS +
+        " e tente novamente."
+      );
+    }
+
     throw new Error("Erro ao enviar arquivo: " + error.message);
   }
 
   const { data } = cliente.storage
-    .from("musicas-arquivos")
+    .from(BUCKET_MUSICAS_ARQUIVOS)
     .getPublicUrl(caminho);
 
   return data?.publicUrl || "";
