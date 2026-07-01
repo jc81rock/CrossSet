@@ -170,6 +170,49 @@ function limparMensagemCadastro() {
   mensagem.textContent = "";
 }
 
+
+function mostrarToast(texto) {
+  const mensagem = limparTexto(texto);
+
+  if (!mensagem) {
+    return;
+  }
+
+  let toast = document.getElementById("crossset-toast");
+
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "crossset-toast";
+    toast.style.position = "fixed";
+    toast.style.right = "22px";
+    toast.style.bottom = "96px";
+    toast.style.zIndex = "9999";
+    toast.style.maxWidth = "340px";
+    toast.style.padding = "13px 16px";
+    toast.style.borderRadius = "14px";
+    toast.style.background = "rgba(7, 17, 31, .96)";
+    toast.style.border = "1px solid rgba(255,255,255,.16)";
+    toast.style.color = "#ffffff";
+    toast.style.fontSize = "14px";
+    toast.style.fontWeight = "700";
+    toast.style.boxShadow = "0 18px 60px rgba(0,0,0,.45)";
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(8px)";
+    toast.style.transition = "opacity .18s ease, transform .18s ease";
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = mensagem;
+  toast.style.opacity = "1";
+  toast.style.transform = "translateY(0)";
+
+  clearTimeout(window.__crosssetToastTimer);
+  window.__crosssetToastTimer = setTimeout(function() {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(8px)";
+  }, 2600);
+}
+
 function limparCampos(container) {
   if (!container) {
     return;
@@ -1623,8 +1666,8 @@ async function carregarIntegrantes() {
       }
 
       .crossset-smart-card {
-        margin-bottom: 10px;
-        padding: 10px;
+        margin-bottom: 0;
+        padding: 14px;
         border-radius: 13px;
         background: linear-gradient(135deg, rgba(51,196,255,.10), rgba(122,92,255,.16), rgba(184,77,255,.10));
         border: 1px solid rgba(255,255,255,.12);
@@ -1645,15 +1688,13 @@ async function carregarIntegrantes() {
       }
 
       .crossset-smart-topo span {
-        color: #aebff2;
-        font-size: 11px;
-        font-weight: 700;
+        display: none;
       }
 
       .crossset-smart-busca {
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 6px;
+        gap: 8px;
       }
 
       .crossset-smart-busca input {
@@ -1740,8 +1781,12 @@ async function carregarIntegrantes() {
 
       .crossset-smart-ajuda {
         color: #9ca3af;
-        font-size: 11px;
-        line-height: 1.35;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .card-lista-musicas-smart .lista-musicas {
+        min-height: 320px;
       }
 
 
@@ -3048,13 +3093,14 @@ async function carregarMusicas() {
     <style>
       .modulo-musicas {
         display: grid;
-        grid-template-columns: minmax(240px, 320px) 1fr;
-        gap: 12px;
+        grid-template-columns: minmax(340px, 400px) minmax(0, 1fr);
+        gap: 16px;
         width: 100%;
+        align-items: stretch;
       }
 
       .modulo-musicas > .card-projeto {
-        padding: 12px !important;
+        padding: 18px !important;
       }
 
       .modulo-musicas > .card-projeto h3 {
@@ -3063,12 +3109,12 @@ async function carregarMusicas() {
       }
 
       .card-crossset-smart-musicas {
-        min-height: 310px !important;
+        min-height: 520px !important;
         align-self: stretch !important;
       }
 
       .card-lista-musicas-smart {
-        min-height: 310px !important;
+        min-height: 520px !important;
         align-self: stretch !important;
       }
 
@@ -3951,7 +3997,6 @@ async function carregarMusicas() {
         <div class="crossset-smart-card" aria-label="CrossSet Smart Beta">
           <div class="crossset-smart-topo">
             <strong>✨ CrossSet Smart</strong>
-            <span>Beta</span>
           </div>
 
           <div class="crossset-smart-busca">
@@ -4274,7 +4319,7 @@ async function salvarMusicaSmart(musica) {
   }
 
   await buscarMusicas();
-  alert("Música adicionada pelo CrossSet Smart.");
+  mostrarToast("Música adicionada pelo CrossSet Smart.");
 }
 
 async function buscarMusicas() {
