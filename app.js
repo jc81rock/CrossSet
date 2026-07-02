@@ -2990,27 +2990,19 @@ async function carregarConvitePublico(codigo) {
 
   if (usuarioLogado) {
     if (descricao) {
-      descricao.textContent = "Você já está logado. Aceite o convite para entrar diretamente neste projeto.";
+      descricao.textContent = "Finalizando sua entrada no projeto...";
     }
-
     if (detalhes) {
-      detalhes.innerHTML = `
-        <div class="convite-resumo-projeto">
-          <p>Projeto</p>
-          <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
-          <span><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</span>
-          <span><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</span>
-        </div>
-      `;
+      detalhes.innerHTML = `<p>Entrando em ${escaparHtml(data.projeto_nome || "Projeto musical")}...</p>`;
     }
-
     if (acoes) {
-      acoes.innerHTML = `
-        <button class="botao-principal" id="btn-aceitar-convite-logado" type="button">Aceitar convite e entrar no projeto</button>
-      `;
-      elemento("btn-aceitar-convite-logado")?.addEventListener("click", aceitarConviteAtual);
+      acoes.innerHTML = "";
     }
 
+    await aceitarConviteComUsuario(usuarioLogado, {
+      nome: obterNomeUsuario(usuarioLogado),
+      email: usuarioLogado.email || ""
+    });
     return;
   }
 
