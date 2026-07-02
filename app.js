@@ -827,39 +827,6 @@ async function excluirProjeto(id) {
   await carregarProjetos();
 }
 
-
-async function garantirParticipanteAdministradorProjeto(cliente, projetoId, usuario, projetoNome) {
-  if (!cliente || !projetoId || !usuario || !usuario.id) {
-    return;
-  }
-
-  try {
-    const { data: existente } = await cliente
-      .from("projeto_participantes")
-      .select("id")
-      .eq("projeto_id", projetoId)
-      .eq("usuario_id", usuario.id)
-      .maybeSingle();
-
-    if (existente && existente.id) {
-      return;
-    }
-
-    await cliente
-      .from("projeto_participantes")
-      .insert({
-        projeto_id: projetoId,
-        usuario_id: usuario.id,
-        email: usuario.email || "",
-        nome: obterNomeUsuario(usuario) || "Administrador",
-        papel: "administrador",
-        status: "ativo"
-      });
-  } catch (erro) {
-    console.warn("Não foi possível garantir participante administrador do projeto.", erro);
-  }
-}
-
 async function criarProjeto() {
   const cliente = sb();
 
@@ -903,8 +870,6 @@ async function criarProjeto() {
     alert("Erro ao criar projeto: " + error.message);
     return;
   }
-
-  await garantirParticipanteAdministradorProjeto(cliente, data.id, usuario, data.nome);
 
   limparCampos(elemento("tela-novo-projeto"));
   salvarProjetoAtual(data);
@@ -2570,11 +2535,11 @@ function limparFormularioIntegrante() {
   }
 
   if (botaoSalvar) {
-    botaoSalvar.textContent = "Salvar integrante";
+    botaoSalvar.innerHTML = `<span class="icone-btn">✓</span><span>Salvar integrante</span>`;
   }
 
   if (botaoCancelar) {
-    botaoCancelar.style.display = "inline-flex";
+    botaoCancelar.style.display = "none";
   }
 }
 
@@ -4885,16 +4850,6 @@ async function salvarMusicaSmart(musica) {
   if (!cliente || !projetoId || !musica) {
     return;
   }
-
-  const { data: sessionData } = await cliente.auth.getSession();
-  const usuario = sessionData.session?.user;
-
-  if (!usuario) {
-    mostrarTela("tela-login", { registrar: false });
-    return;
-  }
-
-  await garantirParticipanteAdministradorProjeto(cliente, projetoId, usuario, appState.projetoAtual?.nome || "");
 
   const nome = limparTexto(musica.nome);
 
