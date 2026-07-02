@@ -3993,6 +3993,101 @@ async function carregarMusicas() {
         line-height: 1.25;
       }
 
+
+
+      /* Correção cirúrgica: ícones pequenos e brancos nos campos Tom/BPM do card de música */
+      .musica-campo-inline {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
+        flex: 0 0 auto !important;
+        color: #ffffff !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+      }
+
+      .musica-campo-inline .icone-campo-musica {
+        width: 14px !important;
+        height: 14px !important;
+        min-width: 14px !important;
+        max-width: 14px !important;
+        max-height: 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #ffffff !important;
+        overflow: hidden !important;
+        flex: 0 0 14px !important;
+      }
+
+      .musica-campo-inline .icone-campo-musica svg {
+        width: 14px !important;
+        height: 14px !important;
+        min-width: 14px !important;
+        max-width: 14px !important;
+        min-height: 14px !important;
+        max-height: 14px !important;
+        display: block !important;
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+        fill: none !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+        flex: 0 0 14px !important;
+      }
+
+      .input-mini-musica {
+        width: 52px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        margin: 0 !important;
+        padding: 2px 6px !important;
+        border-radius: 7px !important;
+        font-size: 11.5px !important;
+        line-height: 1 !important;
+        text-align: center !important;
+        color: #ffffff !important;
+        background: rgba(5, 11, 20, .92) !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+        box-shadow: none !important;
+      }
+
+      .input-mini-musica.input-mini-bpm {
+        width: 56px !important;
+      }
+
+      .texto-opcional-musica {
+        color: #cbd5e1 !important;
+        font-size: 10.5px !important;
+        font-weight: 650 !important;
+        line-height: 1 !important;
+      }
+
+      .progresso-musica-inline {
+        flex: 1 1 220px !important;
+        min-width: 180px !important;
+        max-width: 420px !important;
+      }
+
+      .barra-fina-musica {
+        width: 100% !important;
+        min-width: 170px !important;
+      }
+
+      .preparacao-inline-musica {
+        gap: 12px !important;
+        column-gap: 14px !important;
+      }
+
+      .status-integrante-mini,
+      .status-integrante-mini-botao {
+        gap: 4px !important;
+        margin-right: 8px !important;
+      }
+
       .musica-meta-chip {
         display: inline-flex;
         align-items: center;
