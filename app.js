@@ -5275,8 +5275,9 @@ function renderizarListaMusicas() {
 
 async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   const cliente = sb();
+  const projetoId = obterProjetoAtualId();
 
-  if (!cliente || !musicaId || !["tom", "bpm"].includes(campo)) {
+  if (!cliente || !projetoId || !musicaId || !["tom", "bpm"].includes(campo)) {
     return;
   }
 
@@ -5294,7 +5295,8 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
     .update(payload)
-    .eq("id", musicaId);
+    .eq("id", musicaId)
+    .eq("projeto_id", projetoId);
 
   if (error) {
     alert("Erro ao salvar " + campo.toUpperCase() + ": " + error.message);
@@ -5419,6 +5421,7 @@ async function salvarMeuProgressoMusica(musicaId, status) {
   const { data: existente, error: erroBusca } = await cliente
     .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
     .select("id")
+    .eq("projeto_id", projetoId)
     .eq("musica_id", musicaId)
     .eq("integrante_id", meuIntegrante.id)
     .limit(1);
@@ -5437,7 +5440,10 @@ async function salvarMeuProgressoMusica(musicaId, status) {
         status: status,
         updated_at: payload.updated_at
       })
-      .eq("id", existente[0].id);
+      .eq("id", existente[0].id)
+      .eq("projeto_id", projetoId)
+      .eq("musica_id", musicaId)
+      .eq("integrante_id", meuIntegrante.id);
   } else {
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
