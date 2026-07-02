@@ -703,7 +703,16 @@ function montarListaProjetos(lista) {
 
   lista.forEach(function(projeto) {
     grid.innerHTML += `
-      <div class="card-projeto projeto-item">
+      <div class="card-projeto projeto-item" style="position:relative;">
+        <button class="btn-excluir-projeto" type="button" title="Excluir projeto" aria-label="Excluir projeto" data-excluir-projeto="${escaparHtml(projeto.id)}" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border:0;background:transparent;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
+            <path d="M3 6h18"></path>
+            <path d="M8 6V4h8v2"></path>
+            <path d="M19 6l-1 14H6L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+          </svg>
+        </button>
         <div class="projeto-item-conteudo">
           <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
           <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
@@ -730,6 +739,44 @@ function montarListaProjetos(lista) {
       acessarProjeto(botao.dataset.id);
     });
   });
+
+  document.querySelectorAll(".btn-excluir-projeto").forEach(function(botao) {
+    botao.addEventListener("click", function(evento) {
+      evento.preventDefault();
+      evento.stopPropagation();
+      excluirProjeto(botao.dataset.excluirProjeto);
+    });
+  });
+}
+
+async function excluirProjeto(id) {
+  const cliente = sb();
+
+  if (!cliente || !id) {
+    return;
+  }
+
+  const confirmar = confirm("Excluir este projeto? Esta ação não pode ser desfeita.");
+
+  if (!confirmar) {
+    return;
+  }
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Erro ao excluir projeto: " + error.message);
+    return;
+  }
+
+  if (obterProjetoAtualId() === id) {
+    salvarProjetoAtual(null);
+  }
+
+  await carregarProjetos();
 }
 
 async function criarProjeto() {
