@@ -395,23 +395,11 @@ function obterCodigoRepertorioDaURL() {
 }
 
 function obterCodigoConvitePendente() {
-  return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || sessionStorage.getItem("convite_pendente") || "";
-}
-
-function salvarConvitePendente(codigo) {
-  const codigoLimpo = limparTexto(codigo);
-
-  if (!codigoLimpo) {
-    return;
-  }
-
-  localStorage.setItem("convite_pendente", codigoLimpo);
-  sessionStorage.setItem("convite_pendente", codigoLimpo);
+  return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
 }
 
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
-  sessionStorage.removeItem("convite_pendente");
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -446,9 +434,9 @@ async function verificarSessao() {
     return;
   }
 
-  const codigoConvite = obterCodigoConvitePendente();
+  const codigoConvite = obterCodigoConviteDaURL();
   if (codigoConvite) {
-    salvarConvitePendente(codigoConvite);
+    localStorage.setItem("convite_pendente", codigoConvite);
   }
 
   const { data, error } = await cliente.auth.getSession();
@@ -491,16 +479,10 @@ async function entrarComGoogle() {
     return;
   }
 
-  const codigoConvite = obterCodigoConvitePendente();
-
-  if (codigoConvite) {
-    salvarConvitePendente(codigoConvite);
-  }
-
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: codigoConvite ? (REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigoConvite)) : REPERTORIO_FACIL.urlApp,
+      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -550,7 +532,7 @@ async function entrarComEmail() {
 
   const codigoConvite = obterCodigoConvitePendente();
   if (codigoConvite) {
-    salvarConvitePendente(codigoConvite);
+    localStorage.setItem("convite_pendente", codigoConvite);
     await carregarConvitePublico(codigoConvite);
     return;
   }
@@ -1943,6 +1925,35 @@ async function carregarIntegrantes() {
         line-height: 1.45;
       }
 
+      .crossset-smart-legenda {
+        margin-top: 10px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .045);
+        border: 1px solid rgba(255, 255, 255, .10);
+        color: #d1d5db;
+        display: grid;
+        gap: 7px;
+      }
+
+      .crossset-smart-legenda h4 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
+      .crossset-smart-legenda p {
+        margin: 0;
+        color: #cbd5e1;
+        font-size: 11.5px;
+        line-height: 1.38;
+      }
+
+      .crossset-smart-legenda strong {
+        color: #ffffff;
+      }
+
       .card-lista-musicas-smart .lista-musicas {
         min-height: 320px;
       }
@@ -2818,7 +2829,7 @@ async function carregarConvitePublico(codigo) {
   }
 
   appState.conviteAtual = data;
-  salvarConvitePendente(codigo);
+  localStorage.setItem("convite_pendente", codigo);
 
   const dadosPendentesGmail = obterDadosConviteTemporario(codigo);
   const { data: sessaoParaConvite } = await cliente.auth.getSession();
@@ -3166,7 +3177,7 @@ async function aceitarConviteAtual() {
   const usuario = sessionData.session?.user;
 
   if (!usuario) {
-    salvarConvitePendente(convite.codigo);
+    localStorage.setItem("convite_pendente", convite.codigo);
     mostrarTela("tela-login", { registrar: false });
     return;
   }
@@ -4276,6 +4287,16 @@ async function carregarMusicas() {
 
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
+
+        <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
+          <h4>📖 Como funciona o progresso das músicas?</h4>
+          <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
+          <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
+          <p>🟡 <strong>Em andamento</strong><br>O integrante está estudando ou ensaiando a música.</p>
+          <p>🟢 <strong>Concluída</strong><br>O integrante considera a música pronta para tocar.</p>
+          <p><strong>Barra de progresso</strong><br>A barra representa o progresso geral da música, calculado automaticamente com base nas respostas de todos os integrantes.</p>
+          <p>Quando uma música é adicionada a um repertório, esse progresso passa a compor o progresso geral do repertório, permitindo acompanhar rapidamente o nível de preparação da banda para cada apresentação.</p>
+        </div>
       </div>
 
       <div class="card-projeto card-lista-musicas-smart">
@@ -4329,7 +4350,27 @@ function configurarEventosMusicas() {
 
   if (smartBusca) {
     smartBusca.addEventListener("input", function() {
-      renderizarSugestoesSmartMusicas(smartBusca.value);
+      clearTimeout(window.__crosssetSmartBuscaTimer);
+
+      const termo = smartBusca.value;
+      const containerSugestoes = elemento("smart-musica-sugestoes");
+      const previewSmart = elemento("smart-musica-preview");
+
+      if (previewSmart) {
+        previewSmart.classList.remove("ativo");
+        previewSmart.innerHTML = "";
+      }
+
+      if (limparTexto(termo).length < 2) {
+        if (containerSugestoes) {
+          containerSugestoes.innerHTML = "";
+        }
+        return;
+      }
+
+      window.__crosssetSmartBuscaTimer = setTimeout(function() {
+        renderizarSugestoesSmartMusicas(termo, true);
+      }, 450);
     });
 
     smartBusca.addEventListener("keydown", function(evento) {
