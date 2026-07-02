@@ -395,11 +395,23 @@ function obterCodigoRepertorioDaURL() {
 }
 
 function obterCodigoConvitePendente() {
-  return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || "";
+  return obterCodigoConviteDaURL() || localStorage.getItem("convite_pendente") || sessionStorage.getItem("convite_pendente") || "";
+}
+
+function salvarConvitePendente(codigo) {
+  const codigoLimpo = limparTexto(codigo);
+
+  if (!codigoLimpo) {
+    return;
+  }
+
+  localStorage.setItem("convite_pendente", codigoLimpo);
+  sessionStorage.setItem("convite_pendente", codigoLimpo);
 }
 
 function limparConvitePendente() {
   localStorage.removeItem("convite_pendente");
+  sessionStorage.removeItem("convite_pendente");
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -434,12 +446,10 @@ async function verificarSessao() {
     return;
   }
 
-  const codigoConvite = obterCodigoConviteDaURL();
+  const codigoConvite = obterCodigoConvitePendente();
   if (codigoConvite) {
-    localStorage.setItem("convite_pendente", codigoConvite);
+    salvarConvitePendente(codigoConvite);
   }
-
-  const codigoConvitePendente = codigoConvite || localStorage.getItem("convite_pendente") || "";
 
   const { data, error } = await cliente.auth.getSession();
 
@@ -448,8 +458,8 @@ async function verificarSessao() {
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
 
-    if (codigoConvitePendente) {
-      await carregarConvitePublico(codigoConvitePendente);
+    if (codigoConvite) {
+      await carregarConvitePublico(codigoConvite);
       return;
     }
 
@@ -466,8 +476,8 @@ async function verificarSessao() {
   appState.sessao = null;
   appState.usuario = null;
 
-  if (codigoConvitePendente) {
-    await carregarConvitePublico(codigoConvitePendente);
+  if (codigoConvite) {
+    await carregarConvitePublico(codigoConvite);
     return;
   }
 
@@ -481,10 +491,16 @@ async function entrarComGoogle() {
     return;
   }
 
+  const codigoConvite = obterCodigoConvitePendente();
+
+  if (codigoConvite) {
+    salvarConvitePendente(codigoConvite);
+  }
+
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
+      redirectTo: codigoConvite ? (REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigoConvite)) : REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -534,7 +550,7 @@ async function entrarComEmail() {
 
   const codigoConvite = obterCodigoConvitePendente();
   if (codigoConvite) {
-    localStorage.setItem("convite_pendente", codigoConvite);
+    salvarConvitePendente(codigoConvite);
     await carregarConvitePublico(codigoConvite);
     return;
   }
@@ -2802,7 +2818,7 @@ async function carregarConvitePublico(codigo) {
   }
 
   appState.conviteAtual = data;
-  localStorage.setItem("convite_pendente", codigo);
+  salvarConvitePendente(codigo);
 
   const dadosPendentesGmail = obterDadosConviteTemporario(codigo);
   const { data: sessaoParaConvite } = await cliente.auth.getSession();
@@ -3150,7 +3166,7 @@ async function aceitarConviteAtual() {
   const usuario = sessionData.session?.user;
 
   if (!usuario) {
-    localStorage.setItem("convite_pendente", convite.codigo);
+    salvarConvitePendente(convite.codigo);
     mostrarTela("tela-login", { registrar: false });
     return;
   }
