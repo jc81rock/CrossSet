@@ -2562,6 +2562,33 @@ function editarIntegrante(id) {
   preencherFormularioIntegrante(item);
 }
 
+
+async function usuarioPodeAdministrarProjeto(cliente, projetoId, usuarioId) {
+  if (!cliente || !projetoId || !usuarioId) {
+    return false;
+  }
+
+  const { data: projeto } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("id, usuario_id")
+    .eq("id", projetoId)
+    .maybeSingle();
+
+  if (projeto && projeto.usuario_id === usuarioId) {
+    return true;
+  }
+
+  const { data: integranteAdmin } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .select("id, administrador")
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuarioId)
+    .eq("administrador", true)
+    .maybeSingle();
+
+  return !!integranteAdmin;
+}
+
 async function excluirIntegrante(id) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
@@ -2570,7 +2597,7 @@ async function excluirIntegrante(id) {
     return;
   }
 
-  const confirmar = confirm("Excluir este integrante?");
+  const confirmar = confirm("Excluir este integrante deste projeto?");
 
   if (!confirmar) {
     return;
@@ -2583,6 +2610,19 @@ async function excluirIntegrante(id) {
     mostrarTela("tela-login", { registrar: false });
     return;
   }
+
+  const podeAdministrar = await usuarioPodeAdministrarProjeto(cliente, projetoId, usuario.id);
+
+  if (!podeAdministrar) {
+    alert("Apenas administradores podem excluir integrantes deste projeto.");
+    return;
+  }
+
+  await cliente
+    .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
+    .delete()
+    .eq("projeto_id", projetoId)
+    .eq("integrante_id", id);
 
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.integrantes)
