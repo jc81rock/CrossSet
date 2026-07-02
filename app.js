@@ -2719,7 +2719,7 @@ async function gerarConviteIntegrante() {
   const nomeAdmin = obterNomeUsuario(usuario);
   const nomeProjeto = projeto.nome || "Projeto musical";
 
-  const link = REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(codigo);
+  const link = REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(codigo);
   const mensagem = [
     "🎵 Convite para participar do projeto " + nomeProjeto,
     "",
@@ -3245,7 +3245,7 @@ async function criarContaEAceitarConvite() {
     email: email,
     password: senha,
     options: {
-      emailRedirectTo: REPERTORIO_FACIL.urlApp + "#convite=" + encodeURIComponent(convite.codigo),
+      emailRedirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
       data: {
         nome: nome,
         full_name: nome,
@@ -8286,7 +8286,7 @@ function montarUrlCompartilhavel(tipo, id) {
   }
 
   if (tipo === "convite") {
-    return base.replace(/\/$/, "/") + "#convite=" + codigo;
+    return base.replace(/\/$/, "/") + "?convite=" + codigo;
   }
 
   const separador = base.includes("?") ? "&" : "?";
