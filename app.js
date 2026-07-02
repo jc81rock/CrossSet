@@ -1557,9 +1557,24 @@ async function carregarIntegrantes() {
         fill: currentColor;
       }
 
+      .btn-icone-integrante {
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        min-height: 22px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        color: #ffffff !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
       .btn-icone-integrante svg.icone-share-padrao {
-        width: 15px;
-        height: 15px;
+        width: 17px !important;
+        height: 17px !important;
         display: block;
         fill: none;
         stroke: currentColor;
@@ -2393,9 +2408,9 @@ function renderizarListaIntegrantes() {
             <span class="${item.administrador ? "tag-admin" : "tag-integrante"}">${tipoIntegrante}</span>
           </div>
           <div class="botoes-item-integrante">
-            <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.7 10.6 15.3 6.4M8.7 13.4l6.6 4.2"></path></svg></button>
-            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+            <button class="btn-icone-integrante" type="button" title="Editar" aria-label="Editar integrante" data-editar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg></button>
+            <button class="btn-icone-integrante" type="button" title="Compartilhar" aria-label="Compartilhar integrante" data-compartilhar-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="m8.6 10.7 6.8-4.4"></path><path d="m8.6 13.3 6.8 4.4"></path></svg></button>
+            <button class="btn-icone-integrante" type="button" title="Excluir" aria-label="Excluir integrante" data-excluir-integrante="${escaparHtml(item.id)}"><svg class="icone-share-padrao" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
           </div>
         </div>
         ${montarDesenvolvimentoIntegrante(item.id)}
