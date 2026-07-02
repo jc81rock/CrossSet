@@ -1929,58 +1929,83 @@ async function carregarIntegrantes() {
         min-height: 320px;
       }
 
-
-      .crossset-legenda-progresso {
-        margin-top: 8px;
-        padding: 10px;
-        border-radius: 12px;
-        background: rgba(255,255,255,.045);
-        border: 1px solid rgba(255,255,255,.10);
-        color: #d1d5db;
-        display: grid;
-        gap: 5px;
-        font-size: 11.5px;
-        line-height: 1.32;
-      }
-
-      .crossset-legenda-progresso strong {
-        color: #ffffff;
-      }
-
-      .crossset-legenda-progresso h4 {
-        margin: 0;
-        font-size: 13px;
-        color: #ffffff;
-      }
-
-      .crossset-legenda-progresso p {
-        margin: 0 !important;
+      /* CrossSet v1.0 - refinamento compacto do card de músicas */
+      .musica-campo-inline {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        white-space: nowrap !important;
+        flex: 0 0 auto !important;
+        color: #f8fafc !important;
         font-size: 11.5px !important;
-        color: #cbd5e1 !important;
-        line-height: 1.32 !important;
+        font-weight: 700 !important;
       }
 
-      .linha-tom-bpm-musica {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
+      .musica-campo-inline .icone-campo-musica {
+        width: 14px !important;
+        height: 14px !important;
+        min-width: 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #ffffff !important;
       }
 
-      .label-icone-musica {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        color: #ffffff;
+      .musica-campo-inline .icone-campo-musica svg {
+        width: 14px !important;
+        height: 14px !important;
+        stroke: currentColor !important;
+        fill: none !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+        display: block !important;
       }
 
-      .label-icone-musica svg {
-        width: 14px;
-        height: 14px;
-        stroke: #ffffff;
-        fill: none;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
+      .input-mini-musica {
+        width: 48px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        margin: 0 !important;
+        padding: 2px 6px !important;
+        border-radius: 7px !important;
+        font-size: 11.5px !important;
+        text-align: center !important;
+        color: #ffffff !important;
+        background: rgba(5, 11, 20, .92) !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+      }
+
+      .input-mini-musica.input-mini-bpm {
+        width: 54px !important;
+      }
+
+      .texto-opcional-musica {
+        color: #94a3b8 !important;
+        font-size: 10.5px !important;
+        font-weight: 650 !important;
+      }
+
+      .progresso-musica-inline {
+        flex: 1 1 180px !important;
+        min-width: 150px !important;
+        max-width: 320px !important;
+      }
+
+      .barra-fina-musica {
+        width: 100% !important;
+        min-width: 130px !important;
+      }
+
+      .preparacao-inline-musica {
+        gap: 12px !important;
+        column-gap: 14px !important;
+      }
+
+      .status-integrante-mini,
+      .status-integrante-mini-botao {
+        gap: 4px !important;
+        margin-right: 7px !important;
       }
 
 
@@ -4029,7 +4054,6 @@ async function carregarMusicas() {
       .barra-fina-musica span.verde { background: #22c55e; }
 
       .musica-linha-status {
-        display: flex !important;
         flex-wrap: wrap;
         gap: 7px;
         margin-left: 29px;
@@ -4313,64 +4337,6 @@ async function carregarMusicas() {
 
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
-
-        <div class="crossset-legenda-progresso" aria-label="Como funciona o progresso das músicas">
-          <h4>Como funciona o progresso das músicas?</h4>
-          <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
-          <p><strong>🔴 Não iniciada</strong> — o integrante ainda não começou a estudar a música.</p>
-          <p><strong>🟡 Em andamento</strong> — o integrante está estudando ou ensaiando a música.</p>
-          <p><strong>🟢 Concluída</strong> — o integrante considera a música pronta para tocar.</p>
-          <p><strong>Barra de progresso</strong> — representa o progresso geral da música, calculado com base nas respostas de todos os integrantes. Quando a música entra em um repertório, esse progresso também compõe o progresso geral do repertório.</p>
-        </div>
-
-        <div id="form-musicas-manual" class="form-musicas" style="display:none; margin-top:10px;">
-          <label>
-            Nome
-            <input id="musica-nome" type="text" placeholder="Nome da música" />
-          </label>
-
-          <label>
-            Artista
-            <input id="musica-artista" type="text" placeholder="Artista" />
-          </label>
-
-          <div class="linha-tom-bpm-musica">
-            <label>
-              <span class="label-icone-musica"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Tom (opcional)</span>
-              <input id="musica-tom" type="text" placeholder="Ex: C, Dm, F#" />
-            </label>
-
-            <label>
-              <span class="label-icone-musica"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M12 12l4-4"/><path d="M12 20a8 8 0 0 1-8-8"/><path d="M20 12a8 8 0 0 1-8 8"/></svg>BPM (opcional)</span>
-              <input id="musica-bpm" type="number" placeholder="Ex: 120" />
-            </label>
-          </div>
-
-          <label>
-            Link
-            <input id="musica-link" type="url" placeholder="Link de referência" />
-          </label>
-
-          <label>
-            Letra
-            <textarea id="musica-letra" placeholder="Letra da música"></textarea>
-          </label>
-
-          <label>
-            Observações
-            <textarea id="musica-observacoes" placeholder="Observações"></textarea>
-          </label>
-
-          <input id="musica-material-arquivo" type="file" style="display:none;" />
-          <input id="musica-letra-arquivo" type="file" style="display:none;" />
-          <small id="musica-material-arquivo-atual" class="crossset-smart-ajuda">Nenhum arquivo enviado.</small>
-          <small id="musica-letra-arquivo-atual" class="crossset-smart-ajuda">Nenhum arquivo enviado.</small>
-
-          <div class="acoes-musica">
-            <button class="btn-principal-musica" id="btn-salvar-musica" type="button"><span>✓</span><span>Salvar alterações</span></button>
-            <button class="btn-secundario-musica" id="btn-cancelar-musica" type="button" style="display:none;">Cancelar edição</button>
-          </div>
-        </div>
       </div>
 
       <div class="card-projeto card-lista-musicas-smart">
@@ -4424,10 +4390,7 @@ function configurarEventosMusicas() {
 
   if (smartBusca) {
     smartBusca.addEventListener("input", function() {
-      clearTimeout(window.__crosssetSmartMusicaTimer);
-      window.__crosssetSmartMusicaTimer = setTimeout(function() {
-        renderizarSugestoesSmartMusicas(smartBusca.value, true);
-      }, 350);
+      renderizarSugestoesSmartMusicas(smartBusca.value);
     });
 
     smartBusca.addEventListener("keydown", function(evento) {
@@ -4677,18 +4640,9 @@ function mostrarPreviewSmartMusica(musica) {
     <strong>🎵 ${escaparHtml(musica.nome || "Música")}</strong>
     <span>👤 ${escaparHtml(musica.artista || "Artista não informado")}</span>
     <span>💿 ${escaparHtml(musica.album || "Álbum não informado")} ${musica.ano ? "• " + escaparHtml(musica.ano) : ""}</span>
-    <div class="linha-tom-bpm-musica">
-      <label>
-        <span class="label-icone-musica">${iconeMetaMusica("tom")}Tom (opcional)</span>
-        <input id="smart-musica-tom" type="text" placeholder="Ex: C, Dm, F#" value="${escaparHtml(musica.tom || "")}" />
-      </label>
-
-      <label>
-        <span class="label-icone-musica">${iconeMetaMusica("bpm")}BPM (opcional)</span>
-        <input id="smart-musica-bpm" type="number" placeholder="Ex: 120" value="${escaparHtml(musica.bpm || "")}" />
-      </label>
-    </div>
     <div class="crossset-smart-meta">
+      <span>🎼 Tom: ${escaparHtml(musica.tom || "-")}</span>
+      <span>🥁 BPM: ${escaparHtml(musica.bpm || "-")}</span>
       <span>⏱️ ${escaparHtml(musica.duracao || "-")}</span>
     </div>
     <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
@@ -4717,9 +4671,7 @@ async function salvarMusicaSmart(musica) {
     return;
   }
 
-  const tomOpcional = limparTexto(elemento("smart-musica-tom")?.value || musica.tom);
-  const bpmOpcional = limparTexto(elemento("smart-musica-bpm")?.value || musica.bpm);
-  const bpmNumero = parseInt(bpmOpcional, 10);
+  const bpmNumero = parseInt(musica.bpm, 10);
   const observacoesSmart = [
     musica.album ? "Álbum: " + musica.album : "",
     musica.ano ? "Ano: " + musica.ano : "",
@@ -4731,7 +4683,7 @@ async function salvarMusicaSmart(musica) {
     projeto_id: projetoId,
     nome: nome,
     artista: limparTexto(musica.artista),
-    tom: tomOpcional,
+    tom: limparTexto(musica.tom),
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: limparTexto(musica.link_url),
     youtube_url: limparTexto(musica.link_url),
@@ -4999,15 +4951,6 @@ function montarProgressoInlineMusica(musicaId) {
   `;
 }
 
-function iconeMetaMusica(tipo) {
-  const icones = {
-    tom: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
-    bpm: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M12 12l4-4"/><path d="M12 20a8 8 0 0 1-8-8"/><path d="M20 12a8 8 0 0 1-8 8"/></svg>`
-  };
-
-  return icones[tipo] || "";
-}
-
 function iconeAcaoMusica(tipo) {
   const icones = {
     editar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
@@ -5021,6 +4964,35 @@ function iconeAcaoMusica(tipo) {
   };
 
   return icones[tipo] || "";
+}
+
+function iconeCampoMusica(tipo) {
+  if (tipo === "tom") {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
+  }
+
+  if (tipo === "bpm") {
+    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 10V6"/><path d="M4.93 19.07a10 10 0 1 1 14.14 0"/><path d="M7.76 16.24a6 6 0 1 1 8.48 0"/></svg>`;
+  }
+
+  return "";
+}
+
+function montarCamposTomBpmMusica(item) {
+  return `
+    <span class="musica-campo-inline">
+      <span class="icone-campo-musica" aria-hidden="true">${iconeCampoMusica("tom")}</span>
+      <span>Tom:</span>
+      <input class="input-mini-musica" type="text" value="${escaparHtml(item.tom || "")}" placeholder="—" data-campo-musica="tom" data-musica-id="${escaparHtml(item.id)}" aria-label="Tom opcional" />
+      <span class="texto-opcional-musica">(opcional)</span>
+    </span>
+    <span class="musica-campo-inline">
+      <span class="icone-campo-musica" aria-hidden="true">${iconeCampoMusica("bpm")}</span>
+      <span>BPM:</span>
+      <input class="input-mini-musica input-mini-bpm" type="number" inputmode="numeric" min="0" value="${escaparHtml(item.bpm || "")}" placeholder="—" data-campo-musica="bpm" data-musica-id="${escaparHtml(item.id)}" aria-label="BPM opcional" />
+      <span class="texto-opcional-musica">(opcional)</span>
+    </span>
+  `;
 }
 
 function montarResumoProgressoMusica(musicaId) {
@@ -5135,15 +5107,11 @@ function renderizarListaMusicas() {
         </div>
 
         <div class="musica-linha-meta">
-          <span class="musica-meta-chip"><span class="meta-icone-svg">${iconeMetaMusica("tom")}</span>Tom: ${escaparHtml(item.tom || "-")}</span>
-          <span class="musica-meta-chip"><span class="meta-icone-svg">${iconeMetaMusica("bpm")}</span>BPM: ${escaparHtml(item.bpm || "-")}</span>
+          ${montarCamposTomBpmMusica(item)}
           ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
           ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
-        </div>
-
-        <div class="musica-linha-status">
-          ${montarPreparacaoLinhaMusica(item.id)}
+          <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
       </div>
     `;
@@ -5167,6 +5135,21 @@ function renderizarListaMusicas() {
     });
   });
 
+  lista.querySelectorAll("[data-campo-musica]").forEach(function(campo) {
+    campo.addEventListener("click", function(evento) {
+      evento.stopPropagation();
+    });
+    campo.addEventListener("keydown", function(evento) {
+      if (evento.key === "Enter") {
+        evento.preventDefault();
+        campo.blur();
+      }
+    });
+    campo.addEventListener("change", function() {
+      salvarCampoMusicaRapido(campo.dataset.musicaId, campo.dataset.campoMusica, campo.value);
+    });
+  });
+
   lista.querySelectorAll("[data-ciclar-status-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       salvarMeuProgressoMusica(botao.dataset.ciclarStatusMusica, proximoStatusMusica(botao.dataset.statusAtual));
@@ -5180,6 +5163,54 @@ function renderizarListaMusicas() {
   });
 }
 
+
+async function salvarCampoMusicaRapido(musicaId, campo, valor) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !projetoId || !musicaId || !["tom", "bpm"].includes(campo)) {
+    return;
+  }
+
+  const valorLimpo = limparTexto(valor);
+  const payload = { updated_at: new Date().toISOString() };
+
+  if (campo === "tom") {
+    payload.tom = valorLimpo;
+  }
+
+  if (campo === "bpm") {
+    const numero = parseInt(valorLimpo, 10);
+    payload.bpm = valorLimpo ? (Number.isFinite(numero) ? numero : null) : null;
+  }
+
+  const { error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.musicas)
+    .update(payload)
+    .eq("id", musicaId)
+    .eq("projeto_id", projetoId);
+
+  if (error) {
+    alert("Erro ao atualizar " + campo.toUpperCase() + ": " + error.message);
+    return;
+  }
+
+  const musica = (appState.musicas || []).find(function(item) {
+    return item.id === musicaId;
+  });
+
+  if (musica) {
+    if (campo === "tom") {
+      musica.tom = valorLimpo;
+    }
+    if (campo === "bpm") {
+      const numero = parseInt(valorLimpo, 10);
+      musica.bpm = valorLimpo ? (Number.isFinite(numero) ? numero : null) : null;
+    }
+  }
+
+  mostrarToast(campo.toUpperCase() + " atualizado.");
+}
 
 async function compartilharMusica(musicaId) {
   const musica = (appState.musicas || []).find(function(item) {
