@@ -241,6 +241,20 @@ function obterProjetoAtualId() {
   return localStorage.getItem("projeto_atual");
 }
 
+function mesmoProjetoAtual(registro, projetoId) {
+  if (!registro || !projetoId) {
+    return false;
+  }
+
+  return String(registro.projeto_id || "") === String(projetoId);
+}
+
+function filtrarRegistrosDoProjetoAtual(lista, projetoId) {
+  return (lista || []).filter(function(item) {
+    return mesmoProjetoAtual(item, projetoId);
+  });
+}
+
 
 function salvarProjetoConviteCache(projeto) {
   if (!projeto || !projeto.id) {
@@ -2562,33 +2576,6 @@ function editarIntegrante(id) {
   preencherFormularioIntegrante(item);
 }
 
-
-async function usuarioPodeAdministrarProjeto(cliente, projetoId, usuarioId) {
-  if (!cliente || !projetoId || !usuarioId) {
-    return false;
-  }
-
-  const { data: projeto } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.projetos)
-    .select("id, usuario_id")
-    .eq("id", projetoId)
-    .maybeSingle();
-
-  if (projeto && projeto.usuario_id === usuarioId) {
-    return true;
-  }
-
-  const { data: integranteAdmin } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.integrantes)
-    .select("id, administrador")
-    .eq("projeto_id", projetoId)
-    .eq("usuario_id", usuarioId)
-    .eq("administrador", true)
-    .maybeSingle();
-
-  return !!integranteAdmin;
-}
-
 async function excluirIntegrante(id) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
@@ -2597,7 +2584,7 @@ async function excluirIntegrante(id) {
     return;
   }
 
-  const confirmar = confirm("Excluir este integrante deste projeto?");
+  const confirmar = confirm("Excluir este integrante?");
 
   if (!confirmar) {
     return;
@@ -2610,19 +2597,6 @@ async function excluirIntegrante(id) {
     mostrarTela("tela-login", { registrar: false });
     return;
   }
-
-  const podeAdministrar = await usuarioPodeAdministrarProjeto(cliente, projetoId, usuario.id);
-
-  if (!podeAdministrar) {
-    alert("Apenas administradores podem excluir integrantes deste projeto.");
-    return;
-  }
-
-  await cliente
-    .from(REPERTORIO_FACIL.tabelas.progressoMusicas)
-    .delete()
-    .eq("projeto_id", projetoId)
-    .eq("integrante_id", id);
 
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.integrantes)
@@ -4941,9 +4915,9 @@ async function buscarMusicas() {
     return;
   }
 
-  appState.musicas = musicasResultado.data || [];
-  appState.integrantesProjetoMusicas = integrantesResultado.data || [];
-  appState.progressoMusicas = progressoResultado.data || [];
+  appState.musicas = filtrarRegistrosDoProjetoAtual(musicasResultado.data || [], projetoId);
+  appState.integrantesProjetoMusicas = filtrarRegistrosDoProjetoAtual(integrantesResultado.data || [], projetoId);
+  appState.progressoMusicas = filtrarRegistrosDoProjetoAtual(progressoResultado.data || [], projetoId);
   appState.meuIntegranteAtual = encontrarMeuIntegranteNoProjeto(appState.integrantesProjetoMusicas, usuario);
 
   renderizarListaMusicas();
@@ -5226,7 +5200,8 @@ function renderizarListaMusicas() {
     return;
   }
 
-  let itens = [...(appState.musicas || [])];
+  const projetoIdAtual = obterProjetoAtualId();
+  let itens = filtrarRegistrosDoProjetoAtual(appState.musicas || [], projetoIdAtual);
 
   if (busca) {
     itens = itens.filter(function(item) {
@@ -6756,9 +6731,9 @@ async function buscarRepertorios() {
     return;
   }
 
-  appState.musicas = musicasResultado.data || [];
-  appState.integrantesProjetoMusicas = integrantesResultado.data || [];
-  appState.progressoMusicas = progressoResultado.data || [];
+  appState.musicas = filtrarRegistrosDoProjetoAtual(musicasResultado.data || [], projetoId);
+  appState.integrantesProjetoMusicas = filtrarRegistrosDoProjetoAtual(integrantesResultado.data || [], projetoId);
+  appState.progressoMusicas = filtrarRegistrosDoProjetoAtual(progressoResultado.data || [], projetoId);
   appState.repertorioRelacoesTodas = relacoesResultado.data || [];
 
   renderizarListaRepertorios();
@@ -7303,9 +7278,9 @@ async function carregarDadosMontagemRepertorio() {
     return;
   }
 
-  appState.musicas = musicasResultado.data || [];
-  appState.integrantesProjetoMusicas = integrantesResultado.data || [];
-  appState.progressoMusicas = progressoResultado.data || [];
+  appState.musicas = filtrarRegistrosDoProjetoAtual(musicasResultado.data || [], projetoId);
+  appState.integrantesProjetoMusicas = filtrarRegistrosDoProjetoAtual(integrantesResultado.data || [], projetoId);
+  appState.progressoMusicas = filtrarRegistrosDoProjetoAtual(progressoResultado.data || [], projetoId);
 
   if (repertorioId) {
     appState.repertorioMusicas = (relacoesResultado.data || []).map(function(relacao) {
