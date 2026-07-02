@@ -645,6 +645,9 @@ async function carregarProjetos() {
     return;
   }
 
+  ajustarBannerProjetos("projetos");
+  definirMenuPrincipalAtivo("projetos");
+
   grid.innerHTML = `
     <div class="card-projeto">
       <h3>Carregando...</h3>
@@ -808,15 +811,16 @@ function abrirPainelProjeto() {
   mostrarTela("tela-painel-projeto");
 }
 
-async function abrirUltimoProjetoModulo(modulo) {
-  if (!appState.projetoAtual) {
-    const abriuProjetoSalvo = await abrirProjetoSalvoSeExistir();
+function abrirUltimoProjetoModulo(modulo) {
+  if (modulo === "eventos") {
+    abrirEventosGerais();
+    return;
+  }
 
-    if (!abriuProjetoSalvo) {
-      alert("Abra um projeto primeiro.");
-      mostrarTela("tela-projetos");
-      return;
-    }
+  if (!appState.projetoAtual) {
+    alert("Abra um projeto primeiro.");
+    mostrarTela("tela-projetos");
+    return;
   }
 
   mostrarTela("tela-painel-projeto");
@@ -824,6 +828,192 @@ async function abrirUltimoProjetoModulo(modulo) {
   setTimeout(function() {
     abrirModulo(modulo);
   }, 50);
+}
+
+function ativarTelaProjetosSemRecarregar() {
+  const telaProjetos = elemento("tela-projetos");
+
+  if (!telaProjetos) {
+    return;
+  }
+
+  document.querySelectorAll(".tela").forEach(function(tela) {
+    tela.classList.remove("tela-ativa");
+  });
+
+  telaProjetos.classList.add("tela-ativa");
+  appState.telaAtual = "tela-projetos";
+}
+
+function definirMenuPrincipalAtivo(itemAtivo) {
+  document.querySelectorAll("#tela-projetos .menu-inferior a").forEach(function(item) {
+    item.classList.remove("ativo");
+
+    const texto = limparTexto(item.textContent).toLowerCase();
+    if (texto === itemAtivo) {
+      item.classList.add("ativo");
+    }
+  });
+}
+
+function ajustarBannerProjetos(modo) {
+  const banner = document.querySelector("#tela-projetos .banner");
+
+  if (!banner) {
+    return;
+  }
+
+  const titulo = banner.querySelector("h2");
+  const texto = banner.querySelector("p");
+  const botao = banner.querySelector(".botao-novo");
+
+  if (modo === "eventos") {
+    if (titulo) titulo.textContent = "Meus eventos";
+    if (texto) texto.textContent = "Veja todos os compromissos marcados nos seus projetos, em ordem de data.";
+    if (botao) botao.style.display = "none";
+    return;
+  }
+
+  if (titulo) titulo.textContent = "Organize seus repertórios";
+  if (texto) texto.textContent = "Crie projetos, cadastre integrantes e monte repertórios para shows, ensaios e eventos.";
+  if (botao) botao.style.display = "inline-flex";
+}
+
+async function abrirEventosGerais() {
+  const cliente = sb();
+  const grid = elemento("lista-projetos");
+
+  if (!cliente || !grid) {
+    return;
+  }
+
+  ativarTelaProjetosSemRecarregar();
+  definirMenuPrincipalAtivo("eventos");
+  ajustarBannerProjetos("eventos");
+
+  if (window.location.hash !== "#eventos") {
+    history.pushState(null, "", "#eventos");
+  }
+
+  grid.innerHTML = `
+    <div class="card-projeto" style="grid-column:1 / -1; min-height:150px;">
+      <h3>Carregando eventos...</h3>
+      <p>Buscando compromissos dos seus projetos.</p>
+    </div>
+  `;
+
+  const { data: sessionData } = await cliente.auth.getSession();
+  const usuario = sessionData.session?.user;
+
+  if (!usuario) {
+    mostrarTela("tela-login", { registrar: false });
+    return;
+  }
+
+  const projetosPorId = new Map();
+
+  const { data: projetosDono, error: erroProjetos } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.projetos)
+    .select("id, nome")
+    .eq("usuario_id", usuario.id);
+
+  if (erroProjetos) {
+    grid.innerHTML = `
+      <div class="card-projeto" style="grid-column:1 / -1; min-height:150px;">
+        <h3>Erro ao carregar eventos</h3>
+        <p>${escaparHtml(erroProjetos.message)}</p>
+      </div>
+    `;
+    return;
+  }
+
+  (projetosDono || []).forEach(function(projeto) {
+    projetosPorId.set(projeto.id, projeto.nome || "Projeto");
+  });
+
+  const { data: vinculos, error: erroVinculos } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .select("projeto_id, projetos:projeto_id(id, nome)")
+    .eq("usuario_id", usuario.id);
+
+  if (!erroVinculos) {
+    (vinculos || []).forEach(function(vinculo) {
+      const projeto = Array.isArray(vinculo.projetos) ? vinculo.projetos[0] : vinculo.projetos;
+      if (vinculo.projeto_id) {
+        projetosPorId.set(vinculo.projeto_id, projeto?.nome || projetosPorId.get(vinculo.projeto_id) || "Projeto");
+      }
+    });
+  }
+
+  const projetoIds = Array.from(projetosPorId.keys());
+
+  if (projetoIds.length === 0) {
+    grid.innerHTML = `
+      <div class="card-projeto projeto-vazio">
+        <div class="icone-mais">📅</div>
+        <h3>Nenhum evento encontrado.</h3>
+        <p>Você ainda não participa de projetos com eventos cadastrados.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const { data: eventos, error: erroEventos } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.eventos)
+    .select("*")
+    .in("projeto_id", projetoIds)
+    .order("data_evento", { ascending: true })
+    .order("hora_evento", { ascending: true });
+
+  if (erroEventos) {
+    grid.innerHTML = `
+      <div class="card-projeto" style="grid-column:1 / -1; min-height:150px;">
+        <h3>Erro ao carregar eventos</h3>
+        <p>${escaparHtml(erroEventos.message)}</p>
+      </div>
+    `;
+    return;
+  }
+
+  const listaEventos = (eventos || []).slice().sort(function(a, b) {
+    const dataA = (a.data_evento || "9999-12-31") + " " + (a.hora_evento || "23:59");
+    const dataB = (b.data_evento || "9999-12-31") + " " + (b.hora_evento || "23:59");
+    return dataA.localeCompare(dataB);
+  });
+
+  if (listaEventos.length === 0) {
+    grid.innerHTML = `
+      <div class="card-projeto projeto-vazio">
+        <div class="icone-mais">📅</div>
+        <h3>Nenhum evento cadastrado.</h3>
+        <p>Quando seus projetos tiverem eventos, eles aparecerão aqui em ordem de data.</p>
+      </div>
+    `;
+    return;
+  }
+
+  grid.innerHTML = listaEventos.map(function(evento) {
+    const nomeProjeto = projetosPorId.get(evento.projeto_id) || "Projeto";
+    const data = formatarDataBR(evento.data_evento);
+    const hora = evento.hora_evento ? " • " + escaparHtml(evento.hora_evento) : "";
+    const local = evento.local ? escaparHtml(evento.local) : "Local não informado";
+    const cidade = [evento.cidade, evento.estado].filter(Boolean).join(" - ");
+
+    return `
+      <div class="card-projeto projeto-item" style="min-height:190px;">
+        <div class="projeto-item-conteudo">
+          <span class="tag">${escaparHtml(nomeProjeto)}</span>
+          <h3>${escaparHtml(evento.nome || "Evento")}</h3>
+          <p><strong>Data:</strong> ${escaparHtml(data)}${hora}</p>
+          <p><strong>Local:</strong> ${local}</p>
+          ${cidade ? `<p><strong>Cidade:</strong> ${escaparHtml(cidade)}</p>` : ""}
+          <div class="detalhes">
+            <span>${escaparHtml(evento.status || "Agendado")}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 function carregarPainelProjeto() {
