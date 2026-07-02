@@ -1925,37 +1925,62 @@ async function carregarIntegrantes() {
         line-height: 1.45;
       }
 
-      .crossset-smart-legenda {
-        margin-top: 10px;
-        padding: 12px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, .045);
-        border: 1px solid rgba(255, 255, 255, .10);
-        color: #d1d5db;
-        display: grid;
-        gap: 7px;
-      }
-
-      .crossset-smart-legenda h4 {
-        margin: 0;
-        color: #ffffff;
-        font-size: 13px;
-        line-height: 1.2;
-      }
-
-      .crossset-smart-legenda p {
-        margin: 0;
-        color: #cbd5e1;
-        font-size: 11.5px;
-        line-height: 1.38;
-      }
-
-      .crossset-smart-legenda strong {
-        color: #ffffff;
-      }
-
       .card-lista-musicas-smart .lista-musicas {
         min-height: 320px;
+      }
+
+
+      .crossset-legenda-progresso {
+        margin-top: 8px;
+        padding: 10px;
+        border-radius: 12px;
+        background: rgba(255,255,255,.045);
+        border: 1px solid rgba(255,255,255,.10);
+        color: #d1d5db;
+        display: grid;
+        gap: 5px;
+        font-size: 11.5px;
+        line-height: 1.32;
+      }
+
+      .crossset-legenda-progresso strong {
+        color: #ffffff;
+      }
+
+      .crossset-legenda-progresso h4 {
+        margin: 0;
+        font-size: 13px;
+        color: #ffffff;
+      }
+
+      .crossset-legenda-progresso p {
+        margin: 0 !important;
+        font-size: 11.5px !important;
+        color: #cbd5e1 !important;
+        line-height: 1.32 !important;
+      }
+
+      .linha-tom-bpm-musica {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+
+      .label-icone-musica {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #ffffff;
+      }
+
+      .label-icone-musica svg {
+        width: 14px;
+        height: 14px;
+        stroke: #ffffff;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
       }
 
 
@@ -4288,14 +4313,62 @@ async function carregarMusicas() {
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
 
-        <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
-          <h4>📖 Como funciona o progresso das músicas?</h4>
+        <div class="crossset-legenda-progresso" aria-label="Como funciona o progresso das músicas">
+          <h4>Como funciona o progresso das músicas?</h4>
           <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
-          <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
-          <p>🟡 <strong>Em andamento</strong><br>O integrante está estudando ou ensaiando a música.</p>
-          <p>🟢 <strong>Concluída</strong><br>O integrante considera a música pronta para tocar.</p>
-          <p><strong>Barra de progresso</strong><br>A barra representa o progresso geral da música, calculado automaticamente com base nas respostas de todos os integrantes.</p>
-          <p>Quando uma música é adicionada a um repertório, esse progresso passa a compor o progresso geral do repertório, permitindo acompanhar rapidamente o nível de preparação da banda para cada apresentação.</p>
+          <p><strong>🔴 Não iniciada</strong> — o integrante ainda não começou a estudar a música.</p>
+          <p><strong>🟡 Em andamento</strong> — o integrante está estudando ou ensaiando a música.</p>
+          <p><strong>🟢 Concluída</strong> — o integrante considera a música pronta para tocar.</p>
+          <p><strong>Barra de progresso</strong> — representa o progresso geral da música, calculado com base nas respostas de todos os integrantes. Quando a música entra em um repertório, esse progresso também compõe o progresso geral do repertório.</p>
+        </div>
+
+        <div id="form-musicas-manual" class="form-musicas" style="display:none; margin-top:10px;">
+          <label>
+            Nome
+            <input id="musica-nome" type="text" placeholder="Nome da música" />
+          </label>
+
+          <label>
+            Artista
+            <input id="musica-artista" type="text" placeholder="Artista" />
+          </label>
+
+          <div class="linha-tom-bpm-musica">
+            <label>
+              <span class="label-icone-musica"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>Tom (opcional)</span>
+              <input id="musica-tom" type="text" placeholder="Ex: C, Dm, F#" />
+            </label>
+
+            <label>
+              <span class="label-icone-musica"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M12 12l4-4"/><path d="M12 20a8 8 0 0 1-8-8"/><path d="M20 12a8 8 0 0 1-8 8"/></svg>BPM (opcional)</span>
+              <input id="musica-bpm" type="number" placeholder="Ex: 120" />
+            </label>
+          </div>
+
+          <label>
+            Link
+            <input id="musica-link" type="url" placeholder="Link de referência" />
+          </label>
+
+          <label>
+            Letra
+            <textarea id="musica-letra" placeholder="Letra da música"></textarea>
+          </label>
+
+          <label>
+            Observações
+            <textarea id="musica-observacoes" placeholder="Observações"></textarea>
+          </label>
+
+          <input id="musica-material-arquivo" type="file" style="display:none;" />
+          <input id="musica-letra-arquivo" type="file" style="display:none;" />
+          <small id="musica-material-arquivo-atual" class="crossset-smart-ajuda">Nenhum arquivo enviado.</small>
+          <small id="musica-letra-arquivo-atual" class="crossset-smart-ajuda">Nenhum arquivo enviado.</small>
+
+          <div class="acoes-musica">
+            <button class="btn-principal-musica" id="btn-salvar-musica" type="button"><span>✓</span><span>Salvar alterações</span></button>
+            <button class="btn-secundario-musica" id="btn-cancelar-musica" type="button" style="display:none;">Cancelar edição</button>
+          </div>
         </div>
       </div>
 
@@ -4350,27 +4423,10 @@ function configurarEventosMusicas() {
 
   if (smartBusca) {
     smartBusca.addEventListener("input", function() {
-      clearTimeout(window.__crosssetSmartBuscaTimer);
-
-      const termo = smartBusca.value;
-      const containerSugestoes = elemento("smart-musica-sugestoes");
-      const previewSmart = elemento("smart-musica-preview");
-
-      if (previewSmart) {
-        previewSmart.classList.remove("ativo");
-        previewSmart.innerHTML = "";
-      }
-
-      if (limparTexto(termo).length < 2) {
-        if (containerSugestoes) {
-          containerSugestoes.innerHTML = "";
-        }
-        return;
-      }
-
-      window.__crosssetSmartBuscaTimer = setTimeout(function() {
-        renderizarSugestoesSmartMusicas(termo, true);
-      }, 450);
+      clearTimeout(window.__crosssetSmartMusicaTimer);
+      window.__crosssetSmartMusicaTimer = setTimeout(function() {
+        renderizarSugestoesSmartMusicas(smartBusca.value, true);
+      }, 350);
     });
 
     smartBusca.addEventListener("keydown", function(evento) {
@@ -4848,8 +4904,8 @@ function montarControleMeuProgresso(musicaId) {
     <div class="meu-progresso-musica" aria-label="Meu progresso nesta música">
       <span>Meu progresso:</span>
       <button class="btn-status-musica vermelha ${statusAtual === "nao_iniciada" ? "ativo" : ""}" type="button" title="Não iniciada" data-status-musica="nao_iniciada" data-musica-id="${escaparHtml(musicaId)}">Não iniciada</button>
-      <button class="btn-status-musica amarela ${statusAtual === "em_estudo" ? "ativo" : ""}" type="button" title="Em estudo" data-status-musica="em_estudo" data-musica-id="${escaparHtml(musicaId)}">Em estudo</button>
-      <button class="btn-status-musica verde ${statusAtual === "pronta" ? "ativo" : ""}" type="button" title="Pronta" data-status-musica="pronta" data-musica-id="${escaparHtml(musicaId)}">Pronta</button>
+      <button class="btn-status-musica amarela ${statusAtual === "em_estudo" ? "ativo" : ""}" type="button" title="Em andamento" data-status-musica="em_estudo" data-musica-id="${escaparHtml(musicaId)}">Em andamento</button>
+      <button class="btn-status-musica verde ${statusAtual === "pronta" ? "ativo" : ""}" type="button" title="Concluída" data-status-musica="pronta" data-musica-id="${escaparHtml(musicaId)}">Concluída</button>
     </div>
   `;
 }
@@ -4910,7 +4966,7 @@ function montarPreparacaoLinhaMusica(musicaId) {
     const status = registro?.status || "nao_iniciada";
     const cor = corStatusMusica(status);
     const nome = abreviarNomeIntegrante(integrante.nome || integrante.email || "Integrante");
-    const titulo = status === "pronta" ? "Pronta" : (status === "em_estudo" ? "Em estudo" : "Não iniciada");
+    const titulo = status === "pronta" ? "Concluída" : (status === "em_estudo" ? "Em andamento" : "Não iniciada");
 
     if (meuIntegrante && meuIntegrante.id === integrante.id) {
       return `<button class="status-integrante-mini-botao" type="button" title="${escaparHtml(titulo)} - clique para alterar" data-ciclar-status-musica="${escaparHtml(musicaId)}" data-status-atual="${escaparHtml(status)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</button>`;
