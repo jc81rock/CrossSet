@@ -223,7 +223,37 @@ function limparCampos(container) {
   });
 }
 
+function limparEstadoProjetoAnterior() {
+  appState.integrantes = [];
+  appState.integranteEditandoId = null;
+  appState.musicas = [];
+  appState.musicaEditandoId = null;
+  appState.repertorios = [];
+  appState.repertorioEditandoId = null;
+  appState.repertorioMontandoId = null;
+  appState.repertorioMusicas = [];
+  appState.repertorioRelacoesTodas = [];
+  appState.progressoMusicas = [];
+  appState.integrantesProjetoMusicas = [];
+  appState.meuIntegranteAtual = null;
+  appState.eventos = [];
+  appState.eventoEditandoId = null;
+  appState.conviteAtual = null;
+
+  const area = elemento("area-modulo");
+  if (area) {
+    area.innerHTML = "";
+  }
+}
+
 function salvarProjetoAtual(projeto) {
+  const projetoAnteriorId = appState.projetoAtual?.id || localStorage.getItem("projeto_atual") || "";
+  const novoProjetoId = projeto?.id || "";
+
+  if ((!novoProjetoId && projetoAnteriorId) || (projetoAnteriorId && novoProjetoId && String(projetoAnteriorId) !== String(novoProjetoId))) {
+    limparEstadoProjetoAnterior();
+  }
+
   appState.projetoAtual = projeto || null;
 
   if (projeto && projeto.id) {
@@ -253,6 +283,10 @@ function filtrarRegistrosDoProjetoAtual(lista, projetoId) {
   return (lista || []).filter(function(item) {
     return mesmoProjetoAtual(item, projetoId);
   });
+}
+
+function projetoAtualAindaEh(projetoId) {
+  return String(obterProjetoAtualId() || "") === String(projetoId || "");
 }
 
 
@@ -2191,6 +2225,10 @@ async function buscarIntegrantes() {
       .select("*")
       .eq("projeto_id", projetoId)
   ]);
+
+  if (!projetoAtualAindaEh(projetoId)) {
+    return;
+  }
 
   if (integrantesResultado.error) {
     lista.innerHTML = `<p>Erro ao carregar integrantes: ${escaparHtml(integrantesResultado.error.message)}</p>`;
@@ -4900,6 +4938,10 @@ async function buscarMusicas() {
       .eq("projeto_id", projetoId)
   ]);
 
+  if (!projetoAtualAindaEh(projetoId)) {
+    return;
+  }
+
   if (musicasResultado.error) {
     lista.innerHTML = `<p>Erro ao carregar músicas: ${escaparHtml(musicasResultado.error.message)}</p>`;
     return;
@@ -6668,6 +6710,10 @@ async function buscarRepertorios() {
     .eq("projeto_id", projetoId)
     .order("created_at", { ascending: false });
 
+  if (!projetoAtualAindaEh(projetoId)) {
+    return;
+  }
+
   if (error) {
     lista.innerHTML = `<p>Erro ao carregar repertórios: ${escaparHtml(error.message)}</p>`;
     return;
@@ -7257,6 +7303,10 @@ async function carregarDadosMontagemRepertorio() {
   const integrantesResultado = resultados[1];
   const progressoResultado = resultados[2];
   const relacoesResultado = resultados[3] || { data: [], error: null };
+
+  if (!projetoAtualAindaEh(projetoId)) {
+    return;
+  }
 
   if (musicasResultado.error) {
     alert("Erro ao carregar músicas: " + musicasResultado.error.message);
@@ -9235,6 +9285,10 @@ async function buscarEventos() {
     .eq("projeto_id", projetoId)
     .order("data_evento", { ascending: true })
     .order("hora_evento", { ascending: true });
+
+  if (!projetoAtualAindaEh(projetoId)) {
+    return;
+  }
 
   if (error) {
     lista.innerHTML = `<p>Erro ao carregar eventos: ${escaparHtml(error.message)}</p>`;
