@@ -4964,6 +4964,27 @@ function montarControleMeuProgresso(musicaId) {
   `;
 }
 
+function montarPainelMeuProgressoEdicao(musicaId) {
+  if (!appState.meuIntegranteAtual) {
+    return `
+      <div class="painel-meu-progresso-inline">
+        <strong>Meu progresso:</strong> seu cadastro de integrante não foi encontrado neste projeto.
+      </div>
+    `;
+  }
+
+  const statusAtual = obterMeuStatusMusica(musicaId);
+
+  return `
+    <div class="painel-meu-progresso-inline" aria-label="Meu progresso nesta música">
+      <strong>Meu progresso nesta música:</strong>
+      <button class="btn-progresso-inline ${statusAtual === "nao_iniciada" ? "ativo" : ""}" type="button" data-status-musica="nao_iniciada" data-musica-id="${escaparHtml(musicaId)}"><i class="bolinha-status-mini vermelha"></i>Não iniciada</button>
+      <button class="btn-progresso-inline ${statusAtual === "em_estudo" ? "ativo" : ""}" type="button" data-status-musica="em_estudo" data-musica-id="${escaparHtml(musicaId)}"><i class="bolinha-status-mini amarela"></i>Em andamento</button>
+      <button class="btn-progresso-inline ${statusAtual === "pronta" ? "ativo" : ""}" type="button" data-status-musica="pronta" data-musica-id="${escaparHtml(musicaId)}"><i class="bolinha-status-mini verde"></i>Concluída</button>
+    </div>
+  `;
+}
+
 
 function abreviarNomeIntegrante(nome) {
   const texto = limparTexto(nome || "?");
@@ -5202,6 +5223,7 @@ function renderizarListaMusicas() {
           ${montarProgressoInlineMusica(item.id)}
           <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
+        ${appState.musicaProgressoEditandoId === item.id ? montarPainelMeuProgressoEdicao(item.id) : ""}
       </div>
     `;
   }).join("");
@@ -5682,8 +5704,8 @@ function editarMusica(id) {
     return;
   }
 
-  appState.musicaEditandoId = id;
-  preencherFormularioMusica(item);
+  appState.musicaProgressoEditandoId = appState.musicaProgressoEditandoId === id ? null : id;
+  renderizarListaMusicas();
 }
 
 async function excluirMusica(id) {
