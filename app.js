@@ -4029,6 +4029,7 @@ async function carregarMusicas() {
       .barra-fina-musica span.verde { background: #22c55e; }
 
       .musica-linha-status {
+        display: flex !important;
         flex-wrap: wrap;
         gap: 7px;
         margin-left: 29px;
@@ -4676,9 +4677,18 @@ function mostrarPreviewSmartMusica(musica) {
     <strong>🎵 ${escaparHtml(musica.nome || "Música")}</strong>
     <span>👤 ${escaparHtml(musica.artista || "Artista não informado")}</span>
     <span>💿 ${escaparHtml(musica.album || "Álbum não informado")} ${musica.ano ? "• " + escaparHtml(musica.ano) : ""}</span>
+    <div class="linha-tom-bpm-musica">
+      <label>
+        <span class="label-icone-musica">${iconeMetaMusica("tom")}Tom (opcional)</span>
+        <input id="smart-musica-tom" type="text" placeholder="Ex: C, Dm, F#" value="${escaparHtml(musica.tom || "")}" />
+      </label>
+
+      <label>
+        <span class="label-icone-musica">${iconeMetaMusica("bpm")}BPM (opcional)</span>
+        <input id="smart-musica-bpm" type="number" placeholder="Ex: 120" value="${escaparHtml(musica.bpm || "")}" />
+      </label>
+    </div>
     <div class="crossset-smart-meta">
-      <span>🎼 Tom: ${escaparHtml(musica.tom || "-")}</span>
-      <span>🥁 BPM: ${escaparHtml(musica.bpm || "-")}</span>
       <span>⏱️ ${escaparHtml(musica.duracao || "-")}</span>
     </div>
     <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
@@ -4707,7 +4717,9 @@ async function salvarMusicaSmart(musica) {
     return;
   }
 
-  const bpmNumero = parseInt(musica.bpm, 10);
+  const tomOpcional = limparTexto(elemento("smart-musica-tom")?.value || musica.tom);
+  const bpmOpcional = limparTexto(elemento("smart-musica-bpm")?.value || musica.bpm);
+  const bpmNumero = parseInt(bpmOpcional, 10);
   const observacoesSmart = [
     musica.album ? "Álbum: " + musica.album : "",
     musica.ano ? "Ano: " + musica.ano : "",
@@ -4719,7 +4731,7 @@ async function salvarMusicaSmart(musica) {
     projeto_id: projetoId,
     nome: nome,
     artista: limparTexto(musica.artista),
-    tom: limparTexto(musica.tom),
+    tom: tomOpcional,
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: limparTexto(musica.link_url),
     youtube_url: limparTexto(musica.link_url),
@@ -4987,6 +4999,15 @@ function montarProgressoInlineMusica(musicaId) {
   `;
 }
 
+function iconeMetaMusica(tipo) {
+  const icones = {
+    tom: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`,
+    bpm: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 16 0"/><path d="M12 12l4-4"/><path d="M12 20a8 8 0 0 1-8-8"/><path d="M20 12a8 8 0 0 1-8 8"/></svg>`
+  };
+
+  return icones[tipo] || "";
+}
+
 function iconeAcaoMusica(tipo) {
   const icones = {
     editar: `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
@@ -5114,12 +5135,15 @@ function renderizarListaMusicas() {
         </div>
 
         <div class="musica-linha-meta">
-          <span class="musica-meta-chip">🎼 ${escaparHtml(item.tom || "-")}</span>
-          <span class="musica-meta-chip">🥁 ${escaparHtml(item.bpm || "-")}</span>
+          <span class="musica-meta-chip"><span class="meta-icone-svg">${iconeMetaMusica("tom")}</span>Tom: ${escaparHtml(item.tom || "-")}</span>
+          <span class="musica-meta-chip"><span class="meta-icone-svg">${iconeMetaMusica("bpm")}</span>BPM: ${escaparHtml(item.bpm || "-")}</span>
           ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
           ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
-          <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
+        </div>
+
+        <div class="musica-linha-status">
+          ${montarPreparacaoLinhaMusica(item.id)}
         </div>
       </div>
     `;
