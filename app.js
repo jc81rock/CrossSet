@@ -645,9 +645,6 @@ async function carregarProjetos() {
     return;
   }
 
-  ajustarBannerProjetos("projetos");
-  definirMenuPrincipalAtivo("projetos");
-
   grid.innerHTML = `
     <div class="card-projeto">
       <h3>Carregando...</h3>
@@ -813,7 +810,7 @@ function abrirPainelProjeto() {
 
 function abrirUltimoProjetoModulo(modulo) {
   if (modulo === "eventos") {
-    abrirEventosGerais();
+    abrirEventosGeraisUsuario();
     return;
   }
 
@@ -830,56 +827,16 @@ function abrirUltimoProjetoModulo(modulo) {
   }, 50);
 }
 
-function ativarTelaProjetosSemRecarregar() {
-  const telaProjetos = elemento("tela-projetos");
-
-  if (!telaProjetos) {
-    return;
-  }
-
-  document.querySelectorAll(".tela").forEach(function(tela) {
-    tela.classList.remove("tela-ativa");
-  });
-
-  telaProjetos.classList.add("tela-ativa");
-  appState.telaAtual = "tela-projetos";
-}
-
-function definirMenuPrincipalAtivo(itemAtivo) {
+function definirMenuPrincipalEventosAtivo() {
   document.querySelectorAll("#tela-projetos .menu-inferior a").forEach(function(item) {
     item.classList.remove("ativo");
-
-    const texto = limparTexto(item.textContent).toLowerCase();
-    if (texto === itemAtivo) {
+    if (limparTexto(item.textContent).toLowerCase() === "eventos") {
       item.classList.add("ativo");
     }
   });
 }
 
-function ajustarBannerProjetos(modo) {
-  const banner = document.querySelector("#tela-projetos .banner");
-
-  if (!banner) {
-    return;
-  }
-
-  const titulo = banner.querySelector("h2");
-  const texto = banner.querySelector("p");
-  const botao = banner.querySelector(".botao-novo");
-
-  if (modo === "eventos") {
-    if (titulo) titulo.textContent = "Meus eventos";
-    if (texto) texto.textContent = "Veja todos os compromissos marcados nos seus projetos, em ordem de data.";
-    if (botao) botao.style.display = "none";
-    return;
-  }
-
-  if (titulo) titulo.textContent = "Organize seus repertórios";
-  if (texto) texto.textContent = "Crie projetos, cadastre integrantes e monte repertórios para shows, ensaios e eventos.";
-  if (botao) botao.style.display = "inline-flex";
-}
-
-async function abrirEventosGerais() {
+async function abrirEventosGeraisUsuario() {
   const cliente = sb();
   const grid = elemento("lista-projetos");
 
@@ -887,9 +844,8 @@ async function abrirEventosGerais() {
     return;
   }
 
-  ativarTelaProjetosSemRecarregar();
-  definirMenuPrincipalAtivo("eventos");
-  ajustarBannerProjetos("eventos");
+  mostrarTela("tela-projetos", { registrar: false });
+  definirMenuPrincipalEventosAtivo();
 
   if (window.location.hash !== "#eventos") {
     history.pushState(null, "", "#eventos");
@@ -898,7 +854,7 @@ async function abrirEventosGerais() {
   grid.innerHTML = `
     <div class="card-projeto" style="grid-column:1 / -1; min-height:150px;">
       <h3>Carregando eventos...</h3>
-      <p>Buscando compromissos dos seus projetos.</p>
+      <p>Buscando seus compromissos em todos os projetos.</p>
     </div>
   `;
 
@@ -912,38 +868,28 @@ async function abrirEventosGerais() {
 
   const projetosPorId = new Map();
 
-  const { data: projetosDono, error: erroProjetos } = await cliente
+  const { data: meusProjetos } = await cliente
     .from(REPERTORIO_FACIL.tabelas.projetos)
     .select("id, nome")
     .eq("usuario_id", usuario.id);
 
-  if (erroProjetos) {
-    grid.innerHTML = `
-      <div class="card-projeto" style="grid-column:1 / -1; min-height:150px;">
-        <h3>Erro ao carregar eventos</h3>
-        <p>${escaparHtml(erroProjetos.message)}</p>
-      </div>
-    `;
-    return;
-  }
-
-  (projetosDono || []).forEach(function(projeto) {
-    projetosPorId.set(projeto.id, projeto.nome || "Projeto");
+  (meusProjetos || []).forEach(function(projeto) {
+    if (projeto.id) {
+      projetosPorId.set(projeto.id, projeto.nome || "Projeto");
+    }
   });
 
-  const { data: vinculos, error: erroVinculos } = await cliente
+  const { data: vinculos } = await cliente
     .from(REPERTORIO_FACIL.tabelas.integrantes)
     .select("projeto_id, projetos:projeto_id(id, nome)")
     .eq("usuario_id", usuario.id);
 
-  if (!erroVinculos) {
-    (vinculos || []).forEach(function(vinculo) {
-      const projeto = Array.isArray(vinculo.projetos) ? vinculo.projetos[0] : vinculo.projetos;
-      if (vinculo.projeto_id) {
-        projetosPorId.set(vinculo.projeto_id, projeto?.nome || projetosPorId.get(vinculo.projeto_id) || "Projeto");
-      }
-    });
-  }
+  (vinculos || []).forEach(function(vinculo) {
+    const projeto = Array.isArray(vinculo.projetos) ? vinculo.projetos[0] : vinculo.projetos;
+    if (vinculo.projeto_id) {
+      projetosPorId.set(vinculo.projeto_id, projeto?.nome || projetosPorId.get(vinculo.projeto_id) || "Projeto");
+    }
+  });
 
   const projetoIds = Array.from(projetosPorId.keys());
 
@@ -958,18 +904,18 @@ async function abrirEventosGerais() {
     return;
   }
 
-  const { data: eventos, error: erroEventos } = await cliente
+  const { data: eventos, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.eventos)
     .select("*")
     .in("projeto_id", projetoIds)
     .order("data_evento", { ascending: true })
     .order("hora_evento", { ascending: true });
 
-  if (erroEventos) {
+  if (error) {
     grid.innerHTML = `
       <div class="card-projeto" style="grid-column:1 / -1; min-height:150px;">
         <h3>Erro ao carregar eventos</h3>
-        <p>${escaparHtml(erroEventos.message)}</p>
+        <p>${escaparHtml(error.message)}</p>
       </div>
     `;
     return;
@@ -986,7 +932,7 @@ async function abrirEventosGerais() {
       <div class="card-projeto projeto-vazio">
         <div class="icone-mais">📅</div>
         <h3>Nenhum evento cadastrado.</h3>
-        <p>Quando seus projetos tiverem eventos, eles aparecerão aqui em ordem de data.</p>
+        <p>Quando seus projetos tiverem eventos, eles aparecerão aqui por data.</p>
       </div>
     `;
     return;
@@ -1000,7 +946,7 @@ async function abrirEventosGerais() {
     const cidade = [evento.cidade, evento.estado].filter(Boolean).join(" - ");
 
     return `
-      <div class="card-projeto projeto-item" style="min-height:190px;">
+      <div class="card-projeto projeto-item">
         <div class="projeto-item-conteudo">
           <span class="tag">${escaparHtml(nomeProjeto)}</span>
           <h3>${escaparHtml(evento.nome || "Evento")}</h3>
@@ -4491,10 +4437,45 @@ function buscarSugestoesSmartMusicas(termo) {
     .slice(0, 5);
 }
 
-function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
-  const sugestoes = buscarSugestoesSmartMusicas(termo);
+async function buscarMusicasSpotifySmart(termo) {
+  const cliente = sb();
+
+  if (!cliente) {
+    return [];
+  }
+
+  const { data, error } = await cliente.functions.invoke("spotify-search", {
+    body: { q: termo }
+  });
+
+  if (error) {
+    throw new Error(error.message || "Erro ao buscar música no Spotify.");
+  }
+
+  const resultados = data && Array.isArray(data.resultados) ? data.resultados : [];
+
+  return resultados.map(function(item) {
+    return {
+      nome: item.nome || "",
+      artista: item.artista || "",
+      album: item.album || "",
+      ano: item.ano || "",
+      tom: "",
+      bpm: "",
+      duracao: item.duracao || "",
+      link_url: item.spotify_url || "",
+      spotify_url: item.spotify_url || "",
+      spotify_id: item.spotify_id || "",
+      imagem: item.imagem || "",
+      origem: "Spotify"
+    };
+  });
+}
+
+async function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
   const container = elemento("smart-musica-sugestoes");
   const preview = elemento("smart-musica-preview");
+  const busca = limparTexto(termo);
 
   if (!container) {
     return;
@@ -4505,10 +4486,44 @@ function renderizarSugestoesSmartMusicas(termo, forcarResultado) {
     preview.innerHTML = "";
   }
 
-  if (!sugestoes.length) {
-    container.innerHTML = forcarResultado && limparTexto(termo).length >= 2
-      ? `<small class="crossset-smart-ajuda">Nenhuma sugestão encontrada neste beta. Tente outro nome.</small>`
-      : "";
+  if (!forcarResultado) {
+    const sugestoesLocais = buscarSugestoesSmartMusicas(termo);
+
+    if (!sugestoesLocais.length) {
+      container.innerHTML = "";
+      return;
+    }
+
+    renderizarListaSugestoesSmartMusicas(sugestoesLocais);
+    return;
+  }
+
+  if (busca.length < 2) {
+    container.innerHTML = `<small class="crossset-smart-ajuda">Digite pelo menos 2 caracteres para buscar no Spotify.</small>`;
+    return;
+  }
+
+  container.innerHTML = `<small class="crossset-smart-ajuda">Buscando no Spotify...</small>`;
+
+  try {
+    const sugestoesSpotify = await buscarMusicasSpotifySmart(busca);
+
+    if (!sugestoesSpotify.length) {
+      container.innerHTML = `<small class="crossset-smart-ajuda">Nenhuma música encontrada no Spotify.</small>`;
+      return;
+    }
+
+    renderizarListaSugestoesSmartMusicas(sugestoesSpotify);
+  } catch (erro) {
+    container.innerHTML = `<small class="crossset-smart-ajuda">Não foi possível buscar no Spotify agora.</small>`;
+    console.error(erro);
+  }
+}
+
+function renderizarListaSugestoesSmartMusicas(sugestoes) {
+  const container = elemento("smart-musica-sugestoes");
+
+  if (!container) {
     return;
   }
 
@@ -4582,7 +4597,7 @@ async function salvarMusicaSmart(musica) {
     musica.album ? "Álbum: " + musica.album : "",
     musica.ano ? "Ano: " + musica.ano : "",
     musica.duracao ? "Duração: " + musica.duracao : "",
-    musica.origem ? "Origem: CrossSet Smart Beta" : ""
+    musica.origem ? "Origem: " + musica.origem : ""
   ].filter(Boolean).join("\n");
 
   const payload = {
