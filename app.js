@@ -439,6 +439,8 @@ async function verificarSessao() {
     localStorage.setItem("convite_pendente", codigoConvite);
   }
 
+  const codigoConvitePendente = codigoConvite || localStorage.getItem("convite_pendente") || "";
+
   const { data, error } = await cliente.auth.getSession();
 
   if (!error && data && data.session) {
@@ -446,8 +448,8 @@ async function verificarSessao() {
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
 
-    if (codigoConvite) {
-      await carregarConvitePublico(codigoConvite);
+    if (codigoConvitePendente) {
+      await carregarConvitePublico(codigoConvitePendente);
       return;
     }
 
@@ -464,8 +466,8 @@ async function verificarSessao() {
   appState.sessao = null;
   appState.usuario = null;
 
-  if (codigoConvite) {
-    await carregarConvitePublico(codigoConvite);
+  if (codigoConvitePendente) {
+    await carregarConvitePublico(codigoConvitePendente);
     return;
   }
 
