@@ -494,8 +494,9 @@ async function verificarSessao() {
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
 
-    if (codigoConvite) {
-      await carregarConvitePublico(codigoConvite);
+    const codigoConvitePendente = obterCodigoConvitePendente();
+    if (codigoConvitePendente) {
+      await carregarConvitePublico(codigoConvitePendente);
       return;
     }
 
