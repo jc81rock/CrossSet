@@ -1925,87 +1925,37 @@ async function carregarIntegrantes() {
         line-height: 1.45;
       }
 
+      .crossset-smart-legenda {
+        margin-top: 10px;
+        padding: 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .045);
+        border: 1px solid rgba(255, 255, 255, .10);
+        color: #d1d5db;
+        display: grid;
+        gap: 7px;
+      }
+
+      .crossset-smart-legenda h4 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
+      .crossset-smart-legenda p {
+        margin: 0;
+        color: #cbd5e1;
+        font-size: 11.5px;
+        line-height: 1.38;
+      }
+
+      .crossset-smart-legenda strong {
+        color: #ffffff;
+      }
+
       .card-lista-musicas-smart .lista-musicas {
         min-height: 320px;
-      }
-
-      /* CrossSet v1.0 - refinamento compacto do card de músicas */
-      .musica-campo-inline {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-        white-space: nowrap !important;
-        flex: 0 0 auto !important;
-        color: #f8fafc !important;
-        font-size: 11.5px !important;
-        font-weight: 700 !important;
-      }
-
-      .musica-campo-inline .icone-campo-musica {
-        width: 14px !important;
-        height: 14px !important;
-        min-width: 14px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: #ffffff !important;
-      }
-
-      .musica-campo-inline .icone-campo-musica svg {
-        width: 14px !important;
-        height: 14px !important;
-        stroke: currentColor !important;
-        fill: none !important;
-        stroke-width: 2 !important;
-        stroke-linecap: round !important;
-        stroke-linejoin: round !important;
-        display: block !important;
-      }
-
-      .input-mini-musica {
-        width: 48px !important;
-        height: 22px !important;
-        min-height: 22px !important;
-        margin: 0 !important;
-        padding: 2px 6px !important;
-        border-radius: 7px !important;
-        font-size: 11.5px !important;
-        text-align: center !important;
-        color: #ffffff !important;
-        background: rgba(5, 11, 20, .92) !important;
-        border: 1px solid rgba(255,255,255,.16) !important;
-      }
-
-      .input-mini-musica.input-mini-bpm {
-        width: 54px !important;
-      }
-
-      .texto-opcional-musica {
-        color: #94a3b8 !important;
-        font-size: 10.5px !important;
-        font-weight: 650 !important;
-      }
-
-      .progresso-musica-inline {
-        flex: 1 1 180px !important;
-        min-width: 150px !important;
-        max-width: 320px !important;
-      }
-
-      .barra-fina-musica {
-        width: 100% !important;
-        min-width: 130px !important;
-      }
-
-      .preparacao-inline-musica {
-        gap: 12px !important;
-        column-gap: 14px !important;
-      }
-
-      .status-integrante-mini,
-      .status-integrante-mini-botao {
-        gap: 4px !important;
-        margin-right: 7px !important;
       }
 
 
@@ -3993,101 +3943,6 @@ async function carregarMusicas() {
         line-height: 1.25;
       }
 
-
-
-      /* Correção cirúrgica: ícones pequenos e brancos nos campos Tom/BPM do card de música */
-      .musica-campo-inline {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 5px !important;
-        white-space: nowrap !important;
-        flex: 0 0 auto !important;
-        color: #ffffff !important;
-        font-size: 11.5px !important;
-        font-weight: 700 !important;
-        line-height: 1 !important;
-      }
-
-      .musica-campo-inline .icone-campo-musica {
-        width: 14px !important;
-        height: 14px !important;
-        min-width: 14px !important;
-        max-width: 14px !important;
-        max-height: 14px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        color: #ffffff !important;
-        overflow: hidden !important;
-        flex: 0 0 14px !important;
-      }
-
-      .musica-campo-inline .icone-campo-musica svg {
-        width: 14px !important;
-        height: 14px !important;
-        min-width: 14px !important;
-        max-width: 14px !important;
-        min-height: 14px !important;
-        max-height: 14px !important;
-        display: block !important;
-        color: #ffffff !important;
-        stroke: #ffffff !important;
-        fill: none !important;
-        stroke-width: 2 !important;
-        stroke-linecap: round !important;
-        stroke-linejoin: round !important;
-        flex: 0 0 14px !important;
-      }
-
-      .input-mini-musica {
-        width: 52px !important;
-        height: 22px !important;
-        min-height: 22px !important;
-        margin: 0 !important;
-        padding: 2px 6px !important;
-        border-radius: 7px !important;
-        font-size: 11.5px !important;
-        line-height: 1 !important;
-        text-align: center !important;
-        color: #ffffff !important;
-        background: rgba(5, 11, 20, .92) !important;
-        border: 1px solid rgba(255,255,255,.16) !important;
-        box-shadow: none !important;
-      }
-
-      .input-mini-musica.input-mini-bpm {
-        width: 56px !important;
-      }
-
-      .texto-opcional-musica {
-        color: #cbd5e1 !important;
-        font-size: 10.5px !important;
-        font-weight: 650 !important;
-        line-height: 1 !important;
-      }
-
-      .progresso-musica-inline {
-        flex: 1 1 220px !important;
-        min-width: 180px !important;
-        max-width: 420px !important;
-      }
-
-      .barra-fina-musica {
-        width: 100% !important;
-        min-width: 170px !important;
-      }
-
-      .preparacao-inline-musica {
-        gap: 12px !important;
-        column-gap: 14px !important;
-      }
-
-      .status-integrante-mini,
-      .status-integrante-mini-botao {
-        gap: 4px !important;
-        margin-right: 8px !important;
-      }
-
       .musica-meta-chip {
         display: inline-flex;
         align-items: center;
@@ -4410,6 +4265,112 @@ async function carregarMusicas() {
           justify-content: flex-start;
         }
       }
+
+
+      /* CrossSet v1.0 - refinamento final músicas: campos compactos + ícones brancos */
+      .musica-campos-rapidos {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+      }
+
+      .musica-campo-rapido {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+        white-space: nowrap !important;
+        color: #ffffff !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+      }
+
+      .icone-musica-campo {
+        width: 13px !important;
+        height: 13px !important;
+        min-width: 13px !important;
+        display: inline-block !important;
+        color: #ffffff !important;
+        stroke: currentColor !important;
+        fill: none !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+      }
+
+      .input-musica-rapido {
+        width: 46px !important;
+        min-width: 46px !important;
+        max-width: 46px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
+        border-radius: 7px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        color: #ffffff !important;
+        background: #050b14 !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+      }
+
+      .texto-opcional-musica {
+        color: #9fb0d6 !important;
+        font-weight: 500 !important;
+        font-size: 10.5px !important;
+      }
+
+      .barra-fina-musica {
+        width: 96px !important;
+        height: 4px !important;
+      }
+
+      .progresso-musica-inline {
+        min-width: 128px !important;
+        gap: 6px !important;
+      }
+
+      .preparacao-inline-musica {
+        gap: 12px !important;
+        flex-wrap: wrap !important;
+        row-gap: 3px !important;
+      }
+
+      .status-integrante-mini,
+      .status-integrante-mini-botao {
+        margin-right: 6px !important;
+      }
+
+      .crossset-smart-campos-opcionais {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        margin: 6px 0 2px !important;
+      }
+
+      .crossset-smart-campo-opcional {
+        display: grid !important;
+        gap: 4px !important;
+        color: #ffffff !important;
+        font-size: 11.5px !important;
+        font-weight: 700 !important;
+      }
+
+      .crossset-smart-campo-opcional span {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+      }
+
+      .crossset-smart-campo-opcional input {
+        margin-bottom: 0 !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        font-size: 12px !important;
+        padding: 5px 8px !important;
+      }
+
     </style>
 
     <div class="modulo-musicas">
@@ -4431,6 +4392,16 @@ async function carregarMusicas() {
           <div id="smart-musica-preview" class="crossset-smart-preview"></div>
 
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
+        </div>
+
+        <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
+          <h4>📖 Como funciona o progresso das músicas?</h4>
+          <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
+          <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
+          <p>🟡 <strong>Em andamento</strong><br>O integrante está estudando ou ensaiando a música.</p>
+          <p>🟢 <strong>Concluída</strong><br>O integrante considera a música pronta para tocar.</p>
+          <p><strong>Barra de progresso</strong><br>A barra representa o progresso geral da música, calculado automaticamente com base nas respostas de todos os integrantes.</p>
+          <p>Quando uma música é adicionada a um repertório, esse progresso passa a compor o progresso geral do repertório, permitindo acompanhar rapidamente o nível de preparação da banda para cada apresentação.</p>
         </div>
       </div>
 
@@ -4485,7 +4456,27 @@ function configurarEventosMusicas() {
 
   if (smartBusca) {
     smartBusca.addEventListener("input", function() {
-      renderizarSugestoesSmartMusicas(smartBusca.value);
+      clearTimeout(window.__crosssetSmartBuscaTimer);
+
+      const termo = smartBusca.value;
+      const containerSugestoes = elemento("smart-musica-sugestoes");
+      const previewSmart = elemento("smart-musica-preview");
+
+      if (previewSmart) {
+        previewSmart.classList.remove("ativo");
+        previewSmart.innerHTML = "";
+      }
+
+      if (limparTexto(termo).length < 2) {
+        if (containerSugestoes) {
+          containerSugestoes.innerHTML = "";
+        }
+        return;
+      }
+
+      window.__crosssetSmartBuscaTimer = setTimeout(function() {
+        renderizarSugestoesSmartMusicas(termo, true);
+      }, 450);
     });
 
     smartBusca.addEventListener("keydown", function(evento) {
@@ -4736,9 +4727,11 @@ function mostrarPreviewSmartMusica(musica) {
     <span>👤 ${escaparHtml(musica.artista || "Artista não informado")}</span>
     <span>💿 ${escaparHtml(musica.album || "Álbum não informado")} ${musica.ano ? "• " + escaparHtml(musica.ano) : ""}</span>
     <div class="crossset-smart-meta">
-      <span>🎼 Tom: ${escaparHtml(musica.tom || "-")}</span>
-      <span>🥁 BPM: ${escaparHtml(musica.bpm || "-")}</span>
       <span>⏱️ ${escaparHtml(musica.duracao || "-")}</span>
+    </div>
+    <div class="crossset-smart-campos-opcionais">
+      <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("tom")} Tom (opcional)</span><input id="smart-musica-tom" type="text" placeholder="Ex: Em" value="${escaparHtml(musica.tom || "")}" /></label>
+      <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("bpm")} BPM (opcional)</span><input id="smart-musica-bpm" type="number" inputmode="numeric" min="0" placeholder="Ex: 120" value="${escaparHtml(musica.bpm || "")}" /></label>
     </div>
     <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
   `;
@@ -4766,7 +4759,9 @@ async function salvarMusicaSmart(musica) {
     return;
   }
 
-  const bpmNumero = parseInt(musica.bpm, 10);
+  const tomInformado = limparTexto(elemento("smart-musica-tom")?.value || musica.tom);
+  const bpmInformado = limparTexto(elemento("smart-musica-bpm")?.value || musica.bpm);
+  const bpmNumero = parseInt(bpmInformado, 10);
   const observacoesSmart = [
     musica.album ? "Álbum: " + musica.album : "",
     musica.ano ? "Ano: " + musica.ano : "",
@@ -4778,7 +4773,7 @@ async function salvarMusicaSmart(musica) {
     projeto_id: projetoId,
     nome: nome,
     artista: limparTexto(musica.artista),
-    tom: limparTexto(musica.tom),
+    tom: tomInformado,
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: limparTexto(musica.link_url),
     youtube_url: limparTexto(musica.link_url),
@@ -4963,8 +4958,8 @@ function montarControleMeuProgresso(musicaId) {
     <div class="meu-progresso-musica" aria-label="Meu progresso nesta música">
       <span>Meu progresso:</span>
       <button class="btn-status-musica vermelha ${statusAtual === "nao_iniciada" ? "ativo" : ""}" type="button" title="Não iniciada" data-status-musica="nao_iniciada" data-musica-id="${escaparHtml(musicaId)}">Não iniciada</button>
-      <button class="btn-status-musica amarela ${statusAtual === "em_estudo" ? "ativo" : ""}" type="button" title="Em andamento" data-status-musica="em_estudo" data-musica-id="${escaparHtml(musicaId)}">Em andamento</button>
-      <button class="btn-status-musica verde ${statusAtual === "pronta" ? "ativo" : ""}" type="button" title="Concluída" data-status-musica="pronta" data-musica-id="${escaparHtml(musicaId)}">Concluída</button>
+      <button class="btn-status-musica amarela ${statusAtual === "em_estudo" ? "ativo" : ""}" type="button" title="Em estudo" data-status-musica="em_estudo" data-musica-id="${escaparHtml(musicaId)}">Em estudo</button>
+      <button class="btn-status-musica verde ${statusAtual === "pronta" ? "ativo" : ""}" type="button" title="Pronta" data-status-musica="pronta" data-musica-id="${escaparHtml(musicaId)}">Pronta</button>
     </div>
   `;
 }
@@ -5025,7 +5020,7 @@ function montarPreparacaoLinhaMusica(musicaId) {
     const status = registro?.status || "nao_iniciada";
     const cor = corStatusMusica(status);
     const nome = abreviarNomeIntegrante(integrante.nome || integrante.email || "Integrante");
-    const titulo = status === "pronta" ? "Concluída" : (status === "em_estudo" ? "Em andamento" : "Não iniciada");
+    const titulo = status === "pronta" ? "Pronta" : (status === "em_estudo" ? "Em estudo" : "Não iniciada");
 
     if (meuIntegrante && meuIntegrante.id === integrante.id) {
       return `<button class="status-integrante-mini-botao" type="button" title="${escaparHtml(titulo)} - clique para alterar" data-ciclar-status-musica="${escaparHtml(musicaId)}" data-status-atual="${escaparHtml(status)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</button>`;
@@ -5033,6 +5028,34 @@ function montarPreparacaoLinhaMusica(musicaId) {
 
     return `<span class="status-integrante-mini" title="${escaparHtml(titulo)}"><i class="bolinha-status-mini ${cor}"></i>${escaparHtml(nome)}</span>`;
   }).join("");
+}
+
+
+function iconeCampoMusica(tipo) {
+  if (tipo === "tom") {
+    return `<svg class="icone-musica-campo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>`;
+  }
+
+  return `<svg class="icone-musica-campo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 12h3"></path><path d="M17 12h3"></path><path d="M12 4v3"></path><path d="M12 17v3"></path><path d="M7.8 7.8l2.1 2.1"></path><path d="M14.1 14.1l2.1 2.1"></path><path d="M16.2 7.8l-2.1 2.1"></path><path d="M9.9 14.1l-2.1 2.1"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+}
+
+function montarCamposRapidosMusica(item) {
+  return `
+    <span class="musica-campos-rapidos">
+      <label class="musica-campo-rapido" title="Tom opcional">
+        ${iconeCampoMusica("tom")}
+        <span>Tom:</span>
+        <input class="input-musica-rapido" type="text" value="${escaparHtml(item.tom || "")}" placeholder="—" data-campo-rapido-musica="tom" data-musica-id="${escaparHtml(item.id)}" />
+        <span class="texto-opcional-musica">(opcional)</span>
+      </label>
+      <label class="musica-campo-rapido" title="BPM opcional">
+        ${iconeCampoMusica("bpm")}
+        <span>BPM:</span>
+        <input class="input-musica-rapido" type="number" inputmode="numeric" min="0" value="${escaparHtml(item.bpm || "")}" placeholder="—" data-campo-rapido-musica="bpm" data-musica-id="${escaparHtml(item.id)}" />
+        <span class="texto-opcional-musica">(opcional)</span>
+      </label>
+    </span>
+  `;
 }
 
 function montarProgressoInlineMusica(musicaId) {
@@ -5059,35 +5082,6 @@ function iconeAcaoMusica(tipo) {
   };
 
   return icones[tipo] || "";
-}
-
-function iconeCampoMusica(tipo) {
-  if (tipo === "tom") {
-    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>`;
-  }
-
-  if (tipo === "bpm") {
-    return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 10V6"/><path d="M4.93 19.07a10 10 0 1 1 14.14 0"/><path d="M7.76 16.24a6 6 0 1 1 8.48 0"/></svg>`;
-  }
-
-  return "";
-}
-
-function montarCamposTomBpmMusica(item) {
-  return `
-    <span class="musica-campo-inline">
-      <span class="icone-campo-musica" aria-hidden="true">${iconeCampoMusica("tom")}</span>
-      <span>Tom:</span>
-      <input class="input-mini-musica" type="text" value="${escaparHtml(item.tom || "")}" placeholder="—" data-campo-musica="tom" data-musica-id="${escaparHtml(item.id)}" aria-label="Tom opcional" />
-      <span class="texto-opcional-musica">(opcional)</span>
-    </span>
-    <span class="musica-campo-inline">
-      <span class="icone-campo-musica" aria-hidden="true">${iconeCampoMusica("bpm")}</span>
-      <span>BPM:</span>
-      <input class="input-mini-musica input-mini-bpm" type="number" inputmode="numeric" min="0" value="${escaparHtml(item.bpm || "")}" placeholder="—" data-campo-musica="bpm" data-musica-id="${escaparHtml(item.id)}" aria-label="BPM opcional" />
-      <span class="texto-opcional-musica">(opcional)</span>
-    </span>
-  `;
 }
 
 function montarResumoProgressoMusica(musicaId) {
@@ -5202,7 +5196,7 @@ function renderizarListaMusicas() {
         </div>
 
         <div class="musica-linha-meta">
-          ${montarCamposTomBpmMusica(item)}
+          ${montarCamposRapidosMusica(item)}
           ${temMaterial ? `<a class="musica-meta-link" href="${escaparHtml(arquivoMaterial)}" target="_blank" rel="noopener noreferrer"><span class="meta-icone-svg">${iconeAcaoMusica("material")}</span>Cifra</a>` : ""}
           ${temLetraCompleta ? `<span class="musica-meta-chip"><span class="meta-icone-svg">${iconeAcaoMusica("letra")}</span>Letra</span>` : ""}
           ${montarProgressoInlineMusica(item.id)}
@@ -5230,18 +5224,15 @@ function renderizarListaMusicas() {
     });
   });
 
-  lista.querySelectorAll("[data-campo-musica]").forEach(function(campo) {
-    campo.addEventListener("click", function(evento) {
-      evento.stopPropagation();
+  lista.querySelectorAll("[data-campo-rapido-musica]").forEach(function(campo) {
+    campo.addEventListener("change", function() {
+      salvarCampoRapidoMusica(campo.dataset.musicaId, campo.dataset.campoRapidoMusica, campo.value);
     });
     campo.addEventListener("keydown", function(evento) {
       if (evento.key === "Enter") {
         evento.preventDefault();
         campo.blur();
       }
-    });
-    campo.addEventListener("change", function() {
-      salvarCampoMusicaRapido(campo.dataset.musicaId, campo.dataset.campoMusica, campo.value);
     });
   });
 
@@ -5259,34 +5250,32 @@ function renderizarListaMusicas() {
 }
 
 
-async function salvarCampoMusicaRapido(musicaId, campo, valor) {
-  const cliente = sb();
-  const projetoId = obterProjetoAtualId();
 
-  if (!cliente || !projetoId || !musicaId || !["tom", "bpm"].includes(campo)) {
+async function salvarCampoRapidoMusica(musicaId, campo, valor) {
+  const cliente = sb();
+
+  if (!cliente || !musicaId || !["tom", "bpm"].includes(campo)) {
     return;
   }
 
-  const valorLimpo = limparTexto(valor);
   const payload = { updated_at: new Date().toISOString() };
 
   if (campo === "tom") {
-    payload.tom = valorLimpo;
+    payload.tom = limparTexto(valor);
   }
 
   if (campo === "bpm") {
-    const numero = parseInt(valorLimpo, 10);
-    payload.bpm = valorLimpo ? (Number.isFinite(numero) ? numero : null) : null;
+    const numero = parseInt(valor, 10);
+    payload.bpm = Number.isFinite(numero) ? numero : null;
   }
 
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
     .update(payload)
-    .eq("id", musicaId)
-    .eq("projeto_id", projetoId);
+    .eq("id", musicaId);
 
   if (error) {
-    alert("Erro ao atualizar " + campo.toUpperCase() + ": " + error.message);
+    alert("Erro ao salvar " + campo.toUpperCase() + ": " + error.message);
     return;
   }
 
@@ -5296,15 +5285,13 @@ async function salvarCampoMusicaRapido(musicaId, campo, valor) {
 
   if (musica) {
     if (campo === "tom") {
-      musica.tom = valorLimpo;
+      musica.tom = payload.tom;
     }
     if (campo === "bpm") {
-      const numero = parseInt(valorLimpo, 10);
-      musica.bpm = valorLimpo ? (Number.isFinite(numero) ? numero : null) : null;
+      musica.bpm = payload.bpm;
     }
+    musica.updated_at = payload.updated_at;
   }
-
-  mostrarToast(campo.toUpperCase() + " atualizado.");
 }
 
 async function compartilharMusica(musicaId) {
