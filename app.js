@@ -2566,29 +2566,44 @@ async function salvarIntegrante() {
     return;
   }
 
-  const payload = {
-    projeto_id: projetoId,
-    usuario_id: usuario.id,
-    nome: dados.nome,
-    funcao: dados.funcao,
-    instrumento: dados.instrumento,
-    administrador: dados.administrador,
-    email: dados.email,
-    telefone: dados.telefone
-  };
+  const integranteEditandoId = appState.integranteEditandoId;
 
   let resultado;
 
-  if (appState.integranteEditandoId) {
+  if (integranteEditandoId) {
+    const payloadEdicao = {
+      nome: dados.nome,
+      funcao: dados.funcao,
+      instrumento: dados.instrumento,
+      administrador: dados.administrador,
+      email: dados.email,
+      telefone: dados.telefone
+    };
+
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .update(payload)
-      .eq("id", appState.integranteEditandoId)
-      .eq("projeto_id", projetoId);
+      .update(payloadEdicao)
+      .eq("id", integranteEditandoId)
+      .eq("projeto_id", projetoId)
+      .select("*")
+      .maybeSingle();
   } else {
+    const payloadNovo = {
+      projeto_id: projetoId,
+      usuario_id: usuario.id,
+      nome: dados.nome,
+      funcao: dados.funcao,
+      instrumento: dados.instrumento,
+      administrador: dados.administrador,
+      email: dados.email,
+      telefone: dados.telefone
+    };
+
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .insert(payload);
+      .insert(payloadNovo)
+      .select("*")
+      .maybeSingle();
   }
 
   if (resultado.error) {
@@ -2596,8 +2611,26 @@ async function salvarIntegrante() {
     return;
   }
 
+  if (integranteEditandoId && !resultado.data) {
+    alert("Não foi possível atualizar o integrante. Reabra o projeto e tente novamente.");
+    return;
+  }
+
+  if (resultado.data) {
+    const indice = (appState.integrantes || []).findIndex(function(item) {
+      return item.id === resultado.data.id;
+    });
+
+    if (indice >= 0) {
+      appState.integrantes[indice] = resultado.data;
+    } else {
+      appState.integrantes = [resultado.data].concat(appState.integrantes || []);
+    }
+  }
+
   limparFormularioIntegrante();
   await buscarIntegrantes();
+  renderizarListaIntegrantes();
 }
 
 function editarIntegrante(id) {
