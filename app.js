@@ -22,7 +22,7 @@
 "use strict";
 
 const REPERTORIO_FACIL = {
-  urlApp: "https://jc81rock.github.io/RepertorioFacilNovo/",
+  urlApp: "https://crossset.app/",
   tabelas: {
     projetos: "projetos",
     integrantes: "integrantes",
