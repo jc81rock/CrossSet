@@ -1495,10 +1495,19 @@ button#btn-convidar-integrante::after,
 /* CrossSet acabamento visual: ícones padrão dos integrantes, sem fundo nos botões. */
 .botoes-item-integrante .btn-icone-integrante,
 .botoes-item-integrante-compactos .btn-icone-integrante {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
   background: transparent !important;
   color: #ffffff !important;
   border: 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .botoes-item-integrante .btn-icone-integrante:hover,
@@ -1509,8 +1518,10 @@ button#btn-convidar-integrante::after,
 
 .botoes-item-integrante .btn-icone-integrante svg,
 .botoes-item-integrante-compactos .btn-icone-integrante svg {
-  width: 17px !important;
-  height: 17px !important;
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
   fill: none !important;
   stroke: currentColor !important;
+  stroke-width: 2 !important;
 }
