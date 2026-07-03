@@ -5097,8 +5097,8 @@ function montarUrlReferenciaMusica(item) {
 
   return `
     <div class="musica-url-referencia">
-      <span>URL da versão:</span>
-      <a href="${escaparHtml(href)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(url)}">Abrir</a>
+      <span>Referência:</span>
+      <a href="${escaparHtml(href)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(url)}">${escaparHtml(url)}</a>
     </div>
   `;
 }

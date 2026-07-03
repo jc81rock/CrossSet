@@ -1688,7 +1688,7 @@ button#btn-convidar-integrante::after,
   white-space: nowrap !important;
 }
 
-/* CrossSet Músicas - URL da versão no card
+/* CrossSet Músicas - referência no card
    Ajuste localizado: exibe o link cadastrado abaixo dos integrantes. */
 #tela-painel-projeto .modulo-musicas .musica-url-referencia {
   width: 100% !important;
@@ -1712,6 +1712,12 @@ button#btn-convidar-integrante::after,
   color: #7dbbff !important;
   font-weight: 700 !important;
   text-decoration: none !important;
+  display: inline-block !important;
+  max-width: min(100%, 420px) !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  vertical-align: bottom !important;
 }
 
 #tela-painel-projeto .modulo-musicas .musica-url-referencia a:hover {
