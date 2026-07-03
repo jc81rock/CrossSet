@@ -4555,6 +4555,10 @@ async function carregarMusicas() {
         padding: 5px 8px !important;
       }
 
+      .crossset-smart-campo-opcional.url-versao {
+        grid-column: 1 / -1 !important;
+      }
+
     </style>
 
     <div class="modulo-musicas">
@@ -4579,7 +4583,7 @@ async function carregarMusicas() {
         </div>
 
         <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
-          <h4>📖 Como funciona o progresso das músicas?</h4>
+          <h4>Como funciona o progresso das músicas?</h4>
           <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
           <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
           <p>🟡 <strong>Em andamento</strong><br>O integrante está estudando ou ensaiando a música.</p>
@@ -4745,6 +4749,7 @@ function obterCatalogoSmartMusicas() {
       bpm: musica.bpm || "",
       duracao: "",
       link_url: obterLinkMusica(musica),
+      url_referencia: musica.url_referencia || "",
       origem: "Projeto"
     };
   });
@@ -4916,6 +4921,7 @@ function mostrarPreviewSmartMusica(musica) {
     <div class="crossset-smart-campos-opcionais">
       <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("tom")} Tom (opcional)</span><input id="smart-musica-tom" type="text" placeholder="Ex: Em" value="${escaparHtml(musica.tom || "")}" /></label>
       <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("bpm")} BPM (opcional)</span><input id="smart-musica-bpm" type="number" inputmode="numeric" min="0" placeholder="Ex: 120" value="${escaparHtml(musica.bpm || "")}" /></label>
+      <label class="crossset-smart-campo-opcional url-versao"><span>URL da versão</span><input id="smart-musica-url-referencia" type="url" placeholder="Cole aqui o link da versão que a banda irá estudar" value="${escaparHtml(musica.url_referencia || musica.link_url || "")}" /></label>
     </div>
     <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
   `;
@@ -4945,6 +4951,7 @@ async function salvarMusicaSmart(musica) {
 
   const tomInformado = limparTexto(elemento("smart-musica-tom")?.value || musica.tom);
   const bpmInformado = limparTexto(elemento("smart-musica-bpm")?.value || musica.bpm);
+  const urlReferencia = limparTexto(elemento("smart-musica-url-referencia")?.value || musica.url_referencia || musica.link_url);
   const bpmNumero = parseInt(bpmInformado, 10);
   const observacoesSmart = [
     musica.album ? "Álbum: " + musica.album : "",
@@ -4961,6 +4968,7 @@ async function salvarMusicaSmart(musica) {
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: limparTexto(musica.link_url),
     youtube_url: limparTexto(musica.link_url),
+    url_referencia: urlReferencia,
     material_arquivo_url: "",
     letra_arquivo_url: "",
     letra: "",
@@ -5338,6 +5346,7 @@ function renderizarListaMusicas() {
         item.tom,
         item.bpm,
         obterLinkMusica(item),
+        item.url_referencia,
         obterArquivoMaterialMusica(item),
         item.letra,
         obterArquivoLetraMusica(item),
@@ -5654,6 +5663,7 @@ function obterDadosFormularioMusica() {
     tom: limparTexto(elemento("musica-tom")?.value),
     bpm: limparTexto(elemento("musica-bpm")?.value),
     link_url: limparTexto(elemento("musica-link")?.value),
+    url_referencia: limparTexto(elemento("musica-url-referencia")?.value),
     letra: limparTexto(elemento("musica-letra")?.value),
     observacoes: limparTexto(elemento("musica-observacoes")?.value)
   };
@@ -5748,6 +5758,9 @@ function preencherFormularioMusica(item) {
   elemento("musica-tom").value = item.tom || "";
   elemento("musica-bpm").value = item.bpm || "";
   elemento("musica-link").value = obterLinkMusica(item);
+  if (elemento("musica-url-referencia")) {
+    elemento("musica-url-referencia").value = item.url_referencia || "";
+  }
   elemento("musica-letra").value = item.letra || "";
   elemento("musica-observacoes").value = item.observacoes || "";
 
@@ -5782,7 +5795,7 @@ function preencherFormularioMusica(item) {
 function limparFormularioMusica() {
   appState.musicaEditandoId = null;
 
-  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-url-referencia", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
     const campo = elemento(id);
     if (campo) {
       campo.value = "";
@@ -5859,6 +5872,7 @@ async function salvarMusica() {
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: dados.link_url,
     youtube_url: dados.link_url,
+    url_referencia: dados.url_referencia,
     material_arquivo_url: materialArquivoUrl,
     letra_arquivo_url: letraArquivoUrl,
     letra: dados.letra,
