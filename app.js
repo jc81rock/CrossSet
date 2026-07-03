@@ -1,22 +1,7 @@
 
-// Auto-clear stale invite
+// Convite CrossSet: não limpar convite pendente durante retorno OAuth.
 (function(){
- const h=window.location.hash||"";
- if(!h.includes("convite=")){
-   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
-     try{localStorage.removeItem(k);}catch(e){}
-     try{sessionStorage.removeItem(k);}catch(e){}
-   });
- }
- window.addEventListener("hashchange",()=>{
-   const hh=window.location.hash||"";
-   if(!hh.includes("convite=")){
-     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
-       try{localStorage.removeItem(k);}catch(e){}
-       try{sessionStorage.removeItem(k);}catch(e){}
-     });
-   }
- });
+  window.__crosssetConviteOAuth = window.__crosssetConviteOAuth || {};
 })();
 
 "use strict";
@@ -449,8 +434,10 @@ function salvarCodigoConvitePendente(codigo) {
     return "";
   }
 
-  try { localStorage.setItem("convite_pendente", codigoLimpo); } catch (erroLocal) {}
-  try { sessionStorage.setItem("convite_pendente", codigoLimpo); } catch (erroSessao) {}
+  ["convite_pendente", "codigoConvitePendente", "convitePendente", "inviteCode"].forEach(function(chave) {
+    try { localStorage.setItem(chave, codigoLimpo); } catch (erroLocal) {}
+    try { sessionStorage.setItem(chave, codigoLimpo); } catch (erroSessao) {}
+  });
 
   return codigoLimpo;
 }
@@ -462,12 +449,23 @@ function obterCodigoConvitePendente() {
     return salvarCodigoConvitePendente(codigoUrl);
   }
 
-  return limparTexto(localStorage.getItem("convite_pendente") || sessionStorage.getItem("convite_pendente") || "");
+  const chaves = ["convite_pendente", "codigoConvitePendente", "convitePendente", "inviteCode"];
+
+  for (const chave of chaves) {
+    const valor = limparTexto(localStorage.getItem(chave) || sessionStorage.getItem(chave) || "");
+    if (valor) {
+      return salvarCodigoConvitePendente(valor);
+    }
+  }
+
+  return "";
 }
 
 function limparConvitePendente() {
-  localStorage.removeItem("convite_pendente");
-  sessionStorage.removeItem("convite_pendente");
+  ["convite_pendente", "codigoConvitePendente", "convitePendente", "inviteCode"].forEach(function(chave) {
+    try { localStorage.removeItem(chave); } catch (erroLocal) {}
+    try { sessionStorage.removeItem(chave); } catch (erroSessao) {}
+  });
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -488,6 +486,40 @@ function limparConvitePendente() {
   }
 }
 
+function urlTemRetornoOAuth() {
+  const params = new URLSearchParams(window.location.search || "");
+  const hash = window.location.hash || "";
+
+  return (
+    params.has("code") ||
+    params.has("access_token") ||
+    params.has("refresh_token") ||
+    hash.includes("access_token=") ||
+    hash.includes("refresh_token=") ||
+    hash.includes("type=recovery")
+  );
+}
+
+async function aguardarSessaoOAuth(cliente, tentativas = 18, intervaloMs = 300) {
+  if (!cliente) {
+    return null;
+  }
+
+  for (let i = 0; i < tentativas; i += 1) {
+    const { data } = await cliente.auth.getSession();
+    if (data && data.session && data.session.user) {
+      return data.session;
+    }
+
+    await new Promise(function(resolve) {
+      setTimeout(resolve, intervaloMs);
+    });
+  }
+
+  const { data } = await cliente.auth.getSession();
+  return data && data.session ? data.session : null;
+}
+
 async function verificarSessao() {
   const cliente = sb();
 
@@ -503,6 +535,17 @@ async function verificarSessao() {
   }
 
   const codigoConvite = obterCodigoConvitePendente();
+
+  if (codigoConvite && urlTemRetornoOAuth()) {
+    const sessaoOAuth = await aguardarSessaoOAuth(cliente);
+    if (sessaoOAuth && sessaoOAuth.user) {
+      appState.sessao = sessaoOAuth;
+      appState.usuario = sessaoOAuth.user;
+      preencherUsuario(appState.usuario);
+      await carregarConvitePublico(codigoConvite);
+      return;
+    }
+  }
 
   const { data, error } = await cliente.auth.getSession();
 
@@ -542,10 +585,15 @@ async function entrarComGoogle() {
     return;
   }
 
+  const codigoConviteAntesOAuth = obterCodigoConvitePendente();
+  if (codigoConviteAntesOAuth) {
+    salvarCodigoConvitePendente(codigoConviteAntesOAuth);
+  }
+
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: obterCodigoConvitePendente() ? (REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(obterCodigoConvitePendente())) : REPERTORIO_FACIL.urlApp,
+      redirectTo: REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -3157,7 +3205,7 @@ async function entrarComGmailEAceitarConvite() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
+      redirectTo: REPERTORIO_FACIL.urlApp,
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -3242,7 +3290,7 @@ async function criarContaEAceitarConvite() {
     email: email,
     password: senha,
     options: {
-      emailRedirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
+      emailRedirectTo: REPERTORIO_FACIL.urlApp,
       data: {
         nome: nome,
         full_name: nome,
@@ -10085,5 +10133,8 @@ document.addEventListener("DOMContentLoaded", async function() {
   prepararAplicacao();
 
   await verificarSessao();
-  await restaurarProjetoAtual();
+
+  if (!obterCodigoConvitePendente() && appState.telaAtual !== "tela-convite") {
+    await restaurarProjetoAtual();
+  }
 });
