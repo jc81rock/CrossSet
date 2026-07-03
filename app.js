@@ -4616,18 +4616,6 @@ async function carregarMusicas() {
           </label>
         </div>
 
-        <div class="dica-progresso-musicas" aria-label="Dica para atualizar progresso das músicas">
-          <div class="dica-progresso-linha">
-            <strong>Dica:</strong>
-            <span>Clique no <span class="dica-progresso-icone-editar" aria-hidden="true">${iconeAcaoMusica("editar")}</span> da música para atualizar seu nível de preparo.</span>
-          </div>
-          <div class="dica-progresso-status" aria-label="Status disponíveis">
-            <span><span class="bolinha-status bolinha-status-nao-iniciada" aria-hidden="true"></span>Não iniciada</span>
-            <span><span class="bolinha-status bolinha-status-em-andamento" aria-hidden="true"></span>Em andamento</span>
-            <span><span class="bolinha-status bolinha-status-concluida" aria-hidden="true"></span>Concluída</span>
-          </div>
-        </div>
-
         <div id="lista-musicas" class="lista-musicas">
           <p>Carregando músicas...</p>
         </div>
@@ -5445,7 +5433,7 @@ function renderizarListaMusicas() {
           </div>
 
           <div class="acoes-icone-musica">
-            <button class="btn-acao-musica" type="button" title="Editar música e atualizar seu progresso" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
+            <button class="btn-acao-musica" type="button" title="Editar" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
             <button class="btn-acao-musica" type="button" title="Compartilhar" data-compartilhar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("compartilhar")}</button>
             <button class="btn-acao-musica" type="button" title="Excluir" data-excluir-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
           </div>
@@ -6370,6 +6358,102 @@ async function carregarRepertorios() {
         color: #fff;
       }
 
+
+      /* CORRECAO QA: Repertórios - ações no padrão aprovado (ícones brancos, sem texto) */
+      .item-repertorio-topo {
+        align-items: flex-start;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .item-repertorio-conteudo {
+        min-width: 0;
+        flex: 1 1 auto;
+      }
+
+      .dados-repertorio {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .dados-repertorio h4,
+      .dados-repertorio p {
+        overflow-wrap: anywhere;
+      }
+
+      .botoes-item-repertorio {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        min-width: 184px;
+        max-width: 184px;
+      }
+
+      .botoes-item-repertorio button,
+      .botoes-item-repertorio .btn-montar-repertorio,
+      .botoes-item-repertorio .btn-editar-repertorio,
+      .botoes-item-repertorio .btn-compartilhar-repertorio,
+      .botoes-item-repertorio .btn-pdf-repertorio,
+      .botoes-item-repertorio .btn-excluir-repertorio {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: #ffffff;
+        box-shadow: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transform: none;
+        filter: none;
+      }
+
+      .botoes-item-repertorio button span {
+        display: none !important;
+      }
+
+      .botoes-item-repertorio .icone-limpo,
+      .botoes-item-repertorio button svg {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+        display: block;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .botoes-item-repertorio button:hover {
+        opacity: .82;
+        transform: none;
+        filter: none;
+        background: transparent;
+        border: 0;
+      }
+
+      @media (max-width: 760px) {
+        .item-repertorio-topo {
+          gap: 8px;
+        }
+
+        .botoes-item-repertorio {
+          min-width: 160px;
+          max-width: 160px;
+          gap: 6px;
+        }
+      }
+
       .montagem-repertorio {
         margin-top: 20px;
         padding-top: 18px;
@@ -6507,13 +6591,12 @@ async function carregarRepertorios() {
       }
 
 
-      /* Repertórios 2.0 - correção de largura: manter dentro do padrão do container */
+      /* Repertórios 2.0 - layout amplo de montagem */
       #card-form-repertorio.card-repertorio-expandido {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: min(1420px, calc(100vw - 96px)) !important;
+        max-width: none !important;
         margin: 0 auto !important;
-        overflow: hidden !important;
-        box-sizing: border-box !important;
+        overflow: visible !important;
       }
 
       #card-form-repertorio.card-repertorio-expandido > .tag,
@@ -6532,14 +6615,10 @@ async function carregarRepertorios() {
 
       .repertorio-builder {
         display: grid;
-        grid-template-columns: minmax(300px, .9fr) minmax(0, 1.25fr);
+        grid-template-columns: minmax(360px, 0.8fr) minmax(560px, 1.2fr);
         gap: 18px;
         align-items: stretch;
         width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        overflow: hidden;
-        box-sizing: border-box;
       }
 
       .repertorio-builder-card {
@@ -6548,9 +6627,7 @@ async function carregarRepertorios() {
         background: rgba(15,23,42,.45);
         padding: 18px;
         min-width: 0;
-        max-width: 100%;
         overflow: hidden;
-        box-sizing: border-box;
       }
 
       .repertorio-builder-card h3 {
@@ -6679,9 +6756,6 @@ async function carregarRepertorios() {
         border-radius: 13px;
         padding: 10px;
         background: rgba(255,255,255,.04);
-        min-width: 0;
-        max-width: 100%;
-        box-sizing: border-box;
       }
 
       .numero-setlist-final {
@@ -6700,7 +6774,6 @@ async function carregarRepertorios() {
         display: flex;
         align-items: center;
         gap: 6px;
-        flex: 0 0 auto;
       }
 
       .setlist-acoes-final button {
@@ -7013,11 +7086,11 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Montar</span></button>
-            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>
-            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg><span>Compartilhar</span></button>
-            <button class="btn-pdf-repertorio" type="button" data-pdf-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg><span>PDF</span></button>
-            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>Excluir</span></button>
+            <button class="btn-montar-repertorio" type="button" title="Montar repertório" aria-label="Montar repertório" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+            <button class="btn-editar-repertorio" type="button" title="Editar repertório" aria-label="Editar repertório" data-editar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+            <button class="btn-compartilhar-repertorio" type="button" title="Compartilhar repertório" aria-label="Compartilhar repertório" data-compartilhar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg></button>
+            <button class="btn-pdf-repertorio" type="button" title="Gerar PDF" aria-label="Gerar PDF" data-pdf-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg></button>
+            <button class="btn-excluir-repertorio" type="button" title="Excluir repertório" aria-label="Excluir repertório" data-excluir-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
           </div>
         </div>
       </div>
