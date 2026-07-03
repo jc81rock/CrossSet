@@ -1607,3 +1607,53 @@ button#btn-convidar-integrante::after,
 #tela-projetos #lista-projetos .projeto-item .tag {
   margin-bottom: 6px !important;
 }
+
+/* CrossSet Polimento Visual v1.0 - Módulo Músicas
+   Ajuste somente visual: cards, leitura, borda, sombra e hover discreto.
+   Não altera botões, ícones, HTML, JS, comandos, banco ou fluxos. */
+#tela-painel-projeto .modulo-musicas > .card-projeto {
+  border-color: rgba(255, 255, 255, .14) !important;
+  box-shadow: 0 16px 46px rgba(0, 0, 0, .28) !important;
+}
+
+#tela-painel-projeto .modulo-musicas > .card-projeto h3 {
+  letter-spacing: -.15px !important;
+}
+
+#tela-painel-projeto .modulo-musicas > .card-projeto > p,
+#tela-painel-projeto .modulo-musicas .crossset-smart-legenda p {
+  color: #c4d3ef !important;
+}
+
+#tela-painel-projeto .modulo-musicas .item-musica {
+  border-color: rgba(255, 255, 255, .14) !important;
+  background: #081425 !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .24) !important;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+
+#tela-painel-projeto .modulo-musicas .item-musica:hover {
+  border-color: rgba(122, 92, 255, .34) !important;
+  background: #0a172a !important;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, .30) !important;
+}
+
+#tela-painel-projeto .modulo-musicas .dados-musica h4,
+#tela-painel-projeto .modulo-musicas .musica-nome-mini {
+  letter-spacing: -.15px !important;
+}
+
+#tela-painel-projeto .modulo-musicas .dados-musica p,
+#tela-painel-projeto .modulo-musicas .musica-artista-mini,
+#tela-painel-projeto .modulo-musicas .musica-linha-meta {
+  color: #c4d3ef !important;
+}
+
+#tela-painel-projeto .modulo-musicas .filtros-musicas {
+  margin-top: 12px !important;
+  margin-bottom: 14px !important;
+}
+
+#tela-painel-projeto .modulo-musicas .tag {
+  margin-bottom: 6px !important;
+}
