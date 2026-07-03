@@ -4616,6 +4616,10 @@ async function carregarMusicas() {
           </label>
         </div>
 
+        <div class="dica-progresso-musicas" aria-label="Dica para atualizar progresso das músicas">
+          <strong>Dica:</strong> Atualize seu progresso clicando no <span aria-hidden="true">✏️</span> de cada música.
+        </div>
+
         <div id="lista-musicas" class="lista-musicas">
           <p>Carregando músicas...</p>
         </div>
@@ -5433,7 +5437,7 @@ function renderizarListaMusicas() {
           </div>
 
           <div class="acoes-icone-musica">
-            <button class="btn-acao-musica" type="button" title="Editar música e atualizar seu progresso" aria-label="Editar música e atualizar seu progresso" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
+            <button class="btn-acao-musica" type="button" title="Editar música e atualizar seu progresso" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
             <button class="btn-acao-musica" type="button" title="Compartilhar" data-compartilhar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("compartilhar")}</button>
             <button class="btn-acao-musica" type="button" title="Excluir" data-excluir-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
           </div>

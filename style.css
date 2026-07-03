@@ -1725,52 +1725,21 @@ button#btn-convidar-integrante::after,
 }
 
 
-/* CrossSet Músicas - correção final da referência e largura do card
-   Ajuste localizado: impede link longo de esticar o card e mantém tooltip de progresso. */
-#tela-painel-projeto .modulo-musicas,
-#tela-painel-projeto .modulo-musicas .card-projeto,
-#tela-painel-projeto .modulo-musicas .lista-musicas,
-#tela-painel-projeto .modulo-musicas #lista-musicas,
-#tela-painel-projeto .modulo-musicas .item-musica {
-  min-width: 0 !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-#tela-painel-projeto .modulo-musicas .lista-musicas,
-#tela-painel-projeto .modulo-musicas #lista-musicas {
+/* CrossSet Músicas - dica discreta de progresso
+   Ajuste localizado: orienta o usuário sem alterar botões, ícones, fluxo ou lógica. */
+#tela-painel-projeto .modulo-musicas .dica-progresso-musicas {
   width: 100% !important;
-  overflow: hidden !important;
+  margin: 12px 0 10px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(122, 92, 255, 0.42) !important;
+  background: rgba(122, 92, 255, 0.10) !important;
+  color: #dce6ff !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
 }
 
-#tela-painel-projeto .modulo-musicas .item-musica {
-  width: 100% !important;
-  overflow: hidden !important;
-}
-
-#tela-painel-projeto .modulo-musicas .musica-linha-principal,
-#tela-painel-projeto .modulo-musicas .musica-linha-meta {
-  min-width: 0 !important;
-  max-width: 100% !important;
-}
-
-#tela-painel-projeto .modulo-musicas .musica-url-referencia {
-  display: grid !important;
-  grid-template-columns: auto minmax(0, 1fr) !important;
-  align-items: center !important;
-  column-gap: 6px !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-}
-
-#tela-painel-projeto .modulo-musicas .musica-url-referencia a {
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
+#tela-painel-projeto .modulo-musicas .dica-progresso-musicas strong {
+  color: #ffffff !important;
+  font-weight: 800 !important;
 }
