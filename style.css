@@ -1525,3 +1525,57 @@ button#btn-convidar-integrante::after,
   stroke: currentColor !important;
   stroke-width: 2 !important;
 }
+
+/* Ajuste visual cirúrgico - Repertórios: ações em ícones padrão CrossSet */
+.botoes-item-repertorio {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 14px !important;
+}
+
+.botoes-item-repertorio .btn-montar-repertorio,
+.botoes-item-repertorio .btn-editar-repertorio,
+.botoes-item-repertorio .btn-compartilhar-repertorio,
+.botoes-item-repertorio .btn-pdf-repertorio,
+.botoes-item-repertorio .btn-excluir-repertorio {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.botoes-item-repertorio .btn-montar-repertorio svg,
+.botoes-item-repertorio .btn-editar-repertorio svg,
+.botoes-item-repertorio .btn-compartilhar-repertorio svg,
+.botoes-item-repertorio .btn-pdf-repertorio svg,
+.botoes-item-repertorio .btn-excluir-repertorio svg {
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+.botoes-item-repertorio .btn-montar-repertorio:hover,
+.botoes-item-repertorio .btn-editar-repertorio:hover,
+.botoes-item-repertorio .btn-compartilhar-repertorio:hover,
+.botoes-item-repertorio .btn-pdf-repertorio:hover,
+.botoes-item-repertorio .btn-excluir-repertorio:hover {
+  opacity: .82 !important;
+  transform: none !important;
+}
