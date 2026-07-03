@@ -4617,7 +4617,12 @@ async function carregarMusicas() {
         </div>
 
         <div class="dica-progresso-musicas" aria-label="Dica para atualizar progresso das músicas">
-          <strong>Dica:</strong> Atualize seu progresso clicando no <span aria-hidden="true">✏️</span> de cada música.
+          <div><strong>Dica:</strong> clique no <span aria-hidden="true">✏️</span> da música para atualizar seu progresso.</div>
+          <div class="dica-progresso-status" aria-label="Status disponíveis">
+            <span><span class="bolinha-status bolinha-status-nao-iniciada" aria-hidden="true"></span>Não iniciada</span>
+            <span><span class="bolinha-status bolinha-status-em-andamento" aria-hidden="true"></span>Em andamento</span>
+            <span><span class="bolinha-status bolinha-status-concluida" aria-hidden="true"></span>Concluída</span>
+          </div>
         </div>
 
         <div id="lista-musicas" class="lista-musicas">
