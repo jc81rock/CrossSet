@@ -5079,7 +5079,15 @@ function montarLinkArquivoMusica(url, texto, icone) {
 }
 
 function montarUrlReferenciaMusica(item) {
-  const url = limparTexto(item?.url_referencia || "");
+  const url = limparTexto(
+    item?.url_referencia ||
+    item?.url_versao ||
+    item?.versao_url ||
+    item?.referencia_url ||
+    item?.link_referencia ||
+    obterLinkMusica(item) ||
+    ""
+  );
 
   if (!url) {
     return "";
