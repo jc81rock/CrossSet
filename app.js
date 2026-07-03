@@ -1671,12 +1671,12 @@ async function carregarIntegrantes() {
       .dados-integrante h4 {
         margin: 0 0 6px;
         color: #ffffff;
-        font-size: 17px;
+        font-size: 18px !important;
       }
 
       .dados-integrante p {
         margin: 3px 0;
-        font-size: 13px;
+        font-size: 14px !important;
         color: #d1d5db;
       }
 
@@ -1715,25 +1715,44 @@ async function carregarIntegrantes() {
 
       .botoes-item-integrante button {
         border: 0;
-        border-radius: 10px;
-        padding: 8px 12px;
-        min-height: 34px;
+        border-radius: 0;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        min-width: 24px;
+        min-height: 24px;
         cursor: pointer;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 6px;
+        gap: 0;
+        background: transparent;
+        color: #ffffff;
       }
 
-      .btn-editar-integrante {
-        background: #e5e7eb;
-        color: #111827;
+      .botoes-item-integrante button:hover {
+        background: transparent;
+        color: #ffffff;
+        transform: translateY(-1px);
       }
 
+      .btn-icone-integrante svg,
+      .btn-icone-integrante svg.icone-share-padrao {
+        width: 17px !important;
+        height: 17px !important;
+        display: block !important;
+        fill: none !important;
+        stroke: currentColor !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+      }
+
+      .btn-editar-integrante,
       .btn-excluir-integrante {
-        background: #fee2e2;
-        color: #991b1b;
+        background: transparent;
+        color: #ffffff;
       }
 
       .desenvolvimento-integrante {

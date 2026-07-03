@@ -1361,7 +1361,7 @@ textarea:focus,
 
 .integrante-nome-compacto {
   color: #ffffff !important;
-  font-size: 14px !important;
+  font-size: 15px !important;
   font-weight: 800 !important;
 }
 
@@ -1369,7 +1369,7 @@ textarea:focus,
 .integrante-admin-compacto,
 .separador-integrante {
   color: #d1d5db !important;
-  font-size: 12px !important;
+  font-size: 13px !important;
   font-weight: 650 !important;
 }
 
@@ -1421,8 +1421,8 @@ textarea:focus,
   min-height: 24px !important;
   padding: 0 !important;
   border: 0 !important;
-  border-radius: 8px !important;
-  background: rgba(255, 255, 255, .08) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   color: #ffffff !important;
   display: inline-flex !important;
   align-items: center !important;
@@ -1433,7 +1433,7 @@ textarea:focus,
 }
 
 .botoes-item-integrante-compactos .btn-icone-integrante:hover {
-  background: rgba(255, 255, 255, .16) !important;
+  background: transparent !important;
   transform: translateY(-1px) !important;
 }
 
@@ -1489,4 +1489,28 @@ button#btn-convidar-integrante::after,
   height: 21px !important;
   display: block !important;
   fill: currentColor !important;
+}
+
+
+/* CrossSet acabamento visual: ícones padrão dos integrantes, sem fundo nos botões. */
+.botoes-item-integrante .btn-icone-integrante,
+.botoes-item-integrante-compactos .btn-icone-integrante {
+  background: transparent !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.botoes-item-integrante .btn-icone-integrante:hover,
+.botoes-item-integrante-compactos .btn-icone-integrante:hover {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+.botoes-item-integrante .btn-icone-integrante svg,
+.botoes-item-integrante-compactos .btn-icone-integrante svg {
+  width: 17px !important;
+  height: 17px !important;
+  fill: none !important;
+  stroke: currentColor !important;
 }
