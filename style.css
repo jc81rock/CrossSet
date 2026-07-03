@@ -1687,3 +1687,33 @@ button#btn-convidar-integrante::after,
   flex: 0 0 auto !important;
   white-space: nowrap !important;
 }
+
+/* CrossSet Músicas - URL da versão no card
+   Ajuste localizado: exibe o link cadastrado abaixo dos integrantes. */
+#tela-painel-projeto .modulo-musicas .musica-url-referencia {
+  width: 100% !important;
+  margin-top: 6px !important;
+  padding-top: 5px !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  color: #c4d3ef !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+#tela-painel-projeto .modulo-musicas .musica-url-referencia span {
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+
+#tela-painel-projeto .modulo-musicas .musica-url-referencia a {
+  color: #7dbbff !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+
+#tela-painel-projeto .modulo-musicas .musica-url-referencia a:hover {
+  text-decoration: underline !important;
+}

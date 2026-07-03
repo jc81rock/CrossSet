@@ -5078,6 +5078,23 @@ function montarLinkArquivoMusica(url, texto, icone) {
   return `<a class="link-arquivo-musica" href="${escaparHtml(url)}" target="_blank" rel="noopener noreferrer">${escaparHtml(icone || "")}${escaparHtml(texto)}</a>`;
 }
 
+function montarUrlReferenciaMusica(item) {
+  const url = limparTexto(item?.url_referencia || "");
+
+  if (!url) {
+    return "";
+  }
+
+  const href = /^https?:\/\//i.test(url) ? url : "https://" + url;
+
+  return `
+    <div class="musica-url-referencia">
+      <span>URL da versão:</span>
+      <a href="${escaparHtml(href)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(url)}">Abrir</a>
+    </div>
+  `;
+}
+
 function encontrarMeuIntegranteNoProjeto(integrantes, usuario) {
   if (!usuario) {
     return null;
@@ -5421,6 +5438,7 @@ function renderizarListaMusicas() {
           ${montarProgressoInlineMusica(item.id)}
           <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
+        ${montarUrlReferenciaMusica(item)}
         ${appState.musicaProgressoEditandoId === item.id ? montarPainelMeuProgressoEdicao(item.id) : ""}
       </div>
     `;
