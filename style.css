@@ -1657,3 +1657,33 @@ button#btn-convidar-integrante::after,
 #tela-painel-projeto .modulo-musicas .tag {
   margin-bottom: 6px !important;
 }
+
+/* CrossSet Ajuste Músicas v1.1 - integrantes abaixo da barra de progresso
+   Ajuste somente visual no card de músicas.
+   Não altera botões, ícones, HTML, JavaScript, banco, comandos ou fluxos. */
+#tela-painel-projeto .modulo-musicas .musica-linha-meta {
+  flex-wrap: wrap !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  row-gap: 4px !important;
+}
+
+#tela-painel-projeto .modulo-musicas .preparacao-inline-musica {
+  flex: 0 0 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 3px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  row-gap: 4px !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+#tela-painel-projeto .modulo-musicas .status-integrante-mini,
+#tela-painel-projeto .modulo-musicas .status-integrante-mini-botao {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
