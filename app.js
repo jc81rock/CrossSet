@@ -5433,7 +5433,7 @@ function renderizarListaMusicas() {
           </div>
 
           <div class="acoes-icone-musica">
-            <button class="btn-acao-musica" type="button" title="Editar música e atualizar seu progresso" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
+            <button class="btn-acao-musica" type="button" title="Editar música e atualizar seu progresso" aria-label="Editar música e atualizar seu progresso" data-editar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("editar")}</button>
             <button class="btn-acao-musica" type="button" title="Compartilhar" data-compartilhar-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("compartilhar")}</button>
             <button class="btn-acao-musica" type="button" title="Excluir" data-excluir-musica="${escaparHtml(item.id)}">${iconeAcaoMusica("excluir")}</button>
           </div>
