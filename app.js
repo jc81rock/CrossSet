@@ -2194,6 +2194,11 @@ async function carregarIntegrantes() {
             <input id="integrante-telefone" type="tel" placeholder="(00) 00000-0000" />
           </label>
 
+          <label>
+            Chave Pix
+            <input id="integrante-chave-pix" type="text" placeholder="CPF, celular, e-mail ou chave aleatória" />
+          </label>
+
           <div class="acoes-integrante">
             <button class="btn-salvar-integrante-padrao" id="btn-salvar-integrante" type="button"><span class="icone-btn">✓</span><span>Salvar integrante</span></button>
             <button class="btn-whatsapp-padrao" id="btn-convidar-integrante" type="button" aria-label="Convidar pelo WhatsApp"><span class="icone-whatsapp-padrao" aria-hidden="true"><svg viewBox="0 0 32 32" focusable="false"><path d="M16.03 4.2c-6.46 0-11.72 5.1-11.72 11.38 0 2 .54 3.95 1.57 5.65L4.2 27.8l6.84-1.59a12.01 12.01 0 0 0 4.99 1.1c6.46 0 11.72-5.1 11.72-11.38S22.49 4.2 16.03 4.2Zm0 20.98c-1.6 0-3.17-.4-4.57-1.18l-.33-.18-3.92.91.96-3.72-.22-.36a9.36 9.36 0 0 1-1.43-4.98c0-5.1 4.27-9.25 9.51-9.25s9.51 4.15 9.51 9.25-4.27 9.51-9.51 9.51Zm5.24-6.93c-.29-.14-1.7-.82-1.96-.91-.26-.1-.45-.14-.64.14-.19.28-.74.91-.91 1.09-.17.19-.34.21-.62.07-.29-.14-1.21-.43-2.3-1.38-.85-.74-1.43-1.65-1.59-1.93-.17-.28-.02-.43.13-.57.13-.13.29-.34.43-.5.14-.17.19-.28.29-.47.1-.19.05-.35-.02-.5-.07-.14-.64-1.5-.88-2.05-.23-.55-.47-.47-.64-.48h-.55c-.19 0-.5.07-.76.35-.26.28-1 1-1 2.43s1.03 2.81 1.17 3c.14.19 2.03 3.02 4.92 4.23.69.29 1.22.46 1.64.59.69.21 1.31.18 1.8.11.55-.08 1.7-.68 1.94-1.34.24-.66.24-1.23.17-1.34-.07-.12-.26-.19-.55-.33Z"/></svg></span><span>Convidar pelo WhatsApp</span></button>
@@ -2534,7 +2539,8 @@ function obterDadosFormularioIntegrante() {
     instrumento: limparTexto(elemento("integrante-instrumento")?.value),
     administrador: elemento("integrante-administrador")?.value === "true",
     email: limparTexto(elemento("integrante-email")?.value),
-    telefone: limparTexto(elemento("integrante-telefone")?.value)
+    telefone: limparTexto(elemento("integrante-telefone")?.value),
+    chave_pix: limparTexto(elemento("integrante-chave-pix")?.value)
   };
 }
 
@@ -2549,6 +2555,10 @@ function preencherFormularioIntegrante(item) {
   elemento("integrante-administrador").value = item.administrador ? "true" : "false";
   elemento("integrante-email").value = item.email || "";
   elemento("integrante-telefone").value = item.telefone || "";
+  const campoChavePix = elemento("integrante-chave-pix");
+  if (campoChavePix) {
+    campoChavePix.value = item.chave_pix || "";
+  }
 
   const titulo = elemento("titulo-form-integrante");
   const botaoSalvar = elemento("btn-salvar-integrante");
@@ -2577,7 +2587,8 @@ function limparFormularioIntegrante() {
     "integrante-funcao",
     "integrante-instrumento",
     "integrante-email",
-    "integrante-telefone"
+    "integrante-telefone",
+    "integrante-chave-pix"
   ].forEach(function(id) {
     const campo = elemento(id);
 
@@ -2642,7 +2653,8 @@ async function salvarIntegrante() {
       instrumento: dados.instrumento,
       administrador: dados.administrador,
       email: dados.email,
-      telefone: dados.telefone
+      telefone: dados.telefone,
+      chave_pix: dados.chave_pix
     };
 
     resultado = await cliente
@@ -2661,7 +2673,8 @@ async function salvarIntegrante() {
       instrumento: dados.instrumento,
       administrador: dados.administrador,
       email: dados.email,
-      telefone: dados.telefone
+      telefone: dados.telefone,
+      chave_pix: dados.chave_pix
     };
 
     resultado = await cliente
@@ -6937,11 +6950,11 @@ function renderizarListaRepertorios() {
           </div>
 
           <div class="botoes-item-repertorio">
-            <button class="btn-montar-repertorio" type="button" title="Montar repertório" aria-label="Montar repertório" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
-            <button class="btn-editar-repertorio" type="button" title="Editar repertório" aria-label="Editar repertório" data-editar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
-            <button class="btn-compartilhar-repertorio" type="button" title="Compartilhar repertório" aria-label="Compartilhar repertório" data-compartilhar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg></button>
-            <button class="btn-pdf-repertorio" type="button" title="Gerar PDF" aria-label="Gerar PDF" data-pdf-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg></button>
-            <button class="btn-excluir-repertorio" type="button" title="Excluir repertório" aria-label="Excluir repertório" data-excluir-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+            <button class="btn-montar-repertorio" type="button" data-montar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span>Montar</span></button>
+            <button class="btn-editar-repertorio" type="button" data-editar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Editar</span></button>
+            <button class="btn-compartilhar-repertorio" type="button" data-compartilhar-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.7 6.8-4.4"/><path d="m8.6 13.3 6.8 4.4"/></svg><span>Compartilhar</span></button>
+            <button class="btn-pdf-repertorio" type="button" data-pdf-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6"/><path d="M9 18h4"/></svg><span>PDF</span></button>
+            <button class="btn-excluir-repertorio" type="button" data-excluir-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg><span>Excluir</span></button>
           </div>
         </div>
       </div>
