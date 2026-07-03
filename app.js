@@ -2414,6 +2414,7 @@ function renderizarListaIntegrantes() {
         item.instrumento,
         item.email,
         item.telefone,
+        item.chave_pix,
         item.administrador ? "administrador sim" : "administrador não"
       ].join(" ").toLowerCase();
 
@@ -2460,6 +2461,7 @@ function renderizarListaIntegrantes() {
             <p><strong>Instrumento:</strong> ${escaparHtml(item.instrumento || "Não informado")}</p>
             ${item.email ? `<p><strong>E-mail:</strong> ${escaparHtml(item.email)}</p>` : ""}
             ${item.telefone ? `<p><strong>Telefone:</strong> ${escaparHtml(item.telefone)}</p>` : ""}
+            ${item.chave_pix ? `<p><strong>Chave Pix:</strong> ${escaparHtml(item.chave_pix)}</p>` : ""}
             <span class="${item.administrador ? "tag-admin" : "tag-integrante"}">${tipoIntegrante}</span>
           </div>
           <div class="botoes-item-integrante">
@@ -2509,6 +2511,7 @@ function compartilharIntegrante(id) {
     "Projeto: " + (projeto.nome || "Projeto musical"),
     "Nome: " + (item.nome || "Sem nome"),
     "Função: " + (item.funcao || "Não informada"),
+    item.chave_pix ? "Chave Pix: " + item.chave_pix : "",
     "Perfil: " + (item.administrador ? "Administrador" : "Integrante"),
     "Desenvolvimento: " + dados.percentual + "%"
   ].join("\n");
