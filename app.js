@@ -1,7 +1,22 @@
 
-// Convite CrossSet: não limpar convite pendente durante retorno OAuth.
+// Auto-clear stale invite
 (function(){
-  window.__crosssetConviteOAuth = window.__crosssetConviteOAuth || {};
+ const h=window.location.hash||"";
+ if(!h.includes("convite=")){
+   ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+     try{localStorage.removeItem(k);}catch(e){}
+     try{sessionStorage.removeItem(k);}catch(e){}
+   });
+ }
+ window.addEventListener("hashchange",()=>{
+   const hh=window.location.hash||"";
+   if(!hh.includes("convite=")){
+     ["convitePendente","codigoConvitePendente","convite","inviteCode"].forEach(k=>{
+       try{localStorage.removeItem(k);}catch(e){}
+       try{sessionStorage.removeItem(k);}catch(e){}
+     });
+   }
+ });
 })();
 
 "use strict";
@@ -434,10 +449,8 @@ function salvarCodigoConvitePendente(codigo) {
     return "";
   }
 
-  ["convite_pendente", "codigoConvitePendente", "convitePendente", "inviteCode"].forEach(function(chave) {
-    try { localStorage.setItem(chave, codigoLimpo); } catch (erroLocal) {}
-    try { sessionStorage.setItem(chave, codigoLimpo); } catch (erroSessao) {}
-  });
+  try { localStorage.setItem("convite_pendente", codigoLimpo); } catch (erroLocal) {}
+  try { sessionStorage.setItem("convite_pendente", codigoLimpo); } catch (erroSessao) {}
 
   return codigoLimpo;
 }
@@ -449,23 +462,12 @@ function obterCodigoConvitePendente() {
     return salvarCodigoConvitePendente(codigoUrl);
   }
 
-  const chaves = ["convite_pendente", "codigoConvitePendente", "convitePendente", "inviteCode"];
-
-  for (const chave of chaves) {
-    const valor = limparTexto(localStorage.getItem(chave) || sessionStorage.getItem(chave) || "");
-    if (valor) {
-      return salvarCodigoConvitePendente(valor);
-    }
-  }
-
-  return "";
+  return limparTexto(localStorage.getItem("convite_pendente") || sessionStorage.getItem("convite_pendente") || "");
 }
 
 function limparConvitePendente() {
-  ["convite_pendente", "codigoConvitePendente", "convitePendente", "inviteCode"].forEach(function(chave) {
-    try { localStorage.removeItem(chave); } catch (erroLocal) {}
-    try { sessionStorage.removeItem(chave); } catch (erroSessao) {}
-  });
+  localStorage.removeItem("convite_pendente");
+  sessionStorage.removeItem("convite_pendente");
 
   const url = new URL(window.location.href);
   let mudou = false;
@@ -486,38 +488,33 @@ function limparConvitePendente() {
   }
 }
 
-function urlTemRetornoOAuth() {
-  const params = new URLSearchParams(window.location.search || "");
-  const hash = window.location.hash || "";
 
-  return (
-    params.has("code") ||
-    params.has("access_token") ||
-    params.has("refresh_token") ||
-    hash.includes("access_token=") ||
-    hash.includes("refresh_token=") ||
-    hash.includes("type=recovery")
-  );
-}
+async function aguardarSessaoSupabase(cliente, tempoMaximoMs = 7000) {
+  const inicio = Date.now();
 
-async function aguardarSessaoOAuth(cliente, tentativas = 18, intervaloMs = 300) {
-  if (!cliente) {
-    return null;
-  }
+  while (Date.now() - inicio < tempoMaximoMs) {
+    try {
+      const { data, error } = await cliente.auth.getSession();
 
-  for (let i = 0; i < tentativas; i += 1) {
-    const { data } = await cliente.auth.getSession();
-    if (data && data.session && data.session.user) {
-      return data.session;
+      if (!error && data && data.session) {
+        return data;
+      }
+    } catch (erro) {
+      console.warn("Aguardando sessão do Supabase...", erro);
     }
 
     await new Promise(function(resolve) {
-      setTimeout(resolve, intervaloMs);
+      setTimeout(resolve, 250);
     });
   }
 
-  const { data } = await cliente.auth.getSession();
-  return data && data.session ? data.session : null;
+  try {
+    const { data } = await cliente.auth.getSession();
+    return data || { session: null };
+  } catch (erroFinal) {
+    console.warn("Não foi possível recuperar sessão após OAuth.", erroFinal);
+    return { session: null };
+  }
 }
 
 async function verificarSessao() {
@@ -536,20 +533,11 @@ async function verificarSessao() {
 
   const codigoConvite = obterCodigoConvitePendente();
 
-  if (codigoConvite && urlTemRetornoOAuth()) {
-    const sessaoOAuth = await aguardarSessaoOAuth(cliente);
-    if (sessaoOAuth && sessaoOAuth.user) {
-      appState.sessao = sessaoOAuth;
-      appState.usuario = sessaoOAuth.user;
-      preencherUsuario(appState.usuario);
-      await carregarConvitePublico(codigoConvite);
-      return;
-    }
-  }
+  const data = codigoConvite
+    ? await aguardarSessaoSupabase(cliente, 7000)
+    : (await cliente.auth.getSession()).data;
 
-  const { data, error } = await cliente.auth.getSession();
-
-  if (!error && data && data.session) {
+  if (data && data.session) {
     appState.sessao = data.session;
     appState.usuario = data.session.user;
     preencherUsuario(appState.usuario);
@@ -585,15 +573,10 @@ async function entrarComGoogle() {
     return;
   }
 
-  const codigoConviteAntesOAuth = obterCodigoConvitePendente();
-  if (codigoConviteAntesOAuth) {
-    salvarCodigoConvitePendente(codigoConviteAntesOAuth);
-  }
-
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp,
+      redirectTo: obterCodigoConvitePendente() ? (window.location.origin + window.location.pathname + "?convite=" + encodeURIComponent(obterCodigoConvitePendente())) : (window.location.origin + window.location.pathname),
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -3195,8 +3178,7 @@ async function entrarComGmailEAceitarConvite() {
   const dados = obterDadosCadastroConvite();
 
   if (!dados.nome) {
-    alert("Informe seu nome antes de entrar com Gmail.");
-    return;
+    dados.nome = "";
   }
 
   salvarDadosConviteTemporario(convite.codigo, dados);
@@ -3205,7 +3187,7 @@ async function entrarComGmailEAceitarConvite() {
   const { data, error } = await cliente.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: REPERTORIO_FACIL.urlApp,
+      redirectTo: window.location.origin + window.location.pathname + "?convite=" + encodeURIComponent(convite.codigo),
       skipBrowserRedirect: true,
       queryParams: {
         prompt: "select_account"
@@ -3290,7 +3272,7 @@ async function criarContaEAceitarConvite() {
     email: email,
     password: senha,
     options: {
-      emailRedirectTo: REPERTORIO_FACIL.urlApp,
+      emailRedirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
       data: {
         nome: nome,
         full_name: nome,
@@ -9740,6 +9722,44 @@ async function restaurarProjetoAtual() {
   salvarProjetoConviteCache(data);
 }
 
+
+function configurarRecuperacaoConviteManual() {
+  const telaLogin = elemento("tela-login");
+
+  if (!telaLogin || elemento("btn-recuperar-convite")) {
+    return;
+  }
+
+  const card = telaLogin.querySelector(".card-login");
+
+  if (!card) {
+    return;
+  }
+
+  const botao = document.createElement("button");
+  botao.id = "btn-recuperar-convite";
+  botao.className = "botao-link";
+  botao.type = "button";
+  botao.textContent = "Tenho um código de convite";
+  botao.addEventListener("click", async function() {
+    const codigo = limparTexto(prompt("Cole o código do convite:"));
+
+    if (!codigo) {
+      return;
+    }
+
+    salvarCodigoConvitePendente(codigo);
+    await carregarConvitePublico(codigo);
+  });
+
+  const rodape = card.querySelector(".login-footer-interno");
+  if (rodape) {
+    card.insertBefore(botao, rodape);
+  } else {
+    card.appendChild(botao);
+  }
+}
+
 function configurarBotoesFixos() {
   const botaoGoogle = elemento("btn-google");
 
@@ -10123,6 +10143,7 @@ function configurarAprimoramentoCamposTexto() {
 
 function prepararAplicacao() {
   configurarBotoesFixos();
+  configurarRecuperacaoConviteManual();
   configurarEnterNosCampos();
   configurarAuthListener();
   configurarNavegacaoEnterGlobal();
@@ -10133,8 +10154,5 @@ document.addEventListener("DOMContentLoaded", async function() {
   prepararAplicacao();
 
   await verificarSessao();
-
-  if (!obterCodigoConvitePendente() && appState.telaAtual !== "tela-convite") {
-    await restaurarProjetoAtual();
-  }
+  await restaurarProjetoAtual();
 });
