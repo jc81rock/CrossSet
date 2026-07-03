@@ -6507,12 +6507,13 @@ async function carregarRepertorios() {
       }
 
 
-      /* Repertórios 2.0 - layout amplo de montagem */
+      /* Repertórios 2.0 - correção de largura: manter dentro do padrão do container */
       #card-form-repertorio.card-repertorio-expandido {
-        width: min(1420px, calc(100vw - 96px)) !important;
-        max-width: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
         margin: 0 auto !important;
-        overflow: visible !important;
+        overflow: hidden !important;
+        box-sizing: border-box !important;
       }
 
       #card-form-repertorio.card-repertorio-expandido > .tag,
@@ -6531,10 +6532,14 @@ async function carregarRepertorios() {
 
       .repertorio-builder {
         display: grid;
-        grid-template-columns: minmax(360px, 0.8fr) minmax(560px, 1.2fr);
+        grid-template-columns: minmax(300px, .9fr) minmax(0, 1.25fr);
         gap: 18px;
         align-items: stretch;
         width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: hidden;
+        box-sizing: border-box;
       }
 
       .repertorio-builder-card {
@@ -6543,7 +6548,9 @@ async function carregarRepertorios() {
         background: rgba(15,23,42,.45);
         padding: 18px;
         min-width: 0;
+        max-width: 100%;
         overflow: hidden;
+        box-sizing: border-box;
       }
 
       .repertorio-builder-card h3 {
@@ -6672,6 +6679,9 @@ async function carregarRepertorios() {
         border-radius: 13px;
         padding: 10px;
         background: rgba(255,255,255,.04);
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       .numero-setlist-final {
@@ -6690,6 +6700,7 @@ async function carregarRepertorios() {
         display: flex;
         align-items: center;
         gap: 6px;
+        flex: 0 0 auto;
       }
 
       .setlist-acoes-final button {
