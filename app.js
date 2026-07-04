@@ -3449,90 +3449,113 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     return;
   }
 
-  const statusConvite = limparTexto(convite.status).toLowerCase();
-  const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto"].includes(statusConvite);
+  const chaveAceite = String(projetoId) + "|" + String(usuario.id);
+  window.__crosssetConvitesEmProcessamento = window.__crosssetConvitesEmProcessamento || {};
 
-  const nomeUsuario = limparTexto(dadosPerfil.nome) || obterNomeUsuario(usuario);
-  const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
-  const funcaoUsuario = limparTexto(dadosPerfil.funcao) || "Integrante";
-  const instrumentoUsuario = limparTexto(dadosPerfil.instrumento);
-  const telefoneUsuario = limparTexto(dadosPerfil.telefone);
-
-  const { data: existente, error: erroBusca } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.integrantes)
-    .select("id")
-    .eq("projeto_id", projetoId)
-    .eq("usuario_id", usuario.id)
-    .maybeSingle();
-
-  if (erroBusca) {
-    alert("Erro ao verificar integrante: " + erroBusca.message);
+  if (window.__crosssetConvitesEmProcessamento[chaveAceite]) {
     return;
   }
 
-  let emailJaCadastrado = null;
-  if (emailUsuario) {
-    const { data: existenteEmail, error: erroEmail } = await cliente
+  window.__crosssetConvitesEmProcessamento[chaveAceite] = true;
+
+  try {
+    const statusConvite = limparTexto(convite.status).toLowerCase();
+    const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto", "aceito"].includes(statusConvite);
+
+    const nomeUsuario = limparTexto(dadosPerfil.nome) || obterNomeUsuario(usuario);
+    const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
+    const funcaoUsuario = limparTexto(dadosPerfil.funcao) || "Integrante";
+    const instrumentoUsuario = limparTexto(dadosPerfil.instrumento);
+    const telefoneUsuario = limparTexto(dadosPerfil.telefone);
+
+    const { data: existentesUsuario, error: erroBuscaUsuario } = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
       .select("id")
       .eq("projeto_id", projetoId)
-      .eq("email", emailUsuario)
-      .maybeSingle();
+      .eq("usuario_id", usuario.id)
+      .limit(1);
 
-    if (erroEmail) {
-      alert("Erro ao verificar e-mail do integrante: " + erroEmail.message);
+    if (erroBuscaUsuario) {
+      alert("Erro ao verificar integrante: " + erroBuscaUsuario.message);
       return;
     }
 
-    emailJaCadastrado = existenteEmail;
-  }
+    let existentesEmail = [];
+    if (emailUsuario) {
+      const resultadoEmail = await cliente
+        .from(REPERTORIO_FACIL.tabelas.integrantes)
+        .select("id")
+        .eq("projeto_id", projetoId)
+        .eq("email", emailUsuario)
+        .limit(1);
 
-  // Se o integrante já existe no projeto, não bloqueia o fluxo.
-  // Apenas entra direto no projeto, que é o comportamento aprovado para convites.
-  if (existente || emailJaCadastrado) {
+      if (resultadoEmail.error) {
+        alert("Erro ao verificar e-mail do integrante: " + resultadoEmail.error.message);
+        return;
+      }
+
+      existentesEmail = resultadoEmail.data || [];
+    }
+
+    // Se já existe qualquer vínculo desse usuário/e-mail no projeto, entra direto sem duplicar.
+    if ((existentesUsuario || []).length > 0 || existentesEmail.length > 0) {
+      await abrirProjetoDoConvite(projetoId, nomeProjeto);
+      return;
+    }
+
+    if (conviteBloqueado) {
+      alert("Este convite não está mais disponível.");
+      return;
+    }
+
+    // Conferência final imediatamente antes do INSERT, para evitar duplicação por chamadas repetidas do login/OAuth.
+    const { data: conferenciaFinal, error: erroConferenciaFinal } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .select("id")
+      .eq("projeto_id", projetoId)
+      .eq("usuario_id", usuario.id)
+      .limit(1);
+
+    if (erroConferenciaFinal) {
+      alert("Erro ao confirmar integrante: " + erroConferenciaFinal.message);
+      return;
+    }
+
+    if ((conferenciaFinal || []).length > 0) {
+      await abrirProjetoDoConvite(projetoId, nomeProjeto);
+      return;
+    }
+
+    const { error: erroInserir } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .insert({
+        projeto_id: projetoId,
+        usuario_id: usuario.id,
+        nome: nomeUsuario,
+        funcao: funcaoUsuario,
+        instrumento: instrumentoUsuario,
+        administrador: convite.papel === "administrador",
+        email: emailUsuario,
+        telefone: telefoneUsuario
+      });
+
+    if (erroInserir) {
+      // Se o banco já bloqueou duplicidade, o usuário já está vinculado. Entra no projeto sem erro.
+      if (erroInserir.code === "23505") {
+        await abrirProjetoDoConvite(projetoId, nomeProjeto);
+        return;
+      }
+
+      alert("Erro ao aceitar convite: " + erroInserir.message);
+      return;
+    }
+
+    // Convite de projeto é reutilizável: não marcar como "aceito" nem encerrar o link.
+    // A proteção contra duplicidade fica por usuário + projeto, não por uso do link.
     await abrirProjetoDoConvite(projetoId, nomeProjeto);
-    return;
+  } finally {
+    delete window.__crosssetConvitesEmProcessamento[chaveAceite];
   }
-
-  if (conviteBloqueado) {
-    alert("Este convite já foi utilizado ou não está mais disponível.");
-    return;
-  }
-
-  const { error: erroInserir } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.integrantes)
-    .insert({
-      projeto_id: projetoId,
-      usuario_id: usuario.id,
-      nome: nomeUsuario,
-      funcao: funcaoUsuario,
-      instrumento: instrumentoUsuario,
-      administrador: convite.papel === "administrador",
-      email: emailUsuario,
-      telefone: telefoneUsuario
-    });
-
-  if (erroInserir) {
-    alert("Erro ao aceitar convite: " + erroInserir.message);
-    return;
-  }
-
-  const atualizacaoConvite = {
-    status: "aceito",
-    aceito_em: new Date().toISOString(),
-    aceito_por: usuario.id
-  };
-
-  const { error: erroAtualizarConvite } = await cliente
-    .from(REPERTORIO_FACIL.tabelas.convites)
-    .update(atualizacaoConvite)
-    .eq("id", convite.id);
-
-  if (erroAtualizarConvite) {
-    console.warn("Cadastro salvo, mas não foi possível marcar o convite como aceito.", erroAtualizarConvite);
-  }
-
-  await abrirProjetoDoConvite(projetoId, nomeProjeto);
 }
 
 async function carregarMusicas() {
