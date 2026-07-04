@@ -3449,120 +3449,90 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     return;
   }
 
-  const chaveAceite = String(projetoId) + "|" + String(usuario.id);
-  window.__crosssetConvitesEmProcessamento = window.__crosssetConvitesEmProcessamento || {};
+  const statusConvite = limparTexto(convite.status).toLowerCase();
+  const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto"].includes(statusConvite);
 
-  if (window.__crosssetConvitesEmProcessamento[chaveAceite]) {
+  const nomeUsuario = limparTexto(dadosPerfil.nome) || obterNomeUsuario(usuario);
+  const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
+  const funcaoUsuario = limparTexto(dadosPerfil.funcao) || "Integrante";
+  const instrumentoUsuario = limparTexto(dadosPerfil.instrumento);
+  const telefoneUsuario = limparTexto(dadosPerfil.telefone);
+
+  const { data: existente, error: erroBusca } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .select("id")
+    .eq("projeto_id", projetoId)
+    .eq("usuario_id", usuario.id)
+    .maybeSingle();
+
+  if (erroBusca) {
+    alert("Erro ao verificar integrante: " + erroBusca.message);
     return;
   }
 
-  window.__crosssetConvitesEmProcessamento[chaveAceite] = true;
-
-  try {
-    const statusConvite = limparTexto(convite.status).toLowerCase();
-    const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto", "aceito"].includes(statusConvite);
-
-    const nomeUsuario = limparTexto(dadosPerfil.nome) || obterNomeUsuario(usuario);
-    const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
-    const funcaoUsuario = limparTexto(dadosPerfil.funcao) || "Integrante";
-    const instrumentoUsuario = limparTexto(dadosPerfil.instrumento);
-    const telefoneUsuario = limparTexto(dadosPerfil.telefone);
-
-    const { data: existentes, error: erroBusca } = await cliente
+  let emailJaCadastrado = null;
+  if (emailUsuario) {
+    const { data: existenteEmail, error: erroEmail } = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
       .select("id")
       .eq("projeto_id", projetoId)
-      .eq("usuario_id", usuario.id)
-      .limit(1);
+      .eq("email", emailUsuario)
+      .maybeSingle();
 
-    if (erroBusca) {
-      alert("Erro ao verificar integrante: " + erroBusca.message);
+    if (erroEmail) {
+      alert("Erro ao verificar e-mail do integrante: " + erroEmail.message);
       return;
     }
 
-    let emailJaCadastrado = [];
-    if (emailUsuario) {
-      const { data: existentesEmail, error: erroEmail } = await cliente
-        .from(REPERTORIO_FACIL.tabelas.integrantes)
-        .select("id")
-        .eq("projeto_id", projetoId)
-        .eq("email", emailUsuario)
-        .limit(1);
-
-      if (erroEmail) {
-        alert("Erro ao verificar e-mail do integrante: " + erroEmail.message);
-        return;
-      }
-
-      emailJaCadastrado = existentesEmail || [];
-    }
-
-    // Se o integrante já existe no projeto, não cria outro registro.
-    if ((existentes || []).length > 0 || emailJaCadastrado.length > 0) {
-      await abrirProjetoDoConvite(projetoId, nomeProjeto);
-      return;
-    }
-
-    if (conviteBloqueado) {
-      alert("Este convite já foi utilizado ou não está mais disponível.");
-      return;
-    }
-
-    // Verificação final antes do INSERT para impedir duplicação por chamadas repetidas do OAuth/login.
-    const { data: conferenciaFinal, error: erroConferenciaFinal } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .select("id")
-      .eq("projeto_id", projetoId)
-      .eq("usuario_id", usuario.id)
-      .limit(1);
-
-    if (erroConferenciaFinal) {
-      alert("Erro ao confirmar integrante: " + erroConferenciaFinal.message);
-      return;
-    }
-
-    if ((conferenciaFinal || []).length > 0) {
-      await abrirProjetoDoConvite(projetoId, nomeProjeto);
-      return;
-    }
-
-    const { error: erroInserir } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .insert({
-        projeto_id: projetoId,
-        usuario_id: usuario.id,
-        nome: nomeUsuario,
-        funcao: funcaoUsuario,
-        instrumento: instrumentoUsuario,
-        administrador: convite.papel === "administrador",
-        email: emailUsuario,
-        telefone: telefoneUsuario
-      });
-
-    if (erroInserir) {
-      alert("Erro ao aceitar convite: " + erroInserir.message);
-      return;
-    }
-
-    const atualizacaoConvite = {
-      status: "aceito",
-      aceito_em: new Date().toISOString(),
-      aceito_por: usuario.id
-    };
-
-    const { error: erroAtualizarConvite } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.convites)
-      .update(atualizacaoConvite)
-      .eq("id", convite.id);
-
-    if (erroAtualizarConvite) {
-      console.warn("Cadastro salvo, mas não foi possível marcar o convite como aceito.", erroAtualizarConvite);
-    }
-
-    await abrirProjetoDoConvite(projetoId, nomeProjeto);
-  } finally {
-    delete window.__crosssetConvitesEmProcessamento[chaveAceite];
+    emailJaCadastrado = existenteEmail;
   }
+
+  // Se o integrante já existe no projeto, não bloqueia o fluxo.
+  // Apenas entra direto no projeto, que é o comportamento aprovado para convites.
+  if (existente || emailJaCadastrado) {
+    await abrirProjetoDoConvite(projetoId, nomeProjeto);
+    return;
+  }
+
+  if (conviteBloqueado) {
+    alert("Este convite já foi utilizado ou não está mais disponível.");
+    return;
+  }
+
+  const { error: erroInserir } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .insert({
+      projeto_id: projetoId,
+      usuario_id: usuario.id,
+      nome: nomeUsuario,
+      funcao: funcaoUsuario,
+      instrumento: instrumentoUsuario,
+      administrador: convite.papel === "administrador",
+      email: emailUsuario,
+      telefone: telefoneUsuario
+    });
+
+  if (erroInserir) {
+    alert("Erro ao aceitar convite: " + erroInserir.message);
+    return;
+  }
+
+  const atualizacaoConvite = {
+    status: "aceito",
+    aceito_em: new Date().toISOString(),
+    aceito_por: usuario.id
+  };
+
+  const { error: erroAtualizarConvite } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.convites)
+    .update(atualizacaoConvite)
+    .eq("id", convite.id);
+
+  if (erroAtualizarConvite) {
+    console.warn("Cadastro salvo, mas não foi possível marcar o convite como aceito.", erroAtualizarConvite);
+  }
+
+  await abrirProjetoDoConvite(projetoId, nomeProjeto);
 }
 
 async function carregarMusicas() {
@@ -6864,7 +6834,7 @@ async function carregarRepertorios() {
         <div class="form-repertorios">
           <label>
             Nome do repertório
-            <input id="repertorio-nome" type="text" placeholder="Ex: Cicranos Rock 2026" />
+            <input id="repertorio-nome" type="text" placeholder="Ex: Show na Praça" />
           </label>
 
           <label>
@@ -9389,7 +9359,7 @@ async function carregarEventos() {
         <div class="form-eventos">
           <label>
             Nome do evento
-            <input id="evento-nome" type="text" placeholder="Ex: Show de Sábado" />
+            <input id="evento-nome" type="text" placeholder="Ex: Festa Pinga Óleo MC" />
           </label>
 
           <div class="linha-form-eventos">
@@ -9406,13 +9376,13 @@ async function carregarEventos() {
 
           <label>
             Local
-            <input id="evento-local" type="text" placeholder="Ex: Espaço Cultural" />
+            <input id="evento-local" type="text" placeholder="Ex: Águias do Sol MC" />
           </label>
 
           <div class="linha-form-eventos">
             <label>
               Cidade
-              <input id="evento-cidade" type="text" placeholder="Ex: Campinas" />
+              <input id="evento-cidade" type="text" placeholder="Ex: Diadema" />
             </label>
 
             <label>
@@ -9440,7 +9410,7 @@ async function carregarEventos() {
 
           <label>
             Observações
-            <textarea id="evento-observacoes" placeholder="Ex: Levar extensão e retorno"></textarea>
+            <textarea id="evento-observacoes" placeholder="Ex: Chegar às 18h para passagem de som"></textarea>
           </label>
 
           <div class="acoes-evento">
