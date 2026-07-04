@@ -754,25 +754,84 @@ async function carregarProjetos() {
     return;
   }
 
-  const { data, error } = await cliente
+  const { data: projetosDono, error: erroProjetosDono } = await cliente
     .from(REPERTORIO_FACIL.tabelas.projetos)
     .select("*")
     .eq("usuario_id", usuario.id)
     .order("created_at", { ascending: false });
 
-  if (error) {
+  if (erroProjetosDono) {
     grid.innerHTML = `
       <div class="card-projeto">
         <h3>Erro ao carregar</h3>
-        <p>${escaparHtml(error.message)}</p>
+        <p>${escaparHtml(erroProjetosDono.message)}</p>
       </div>
     `;
     return;
   }
 
-  montarListaProjetos(data || []);
-}
+  const { data: vinculos, error: erroVinculos } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.integrantes)
+    .select("projeto_id")
+    .eq("usuario_id", usuario.id);
 
+  if (erroVinculos) {
+    grid.innerHTML = `
+      <div class="card-projeto">
+        <h3>Erro ao carregar projetos vinculados</h3>
+        <p>${escaparHtml(erroVinculos.message)}</p>
+      </div>
+    `;
+    return;
+  }
+
+  const idsProjetosComoIntegrante = Array.from(new Set((vinculos || [])
+    .map(function(vinculo) { return vinculo.projeto_id; })
+    .filter(Boolean)
+  ));
+
+  let projetosIntegrante = [];
+
+  if (idsProjetosComoIntegrante.length > 0) {
+    const { data: projetosVinculados, error: erroProjetosVinculados } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.projetos)
+      .select("*")
+      .in("id", idsProjetosComoIntegrante)
+      .order("created_at", { ascending: false });
+
+    if (erroProjetosVinculados) {
+      grid.innerHTML = `
+        <div class="card-projeto">
+          <h3>Erro ao carregar projetos vinculados</h3>
+          <p>${escaparHtml(erroProjetosVinculados.message)}</p>
+        </div>
+      `;
+      return;
+    }
+
+    projetosIntegrante = projetosVinculados || [];
+  }
+
+  const projetosPorId = new Map();
+
+  (projetosIntegrante || []).forEach(function(projeto) {
+    if (projeto && projeto.id) {
+      projetosPorId.set(projeto.id, Object.assign({}, projeto, { _crossset_dono: projeto.usuario_id === usuario.id }));
+    }
+  });
+
+  (projetosDono || []).forEach(function(projeto) {
+    if (projeto && projeto.id) {
+      projetosPorId.set(projeto.id, Object.assign({}, projeto, { _crossset_dono: true }));
+    }
+  });
+
+  const listaFinal = Array.from(projetosPorId.values()).sort(function(a, b) {
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
+
+  montarListaProjetos(listaFinal);
+}
 function montarListaProjetos(lista) {
   const grid = elemento("lista-projetos") || document.querySelector(".grid-projetos");
 
@@ -796,8 +855,7 @@ function montarListaProjetos(lista) {
   const textoBotao = lista.length === 1 ? "Entrar no Projeto" : "Acessar Projeto";
 
   lista.forEach(function(projeto) {
-    grid.innerHTML += `
-      <div class="card-projeto projeto-item" style="position:relative;">
+    const botaoExcluirProjeto = projeto._crossset_dono === false ? "" : `
         <button class="btn-excluir-projeto" type="button" title="Excluir projeto" aria-label="Excluir projeto" data-excluir-projeto="${escaparHtml(projeto.id)}" style="position:absolute;top:14px;right:14px;width:28px;height:28px;border:0;background:transparent;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" style="width:18px;height:18px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;">
             <path d="M3 6h18"></path>
@@ -806,7 +864,11 @@ function montarListaProjetos(lista) {
             <path d="M10 11v6"></path>
             <path d="M14 11v6"></path>
           </svg>
-        </button>
+        </button>`;
+
+    grid.innerHTML += `
+      <div class="card-projeto projeto-item" style="position:relative;">
+        ${botaoExcluirProjeto}
         <div class="projeto-item-conteudo">
           <span class="tag">${escaparHtml(projeto.tipo || "Projeto")}</span>
           <h3>${escaparHtml(projeto.nome || "Sem nome")}</h3>
@@ -6857,7 +6919,7 @@ async function carregarRepertorios() {
         <div class="form-repertorios">
           <label>
             Nome do repertório
-            <input id="repertorio-nome" type="text" placeholder="Ex: Cicranos Rock 2026" />
+            <input id="repertorio-nome" type="text" placeholder="Ex: Show na Praça" />
           </label>
 
           <label>
