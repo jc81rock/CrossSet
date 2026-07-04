@@ -6834,7 +6834,7 @@ async function carregarRepertorios() {
         <div class="form-repertorios">
           <label>
             Nome do repertório
-            <input id="repertorio-nome" type="text" placeholder="Ex: Show na Praça" />
+            <input id="repertorio-nome" type="text" placeholder="Ex: Cicranos Rock 2026" />
           </label>
 
           <label>
