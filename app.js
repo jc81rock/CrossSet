@@ -9389,7 +9389,7 @@ async function carregarEventos() {
         <div class="form-eventos">
           <label>
             Nome do evento
-            <input id="evento-nome" type="text" placeholder="Ex: Festa Pinga Óleo MC" />
+            <input id="evento-nome" type="text" placeholder="Ex: Show de Sábado" />
           </label>
 
           <div class="linha-form-eventos">
@@ -9406,13 +9406,13 @@ async function carregarEventos() {
 
           <label>
             Local
-            <input id="evento-local" type="text" placeholder="Ex: Águias do Sol MC" />
+            <input id="evento-local" type="text" placeholder="Ex: Espaço Cultural" />
           </label>
 
           <div class="linha-form-eventos">
             <label>
               Cidade
-              <input id="evento-cidade" type="text" placeholder="Ex: Diadema" />
+              <input id="evento-cidade" type="text" placeholder="Ex: Campinas" />
             </label>
 
             <label>
@@ -9440,7 +9440,7 @@ async function carregarEventos() {
 
           <label>
             Observações
-            <textarea id="evento-observacoes" placeholder="Ex: Chegar às 18h para passagem de som"></textarea>
+            <textarea id="evento-observacoes" placeholder="Ex: Levar extensão e retorno"></textarea>
           </label>
 
           <div class="acoes-evento">
