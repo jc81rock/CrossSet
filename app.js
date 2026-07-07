@@ -9980,6 +9980,8 @@ async function restaurarProjetoAtual() {
 
 
 function configurarRecuperacaoConviteManual() {
+  return;
+
   const telaLogin = elemento("tela-login");
 
   if (!telaLogin || elemento("btn-recuperar-convite")) {
