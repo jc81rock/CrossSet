@@ -2750,7 +2750,13 @@ async function salvarIntegrante() {
   }
 
   if (resultado.error) {
-    alert("Erro ao salvar integrante: " + resultado.error.message);
+    const msg=(resultado.error.message||"").toLowerCase();
+    if(msg.includes("integrantes_projeto_usuario_unico")||msg.includes("duplicate key")){
+      alert("Este usuário já faz parte deste projeto.");
+    }else{
+      console.error(resultado.error);
+      alert("Não foi possível salvar o integrante. Tente novamente.");
+    }
     return;
   }
 
