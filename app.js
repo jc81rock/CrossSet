@@ -3615,7 +3615,8 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
       .limit(1);
 
     if (erroConferenciaFinal) {
-      alert("Erro ao confirmar integrante: " + erroConferenciaFinal.message);
+      console.error("Erro ao confirmar integrante no convite:", erroConferenciaFinal);
+      alert("Não foi possível confirmar sua entrada no projeto agora. Tente novamente.");
       return;
     }
 
@@ -3644,7 +3645,8 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
         return;
       }
 
-      alert("Erro ao aceitar convite: " + erroInserir.message);
+      console.error("Erro ao aceitar convite:", erroInserir);
+      alert("Não foi possível aceitar o convite agora. Tente novamente.");
       return;
     }
 
