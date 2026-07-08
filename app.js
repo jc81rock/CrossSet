@@ -2730,9 +2730,35 @@ async function salvarIntegrante() {
       .select("*")
       .maybeSingle();
   } else {
+    const emailUsuarioLogado = limparTexto(usuario.email).toLowerCase();
+    const emailIntegrante = limparTexto(dados.email).toLowerCase();
+    const usuarioIdIntegrante = emailIntegrante && emailUsuarioLogado && emailIntegrante === emailUsuarioLogado
+      ? usuario.id
+      : null;
+
+    if (usuarioIdIntegrante) {
+      const { data: integranteExistente, error: erroVerificarIntegrante } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.integrantes)
+        .select("id")
+        .eq("projeto_id", projetoId)
+        .eq("usuario_id", usuarioIdIntegrante)
+        .maybeSingle();
+
+      if (erroVerificarIntegrante) {
+        console.error("Erro ao verificar integrante existente:", erroVerificarIntegrante);
+        alert("Não foi possível verificar este integrante agora. Tente novamente.");
+        return;
+      }
+
+      if (integranteExistente) {
+        alert("Este usuário já faz parte deste projeto. Use a opção editar para alterar os dados dele.");
+        return;
+      }
+    }
+
     const payloadNovo = {
       projeto_id: projetoId,
-      usuario_id: usuario.id,
+      usuario_id: usuarioIdIntegrante,
       nome: dados.nome,
       funcao: dados.funcao,
       instrumento: dados.instrumento,
@@ -2750,7 +2776,17 @@ async function salvarIntegrante() {
   }
 
   if (resultado.error) {
-    alert("Erro ao salvar integrante: " + resultado.error.message);
+    console.error("Erro ao salvar integrante:", resultado.error);
+
+    const mensagemErro = limparTexto(resultado.error.message).toLowerCase();
+    const codigoErro = limparTexto(resultado.error.code);
+
+    if (codigoErro === "23505" || mensagemErro.includes("integrantes_projeto_usuario_unico") || mensagemErro.includes("duplicate key")) {
+      alert("Este usuário já faz parte deste projeto. Use a opção editar para alterar os dados dele.");
+      return;
+    }
+
+    alert("Não foi possível salvar o integrante agora. Verifique os dados e tente novamente.");
     return;
   }
 
@@ -9980,8 +10016,6 @@ async function restaurarProjetoAtual() {
 
 
 function configurarRecuperacaoConviteManual() {
-  return;
-
   const telaLogin = elemento("tela-login");
 
   if (!telaLogin || elemento("btn-recuperar-convite")) {
