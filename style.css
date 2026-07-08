@@ -1825,3 +1825,51 @@ button#btn-convidar-integrante::after,
     gap: 6px !important;
   }
 }
+
+/* CrossSet Fix Mobile v1.0 - Menu inferior alinhado no celular
+   Ajuste somente visual: centralização vertical dos textos do menu.
+   Não altera HTML, JS, banco, login, convites ou módulos funcionais. */
+.menu-inferior,
+#tela-painel-projeto .menu-inferior,
+#tela-projetos .menu-inferior {
+  align-items: center !important;
+}
+
+.menu-inferior button,
+.menu-inferior a,
+#tela-painel-projeto .menu-inferior button,
+#tela-painel-projeto .menu-inferior a,
+#tela-projetos .menu-inferior button,
+#tela-projetos .menu-inferior a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  white-space: nowrap !important;
+}
+
+@media (max-width: 520px) {
+  .menu-inferior,
+  #tela-painel-projeto .menu-inferior,
+  #tela-projetos .menu-inferior {
+    width: calc(100% - 28px) !important;
+    max-width: 520px !important;
+    gap: 2px !important;
+    padding: 8px !important;
+  }
+
+  .menu-inferior button,
+  .menu-inferior a,
+  #tela-painel-projeto .menu-inferior button,
+  #tela-painel-projeto .menu-inferior a,
+  #tela-projetos .menu-inferior button,
+  #tela-projetos .menu-inferior a {
+    min-height: 42px !important;
+    height: 42px !important;
+    font-size: 13px !important;
+    border-radius: 15px !important;
+  }
+}
