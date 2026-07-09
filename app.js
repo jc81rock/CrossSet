@@ -3899,6 +3899,19 @@ async function carregarMusicas() {
         text-decoration: underline;
       }
 
+      .musica-observacoes-card {
+        margin: 4px 0 0 29px;
+        font-size: 11.5px;
+        line-height: 1.3;
+        color: #cbd5e1;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+
+      .musica-observacoes-card strong {
+        color: #ffffff;
+      }
+
       .ajuda-campo-musica {
         display: none;
       }
@@ -4775,8 +4788,8 @@ async function carregarMusicas() {
           </label>
 
           <label>
-            Observações
-            <textarea id="musica-observacoes" placeholder="Observações gerais"></textarea>
+            OBS:
+            <textarea id="musica-observacoes" placeholder="Ex.: Versão acústica, capotraste na 2ª casa."></textarea>
           </label>
 
           <input id="musica-material-arquivo" type="file" style="display:none;" />
@@ -5346,6 +5359,20 @@ function montarUrlReferenciaMusica(item) {
   return linhas.join("");
 }
 
+function montarObservacoesMusica(item) {
+  const texto = limparTexto(item?.observacoes || "");
+
+  if (!texto) {
+    return "";
+  }
+
+  return `
+    <div class="musica-observacoes-card">
+      <strong>Obs.:</strong> ${escaparHtml(texto).replaceAll("\n", "<br>")}
+    </div>
+  `;
+}
+
 function encontrarMeuIntegranteNoProjeto(integrantes, usuario) {
   if (!usuario) {
     return null;
@@ -5698,6 +5725,7 @@ function renderizarListaMusicas() {
           <span class="preparacao-inline-musica">${montarPreparacaoLinhaMusica(item.id)}</span>
         </div>
         ${montarUrlReferenciaMusica(item)}
+        ${montarObservacoesMusica(item)}
         ${appState.musicaProgressoEditandoId === item.id ? montarPainelMeuProgressoEdicao(item.id) : ""}
       </div>
     `;
