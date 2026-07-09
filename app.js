@@ -3899,16 +3899,16 @@ async function carregarMusicas() {
         text-decoration: underline;
       }
 
-      .musica-observacoes-card {
+      .musica-observacao-manual {
         margin: 4px 0 0 29px;
+        color: #d1d5db;
         font-size: 11.5px;
         line-height: 1.3;
-        color: #cbd5e1;
         white-space: normal;
-        overflow-wrap: anywhere;
+        overflow: visible;
       }
 
-      .musica-observacoes-card strong {
+      .musica-observacao-manual strong {
         color: #ffffff;
       }
 
@@ -4789,7 +4789,7 @@ async function carregarMusicas() {
 
           <label>
             OBS:
-            <textarea id="musica-observacoes" placeholder="Ex.: Versão acústica, capotraste na 2ª casa."></textarea>
+            <textarea id="musica-observacoes" placeholder="Ex.: Instruções para esta música."></textarea>
           </label>
 
           <input id="musica-material-arquivo" type="file" style="display:none;" />
@@ -5144,6 +5144,7 @@ function mostrarPreviewSmartMusica(musica) {
       <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("bpm")} BPM (opcional)</span><input id="smart-musica-bpm" type="number" inputmode="numeric" min="0" placeholder="Ex: 120" value="${escaparHtml(musica.bpm || "")}" /></label>
       <label class="crossset-smart-campo-opcional url-versao"><span>URL da versão</span><input id="smart-musica-url-referencia" type="url" placeholder="Cole aqui o link da versão que a banda irá estudar" value="${escaparHtml(musica.url_referencia || musica.link_url || "")}" /></label>
       <label class="crossset-smart-campo-opcional url-versao"><span>URL do YouTube (opcional)</span><input id="smart-musica-youtube-url" type="url" placeholder="Cole aqui o link do YouTube" value="${escaparHtml(musica.youtube_url || "")}" /></label>
+      <label class="crossset-smart-campo-opcional url-versao"><span>OBS:</span><input id="smart-musica-observacoes" type="text" placeholder="Ex.: Instruções para esta música." value="${escaparHtml(obterObservacaoMusicaManual(musica))}" /></label>
     </div>
     <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
   `;
@@ -5180,12 +5181,7 @@ async function salvarMusicaSmart(musica) {
     return;
   }
   const bpmNumero = parseInt(bpmInformado, 10);
-  const observacoesSmart = [
-    musica.album ? "Álbum: " + musica.album : "",
-    musica.ano ? "Ano: " + musica.ano : "",
-    musica.duracao ? "Duração: " + musica.duracao : "",
-    musica.origem ? "Origem: " + musica.origem : ""
-  ].filter(Boolean).join("\n");
+  const observacoesSmart = limparTexto(elemento("smart-musica-observacoes")?.value || "");
 
   const payload = {
     projeto_id: projetoId,
@@ -5359,18 +5355,35 @@ function montarUrlReferenciaMusica(item) {
   return linhas.join("");
 }
 
-function montarObservacoesMusica(item) {
+function obterObservacaoMusicaManual(item) {
   const texto = limparTexto(item?.observacoes || "");
 
   if (!texto) {
     return "";
   }
 
-  return `
-    <div class="musica-observacoes-card">
-      <strong>Obs.:</strong> ${escaparHtml(texto).replaceAll("\n", "<br>")}
-    </div>
-  `;
+  const linhas = texto
+    .split(/\r?\n/)
+    .map(function(linha) { return limparTexto(linha); })
+    .filter(Boolean);
+
+  if (linhas.length > 0 && linhas.every(function(linha) {
+    return /^(álbum|album|ano|duração|duracao|origem):/i.test(linha);
+  })) {
+    return "";
+  }
+
+  return texto;
+}
+
+function montarObservacoesMusica(item) {
+  const observacao = obterObservacaoMusicaManual(item);
+
+  if (!observacao) {
+    return "";
+  }
+
+  return `<div class="musica-observacao-manual"><strong>OBS:</strong> ${escaparHtml(observacao).replaceAll("\n", "<br>")}</div>`;
 }
 
 function encontrarMeuIntegranteNoProjeto(integrantes, usuario) {
@@ -5854,7 +5867,8 @@ async function compartilharMusica(musicaId) {
     musica.tom ? "Tom: " + musica.tom : "",
     musica.bpm ? "BPM: " + musica.bpm : "",
     obterLinkMusica(musica) ? "Link: " + obterLinkMusica(musica) : "",
-    musica.youtube_url ? "YouTube: " + musica.youtube_url : ""
+    musica.youtube_url ? "YouTube: " + musica.youtube_url : "",
+    obterObservacaoMusicaManual(musica) ? "OBS: " + obterObservacaoMusicaManual(musica) : ""
   ].filter(Boolean);
 
   await compartilharConteudo("Música - " + (musica.nome || "Música"), linhas.join("\n"), obterLinkMusica(musica));
@@ -5878,7 +5892,7 @@ function gerarPDFDaMusica(musicaId) {
   }
 
   const letra = escaparHtml(musica.letra || "").replaceAll("\n", "<br>");
-  const observacoes = escaparHtml(musica.observacoes || "").replaceAll("\n", "<br>");
+  const observacoes = escaparHtml(obterObservacaoMusicaManual(musica)).replaceAll("\n", "<br>");
 
   janela.document.write(`
     <html>
@@ -6089,7 +6103,7 @@ function preencherFormularioMusica(item) {
     elemento("musica-youtube-url").value = ehUrlYoutube(item.youtube_url) ? item.youtube_url : "";
   }
   elemento("musica-letra").value = item.letra || "";
-  elemento("musica-observacoes").value = item.observacoes || "";
+  elemento("musica-observacoes").value = obterObservacaoMusicaManual(item);
 
   atualizarExibicaoArquivoAtual("musica-material-arquivo-atual", obterArquivoMaterialMusica(item), "Abrir material musical");
   atualizarExibicaoArquivoAtual("musica-letra-arquivo-atual", obterArquivoLetraMusica(item), "Abrir letra");
