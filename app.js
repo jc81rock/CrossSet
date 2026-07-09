@@ -4662,14 +4662,14 @@ async function carregarMusicas() {
       }
 
       .musica-campo-obs-rapido {
-        flex: 1 1 260px !important;
-        min-width: 240px !important;
+        flex: 0 0 150px !important;
+        min-width: 150px !important;
       }
 
       .input-musica-obs-rapido {
-        width: 260px !important;
-        min-width: 220px !important;
-        max-width: 420px !important;
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: 150px !important;
         height: 22px !important;
         min-height: 22px !important;
         padding: 2px 6px !important;
