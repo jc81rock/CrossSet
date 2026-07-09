@@ -3912,6 +3912,32 @@ async function carregarMusicas() {
         color: #ffffff;
       }
 
+      .musica-observacao-editavel {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        width: calc(100% - 29px) !important;
+        max-width: calc(100% - 29px) !important;
+      }
+
+      .input-musica-obs-linha {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
+        border-radius: 7px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        color: #ffffff !important;
+        background: #050b14 !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+        box-sizing: border-box !important;
+      }
+
       .ajuda-campo-musica {
         display: none;
       }
@@ -4372,7 +4398,7 @@ async function carregarMusicas() {
       .acoes-icone-musica {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
         flex: 0 0 auto;
       }
 
@@ -4592,23 +4618,6 @@ async function carregarMusicas() {
 
 
       /* CrossSet v1.0 - refinamento final músicas: campos compactos + ícones brancos */
-      .card-lista-musicas-smart,
-      .card-lista-musicas-smart .lista-musicas,
-      .card-lista-musicas-smart .item-musica {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
-      .card-lista-musicas-smart .item-musica {
-        overflow: hidden !important;
-      }
-
-      .card-lista-musicas-smart .musica-linha-principal,
-      .card-lista-musicas-smart .musica-linha-meta {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-      }
-
       .musica-campos-rapidos {
         display: inline-flex !important;
         align-items: center !important;
@@ -4666,6 +4675,27 @@ async function carregarMusicas() {
         width: 180px !important;
         min-width: 150px !important;
         max-width: 240px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
+        border-radius: 7px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        color: #ffffff !important;
+        background: #050b14 !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+      }
+
+      .musica-campo-obs-rapido {
+        flex: 0 0 150px !important;
+        min-width: 150px !important;
+      }
+
+      .input-musica-obs-rapido {
+        width: 150px !important;
+        min-width: 150px !important;
+        max-width: 150px !important;
         height: 22px !important;
         min-height: 22px !important;
         padding: 2px 6px !important;
@@ -5396,11 +5426,12 @@ function obterObservacaoMusicaManual(item) {
 function montarObservacoesMusica(item) {
   const observacao = obterObservacaoMusicaManual(item);
 
-  if (!observacao) {
-    return "";
-  }
-
-  return `<div class="musica-observacao-manual"><strong>OBS:</strong> ${escaparHtml(observacao).replaceAll("\n", "<br>")}</div>`;
+  return `
+    <div class="musica-observacao-manual musica-observacao-editavel">
+      <strong>OBS:</strong>
+      <input class="input-musica-obs-linha" type="text" value="${escaparHtml(observacao)}" placeholder="Ex.: Instruções para esta música." data-campo-rapido-musica="observacoes" data-musica-id="${escaparHtml(item.id)}" />
+    </div>
+  `;
 }
 
 function encontrarMeuIntegranteNoProjeto(integrantes, usuario) {
@@ -5809,7 +5840,7 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url"].includes(campo)) {
+  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url", "observacoes"].includes(campo)) {
     return;
   }
 
