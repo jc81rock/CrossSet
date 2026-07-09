@@ -5048,6 +5048,7 @@ function mostrarPreviewSmartMusica(musica) {
       <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("tom")} Tom (opcional)</span><input id="smart-musica-tom" type="text" placeholder="Ex: Em" value="${escaparHtml(musica.tom || "")}" /></label>
       <label class="crossset-smart-campo-opcional"><span>${iconeCampoMusica("bpm")} BPM (opcional)</span><input id="smart-musica-bpm" type="number" inputmode="numeric" min="0" placeholder="Ex: 120" value="${escaparHtml(musica.bpm || "")}" /></label>
       <label class="crossset-smart-campo-opcional url-versao"><span>URL da versão</span><input id="smart-musica-url-referencia" type="url" placeholder="Cole aqui o link da versão que a banda irá estudar" value="${escaparHtml(musica.url_referencia || musica.link_url || "")}" /></label>
+      <label class="crossset-smart-campo-opcional url-versao"><span>URL do YouTube (opcional)</span><input id="smart-musica-youtube-url" type="url" placeholder="Cole aqui o link do YouTube" value="${escaparHtml(musica.youtube_url || "")}" /></label>
     </div>
     <button class="crossset-smart-confirmar" id="btn-confirmar-smart-musica" type="button">Confirmar cadastro</button>
   `;
@@ -5078,6 +5079,7 @@ async function salvarMusicaSmart(musica) {
   const tomInformado = limparTexto(elemento("smart-musica-tom")?.value || musica.tom);
   const bpmInformado = limparTexto(elemento("smart-musica-bpm")?.value || musica.bpm);
   const urlReferencia = limparTexto(elemento("smart-musica-url-referencia")?.value || musica.url_referencia || musica.link_url);
+  const youtubeUrl = limparTexto(elemento("smart-musica-youtube-url")?.value || musica.youtube_url || "");
   const bpmNumero = parseInt(bpmInformado, 10);
   const observacoesSmart = [
     musica.album ? "Álbum: " + musica.album : "",
@@ -5093,7 +5095,7 @@ async function salvarMusicaSmart(musica) {
     tom: tomInformado,
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: limparTexto(musica.link_url),
-    youtube_url: limparTexto(musica.link_url),
+    youtube_url: youtubeUrl,
     url_referencia: urlReferencia,
     material_arquivo_url: "",
     letra_arquivo_url: "",
@@ -5204,8 +5206,24 @@ function montarLinkArquivoMusica(url, texto, icone) {
   return `<a class="link-arquivo-musica" href="${escaparHtml(url)}" target="_blank" rel="noopener noreferrer">${escaparHtml(icone || "")}${escaparHtml(texto)}</a>`;
 }
 
+
+function normalizarUrlExterna(url) {
+  const texto = limparTexto(url || "");
+
+  if (!texto) {
+    return "";
+  }
+
+  return /^https?:\/\//i.test(texto) ? texto : "https://" + texto;
+}
+
+function ehUrlYoutube(url) {
+  const texto = limparTexto(url || "").toLowerCase();
+  return texto.includes("youtube.com/") || texto.includes("youtu.be/");
+}
+
 function montarUrlReferenciaMusica(item) {
-  const url = limparTexto(
+  const urlReferencia = limparTexto(
     item?.url_referencia ||
     item?.url_versao ||
     item?.versao_url ||
@@ -5215,18 +5233,31 @@ function montarUrlReferenciaMusica(item) {
     ""
   );
 
-  if (!url) {
-    return "";
+  const youtubeUrlBruta = limparTexto(item?.youtube_url || "");
+  const youtubeUrl = ehUrlYoutube(youtubeUrlBruta) ? youtubeUrlBruta : "";
+  const linhas = [];
+
+  if (urlReferencia) {
+    const hrefReferencia = normalizarUrlExterna(urlReferencia);
+    linhas.push(`
+      <div class="musica-url-referencia">
+        <span>Referência:</span>
+        <a href="${escaparHtml(hrefReferencia)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(urlReferencia)}">${escaparHtml(urlReferencia)}</a>
+      </div>
+    `);
   }
 
-  const href = /^https?:\/\//i.test(url) ? url : "https://" + url;
+  if (youtubeUrl) {
+    const hrefYoutube = normalizarUrlExterna(youtubeUrl);
+    linhas.push(`
+      <div class="musica-url-referencia musica-url-youtube">
+        <span>YouTube:</span>
+        <a href="${escaparHtml(hrefYoutube)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(youtubeUrl)}">${escaparHtml(youtubeUrl)}</a>
+      </div>
+    `);
+  }
 
-  return `
-    <div class="musica-url-referencia">
-      <span>Referência:</span>
-      <a href="${escaparHtml(href)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(url)}">${escaparHtml(url)}</a>
-    </div>
-  `;
+  return linhas.join("");
 }
 
 function encontrarMeuIntegranteNoProjeto(integrantes, usuario) {
@@ -5498,6 +5529,7 @@ function renderizarListaMusicas() {
         item.bpm,
         obterLinkMusica(item),
         item.url_referencia,
+        item.youtube_url,
         obterArquivoMaterialMusica(item),
         item.letra,
         obterArquivoLetraMusica(item),
@@ -5816,6 +5848,7 @@ function obterDadosFormularioMusica() {
     bpm: limparTexto(elemento("musica-bpm")?.value),
     link_url: limparTexto(elemento("musica-link")?.value),
     url_referencia: limparTexto(elemento("musica-url-referencia")?.value),
+    youtube_url: limparTexto(elemento("musica-youtube-url")?.value),
     letra: limparTexto(elemento("musica-letra")?.value),
     observacoes: limparTexto(elemento("musica-observacoes")?.value)
   };
@@ -5913,6 +5946,9 @@ function preencherFormularioMusica(item) {
   if (elemento("musica-url-referencia")) {
     elemento("musica-url-referencia").value = item.url_referencia || "";
   }
+  if (elemento("musica-youtube-url")) {
+    elemento("musica-youtube-url").value = item.youtube_url || "";
+  }
   elemento("musica-letra").value = item.letra || "";
   elemento("musica-observacoes").value = item.observacoes || "";
 
@@ -5947,7 +5983,7 @@ function preencherFormularioMusica(item) {
 function limparFormularioMusica() {
   appState.musicaEditandoId = null;
 
-  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-url-referencia", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
+  ["musica-nome", "musica-artista", "musica-tom", "musica-bpm", "musica-link", "musica-url-referencia", "musica-youtube-url", "musica-letra", "musica-observacoes", "musica-material-arquivo", "musica-letra-arquivo"].forEach(function(id) {
     const campo = elemento(id);
     if (campo) {
       campo.value = "";
@@ -6023,7 +6059,7 @@ async function salvarMusica() {
     tom: dados.tom,
     bpm: Number.isFinite(bpmNumero) ? bpmNumero : null,
     link_url: dados.link_url,
-    youtube_url: dados.link_url,
+    youtube_url: dados.youtube_url,
     url_referencia: dados.url_referencia,
     material_arquivo_url: materialArquivoUrl,
     letra_arquivo_url: letraArquivoUrl,

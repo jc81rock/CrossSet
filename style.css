@@ -1873,3 +1873,13 @@ button#btn-convidar-integrante::after,
     border-radius: 15px !important;
   }
 }
+
+/* CrossSet Músicas - URL do YouTube opcional
+   Ajuste visual localizado. Não altera estrutura, botões ou fluxos. */
+#tela-painel-projeto .modulo-musicas .musica-url-youtube span {
+  color: #ffffff !important;
+}
+
+#tela-painel-projeto .modulo-musicas .musica-url-youtube a {
+  color: #ff8a8a !important;
+}
