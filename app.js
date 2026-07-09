@@ -5162,6 +5162,10 @@ async function salvarMusicaSmart(musica) {
   const bpmInformado = limparTexto(elemento("smart-musica-bpm")?.value || musica.bpm);
   const urlReferencia = limparTexto(elemento("smart-musica-url-referencia")?.value || musica.url_referencia || musica.link_url);
   const youtubeUrl = limparTexto(elemento("smart-musica-youtube-url")?.value || musica.youtube_url || "");
+  if (youtubeUrl && !ehUrlYoutube(youtubeUrl)) {
+    alert("Cole uma URL válida do YouTube.");
+    return;
+  }
   const bpmNumero = parseInt(bpmInformado, 10);
   const observacoesSmart = [
     musica.album ? "Álbum: " + musica.album : "",
@@ -5521,6 +5525,8 @@ function iconeCampoMusica(tipo) {
 }
 
 function montarCamposRapidosMusica(item) {
+  const youtubeValorRapido = ehUrlYoutube(item?.youtube_url) ? limparTexto(item.youtube_url) : "";
+
   return `
     <span class="musica-campos-rapidos">
       <label class="musica-campo-rapido" title="Tom opcional">
@@ -5537,7 +5543,7 @@ function montarCamposRapidosMusica(item) {
       </label>
       <label class="musica-campo-rapido musica-campo-youtube-rapido" title="URL do YouTube opcional">
         <span>YouTube:</span>
-        <input class="input-musica-youtube-rapido" type="url" value="${escaparHtml(item.youtube_url || "")}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
+        <input class="input-musica-youtube-rapido" type="url" value="${escaparHtml(youtubeValorRapido)}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
         <span class="texto-opcional-musica">(opcional)</span>
       </label>
     </span>
@@ -5762,11 +5768,15 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   }
 
   if (campo === "youtube_url") {
-    payload.youtube_url = limparTexto(valor);
-  }
+    const youtubeLimpo = limparTexto(valor);
 
-  if (campo === "youtube_url") {
-    payload.youtube_url = limparTexto(valor);
+    if (youtubeLimpo && !ehUrlYoutube(youtubeLimpo)) {
+      alert("Cole uma URL válida do YouTube.");
+      renderizarListaMusicas();
+      return;
+    }
+
+    payload.youtube_url = youtubeLimpo;
   }
 
   const { error } = await cliente
@@ -5794,6 +5804,7 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     }
     if (campo === "youtube_url") {
       musica.youtube_url = payload.youtube_url;
+      renderizarListaMusicas();
     }
     musica.updated_at = payload.updated_at;
   }
@@ -6047,7 +6058,7 @@ function preencherFormularioMusica(item) {
     elemento("musica-url-referencia").value = item.url_referencia || "";
   }
   if (elemento("musica-youtube-url")) {
-    elemento("musica-youtube-url").value = item.youtube_url || "";
+    elemento("musica-youtube-url").value = ehUrlYoutube(item.youtube_url) ? item.youtube_url : "";
   }
   elemento("musica-letra").value = item.letra || "";
   elemento("musica-observacoes").value = item.observacoes || "";
@@ -6126,6 +6137,11 @@ async function salvarMusica() {
 
   const dados = obterDadosFormularioMusica();
   const bpmNumero = parseInt(dados.bpm, 10);
+
+  if (dados.youtube_url && !ehUrlYoutube(dados.youtube_url)) {
+    alert("Cole uma URL válida do YouTube.");
+    return;
+  }
 
   if (!dados.nome) {
     alert("Informe o nome da música.");
