@@ -4768,6 +4768,17 @@ async function carregarMusicas() {
         grid-column: 1 / -1 !important;
       }
 
+      /* CrossSet v36 - restaura seleção de nível sem alterar estrutura do card */
+      .card-lista-musicas-smart .item-musica {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+
+      .card-lista-musicas-smart .meu-progresso-musica {
+        margin-left: 29px !important;
+        margin-top: 4px !important;
+      }
+
     </style>
 
     <div class="modulo-musicas">
@@ -5786,6 +5797,7 @@ function renderizarListaMusicas() {
         </div>
         ${montarUrlReferenciaMusica(item)}
         ${montarObservacoesMusica(item)}
+        ${montarControleMeuProgresso(item.id)}
         ${appState.musicaProgressoEditandoId === item.id ? montarPainelMeuProgressoEdicao(item.id) : ""}
       </div>
     `;
