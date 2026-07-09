@@ -20,6 +20,7 @@
 })();
 
 "use strict";
+// CrossSet patch: YouTube URL opcional em músicas antigas e novas.
 
 const REPERTORIO_FACIL = {
   urlApp: "https://crossset.app/",
@@ -4625,6 +4626,28 @@ async function carregarMusicas() {
         border: 1px solid rgba(255,255,255,.16) !important;
       }
 
+
+      .musica-campo-youtube-rapido {
+        flex: 1 1 180px !important;
+        min-width: 170px !important;
+      }
+
+      .input-musica-youtube-rapido {
+        width: 180px !important;
+        min-width: 150px !important;
+        max-width: 240px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
+        border-radius: 7px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        color: #ffffff !important;
+        background: #050b14 !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+      }
+
       .texto-opcional-musica {
         color: #9fb0d6 !important;
         font-weight: 500 !important;
@@ -5453,6 +5476,11 @@ function montarCamposRapidosMusica(item) {
         <input class="input-musica-rapido" type="number" inputmode="numeric" min="0" value="${escaparHtml(item.bpm || "")}" placeholder="—" data-campo-rapido-musica="bpm" data-musica-id="${escaparHtml(item.id)}" />
         <span class="texto-opcional-musica">(opcional)</span>
       </label>
+      <label class="musica-campo-rapido musica-campo-youtube-rapido" title="URL do YouTube opcional">
+        <span>YouTube:</span>
+        <input class="input-musica-youtube-rapido" type="url" value="${escaparHtml(item.youtube_url || "")}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
+        <span class="texto-opcional-musica">(opcional)</span>
+      </label>
     </span>
   `;
 }
@@ -5659,7 +5687,7 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  if (!cliente || !projetoId || !musicaId || !["tom", "bpm"].includes(campo)) {
+  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url"].includes(campo)) {
     return;
   }
 
@@ -5674,6 +5702,10 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     payload.bpm = Number.isFinite(numero) ? numero : null;
   }
 
+  if (campo === "youtube_url") {
+    payload.youtube_url = limparTexto(valor);
+  }
+
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
     .update(payload)
@@ -5681,7 +5713,8 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     .eq("projeto_id", projetoId);
 
   if (error) {
-    alert("Erro ao salvar " + campo.toUpperCase() + ": " + error.message);
+    const nomeCampo = campo === "youtube_url" ? "YOUTUBE" : campo.toUpperCase();
+    alert("Erro ao salvar " + nomeCampo + ": " + error.message);
     return;
   }
 
@@ -5695,6 +5728,9 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     }
     if (campo === "bpm") {
       musica.bpm = payload.bpm;
+    }
+    if (campo === "youtube_url") {
+      musica.youtube_url = payload.youtube_url;
     }
     musica.updated_at = payload.updated_at;
   }
@@ -5715,7 +5751,8 @@ async function compartilharMusica(musicaId) {
     musica.artista ? "Artista: " + musica.artista : "",
     musica.tom ? "Tom: " + musica.tom : "",
     musica.bpm ? "BPM: " + musica.bpm : "",
-    obterLinkMusica(musica) ? "Link: " + obterLinkMusica(musica) : ""
+    obterLinkMusica(musica) ? "Link: " + obterLinkMusica(musica) : "",
+    musica.youtube_url ? "YouTube: " + musica.youtube_url : ""
   ].filter(Boolean);
 
   await compartilharConteudo("Música - " + (musica.nome || "Música"), linhas.join("\n"), obterLinkMusica(musica));
