@@ -4731,6 +4731,65 @@ async function carregarMusicas() {
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
 
+        <div id="form-musicas-manual" class="form-musicas" style="display:none; margin-top:10px; border:1px solid rgba(255,255,255,.12); border-radius:13px; padding:10px; background:rgba(7,17,31,.62);">
+          <label>
+            Música
+            <input id="musica-nome" type="text" placeholder="Nome da música" />
+          </label>
+
+          <label>
+            Artista
+            <input id="musica-artista" type="text" placeholder="Nome do artista" />
+          </label>
+
+          <div class="linha-form-musicas">
+            <label>
+              Tom (opcional)
+              <input id="musica-tom" type="text" placeholder="Ex: Em" />
+            </label>
+
+            <label>
+              BPM (opcional)
+              <input id="musica-bpm" type="number" inputmode="numeric" min="0" placeholder="Ex: 120" />
+            </label>
+          </div>
+
+          <label>
+            Spotify / Link principal
+            <input id="musica-link" type="url" placeholder="Cole aqui o link principal" />
+          </label>
+
+          <label>
+            URL da versão
+            <input id="musica-url-referencia" type="url" placeholder="Cole aqui o link da versão que a banda irá estudar" />
+          </label>
+
+          <label>
+            URL do YouTube (opcional)
+            <input id="musica-youtube-url" type="url" placeholder="Cole aqui o link do YouTube" />
+          </label>
+
+          <label>
+            Letra / observação da letra
+            <textarea id="musica-letra" placeholder="Cole a letra ou observações da letra"></textarea>
+          </label>
+
+          <label>
+            Observações
+            <textarea id="musica-observacoes" placeholder="Observações gerais"></textarea>
+          </label>
+
+          <input id="musica-material-arquivo" type="file" style="display:none;" />
+          <input id="musica-letra-arquivo" type="file" style="display:none;" />
+          <small id="musica-material-arquivo-atual" class="upload-musica-atual">Nenhum arquivo enviado.</small>
+          <small id="musica-letra-arquivo-atual" class="upload-musica-atual">Nenhum arquivo enviado.</small>
+
+          <div class="acoes-musica">
+            <button class="btn-principal-musica" id="btn-salvar-musica" type="button"><span>✓</span><span>Salvar alterações</span></button>
+            <button class="btn-secundario-musica" id="btn-cancelar-musica" type="button">Cancelar edição</button>
+          </div>
+        </div>
+
         <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
           <h4>Como funciona o progresso das músicas?</h4>
           <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
@@ -5706,6 +5765,10 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     payload.youtube_url = limparTexto(valor);
   }
 
+  if (campo === "youtube_url") {
+    payload.youtube_url = limparTexto(valor);
+  }
+
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
     .update(payload)
@@ -6138,8 +6201,9 @@ function editarMusica(id) {
     return;
   }
 
-  appState.musicaProgressoEditandoId = appState.musicaProgressoEditandoId === id ? null : id;
-  renderizarListaMusicas();
+  appState.musicaEditandoId = id;
+  appState.musicaProgressoEditandoId = null;
+  preencherFormularioMusica(item);
 }
 
 async function excluirMusica(id) {
