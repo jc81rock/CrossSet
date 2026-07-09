@@ -4372,7 +4372,7 @@ async function carregarMusicas() {
       .acoes-icone-musica {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         flex: 0 0 auto;
       }
 
@@ -4592,6 +4592,23 @@ async function carregarMusicas() {
 
 
       /* CrossSet v1.0 - refinamento final músicas: campos compactos + ícones brancos */
+      .card-lista-musicas-smart,
+      .card-lista-musicas-smart .lista-musicas,
+      .card-lista-musicas-smart .item-musica {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
+      .card-lista-musicas-smart .item-musica {
+        overflow: hidden !important;
+      }
+
+      .card-lista-musicas-smart .musica-linha-principal,
+      .card-lista-musicas-smart .musica-linha-meta {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+
       .musica-campos-rapidos {
         display: inline-flex !important;
         align-items: center !important;
@@ -4649,27 +4666,6 @@ async function carregarMusicas() {
         width: 180px !important;
         min-width: 150px !important;
         max-width: 240px !important;
-        height: 22px !important;
-        min-height: 22px !important;
-        padding: 2px 6px !important;
-        margin: 0 !important;
-        border-radius: 7px !important;
-        font-size: 11px !important;
-        line-height: 1 !important;
-        color: #ffffff !important;
-        background: #050b14 !important;
-        border: 1px solid rgba(255,255,255,.16) !important;
-      }
-
-      .musica-campo-obs-rapido {
-        flex: 0 0 150px !important;
-        min-width: 150px !important;
-      }
-
-      .input-musica-obs-rapido {
-        width: 150px !important;
-        min-width: 150px !important;
-        max-width: 150px !important;
         height: 22px !important;
         min-height: 22px !important;
         padding: 2px 6px !important;
@@ -5587,8 +5583,6 @@ function iconeCampoMusica(tipo) {
 
 function montarCamposRapidosMusica(item) {
   const youtubeValorRapido = ehUrlYoutube(item?.youtube_url) ? limparTexto(item.youtube_url) : "";
-  const observacaoValorRapido = obterObservacaoMusicaManual(item);
-
   return `
     <span class="musica-campos-rapidos">
       <label class="musica-campo-rapido" title="Tom opcional">
@@ -5607,10 +5601,6 @@ function montarCamposRapidosMusica(item) {
         <span>YouTube:</span>
         <input class="input-musica-youtube-rapido" type="url" value="${escaparHtml(youtubeValorRapido)}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
         <span class="texto-opcional-musica">(opcional)</span>
-      </label>
-      <label class="musica-campo-rapido musica-campo-obs-rapido" title="Observações da música">
-        <span>OBS:</span>
-        <input class="input-musica-obs-rapido" type="text" value="${escaparHtml(observacaoValorRapido)}" placeholder="Ex.: Instruções para esta música." data-campo-rapido-musica="observacoes" data-musica-id="${escaparHtml(item.id)}" />
       </label>
     </span>
   `;
@@ -5819,7 +5809,7 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url", "observacoes"].includes(campo)) {
+  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url"].includes(campo)) {
     return;
   }
 
