@@ -4661,6 +4661,27 @@ async function carregarMusicas() {
         border: 1px solid rgba(255,255,255,.16) !important;
       }
 
+      .musica-campo-obs-rapido {
+        flex: 1 1 260px !important;
+        min-width: 240px !important;
+      }
+
+      .input-musica-obs-rapido {
+        width: 260px !important;
+        min-width: 220px !important;
+        max-width: 420px !important;
+        height: 22px !important;
+        min-height: 22px !important;
+        padding: 2px 6px !important;
+        margin: 0 !important;
+        border-radius: 7px !important;
+        font-size: 11px !important;
+        line-height: 1 !important;
+        color: #ffffff !important;
+        background: #050b14 !important;
+        border: 1px solid rgba(255,255,255,.16) !important;
+      }
+
       .texto-opcional-musica {
         color: #9fb0d6 !important;
         font-weight: 500 !important;
@@ -5566,6 +5587,7 @@ function iconeCampoMusica(tipo) {
 
 function montarCamposRapidosMusica(item) {
   const youtubeValorRapido = ehUrlYoutube(item?.youtube_url) ? limparTexto(item.youtube_url) : "";
+  const observacaoValorRapido = obterObservacaoMusicaManual(item);
 
   return `
     <span class="musica-campos-rapidos">
@@ -5585,6 +5607,10 @@ function montarCamposRapidosMusica(item) {
         <span>YouTube:</span>
         <input class="input-musica-youtube-rapido" type="url" value="${escaparHtml(youtubeValorRapido)}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
         <span class="texto-opcional-musica">(opcional)</span>
+      </label>
+      <label class="musica-campo-rapido musica-campo-obs-rapido" title="Observações da música">
+        <span>OBS:</span>
+        <input class="input-musica-obs-rapido" type="text" value="${escaparHtml(observacaoValorRapido)}" placeholder="Ex.: Instruções para esta música." data-campo-rapido-musica="observacoes" data-musica-id="${escaparHtml(item.id)}" />
       </label>
     </span>
   `;
@@ -5793,7 +5819,7 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
   const cliente = sb();
   const projetoId = obterProjetoAtualId();
 
-  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url"].includes(campo)) {
+  if (!cliente || !projetoId || !musicaId || !["tom", "bpm", "youtube_url", "observacoes"].includes(campo)) {
     return;
   }
 
@@ -5820,6 +5846,10 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     payload.youtube_url = youtubeLimpo;
   }
 
+  if (campo === "observacoes") {
+    payload.observacoes = limparTexto(valor);
+  }
+
   const { error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.musicas)
     .update(payload)
@@ -5827,7 +5857,7 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     .eq("projeto_id", projetoId);
 
   if (error) {
-    const nomeCampo = campo === "youtube_url" ? "YOUTUBE" : campo.toUpperCase();
+    const nomeCampo = campo === "youtube_url" ? "YOUTUBE" : (campo === "observacoes" ? "OBS" : campo.toUpperCase());
     alert("Erro ao salvar " + nomeCampo + ": " + error.message);
     return;
   }
@@ -5845,6 +5875,10 @@ async function salvarCampoRapidoMusica(musicaId, campo, valor) {
     }
     if (campo === "youtube_url") {
       musica.youtube_url = payload.youtube_url;
+      renderizarListaMusicas();
+    }
+    if (campo === "observacoes") {
+      musica.observacoes = payload.observacoes;
       renderizarListaMusicas();
     }
     musica.updated_at = payload.updated_at;
