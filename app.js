@@ -10280,41 +10280,9 @@ async function restaurarProjetoAtual() {
 
 
 function configurarRecuperacaoConviteManual() {
-  const telaLogin = elemento("tela-login");
-
-  if (!telaLogin || elemento("btn-recuperar-convite")) {
-    return;
-  }
-
-  const card = telaLogin.querySelector(".card-login");
-
-  if (!card) {
-    return;
-  }
-
-  const botao = document.createElement("button");
-  botao.id = "btn-recuperar-convite";
-  botao.className = "botao-link";
-  botao.type = "button";
-  botao.textContent = "Tenho um código de convite";
-  botao.addEventListener("click", async function() {
-    const codigo = limparTexto(prompt("Cole o código do convite:"));
-
-    if (!codigo) {
-      return;
-    }
-
-    salvarCodigoConvitePendente(codigo);
-    await carregarConvitePublico(codigo);
-  });
-
-  const rodape = card.querySelector(".login-footer-interno");
-  if (rodape) {
-    card.insertBefore(botao, rodape);
-  } else {
-    card.appendChild(botao);
-  }
+  // Opção manual de código de convite removida da tela de login.
 }
+
 
 function configurarBotoesFixos() {
   const botaoGoogle = elemento("btn-google");
