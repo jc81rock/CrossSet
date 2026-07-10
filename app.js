@@ -8153,6 +8153,49 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
   }).join("");
 }
 
+function atualizarBibliotecaMontagemRepertorio() {
+  const lista = elemento("lista-biblioteca-musicas");
+  const busca = limparTexto(elemento("busca-musicas-repertorio")?.value).toLowerCase();
+  const ordem = elemento("ordenar-musicas-repertorio")?.value || "preparo";
+
+  if (!lista) {
+    return;
+  }
+
+  const idsSelecionados = new Set((appState.repertorioMusicas || []).map(function(item) {
+    return item.musica_id;
+  }));
+
+  let musicasDisponiveis = (appState.musicas || []).filter(function(musica) {
+    return !idsSelecionados.has(musica.id);
+  });
+
+  if (busca) {
+    musicasDisponiveis = musicasDisponiveis.filter(function(musica) {
+      const texto = [musica.nome, musica.artista, musica.tom, musica.bpm].join(" ").toLowerCase();
+      return texto.includes(busca);
+    });
+  }
+
+  musicasDisponiveis.sort(function(a, b) {
+    if (ordem === "nome") {
+      return compararTexto(a.nome, b.nome);
+    }
+
+    if (ordem === "menos_preparo") {
+      return obterProgressoDaMusica(a.id).percentual - obterProgressoDaMusica(b.id).percentual || compararTexto(a.nome, b.nome);
+    }
+
+    if (ordem === "recentes") {
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    }
+
+    return obterProgressoDaMusica(b.id).percentual - obterProgressoDaMusica(a.id).percentual || compararTexto(a.nome, b.nome);
+  });
+
+  lista.innerHTML = renderizarBibliotecaMusicasRepertorio(musicasDisponiveis);
+}
+
 function configurarEventosMontagemRepertorio() {
   const busca = elemento("busca-musicas-repertorio");
   const ordenar = elemento("ordenar-musicas-repertorio");
@@ -8165,7 +8208,7 @@ function configurarEventosMontagemRepertorio() {
   const obsMontagem = elemento("repertorio-observacoes-montagem");
 
   if (busca) {
-    busca.addEventListener("input", renderizarMontagemRepertorio);
+    busca.addEventListener("input", atualizarBibliotecaMontagemRepertorio);
   }
 
   if (nomeMontagem) {
