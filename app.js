@@ -50,6 +50,7 @@ let appState = {
   repertorioEditandoId: null,
   repertorioMontandoId: null,
   repertorioMusicas: [],
+  repertorioOrdenacaoSelecionadas: "manual",
   progressoMusicas: [],
   integrantesProjetoMusicas: [],
   meuIntegranteAtual: null,
@@ -7126,29 +7127,102 @@ async function carregarRepertorios() {
         cursor: pointer;
       }
 
+      .setlist-cabecalho-final {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 14px;
+        margin-bottom: 8px;
+      }
+
+      .setlist-cabecalho-final h3 {
+        margin: 0 0 2px !important;
+      }
+
+      .setlist-cabecalho-final .texto-ajuda {
+        margin: 0 !important;
+      }
+
+      .setlist-ordenacao-final {
+        width: min(250px, 100%);
+        display: grid;
+        gap: 4px;
+        color: #e5e7eb;
+        font-size: 11px;
+      }
+
+      .setlist-ordenacao-final select {
+        width: 100%;
+        min-height: 34px !important;
+        height: 34px !important;
+        margin: 0 !important;
+        padding: 5px 9px !important;
+        font-size: 12px !important;
+      }
+
+      .filtros-montagem-repertorio-busca {
+        grid-template-columns: 1fr !important;
+      }
+
       .setlist-lista-final {
         display: grid;
-        gap: 8px;
-        max-height: 430px;
+        gap: 5px;
+        max-height: 330px;
         overflow: auto;
         padding-right: 4px;
-        min-height: 150px;
+        min-height: 105px;
       }
 
       .setlist-linha {
         display: grid;
-        grid-template-columns: 42px minmax(0, 1fr) auto;
+        grid-template-columns: 18px 32px minmax(0, 1fr) auto;
         align-items: center;
-        gap: 12px;
+        gap: 7px;
         border: 1px solid rgba(255,255,255,.10);
-        border-radius: 13px;
-        padding: 10px;
+        border-radius: 10px;
+        padding: 6px 7px;
         background: rgba(255,255,255,.04);
+        cursor: grab;
+        transition: opacity .15s ease, border-color .15s ease, background .15s ease;
+      }
+
+      .setlist-linha:active {
+        cursor: grabbing;
+      }
+
+      .setlist-linha.arrastando {
+        opacity: .42;
+      }
+
+      .setlist-linha.alvo-arrastar {
+        border-color: rgba(122,92,255,.85);
+        background: rgba(122,92,255,.16);
+      }
+
+      .setlist-arrastar {
+        color: #8ea4ca;
+        font-size: 15px;
+        line-height: 1;
+        letter-spacing: -3px;
+        user-select: none;
+        text-align: center;
+      }
+
+      .setlist-dados-compactos {
+        min-width: 0;
+      }
+
+      .setlist-dados-compactos h4,
+      .setlist-dados-compactos p {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .numero-setlist-final {
-        width: 34px;
-        height: 34px;
+        width: 28px;
+        height: 28px;
         border-radius: 11px;
         display: grid;
         place-items: center;
@@ -7165,8 +7239,8 @@ async function carregarRepertorios() {
       }
 
       .setlist-acoes-final button {
-        width: 34px;
-        height: 34px;
+        width: 28px;
+        height: 28px;
         border-radius: 10px;
         border: 1px solid rgba(255,255,255,.10);
         background: rgba(255,255,255,.06);
@@ -7180,6 +7254,31 @@ async function carregarRepertorios() {
         border-color: rgba(239,68,68,.35);
         color: #fecaca;
         background: rgba(239,68,68,.10);
+      }
+
+      @media (max-width: 720px) {
+        .setlist-cabecalho-final {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .setlist-ordenacao-final {
+          width: 100%;
+        }
+
+        .setlist-linha {
+          grid-template-columns: 16px 28px minmax(0, 1fr) auto;
+          gap: 5px;
+        }
+
+        .setlist-acoes-final {
+          gap: 3px;
+        }
+
+        .setlist-acoes-final button {
+          width: 26px;
+          height: 26px;
+        }
       }
 
       .rodape-repertorio-builder {
@@ -7952,6 +8051,7 @@ async function carregarDadosMontagemRepertorio() {
         repertorio_id: relacao.repertorio_id,
         musica_id: relacao.musica_id,
         ordem: relacao.ordem || 0,
+        created_at: relacao.created_at || "",
         musica: musica || null
       };
     }).filter(function(item) {
@@ -7982,7 +8082,6 @@ function renderizarMontagemRepertorio() {
   }));
 
   const buscaAtual = limparTexto(elemento("busca-musicas-repertorio")?.value).toLowerCase();
-  const ordemAtual = elemento("ordenar-musicas-repertorio")?.value || "preparo";
 
   let musicasDisponiveis = (appState.musicas || []).filter(function(musica) {
     return !idsSelecionados.has(musica.id);
@@ -7996,21 +8095,14 @@ function renderizarMontagemRepertorio() {
   }
 
   musicasDisponiveis.sort(function(a, b) {
-    if (ordemAtual === "nome") {
-      return compararTexto(a.nome, b.nome);
-    }
-    if (ordemAtual === "menos_preparo") {
-      return obterProgressoDaMusica(a.id).percentual - obterProgressoDaMusica(b.id).percentual || compararTexto(a.nome, b.nome);
-    }
-    if (ordemAtual === "recentes") {
-      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-    }
-    return obterProgressoDaMusica(b.id).percentual - obterProgressoDaMusica(a.id).percentual || compararTexto(a.nome, b.nome);
+    return compararTexto(a.nome, b.nome);
   });
 
-  const selecionadas = [...(appState.repertorioMusicas || [])].sort(function(a, b) {
-    return Number(a.ordem || 0) - Number(b.ordem || 0);
-  });
+  const criterioSelecionadas = appState.repertorioOrdenacaoSelecionadas || "manual";
+  const selecionadas = ordenarMusicasSelecionadasRepertorio(
+    [...(appState.repertorioMusicas || [])],
+    criterioSelecionadas
+  );
 
   const idsMusicasSelecionadas = selecionadas.map(function(item) {
     return item.musica_id;
@@ -8028,20 +8120,10 @@ function renderizarMontagemRepertorio() {
         <h3>Biblioteca do projeto</h3>
         <p class="texto-ajuda">Escolha músicas já cadastradas no projeto e adicione ao set.</p>
 
-        <div class="filtros-montagem-repertorio">
+        <div class="filtros-montagem-repertorio filtros-montagem-repertorio-busca">
           <label>
             Pesquisar música
             <input id="busca-musicas-repertorio" type="text" placeholder="Buscar por nome, artista ou tom" value="${escaparHtml(buscaAtual)}" />
-          </label>
-
-          <label>
-            Ordenar por
-            <select id="ordenar-musicas-repertorio">
-              <option value="preparo" ${ordemAtual === "preparo" ? "selected" : ""}>Mais preparadas</option>
-              <option value="menos_preparo" ${ordemAtual === "menos_preparo" ? "selected" : ""}>Menos preparadas</option>
-              <option value="nome" ${ordemAtual === "nome" ? "selected" : ""}>Nome</option>
-              <option value="recentes" ${ordemAtual === "recentes" ? "selected" : ""}>Mais recentes</option>
-            </select>
           </label>
         </div>
 
@@ -8078,8 +8160,20 @@ function renderizarMontagemRepertorio() {
           <p style="margin-top:8px; font-size:12px; color:#cbd5e1;">O percentual do repertório é a média do progresso das músicas selecionadas.</p>
         </div>
 
-        <h3 style="margin-top:16px;">Músicas no repertório</h3>
-        <p class="texto-ajuda">Use as setas para organizar a ordem do set.</p>
+        <div class="setlist-cabecalho-final">
+          <div>
+            <h3>Músicas no repertório</h3>
+            <p class="texto-ajuda">Arraste para reorganizar ou use as setas.</p>
+          </div>
+          <label class="setlist-ordenacao-final">
+            Ordenar por
+            <select id="ordenar-selecionadas-repertorio">
+              <option value="manual" ${criterioSelecionadas === "manual" ? "selected" : ""}>Ordem do repertório</option>
+              <option value="nome" ${criterioSelecionadas === "nome" ? "selected" : ""}>Nome da música (A–Z)</option>
+              <option value="recentes" ${criterioSelecionadas === "recentes" ? "selected" : ""}>Adicionadas recentemente</option>
+            </select>
+          </label>
+        </div>
         <div id="lista-musicas-repertorio" class="setlist-lista-final">
           ${renderizarMusicasSelecionadasRepertorio(selecionadas)}
         </div>
@@ -8136,12 +8230,12 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
     const textoStatus = progresso.percentual >= 90 ? "Pronta" : progresso.percentual >= 50 ? "Em estudo" : "Não iniciada";
 
     return `
-      <div class="setlist-linha">
+      <div class="setlist-linha" draggable="true" data-repertorio-item="${escaparHtml(item.id)}">
+        <div class="setlist-arrastar" title="Arrastar para reorganizar" aria-hidden="true">⋮⋮</div>
         <div class="numero-setlist-final">${numero}</div>
-        <div>
+        <div class="setlist-dados-compactos">
           <h4>${escaparHtml(musica.nome || "Sem nome")}</h4>
-          <p>${escaparHtml(musica.artista || "Artista não informado")} • Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""}</p>
-          <p><span class="bolinha-status-musica ${escaparHtml(progresso.cor)}"></span>${textoStatus} • ${progresso.percentual}%</p>
+          <p>${escaparHtml(musica.artista || "Artista não informado")} • Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""} • <span class="bolinha-status-musica ${escaparHtml(progresso.cor)}"></span>${textoStatus} ${progresso.percentual}%</p>
         </div>
         <div class="setlist-acoes-final">
           <button type="button" title="Mover para cima" data-subir-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button>
@@ -8156,7 +8250,6 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
 function atualizarBibliotecaMontagemRepertorio() {
   const lista = elemento("lista-biblioteca-musicas");
   const busca = limparTexto(elemento("busca-musicas-repertorio")?.value).toLowerCase();
-  const ordem = elemento("ordenar-musicas-repertorio")?.value || "preparo";
 
   if (!lista) {
     return;
@@ -8178,19 +8271,7 @@ function atualizarBibliotecaMontagemRepertorio() {
   }
 
   musicasDisponiveis.sort(function(a, b) {
-    if (ordem === "nome") {
-      return compararTexto(a.nome, b.nome);
-    }
-
-    if (ordem === "menos_preparo") {
-      return obterProgressoDaMusica(a.id).percentual - obterProgressoDaMusica(b.id).percentual || compararTexto(a.nome, b.nome);
-    }
-
-    if (ordem === "recentes") {
-      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
-    }
-
-    return obterProgressoDaMusica(b.id).percentual - obterProgressoDaMusica(a.id).percentual || compararTexto(a.nome, b.nome);
+    return compararTexto(a.nome, b.nome);
   });
 
   lista.innerHTML = renderizarBibliotecaMusicasRepertorio(musicasDisponiveis);
@@ -8198,7 +8279,7 @@ function atualizarBibliotecaMontagemRepertorio() {
 
 function configurarEventosMontagemRepertorio() {
   const busca = elemento("busca-musicas-repertorio");
-  const ordenar = elemento("ordenar-musicas-repertorio");
+  const ordenarSelecionadas = elemento("ordenar-selecionadas-repertorio");
   const botaoAdicionarSelecionadas = elemento("btn-adicionar-musicas-selecionadas");
   const botaoSalvarEdicao = elemento("btn-salvar-repertorio-edicao");
   const botaoCompartilharEdicao = elemento("btn-compartilhar-repertorio-edicao");
@@ -8219,8 +8300,10 @@ function configurarEventosMontagemRepertorio() {
     obsMontagem.addEventListener("input", sincronizarCamposRepertorio);
   }
 
-  if (ordenar) {
-    ordenar.addEventListener("change", renderizarMontagemRepertorio);
+  if (ordenarSelecionadas) {
+    ordenarSelecionadas.addEventListener("change", function() {
+      aplicarOrdenacaoSelecionadasRepertorio(ordenarSelecionadas.value);
+    });
   }
 
   if (botaoAdicionarSelecionadas) {
@@ -8270,6 +8353,8 @@ function configurarEventosMontagemRepertorio() {
       moverMusicaDoRepertorio(botao.dataset.descerMusicaRepertorio, 1);
     });
   });
+
+  configurarArrastarMusicasRepertorio();
 }
 
 async function adicionarMusicasSelecionadasAoRepertorio() {
@@ -8319,6 +8404,7 @@ async function adicionarMusicasAoRepertorio(musicaIds) {
         repertorio_id: null,
         musica_id: musicaId,
         ordem: maiorOrdem + indice + 1,
+        created_at: new Date(Date.now() + indice).toISOString(),
         musica: musica || null,
         temporario: true
       };
@@ -8405,8 +8491,164 @@ async function removerMusicaDoRepertorio(relacaoId) {
   renderizarMontagemRepertorio();
 }
 
+
+function ordenarMusicasSelecionadasRepertorio(itens, criterio) {
+  const lista = [...(itens || [])];
+
+  if (criterio === "nome") {
+    return lista.sort(function(a, b) {
+      return compararTexto(a.musica?.nome, b.musica?.nome) ||
+        Number(a.ordem || 0) - Number(b.ordem || 0);
+    });
+  }
+
+  if (criterio === "recentes") {
+    return lista.sort(function(a, b) {
+      const dataA = new Date(a.created_at || 0).getTime();
+      const dataB = new Date(b.created_at || 0).getTime();
+      return dataB - dataA || Number(b.ordem || 0) - Number(a.ordem || 0);
+    });
+  }
+
+  return lista.sort(function(a, b) {
+    return Number(a.ordem || 0) - Number(b.ordem || 0);
+  });
+}
+
+async function salvarOrdemCompletaRepertorio(itensOrdenados) {
+  const cliente = sb();
+  const lista = (itensOrdenados || []).map(function(item, indice) {
+    return Object.assign({}, item, { ordem: indice + 1 });
+  });
+
+  appState.repertorioMusicas = lista;
+
+  if (!appState.repertorioMontandoId || lista.some(function(item) {
+    return String(item.id).startsWith("temp-");
+  })) {
+    return true;
+  }
+
+  if (!cliente) {
+    return false;
+  }
+
+  for (let indice = 0; indice < lista.length; indice += 1) {
+    const { error } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
+      .update({ ordem: indice + 1 })
+      .eq("id", lista[indice].id);
+
+    if (error) {
+      alert("Erro ao salvar a nova ordem: " + error.message);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+async function aplicarOrdenacaoSelecionadasRepertorio(criterio) {
+  const criterioValido = ["manual", "nome", "recentes"].includes(criterio)
+    ? criterio
+    : "manual";
+
+  appState.repertorioOrdenacaoSelecionadas = criterioValido;
+
+  if (criterioValido === "manual") {
+    renderizarMontagemRepertorio();
+    return;
+  }
+
+  const itensOrdenados = ordenarMusicasSelecionadasRepertorio(
+    appState.repertorioMusicas || [],
+    criterioValido
+  );
+
+  const salvou = await salvarOrdemCompletaRepertorio(itensOrdenados);
+  if (salvou) {
+    renderizarMontagemRepertorio();
+  }
+}
+
+function configurarArrastarMusicasRepertorio() {
+  const lista = elemento("lista-musicas-repertorio");
+
+  if (!lista) {
+    return;
+  }
+
+  let itemArrastadoId = "";
+
+  lista.querySelectorAll("[data-repertorio-item]").forEach(function(item) {
+    item.addEventListener("dragstart", function(evento) {
+      itemArrastadoId = item.dataset.repertorioItem || "";
+      item.classList.add("arrastando");
+      evento.dataTransfer.effectAllowed = "move";
+      evento.dataTransfer.setData("text/plain", itemArrastadoId);
+    });
+
+    item.addEventListener("dragend", function() {
+      item.classList.remove("arrastando");
+      lista.querySelectorAll(".alvo-arrastar").forEach(function(alvo) {
+        alvo.classList.remove("alvo-arrastar");
+      });
+    });
+
+    item.addEventListener("dragover", function(evento) {
+      evento.preventDefault();
+      evento.dataTransfer.dropEffect = "move";
+      if ((item.dataset.repertorioItem || "") !== itemArrastadoId) {
+        item.classList.add("alvo-arrastar");
+      }
+    });
+
+    item.addEventListener("dragleave", function() {
+      item.classList.remove("alvo-arrastar");
+    });
+
+    item.addEventListener("drop", async function(evento) {
+      evento.preventDefault();
+      item.classList.remove("alvo-arrastar");
+
+      const origemId = itemArrastadoId || evento.dataTransfer.getData("text/plain");
+      const destinoId = item.dataset.repertorioItem || "";
+
+      if (!origemId || !destinoId || origemId === destinoId) {
+        return;
+      }
+
+      const itens = ordenarMusicasSelecionadasRepertorio(
+        appState.repertorioMusicas || [],
+        "manual"
+      );
+      const indiceOrigem = itens.findIndex(function(registro) {
+        return String(registro.id) === String(origemId);
+      });
+      const indiceDestino = itens.findIndex(function(registro) {
+        return String(registro.id) === String(destinoId);
+      });
+
+      if (indiceOrigem < 0 || indiceDestino < 0) {
+        return;
+      }
+
+      const [movido] = itens.splice(indiceOrigem, 1);
+      itens.splice(indiceDestino, 0, movido);
+
+      appState.repertorioOrdenacaoSelecionadas = "manual";
+      const salvou = await salvarOrdemCompletaRepertorio(itens);
+
+      if (salvou) {
+        renderizarMontagemRepertorio();
+      }
+    });
+  });
+}
+
 async function moverMusicaDoRepertorio(relacaoId, direcao) {
   const cliente = sb();
+  appState.repertorioOrdenacaoSelecionadas = "manual";
 
   if (!relacaoId) {
     return;
