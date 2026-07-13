@@ -7282,6 +7282,56 @@ async function carregarRepertorios() {
       }
 
 
+
+      /* CrossSet v42 - Repertórios: card de edição mais compacto, somente espaços */
+      #card-form-repertorio:not(.card-repertorio-expandido) {
+        padding: 13px 18px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) > .tag {
+        margin-bottom: 7px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) > #titulo-form-repertorio {
+        margin: 0 0 4px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) > p {
+        margin: 0 0 9px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) .form-repertorios {
+        gap: 6px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) .form-repertorios label {
+        gap: 3px !important;
+        margin: 0 !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) .rf-campo-textarea {
+        gap: 4px !important;
+        margin: 4px 0 6px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) .rf-textarea-counter {
+        margin-top: -5px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) .acoes-repertorio {
+        gap: 5px !important;
+        margin-top: 4px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) .acoes-repertorio + .montagem-repertorio {
+        margin-top: 6px !important;
+      }
+
+      #card-form-repertorio:not(.card-repertorio-expandido) + #card-lista-repertorios {
+        margin-top: 0 !important;
+      }
+
+
       /* CrossSet v40 - Repertórios: somente redução de espaços */
       .repertorio-builder {
         gap: 12px !important;
