@@ -7281,6 +7281,79 @@ async function carregarRepertorios() {
         }
       }
 
+
+      /* CrossSet v40 - Repertórios: somente redução de espaços */
+      .repertorio-builder {
+        gap: 12px !important;
+      }
+
+      .repertorio-builder-card {
+        padding: 12px !important;
+      }
+
+      .repertorio-builder-card h3 {
+        margin-bottom: 4px !important;
+      }
+
+      .repertorio-builder-card .texto-ajuda {
+        margin-bottom: 8px !important;
+      }
+
+      .repertorio-builder-form {
+        gap: 6px !important;
+        margin-bottom: 8px !important;
+      }
+
+      .repertorio-builder-form label {
+        gap: 3px !important;
+      }
+
+      .repertorio-resumos {
+        gap: 7px !important;
+        margin: 8px 0 !important;
+      }
+
+      .repertorio-resumo-card {
+        padding: 8px 10px !important;
+      }
+
+      .resumo-repertorio-inteligente {
+        margin: 7px 0 2px !important;
+        padding: 8px 10px !important;
+      }
+
+      .setlist-cabecalho-final {
+        gap: 8px !important;
+        margin-top: 8px !important;
+        margin-bottom: 5px !important;
+      }
+
+      .setlist-ordenacao-final {
+        gap: 2px !important;
+      }
+
+      .setlist-lista-final {
+        gap: 4px !important;
+        max-height: 410px !important;
+      }
+
+      .rodape-repertorio-builder {
+        gap: 7px !important;
+        margin-top: 8px !important;
+      }
+
+      .repertorio-biblioteca-lista {
+        gap: 6px !important;
+      }
+
+      .biblioteca-acoes-repertorio {
+        margin: 5px 0 7px !important;
+      }
+
+      .botao-adicionar-selecionadas-final {
+        margin-top: 8px !important;
+      }
+
       .rodape-repertorio-builder {
         display: grid;
         grid-template-columns: 1fr 1fr;
