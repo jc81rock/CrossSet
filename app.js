@@ -8709,11 +8709,28 @@ function configurarArrastarMusicasRepertorio() {
       const [movido] = itens.splice(indiceOrigem, 1);
       itens.splice(indiceDestino, 0, movido);
 
+      const posicaoLista = lista.scrollTop;
+      const posicaoPagina = window.scrollY;
+
       appState.repertorioOrdenacaoSelecionadas = "manual";
       const salvou = await salvarOrdemCompletaRepertorio(itens);
 
       if (salvou) {
         renderizarMontagemRepertorio();
+
+        requestAnimationFrame(function() {
+          const novaLista = elemento("lista-musicas-repertorio");
+
+          if (novaLista) {
+            novaLista.scrollTop = posicaoLista;
+          }
+
+          window.scrollTo({
+            top: posicaoPagina,
+            left: 0,
+            behavior: "auto"
+          });
+        });
       }
     });
   });
