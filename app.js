@@ -7454,14 +7454,6 @@ async function carregarRepertorios() {
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
               <span>Salvar repertório</span>
             </button>
-            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button" style="display:inline-flex;">
-              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-              <span>Montar repertório</span>
-            </button>
-            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
-              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
-              <span>Compartilhar repertório</span><span>→</span>
-            </button>
             <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
