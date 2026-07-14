@@ -7420,6 +7420,17 @@ async function carregarRepertorios() {
         gap: 6px;
       }
 
+      .setlist-acoes-final .btn-observacao-repertorio {
+        color: #ffffff;
+        background: transparent;
+        border: 0;
+      }
+
+      .setlist-acoes-final .btn-observacao-repertorio:hover {
+        color: #d8b4fe;
+        background: transparent;
+      }
+
       .setlist-acoes-final button {
         width: 28px;
         height: 28px;
@@ -8533,6 +8544,12 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
     const numero = String(indice + 1).padStart(2, "0");
     const progresso = obterProgressoDaMusica(musica.id);
     const textoStatus = progresso.percentual >= 90 ? "Pronta" : progresso.percentual >= 50 ? "Em estudo" : "Não iniciada";
+    const observacaoMusica = obterObservacaoMusicaManual(musica);
+    const botaoObservacao = observacaoMusica ? `
+      <button class="btn-observacao-repertorio" type="button" title="Ver observação" aria-label="Ver observação da música" data-observacao-musica-repertorio="${escaparHtml(musica.id)}">
+        <svg class="icone-limpo" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/><path d="M8 9h8"/><path d="M8 13h5"/></svg>
+      </button>
+    ` : "";
 
     return `
       <div class="setlist-linha" draggable="true" data-repertorio-item="${escaparHtml(item.id)}">
@@ -8543,6 +8560,7 @@ function renderizarMusicasSelecionadasRepertorio(itens) {
           <p>${escaparHtml(musica.artista || "Artista não informado")} • Tom: ${escaparHtml(musica.tom || "Não informado")} ${musica.bpm ? "• BPM: " + escaparHtml(musica.bpm) : ""} • <span class="bolinha-status-musica ${escaparHtml(progresso.cor)}"></span>${textoStatus} ${progresso.percentual}%</p>
         </div>
         <div class="setlist-acoes-final">
+          ${botaoObservacao}
           <button type="button" title="Mover para cima" data-subir-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button>
           <button type="button" title="Mover para baixo" data-descer-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
           <button class="remover" type="button" title="Remover" data-remover-musica-repertorio="${escaparHtml(item.id)}"><svg class="icone-limpo" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></button>
@@ -8638,6 +8656,23 @@ function configurarEventosMontagemRepertorio() {
   document.querySelectorAll("[data-adicionar-musica-repertorio]").forEach(function(botao) {
     botao.addEventListener("click", function() {
       adicionarMusicaAoRepertorio(botao.dataset.adicionarMusicaRepertorio);
+    });
+  });
+
+  document.querySelectorAll("[data-observacao-musica-repertorio]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      const musicaId = botao.dataset.observacaoMusicaRepertorio;
+      const relacao = (appState.repertorioMusicas || []).find(function(item) {
+        return String(item.musica?.id || item.musica_id || "") === String(musicaId || "");
+      });
+      const musica = relacao?.musica || (appState.musicas || []).find(function(item) {
+        return String(item.id || "") === String(musicaId || "");
+      });
+      const observacao = obterObservacaoMusicaManual(musica);
+
+      if (observacao) {
+        alert("OBS: " + observacao);
+      }
     });
   });
 
@@ -9435,7 +9470,7 @@ async function obterMusicasDoRepertorioParaPDF(repertorioId) {
 
   const { data, error } = await cliente
     .from(REPERTORIO_FACIL.tabelas.repertorioMusicas)
-    .select("id, ordem, musica:musica_id(id, nome, artista, tom, bpm)")
+    .select("id, ordem, musica:musica_id(id, nome, artista, tom, bpm, observacoes)")
     .eq("repertorio_id", repertorioId)
     .order("ordem", { ascending: true });
 
@@ -9594,6 +9629,11 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
       }
 
       linhas.push(linha);
+
+      const observacaoMusica = obterObservacaoMusicaManual(musica);
+      if (observacaoMusica) {
+        linhas.push("   OBS: " + observacaoMusica);
+      }
     });
   }
 
@@ -9731,6 +9771,7 @@ async function gerarPDFDoRepertorio(repertorioId) {
         </td>
         <td>${escaparHtml(musica.tom || "-")}</td>
         <td>${escaparHtml(musica.bpm || "-")}</td>
+        <td class="obs-musica">${obterObservacaoMusicaManual(musica) ? escaparHtml(obterObservacaoMusicaManual(musica)) : "-"}</td>
       </tr>
     `;
   }).join("");
@@ -9825,6 +9866,15 @@ async function gerarPDFDoRepertorio(repertorioId) {
           font-weight: 800;
           color: #6d28d9;
         }
+        .obs-musica {
+          max-width: 280px;
+          font-size: 12px;
+          line-height: 1.35;
+          color: #4b5563;
+          font-style: italic;
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
         .rodape {
           margin-top: 24px;
           padding-top: 12px;
@@ -9862,6 +9912,7 @@ async function gerarPDFDoRepertorio(repertorioId) {
             <th>Música</th>
             <th>Tom</th>
             <th>BPM</th>
+            <th>OBS</th>
           </tr>
         </thead>
         <tbody>
