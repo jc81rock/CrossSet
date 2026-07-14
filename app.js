@@ -1188,6 +1188,75 @@ function carregarPainelProjeto() {
 
     subtitulo.textContent = estilo + (cidade ? " • " + cidade + estado : "");
   }
+
+  carregarProximosEventosPainel();
+}
+
+async function carregarProximosEventosPainel() {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+  const lista = elemento("lista-proximos-eventos-painel");
+
+  if (!cliente || !projetoId || !lista) {
+    return;
+  }
+
+  lista.innerHTML = `<p class="proximos-eventos-vazio">Carregando próximos eventos...</p>`;
+
+  const hoje = new Date();
+  const hojeLocal = [
+    hoje.getFullYear(),
+    String(hoje.getMonth() + 1).padStart(2, "0"),
+    String(hoje.getDate()).padStart(2, "0")
+  ].join("-");
+
+  const { data, error } = await cliente
+    .from(REPERTORIO_FACIL.tabelas.eventos)
+    .select("id, nome, data_evento, hora_evento, local, cidade, estado, status")
+    .eq("projeto_id", projetoId)
+    .gte("data_evento", hojeLocal)
+    .neq("status", "Cancelado")
+    .order("data_evento", { ascending: true })
+    .order("hora_evento", { ascending: true })
+    .limit(3);
+
+  if (!projetoAtualAindaEh(projetoId)) {
+    return;
+  }
+
+  if (error) {
+    lista.innerHTML = `<p class="proximos-eventos-vazio">Não foi possível carregar os próximos eventos.</p>`;
+    return;
+  }
+
+  const eventos = data || [];
+
+  if (!eventos.length) {
+    lista.innerHTML = `<p class="proximos-eventos-vazio">Nenhum evento agendado.</p>`;
+    return;
+  }
+
+  lista.innerHTML = eventos.map(function(evento) {
+    const dataFormatada = formatarDataBR(evento.data_evento);
+    const horario = evento.hora_evento ? escaparHtml(evento.hora_evento) : "Horário não informado";
+    const local = evento.local || [evento.cidade, evento.estado].filter(Boolean).join(" - ") || "Local não informado";
+
+    return `
+      <button class="proximo-evento-item" type="button" data-abrir-eventos-painel>
+        <span class="proximo-evento-data">${escaparHtml(dataFormatada)}</span>
+        <span class="proximo-evento-conteudo">
+          <strong>${escaparHtml(evento.nome || "Evento")}</strong>
+          <small>${horario} • ${escaparHtml(local)}</small>
+        </span>
+      </button>
+    `;
+  }).join("");
+
+  lista.querySelectorAll("[data-abrir-eventos-painel]").forEach(function(botao) {
+    botao.addEventListener("click", function() {
+      abrirModulo("eventos");
+    });
+  });
 }
 
 function garantirTelasInternas() {
@@ -1249,6 +1318,108 @@ function garantirTelasInternas() {
         font-size: 13px !important;
         margin-top: auto;
         border-radius: 12px;
+      }
+
+      .proximos-eventos-painel {
+        margin-top: 12px;
+        padding: 13px 14px !important;
+        min-height: 0 !important;
+        border-radius: 16px !important;
+      }
+
+      .proximos-eventos-topo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .proximos-eventos-topo h3 {
+        margin: 0 !important;
+        font-size: 17px !important;
+        line-height: 1.1 !important;
+      }
+
+      .proximos-eventos-ver-todos {
+        border: 0;
+        background: transparent;
+        color: #c4b5fd;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 3px 0;
+      }
+
+      .lista-proximos-eventos-painel {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      .proximo-evento-item {
+        width: 100%;
+        min-width: 0;
+        min-height: 58px;
+        border: 1px solid rgba(255,255,255,.10);
+        border-radius: 11px;
+        background: rgba(255,255,255,.045);
+        color: #ffffff;
+        padding: 8px 9px;
+        cursor: pointer;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 9px;
+        text-align: left;
+      }
+
+      .proximo-evento-item:hover {
+        background: rgba(122,92,255,.14);
+        border-color: rgba(122,92,255,.34);
+      }
+
+      .proximo-evento-data {
+        color: #c4b5fd;
+        font-size: 11px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .proximo-evento-conteudo {
+        min-width: 0;
+        display: grid;
+        gap: 3px;
+      }
+
+      .proximo-evento-conteudo strong,
+      .proximo-evento-conteudo small {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .proximo-evento-conteudo strong {
+        color: #ffffff;
+        font-size: 12.5px;
+      }
+
+      .proximo-evento-conteudo small {
+        color: #9db2d6;
+        font-size: 10.5px;
+      }
+
+      .proximos-eventos-vazio {
+        grid-column: 1 / -1;
+        margin: 0 !important;
+        color: #9db2d6;
+        font-size: 12px !important;
+      }
+
+      @media (max-width: 820px) {
+        .lista-proximos-eventos-painel {
+          grid-template-columns: 1fr;
+        }
       }
 
       @media (max-width: 980px) {
@@ -1319,6 +1490,16 @@ function garantirTelasInternas() {
           <h3>Eventos</h3>
           <p>Organize datas, locais, horários e repertórios usados.</p>
           <button class="botao-card" type="button" data-modulo="eventos">Abrir</button>
+        </div>
+      </section>
+
+      <section class="card-projeto proximos-eventos-painel" aria-label="Próximos eventos">
+        <div class="proximos-eventos-topo">
+          <h3>Próximos eventos</h3>
+          <button class="proximos-eventos-ver-todos" type="button" data-modulo="eventos">Ver todos →</button>
+        </div>
+        <div id="lista-proximos-eventos-painel" class="lista-proximos-eventos-painel">
+          <p class="proximos-eventos-vazio">Carregando próximos eventos...</p>
         </div>
       </section>
 
@@ -1397,6 +1578,7 @@ function definirMenuModulo(modulo) {
 function abrirInicioProjeto() {
   limparAreaModulo();
   definirMenuModulo("inicio");
+  carregarProximosEventosPainel();
   if (window.location.hash !== "#inicio") {
     history.pushState(null, "", "#inicio");
   }
@@ -7453,6 +7635,14 @@ async function carregarRepertorios() {
             <button class="botao-salvar-repertorio" id="btn-salvar-repertorio" type="button">
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
               <span>Salvar repertório</span>
+            </button>
+            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button" style="display:inline-flex;">
+              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              <span>Montar repertório</span>
+            </button>
+            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
+              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
+              <span>Compartilhar repertório</span><span>→</span>
             </button>
             <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
