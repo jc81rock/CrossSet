@@ -7590,6 +7590,28 @@ async function carregarRepertorios() {
         margin-top: 6px !important;
       }
 
+      #card-form-repertorio.card-repertorio-expandido {
+        padding: 14px 16px !important;
+      }
+
+      #card-form-repertorio.card-repertorio-expandido .form-repertorios {
+        gap: 6px !important;
+      }
+
+      #card-form-repertorio.card-repertorio-expandido .acoes-repertorio {
+        margin-top: 2px !important;
+      }
+
+      #card-form-repertorio.card-repertorio-expandido .montagem-repertorio {
+        margin-top: 10px !important;
+        padding-top: 10px !important;
+        border-top: 1px solid rgba(255,255,255,.10);
+      }
+
+      #card-form-repertorio.card-repertorio-expandido .repertorio-builder-card {
+        padding-top: 12px !important;
+      }
+
       #card-form-repertorio:not(.card-repertorio-expandido) + #card-lista-repertorios {
         margin-top: 0 !important;
       }
@@ -7717,15 +7739,6 @@ async function carregarRepertorios() {
               <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
               <span>Salvar repertório</span>
             </button>
-            <button class="botao-montar-repertorio" id="btn-montar-repertorio-form" type="button" style="display:inline-flex;">
-              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-              <span>Montar repertório</span>
-            </button>
-            <button class="botao-whatsapp-repertorio" id="btn-compartilhar-repertorio" type="button" style="display:inline-flex;">
-              <svg class="icone-limpo" viewBox="0 0 24 24"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
-              <span>Compartilhar repertório</span><span>→</span>
-            </button>
-            <button class="botao-repertorio-secundario btn-gerar-pdf-repertorio" id="btn-gerar-pdf-repertorio" type="button" style="display:none;">Gerar PDF</button>
             <button class="botao-repertorio-secundario" id="btn-cancelar-repertorio" type="button" style="display:none;">Cancelar edição</button>
           </div>
 
@@ -8521,20 +8534,6 @@ function renderizarMontagemRepertorio() {
       </section>
 
       <section class="repertorio-builder-card">
-        <h3>Repertório em construção</h3>
-        <p class="texto-ajuda">Monte o repertório primeiro. O nome será obrigatório apenas ao salvar.</p>
-
-        <div class="repertorio-builder-form">
-          <label>
-            Nome do repertório
-            <input id="repertorio-nome-montagem" type="text" placeholder="Ex: Rock Nacional, Show Mr. Neno..." value="${escaparHtml(nomeAtual)}" />
-          </label>
-          <label>
-            Observações
-            <textarea id="repertorio-observacoes-montagem" placeholder="Ex: Repertório usado no show de verão.">${escaparHtml(obsAtual)}</textarea>
-          </label>
-        </div>
-
         <div class="repertorio-resumos">
           <div class="repertorio-resumo-card"><strong>${resumoRepertorio.quantidade}</strong><span>Músicas</span></div>
           <div class="repertorio-resumo-card"><strong>${duracaoEstimada}</strong><span>Duração estimada</span></div>
