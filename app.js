@@ -2403,10 +2403,15 @@ async function carregarIntegrantes() {
         color: #ffffff;
       }
 
+      .card-lista-musicas-smart {
+        overflow: hidden !important;
+      }
+
       .card-lista-musicas-smart .lista-musicas {
-        overflow-y: scroll;
-        overflow-x: hidden;
-        padding-right: 6px;
+        display: block !important;
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        padding-right: 6px !important;
         overscroll-behavior: contain;
         scrollbar-gutter: stable;
         scrollbar-width: thin;
@@ -6034,8 +6039,15 @@ function ajustarAlturaListaMusicas() {
   }
 
   const alturaFinal = Math.ceil(altura);
-  lista.style.height = alturaFinal + "px";
-  lista.style.maxHeight = alturaFinal + "px";
+  lista.style.setProperty("height", alturaFinal + "px", "important");
+  lista.style.setProperty("max-height", alturaFinal + "px", "important");
+  lista.style.setProperty("overflow-y", "scroll", "important");
+  lista.style.setProperty("overflow-x", "hidden", "important");
+
+  const card = lista.closest(".card-lista-musicas-smart");
+  if (card) {
+    card.style.setProperty("overflow", "hidden", "important");
+  }
 }
 
 function renderizarListaMusicas() {
