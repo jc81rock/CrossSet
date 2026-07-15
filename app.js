@@ -1880,7 +1880,7 @@ async function carregarIntegrantes() {
       .lista-integrantes {
         display: grid;
         gap: 10px;
-        max-height: 155px;
+        max-height: 330px;
         overflow-y: scroll;
         overflow-x: hidden;
         padding-right: 6px;
