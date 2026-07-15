@@ -4975,25 +4975,72 @@ async function carregarMusicas() {
       }
 
 
-      .musica-campo-youtube-rapido {
-        flex: 1 1 180px !important;
-        min-width: 170px !important;
+      .musica-youtube-linha {
+        margin: 5px 0 0 29px !important;
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto !important;
+        align-items: center !important;
+        gap: 7px !important;
+        width: calc(100% - 29px) !important;
+        color: #ffffff !important;
+        font-size: 11.5px !important;
       }
 
-      .input-musica-youtube-rapido {
-        width: 180px !important;
-        min-width: 150px !important;
-        max-width: 240px !important;
-        height: 22px !important;
-        min-height: 22px !important;
-        padding: 2px 6px !important;
+      .musica-youtube-linha strong {
+        color: #ffffff !important;
+        white-space: nowrap !important;
+      }
+
+      .input-musica-youtube-linha {
+        width: 100% !important;
+        min-width: 0 !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        padding: 5px 9px !important;
         margin: 0 !important;
-        border-radius: 7px !important;
-        font-size: 11px !important;
+        border-radius: 8px !important;
+        font-size: 11.5px !important;
         line-height: 1 !important;
         color: #ffffff !important;
         background: #050b14 !important;
         border: 1px solid rgba(255,255,255,.16) !important;
+      }
+
+      .musica-linha-principal {
+        min-width: 0 !important;
+      }
+
+      .musica-identidade {
+        min-width: 0 !important;
+        overflow: hidden !important;
+      }
+
+      .acoes-icone-musica {
+        flex: 0 0 auto !important;
+        margin-left: auto !important;
+        padding-left: 10px !important;
+      }
+
+      .card-lista-musicas-smart .lista-musicas {
+        scrollbar-color: rgba(168, 85, 247, .68) rgba(255,255,255,.05) !important;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar {
+        width: 8px !important;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar-track {
+        background: rgba(255,255,255,.05) !important;
+        border-radius: 999px !important;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar-thumb {
+        background: rgba(168, 85, 247, .68) !important;
+        border-radius: 999px !important;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar-thumb:hover {
+        background: rgba(168, 85, 247, .88) !important;
       }
 
       .musica-campo-obs-rapido {
@@ -5697,8 +5744,7 @@ function montarUrlReferenciaMusica(item) {
     ""
   );
 
-  const youtubeUrlBruta = limparTexto(item?.youtube_url || "");
-  const youtubeUrl = ehUrlYoutube(youtubeUrlBruta) ? youtubeUrlBruta : "";
+  const youtubeValor = ehUrlYoutube(item?.youtube_url) ? limparTexto(item.youtube_url) : "";
   const linhas = [];
 
   if (urlReferencia) {
@@ -5711,15 +5757,13 @@ function montarUrlReferenciaMusica(item) {
     `);
   }
 
-  if (youtubeUrl) {
-    const hrefYoutube = normalizarUrlExterna(youtubeUrl);
-    linhas.push(`
-      <div class="musica-url-referencia musica-url-youtube">
-        <span>YouTube:</span>
-        <a href="${escaparHtml(hrefYoutube)}" target="_blank" rel="noopener noreferrer" title="${escaparHtml(youtubeUrl)}">${escaparHtml(youtubeUrl)}</a>
-      </div>
-    `);
-  }
+  linhas.push(`
+    <label class="musica-youtube-linha" title="URL do YouTube opcional">
+      <strong>YouTube:</strong>
+      <input class="input-musica-youtube-linha" type="url" value="${escaparHtml(youtubeValor)}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
+      <span class="texto-opcional-musica">(opcional)</span>
+    </label>
+  `);
 
   return linhas.join("");
 }
@@ -5935,7 +5979,6 @@ function iconeCampoMusica(tipo) {
 }
 
 function montarCamposRapidosMusica(item) {
-  const youtubeValorRapido = ehUrlYoutube(item?.youtube_url) ? limparTexto(item.youtube_url) : "";
   return `
     <span class="musica-campos-rapidos">
       <label class="musica-campo-rapido" title="Tom opcional">
@@ -5948,11 +5991,6 @@ function montarCamposRapidosMusica(item) {
         ${iconeCampoMusica("bpm")}
         <span>BPM:</span>
         <input class="input-musica-rapido" type="number" inputmode="numeric" min="0" value="${escaparHtml(item.bpm || "")}" placeholder="—" data-campo-rapido-musica="bpm" data-musica-id="${escaparHtml(item.id)}" />
-        <span class="texto-opcional-musica">(opcional)</span>
-      </label>
-      <label class="musica-campo-rapido musica-campo-youtube-rapido" title="URL do YouTube opcional">
-        <span>YouTube:</span>
-        <input class="input-musica-youtube-rapido" type="url" value="${escaparHtml(youtubeValorRapido)}" placeholder="URL do YouTube" data-campo-rapido-musica="youtube_url" data-musica-id="${escaparHtml(item.id)}" />
         <span class="texto-opcional-musica">(opcional)</span>
       </label>
     </span>
