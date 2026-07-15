@@ -10179,6 +10179,31 @@ async function carregarEventos() {
       .lista-eventos {
         display: grid;
         gap: 10px;
+        max-height: 540px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 6px;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(168, 85, 247, .48) rgba(255,255,255,.05);
+      }
+
+      .lista-eventos::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .lista-eventos::-webkit-scrollbar-track {
+        background: rgba(255,255,255,.05);
+        border-radius: 999px;
+      }
+
+      .lista-eventos::-webkit-scrollbar-thumb {
+        background: rgba(168, 85, 247, .48);
+        border-radius: 999px;
+      }
+
+      .lista-eventos::-webkit-scrollbar-thumb:hover {
+        background: rgba(168, 85, 247, .68);
       }
 
       .item-evento {
@@ -10454,6 +10479,12 @@ async function carregarEventos() {
         .item-evento-topo {
           grid-template-columns: 1fr;
           flex-direction: column;
+        }
+
+        .lista-eventos {
+          max-height: none !important;
+          overflow-y: visible !important;
+          padding-right: 0 !important;
         }
 
         .botoes-item-evento {
