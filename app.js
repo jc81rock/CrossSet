@@ -2333,20 +2333,50 @@ async function carregarIntegrantes() {
 
       .crossset-smart-legenda {
         margin-top: 10px;
-        padding: 12px;
+        padding: 0;
         border-radius: 12px;
         background: rgba(255, 255, 255, .045);
         border: 1px solid rgba(255, 255, 255, .10);
         color: #d1d5db;
-        display: grid;
-        gap: 7px;
+        overflow: hidden;
       }
 
-      .crossset-smart-legenda h4 {
-        margin: 0;
+      .crossset-smart-legenda summary {
+        min-height: 38px;
+        padding: 9px 11px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        cursor: pointer;
+        list-style: none;
         color: #ffffff;
         font-size: 13px;
+        font-weight: 800;
         line-height: 1.2;
+        user-select: none;
+      }
+
+      .crossset-smart-legenda summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .crossset-smart-legenda summary::after {
+        content: "⌄";
+        color: #c4b5fd;
+        font-size: 16px;
+        line-height: 1;
+        transition: transform .18s ease;
+      }
+
+      .crossset-smart-legenda[open] summary::after {
+        transform: rotate(180deg);
+      }
+
+      .crossset-smart-legenda-conteudo {
+        padding: 0 11px 11px;
+        display: grid;
+        gap: 7px;
       }
 
       .crossset-smart-legenda p {
@@ -3881,7 +3911,9 @@ async function carregarMusicas() {
 
       .card-crossset-smart-musicas {
         min-height: 520px !important;
-        align-self: stretch !important;
+        align-self: start !important;
+        position: sticky !important;
+        top: 12px !important;
       }
 
       .card-lista-musicas-smart {
@@ -4786,6 +4818,11 @@ async function carregarMusicas() {
           grid-template-columns: 1fr;
         }
 
+        .card-crossset-smart-musicas {
+          position: static !important;
+          top: auto !important;
+        }
+
         .linha-form-musicas .ajuda-bpm-musica {
           grid-column: 1;
         }
@@ -5044,15 +5081,17 @@ async function carregarMusicas() {
           </div>
         </div>
 
-        <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
-          <h4>Como funciona o progresso das músicas?</h4>
-          <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
-          <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
-          <p>🟡 <strong>Em andamento</strong><br>O integrante está estudando ou ensaiando a música.</p>
-          <p>🟢 <strong>Concluída</strong><br>O integrante considera a música pronta para tocar.</p>
-          <p><strong>Barra de progresso</strong><br>A barra representa o progresso geral da música, calculado automaticamente com base nas respostas de todos os integrantes.</p>
-          <p>Quando uma música é adicionada a um repertório, esse progresso passa a compor o progresso geral do repertório, permitindo acompanhar rapidamente o nível de preparação da banda para cada apresentação.</p>
-        </div>
+        <details class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
+          <summary>Como funciona o progresso das músicas?</summary>
+          <div class="crossset-smart-legenda-conteudo">
+            <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
+            <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
+            <p>🟡 <strong>Em andamento</strong><br>O integrante está estudando ou ensaiando a música.</p>
+            <p>🟢 <strong>Concluída</strong><br>O integrante considera a música pronta para tocar.</p>
+            <p><strong>Barra de progresso</strong><br>A barra representa o progresso geral da música, calculado automaticamente com base nas respostas de todos os integrantes.</p>
+            <p>Quando uma música é adicionada a um repertório, esse progresso passa a compor o progresso geral do repertório, permitindo acompanhar rapidamente o nível de preparação da banda para cada apresentação.</p>
+          </div>
+        </details>
       </div>
 
       <div class="card-projeto card-lista-musicas-smart">
