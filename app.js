@@ -1600,6 +1600,10 @@ window.addEventListener("resize", function() {
   if (elemento("lista-integrantes")) {
     requestAnimationFrame(ajustarAlturaListaIntegrantes);
   }
+
+  if (elemento("lista-musicas")) {
+    requestAnimationFrame(ajustarAlturaListaMusicas);
+  }
 });
 
 window.addEventListener("hashchange", function() {
@@ -2400,12 +2404,11 @@ async function carregarIntegrantes() {
       }
 
       .card-lista-musicas-smart .lista-musicas {
-        min-height: 320px;
-        max-height: calc(100vh - 320px);
         overflow-y: scroll;
         overflow-x: hidden;
         padding-right: 6px;
         overscroll-behavior: contain;
+        scrollbar-gutter: stable;
         scrollbar-width: thin;
         scrollbar-color: rgba(168, 85, 247, .48) rgba(255,255,255,.05);
       }
@@ -6002,6 +6005,39 @@ function montarResumoProgressoMusica(musicaId) {
   `;
 }
 
+function ajustarAlturaListaMusicas() {
+  const lista = elemento("lista-musicas");
+
+  if (!lista || window.innerWidth <= 820) {
+    return;
+  }
+
+  const itens = Array.from(lista.querySelectorAll(".item-musica"));
+
+  if (!itens.length) {
+    lista.style.height = "auto";
+    lista.style.maxHeight = "none";
+    return;
+  }
+
+  const estilosLista = window.getComputedStyle(lista);
+  const gap = parseFloat(estilosLista.rowGap || estilosLista.gap || "10") || 10;
+  const quantidadeVisivel = Math.min(2, itens.length);
+  let altura = 0;
+
+  for (let i = 0; i < quantidadeVisivel; i += 1) {
+    altura += itens[i].getBoundingClientRect().height;
+  }
+
+  if (quantidadeVisivel > 1) {
+    altura += gap;
+  }
+
+  const alturaFinal = Math.ceil(altura);
+  lista.style.height = alturaFinal + "px";
+  lista.style.maxHeight = alturaFinal + "px";
+}
+
 function renderizarListaMusicas() {
   const lista = elemento("lista-musicas");
   const busca = limparTexto(elemento("busca-musicas")?.value).toLowerCase();
@@ -6105,6 +6141,10 @@ function renderizarListaMusicas() {
       </div>
     `;
   }).join("");
+
+  requestAnimationFrame(function() {
+    ajustarAlturaListaMusicas();
+  });
 
   lista.querySelectorAll("[data-editar-musica]").forEach(function(botao) {
     botao.addEventListener("click", function() {
