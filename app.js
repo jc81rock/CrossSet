@@ -1596,6 +1596,12 @@ function abrirModuloPeloHash() {
   }
 }
 
+window.addEventListener("resize", function() {
+  if (elemento("lista-integrantes")) {
+    requestAnimationFrame(ajustarAlturaListaIntegrantes);
+  }
+});
+
 window.addEventListener("hashchange", function() {
   if (appState.telaAtual !== "tela-painel-projeto") {
     return;
@@ -1880,7 +1886,6 @@ async function carregarIntegrantes() {
       .lista-integrantes {
         display: grid;
         gap: 10px;
-        max-height: 330px;
         overflow-y: scroll;
         overflow-x: hidden;
         padding-right: 6px;
@@ -2727,6 +2732,37 @@ function montarDesenvolvimentoIntegrante(integranteId) {
   `;
 }
 
+function ajustarAlturaListaIntegrantes() {
+  const lista = elemento("lista-integrantes");
+
+  if (!lista || window.innerWidth <= 820) {
+    return;
+  }
+
+  const itens = Array.from(lista.querySelectorAll(".item-integrante"));
+
+  if (!itens.length) {
+    lista.style.height = "auto";
+    lista.style.maxHeight = "none";
+    return;
+  }
+
+  const gap = 10;
+  const quantidadeVisivel = Math.min(2, itens.length);
+  let altura = 0;
+
+  for (let i = 0; i < quantidadeVisivel; i += 1) {
+    altura += itens[i].getBoundingClientRect().height;
+  }
+
+  if (quantidadeVisivel > 1) {
+    altura += gap;
+  }
+
+  lista.style.height = Math.ceil(altura) + "px";
+  lista.style.maxHeight = Math.ceil(altura) + "px";
+}
+
 function renderizarListaIntegrantes() {
   const lista = elemento("lista-integrantes");
   const busca = limparTexto(elemento("busca-integrantes")?.value).toLowerCase();
@@ -2806,6 +2842,10 @@ function renderizarListaIntegrantes() {
       </div>
     `;
   }).join("");
+
+  requestAnimationFrame(function() {
+    ajustarAlturaListaIntegrantes();
+  });
 
   lista.querySelectorAll("[data-editar-integrante]").forEach(function(botao) {
     botao.addEventListener("click", function() {
