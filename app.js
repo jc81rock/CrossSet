@@ -1880,6 +1880,31 @@ async function carregarIntegrantes() {
       .lista-integrantes {
         display: grid;
         gap: 10px;
+        max-height: 155px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding-right: 6px;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(168, 85, 247, .48) rgba(255,255,255,.05);
+      }
+
+      .lista-integrantes::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .lista-integrantes::-webkit-scrollbar-track {
+        background: rgba(255,255,255,.05);
+        border-radius: 999px;
+      }
+
+      .lista-integrantes::-webkit-scrollbar-thumb {
+        background: rgba(168, 85, 247, .48);
+        border-radius: 999px;
+      }
+
+      .lista-integrantes::-webkit-scrollbar-thumb:hover {
+        background: rgba(168, 85, 247, .68);
       }
 
       .item-integrante {
@@ -2445,6 +2470,12 @@ async function carregarIntegrantes() {
 
         .item-integrante-topo {
           flex-direction: column;
+        }
+
+        .lista-integrantes {
+          max-height: none !important;
+          overflow-y: visible !important;
+          padding-right: 0 !important;
         }
 
         .botoes-item-integrante {
@@ -7421,9 +7452,51 @@ async function carregarRepertorios() {
         display: grid;
         gap: 5px;
         max-height: 330px;
-        overflow: auto;
-        padding-right: 4px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 6px;
         min-height: 105px;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(168, 85, 247, .48) rgba(255,255,255,.05);
+      }
+
+      .repertorio-biblioteca-lista,
+      .lista-biblioteca-musicas,
+      .lista-musicas-repertorio,
+      .setlist-lista-final {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(168, 85, 247, .48) rgba(255,255,255,.05);
+      }
+
+      .repertorio-biblioteca-lista::-webkit-scrollbar,
+      .lista-biblioteca-musicas::-webkit-scrollbar,
+      .lista-musicas-repertorio::-webkit-scrollbar,
+      .setlist-lista-final::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .repertorio-biblioteca-lista::-webkit-scrollbar-track,
+      .lista-biblioteca-musicas::-webkit-scrollbar-track,
+      .lista-musicas-repertorio::-webkit-scrollbar-track,
+      .setlist-lista-final::-webkit-scrollbar-track {
+        background: rgba(255,255,255,.05);
+        border-radius: 999px;
+      }
+
+      .repertorio-biblioteca-lista::-webkit-scrollbar-thumb,
+      .lista-biblioteca-musicas::-webkit-scrollbar-thumb,
+      .lista-musicas-repertorio::-webkit-scrollbar-thumb,
+      .setlist-lista-final::-webkit-scrollbar-thumb {
+        background: rgba(168, 85, 247, .48);
+        border-radius: 999px;
+      }
+
+      .repertorio-biblioteca-lista::-webkit-scrollbar-thumb:hover,
+      .lista-biblioteca-musicas::-webkit-scrollbar-thumb:hover,
+      .lista-musicas-repertorio::-webkit-scrollbar-thumb:hover,
+      .setlist-lista-final::-webkit-scrollbar-thumb:hover {
+        background: rgba(168, 85, 247, .68);
       }
 
       .setlist-linha {
