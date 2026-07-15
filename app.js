@@ -2371,36 +2371,15 @@ async function carregarIntegrantes() {
         overflow: hidden;
       }
 
-      .crossset-smart-legenda summary {
+      .crossset-smart-legenda-titulo {
         min-height: 38px;
-        padding: 9px 11px;
+        padding: 9px 11px 4px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        cursor: pointer;
-        list-style: none;
         color: #ffffff;
         font-size: 13px;
         font-weight: 800;
         line-height: 1.2;
-        user-select: none;
-      }
-
-      .crossset-smart-legenda summary::-webkit-details-marker {
-        display: none;
-      }
-
-      .crossset-smart-legenda summary::after {
-        content: "⌄";
-        color: #c4b5fd;
-        font-size: 16px;
-        line-height: 1;
-        transition: transform .18s ease;
-      }
-
-      .crossset-smart-legenda[open] summary::after {
-        transform: rotate(180deg);
       }
 
       .crossset-smart-legenda-conteudo {
@@ -2423,7 +2402,7 @@ async function carregarIntegrantes() {
       .card-lista-musicas-smart .lista-musicas {
         min-height: 320px;
         max-height: calc(100vh - 320px);
-        overflow-y: auto;
+        overflow-y: scroll;
         overflow-x: hidden;
         padding-right: 6px;
         overscroll-behavior: contain;
@@ -5183,8 +5162,8 @@ async function carregarMusicas() {
           </div>
         </div>
 
-        <details class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
-          <summary>Como funciona o progresso das músicas?</summary>
+        <div class="crossset-smart-legenda" aria-label="Legenda de progresso das músicas">
+          <div class="crossset-smart-legenda-titulo">Como funciona o progresso das músicas?</div>
           <div class="crossset-smart-legenda-conteudo">
             <p>Cada integrante informa seu <strong>nível de preparo</strong> em cada música do projeto.</p>
             <p>🔴 <strong>Não iniciada</strong><br>O integrante ainda não começou a estudar a música.</p>
@@ -5193,7 +5172,7 @@ async function carregarMusicas() {
             <p><strong>Barra de progresso</strong><br>A barra representa o progresso geral da música, calculado automaticamente com base nas respostas de todos os integrantes.</p>
             <p>Quando uma música é adicionada a um repertório, esse progresso passa a compor o progresso geral do repertório, permitindo acompanhar rapidamente o nível de preparação da banda para cada apresentação.</p>
           </div>
-        </details>
+        </div>
       </div>
 
       <div class="card-projeto card-lista-musicas-smart">
