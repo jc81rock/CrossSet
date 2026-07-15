@@ -2392,6 +2392,31 @@ async function carregarIntegrantes() {
 
       .card-lista-musicas-smart .lista-musicas {
         min-height: 320px;
+        max-height: calc(100vh - 320px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 6px;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(168, 85, 247, .48) rgba(255,255,255,.05);
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar-track {
+        background: rgba(255,255,255,.05);
+        border-radius: 999px;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar-thumb {
+        background: rgba(168, 85, 247, .48);
+        border-radius: 999px;
+      }
+
+      .card-lista-musicas-smart .lista-musicas::-webkit-scrollbar-thumb:hover {
+        background: rgba(168, 85, 247, .68);
       }
 
 
@@ -4821,6 +4846,12 @@ async function carregarMusicas() {
         .card-crossset-smart-musicas {
           position: static !important;
           top: auto !important;
+        }
+
+        .card-lista-musicas-smart .lista-musicas {
+          max-height: none !important;
+          overflow-y: visible !important;
+          padding-right: 0 !important;
         }
 
         .linha-form-musicas .ajuda-bpm-musica {
