@@ -1604,6 +1604,9 @@ window.addEventListener("resize", function() {
   if (elemento("lista-musicas")) {
     requestAnimationFrame(ajustarAlturaListaMusicas);
   }
+
+  ativarBarrasInternasCrossSet();
+  document.querySelectorAll(".crossset-scroll-customizada").forEach(atualizarBarraInternaCrossSet);
 });
 
 window.addEventListener("hashchange", function() {
@@ -2832,6 +2835,7 @@ function renderizarListaIntegrantes() {
 
   requestAnimationFrame(function() {
     ajustarAlturaListaIntegrantes();
+    ativarBarrasInternasCrossSet();
   });
 
   lista.querySelectorAll("[data-editar-integrante]").forEach(function(botao) {
@@ -5043,6 +5047,21 @@ async function carregarMusicas() {
         background: rgba(168, 85, 247, .88) !important;
       }
 
+      .crossset-scroll-wrapper { position: relative !important; }
+      .crossset-scroll-customizada { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+      .crossset-scroll-customizada::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
+      .crossset-scroll-track { position:absolute; top:2px; right:2px; bottom:2px; width:8px; border-radius:999px; background:rgba(255,255,255,.06); z-index:20; pointer-events:none; }
+      .crossset-scroll-thumb { position:absolute; left:0; top:0; width:8px; min-height:28px; border-radius:999px; background:rgba(168,85,247,.82); box-shadow:0 0 8px rgba(168,85,247,.28); transform:translateY(0); }
+      .crossset-scroll-track.oculta { display:none !important; }
+      .crossset-scroll-wrapper > .lista-integrantes,
+      .crossset-scroll-wrapper > .lista-musicas,
+      .crossset-scroll-wrapper > .lista-eventos,
+      .crossset-scroll-wrapper > .repertorio-biblioteca-lista,
+      .crossset-scroll-wrapper > .lista-biblioteca-musicas,
+      .crossset-scroll-wrapper > .lista-musicas-repertorio,
+      .crossset-scroll-wrapper > .setlist-lista-final { padding-right:14px !important; }
+      @media (max-width:820px){ .crossset-scroll-track{right:1px;width:7px}.crossset-scroll-thumb{width:7px} }
+
       .musica-campo-obs-rapido {
         flex: 0 0 150px !important;
         min-width: 150px !important;
@@ -6048,6 +6067,47 @@ function montarResumoProgressoMusica(musicaId) {
   `;
 }
 
+function atualizarBarraInternaCrossSet(lista) {
+  if (!lista) return;
+  const wrapper = lista.parentElement;
+  const track = wrapper?.querySelector(":scope > .crossset-scroll-track");
+  const thumb = track?.querySelector(".crossset-scroll-thumb");
+  if (!wrapper || !track || !thumb) return;
+  const clientHeight = lista.clientHeight;
+  const scrollHeight = lista.scrollHeight;
+  if (!clientHeight || scrollHeight <= clientHeight + 2) { track.classList.add("oculta"); return; }
+  track.classList.remove("oculta");
+  const trackHeight = track.clientHeight;
+  const thumbHeight = Math.max(28, Math.round(trackHeight * (clientHeight / scrollHeight)));
+  const maxThumbTop = Math.max(0, trackHeight - thumbHeight);
+  const maxScrollTop = Math.max(1, scrollHeight - clientHeight);
+  const thumbTop = Math.round((lista.scrollTop / maxScrollTop) * maxThumbTop);
+  thumb.style.height = thumbHeight + "px";
+  thumb.style.transform = "translateY(" + thumbTop + "px)";
+}
+
+function ativarBarraInternaCrossSet(lista) {
+  if (!lista) return;
+  if (lista.dataset.crosssetScrollCustomizada === "1") { requestAnimationFrame(() => atualizarBarraInternaCrossSet(lista)); return; }
+  lista.dataset.crosssetScrollCustomizada = "1";
+  lista.classList.add("crossset-scroll-customizada");
+  const wrapper = document.createElement("div");
+  wrapper.className = "crossset-scroll-wrapper";
+  lista.parentNode.insertBefore(wrapper, lista);
+  wrapper.appendChild(lista);
+  const track = document.createElement("div"); track.className = "crossset-scroll-track";
+  const thumb = document.createElement("div"); thumb.className = "crossset-scroll-thumb";
+  track.appendChild(thumb); wrapper.appendChild(track);
+  lista.addEventListener("scroll", () => atualizarBarraInternaCrossSet(lista), { passive:true });
+  requestAnimationFrame(() => atualizarBarraInternaCrossSet(lista));
+}
+
+function ativarBarrasInternasCrossSet() {
+  [".lista-integrantes", ".card-lista-musicas-smart .lista-musicas", ".lista-eventos", ".repertorio-biblioteca-lista", ".lista-biblioteca-musicas", ".lista-musicas-repertorio", ".setlist-lista-final"].forEach(function(seletor){
+    document.querySelectorAll(seletor).forEach(ativarBarraInternaCrossSet);
+  });
+}
+
 function ajustarAlturaListaMusicas() {
   const lista = elemento("lista-musicas");
 
@@ -6194,6 +6254,7 @@ function renderizarListaMusicas() {
 
   requestAnimationFrame(function() {
     ajustarAlturaListaMusicas();
+    ativarBarrasInternasCrossSet();
   });
 
   lista.querySelectorAll("[data-editar-musica]").forEach(function(botao) {
@@ -11615,8 +11676,12 @@ function prepararAplicacao() {
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
+  ativarBarrasInternasCrossSet();
   prepararAplicacao();
 
   await verificarSessao();
   await restaurarProjetoAtual();
 });
+
+const crosssetScrollObserver = new MutationObserver(function(){ ativarBarrasInternasCrossSet(); });
+crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:true});
