@@ -56,7 +56,8 @@ let appState = {
   meuIntegranteAtual: null,
   eventos: [],
   eventoEditandoId: null,
-  conviteAtual: null
+  conviteAtual: null,
+  podeAdministrarProjeto: false
 };
 
 function sb() {
@@ -2503,7 +2504,7 @@ async function carregarIntegrantes() {
             </label>
           </div>
 
-          <label>
+          <label id="campo-integrante-administrador">
             Administrador
             <select id="integrante-administrador">
               <option value="false">Não</option>
@@ -2566,6 +2567,31 @@ async function carregarIntegrantes() {
   appState.integranteEditandoId = null;
   configurarEventosIntegrantes();
   await buscarIntegrantes();
+}
+
+function atualizarPermissaoAdministrativaIntegrantes(usuario) {
+  const projeto = appState.projetoAtual || {};
+  const emailUsuario = limparTexto(usuario?.email).toLowerCase();
+  const meuRegistro = (appState.integrantes || []).find(function(item) {
+    return (item.usuario_id && usuario?.id && String(item.usuario_id) === String(usuario.id)) ||
+      (emailUsuario && limparTexto(item.email).toLowerCase() === emailUsuario);
+  }) || null;
+
+  appState.meuIntegranteAtual = meuRegistro;
+  appState.podeAdministrarProjeto = Boolean(
+    usuario?.id && projeto.usuario_id && String(projeto.usuario_id) === String(usuario.id)
+  ) || Boolean(meuRegistro?.administrador === true);
+
+  const campo = elemento("campo-integrante-administrador");
+  const select = elemento("integrante-administrador");
+
+  if (campo) {
+    campo.style.display = appState.podeAdministrarProjeto ? "grid" : "none";
+  }
+
+  if (select) {
+    select.disabled = !appState.podeAdministrarProjeto;
+  }
 }
 
 function configurarEventosIntegrantes() {
@@ -2645,6 +2671,9 @@ async function buscarIntegrantes() {
   appState.integrantes = integrantesResultado.data || [];
   appState.musicas = musicasResultado.data || [];
   appState.progressoMusicas = progressoResultado.data || [];
+
+  const { data: sessaoAtual } = await cliente.auth.getSession();
+  atualizarPermissaoAdministrativaIntegrantes(sessaoAtual.session?.user || null);
   renderizarListaIntegrantes();
 }
 
@@ -3013,11 +3042,15 @@ async function salvarIntegrante() {
   let resultado;
 
   if (integranteEditandoId) {
+    const integranteAtual = (appState.integrantes || []).find(function(item) {
+      return String(item.id) === String(integranteEditandoId);
+    });
+
     const payloadEdicao = {
       nome: dados.nome,
       funcao: dados.funcao,
       instrumento: dados.instrumento,
-      administrador: dados.administrador,
+      administrador: appState.podeAdministrarProjeto ? dados.administrador : Boolean(integranteAtual?.administrador),
       email: dados.email,
       telefone: dados.telefone,
       chave_pix: dados.chave_pix
@@ -3063,7 +3096,7 @@ async function salvarIntegrante() {
       nome: dados.nome,
       funcao: dados.funcao,
       instrumento: dados.instrumento,
-      administrador: dados.administrador,
+      administrador: appState.podeAdministrarProjeto ? dados.administrador : false,
       email: dados.email,
       telefone: dados.telefone,
       chave_pix: dados.chave_pix
@@ -3448,23 +3481,79 @@ async function carregarConvitePublico(codigo) {
   const usuarioLogado = sessaoParaConvite.session?.user;
 
   if (usuarioLogado) {
-    if (descricao) {
-      descricao.textContent = "Finalizando sua entrada no projeto...";
-    }
-    if (detalhes) {
-      detalhes.innerHTML = `<p>Validando convite e abrindo ${escaparHtml(data.projeto_nome || "Projeto musical")}...</p>`;
-    }
-    if (acoes) {
-      acoes.innerHTML = "";
+    const dadosCompletos = dadosPendentesGmail &&
+      limparTexto(dadosPendentesGmail.nome) &&
+      limparTexto(dadosPendentesGmail.funcao) &&
+      limparTexto(dadosPendentesGmail.instrumento) &&
+      limparTexto(dadosPendentesGmail.telefone);
+
+    if (dadosCompletos) {
+      if (descricao) {
+        descricao.textContent = "Finalizando sua entrada no projeto...";
+      }
+      if (detalhes) {
+        detalhes.innerHTML = `<p>Validando convite e abrindo ${escaparHtml(data.projeto_nome || "Projeto musical")}...</p>`;
+      }
+      if (acoes) {
+        acoes.innerHTML = "";
+      }
+
+      await aceitarConviteComUsuario(usuarioLogado, {
+        nome: dadosPendentesGmail.nome,
+        funcao: dadosPendentesGmail.funcao,
+        instrumento: dadosPendentesGmail.instrumento,
+        telefone: dadosPendentesGmail.telefone,
+        chave_pix: dadosPendentesGmail.chave_pix || "",
+        email: usuarioLogado.email || ""
+      });
+      return;
     }
 
-    await aceitarConviteComUsuario(usuarioLogado, {
-      nome: dadosPendentesGmail?.nome || obterNomeUsuario(usuarioLogado),
-      funcao: dadosPendentesGmail?.funcao || "Integrante",
-      instrumento: dadosPendentesGmail?.instrumento || "",
-      telefone: dadosPendentesGmail?.telefone || "",
-      email: usuarioLogado.email || ""
-    });
+    if (descricao) {
+      descricao.textContent = "Complete seus dados obrigatórios para entrar no projeto.";
+    }
+
+    if (detalhes) {
+      detalhes.innerHTML = `
+        <div class="convite-resumo-projeto">
+          <p>Projeto</p>
+          <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
+          <span><strong>Perfil:</strong> Integrante</span>
+        </div>
+      `;
+    }
+
+    if (acoes) {
+      acoes.innerHTML = `
+        <div style="border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:14px; background:#0b1220; display:grid; gap:10px; text-align:left;">
+          <label>Nome completo<input id="convite-logado-nome" type="text" value="${escaparHtml(obterNomeUsuario(usuarioLogado))}" /></label>
+          <label>Função<input id="convite-logado-funcao" type="text" placeholder="Ex: Guitarrista" /></label>
+          <label>Instrumento<input id="convite-logado-instrumento" type="text" placeholder="Ex: Guitarra" /></label>
+          <label>WhatsApp / Telefone<input id="convite-logado-telefone" type="tel" placeholder="(00) 00000-0000" /></label>
+          <label>Chave Pix (opcional)<input id="convite-logado-chave-pix" type="text" placeholder="CPF, celular, e-mail ou chave aleatória" /></label>
+          <label>E-mail<input type="email" value="${escaparHtml(usuarioLogado.email || "")}" disabled /></label>
+          <button class="botao-principal" id="btn-completar-convite-logado" type="button">Aceitar convite e entrar no projeto</button>
+        </div>
+      `;
+
+      elemento("btn-completar-convite-logado")?.addEventListener("click", async function() {
+        const dados = {
+          nome: limparTexto(elemento("convite-logado-nome")?.value),
+          funcao: limparTexto(elemento("convite-logado-funcao")?.value),
+          instrumento: limparTexto(elemento("convite-logado-instrumento")?.value),
+          telefone: limparTexto(elemento("convite-logado-telefone")?.value),
+          chave_pix: limparTexto(elemento("convite-logado-chave-pix")?.value),
+          email: usuarioLogado.email || ""
+        };
+
+        if (!validarDadosObrigatoriosConvite(dados, true)) {
+          return;
+        }
+
+        await aceitarConviteComUsuario(usuarioLogado, dados);
+      });
+    }
+
     return;
   }
 
@@ -3478,7 +3567,7 @@ async function carregarConvitePublico(codigo) {
         <p>Projeto</p>
         <h3>${escaparHtml(data.projeto_nome || "Projeto musical")}</h3>
         <span><strong>Convidado por:</strong> ${escaparHtml(data.criado_por_nome || "Administrador")}</span>
-        <span><strong>Função:</strong> ${data.papel === "administrador" ? "Administrador" : "Integrante"}</span>
+        <span><strong>Perfil:</strong> Integrante</span>
       </div>
     `;
   }
@@ -3509,6 +3598,11 @@ async function carregarConvitePublico(codigo) {
         <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
           WhatsApp / Telefone
           <input id="convite-cadastro-telefone" type="tel" placeholder="(00) 00000-0000" />
+        </label>
+
+        <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
+          Chave Pix (opcional)
+          <input id="convite-cadastro-chave-pix" type="text" placeholder="CPF, celular, e-mail ou chave aleatória" />
         </label>
 
         <label style="display:grid; gap:6px; color:#e5e7eb; font-size:13px;">
@@ -3552,9 +3646,10 @@ async function carregarConvitePublico(codigo) {
 function obterDadosCadastroConvite() {
   return {
     nome: limparTexto(elemento("convite-cadastro-nome")?.value),
-    funcao: limparTexto(elemento("convite-cadastro-funcao")?.value) || "Integrante",
+    funcao: limparTexto(elemento("convite-cadastro-funcao")?.value),
     instrumento: limparTexto(elemento("convite-cadastro-instrumento")?.value),
     telefone: limparTexto(elemento("convite-cadastro-telefone")?.value),
+    chave_pix: limparTexto(elemento("convite-cadastro-chave-pix")?.value),
     email: limparTexto(elemento("convite-cadastro-email")?.value),
     senha: limparTexto(elemento("convite-cadastro-senha")?.value),
     repetirSenha: limparTexto(elemento("convite-cadastro-repetir-senha")?.value)
@@ -3570,9 +3665,10 @@ function salvarDadosConviteTemporario(codigo, dados) {
     codigo: codigo,
     dados: {
       nome: dados.nome || "",
-      funcao: dados.funcao || "Integrante",
+      funcao: dados.funcao || "",
       instrumento: dados.instrumento || "",
-      telefone: dados.telefone || ""
+      telefone: dados.telefone || "",
+      chave_pix: dados.chave_pix || ""
     }
   }));
 }
@@ -3601,6 +3697,15 @@ function limparDadosConviteTemporario() {
   localStorage.removeItem("convite_dados_pendentes");
 }
 
+function validarDadosObrigatoriosConvite(dados, exigirEmail = false) {
+  if (!dados.nome) { alert("Informe seu nome."); return false; }
+  if (!dados.funcao) { alert("Informe sua função."); return false; }
+  if (!dados.instrumento) { alert("Informe seu instrumento."); return false; }
+  if (!dados.telefone) { alert("Informe seu telefone."); return false; }
+  if (exigirEmail && !dados.email) { alert("Informe seu e-mail."); return false; }
+  return true;
+}
+
 async function entrarComGmailEAceitarConvite() {
   const cliente = sb();
   const convite = appState.conviteAtual;
@@ -3611,8 +3716,8 @@ async function entrarComGmailEAceitarConvite() {
 
   const dados = obterDadosCadastroConvite();
 
-  if (!dados.nome) {
-    dados.nome = "";
+  if (!validarDadosObrigatoriosConvite(dados, false)) {
+    return;
   }
 
   salvarDadosConviteTemporario(convite.codigo, dados);
@@ -3656,8 +3761,7 @@ async function criarContaEAceitarConvite() {
   const senha = dadosFormulario.senha;
   const repetirSenha = dadosFormulario.repetirSenha;
 
-  if (!nome) {
-    alert("Informe seu nome.");
+  if (!validarDadosObrigatoriosConvite(dadosFormulario, true)) {
     return;
   }
 
@@ -3692,6 +3796,7 @@ async function criarContaEAceitarConvite() {
     funcao: funcao,
     instrumento: instrumento,
     telefone: telefone,
+    chave_pix: dadosFormulario.chave_pix,
     email: email
   };
 
@@ -3861,11 +3966,22 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     const statusConvite = limparTexto(convite.status).toLowerCase();
     const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto", "aceito"].includes(statusConvite);
 
-    const nomeUsuario = limparTexto(dadosPerfil.nome) || obterNomeUsuario(usuario);
+    const nomeUsuario = limparTexto(dadosPerfil.nome);
     const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
-    const funcaoUsuario = limparTexto(dadosPerfil.funcao) || "Integrante";
+    const funcaoUsuario = limparTexto(dadosPerfil.funcao);
     const instrumentoUsuario = limparTexto(dadosPerfil.instrumento);
     const telefoneUsuario = limparTexto(dadosPerfil.telefone);
+    const chavePixUsuario = limparTexto(dadosPerfil.chave_pix);
+
+    if (!validarDadosObrigatoriosConvite({
+      nome: nomeUsuario,
+      funcao: funcaoUsuario,
+      instrumento: instrumentoUsuario,
+      telefone: telefoneUsuario,
+      email: emailUsuario
+    }, true)) {
+      return;
+    }
 
     const { data: existentesUsuario, error: erroBuscaUsuario } = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
@@ -3934,9 +4050,10 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
         nome: nomeUsuario,
         funcao: funcaoUsuario,
         instrumento: instrumentoUsuario,
-        administrador: convite.papel === "administrador",
+        administrador: false,
         email: emailUsuario,
-        telefone: telefoneUsuario
+        telefone: telefoneUsuario,
+        chave_pix: chavePixUsuario
       });
 
     if (erroInserir) {
