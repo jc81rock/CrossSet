@@ -5171,8 +5171,8 @@ async function carregarMusicas() {
       .crossset-scroll-wrapper { position: relative !important; }
       .crossset-scroll-customizada { scrollbar-width: none !important; -ms-overflow-style: none !important; }
       .crossset-scroll-customizada::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; }
-      .crossset-scroll-track { position:absolute; top:2px; right:2px; bottom:2px; width:8px; border-radius:999px; background:rgba(255,255,255,.06); z-index:20; pointer-events:none; }
-      .crossset-scroll-thumb { position:absolute; left:0; top:0; width:8px; min-height:28px; border-radius:999px; background:rgba(168,85,247,.82); box-shadow:0 0 8px rgba(168,85,247,.28); transform:translateY(0); }
+      .crossset-scroll-track { position:absolute; top:2px; right:2px; bottom:2px; width:8px; border-radius:999px; background:rgba(255,255,255,.06); z-index:20; pointer-events:auto; cursor:pointer; touch-action:none; user-select:none; }
+      .crossset-scroll-thumb { position:absolute; left:0; top:0; width:8px; min-height:28px; border-radius:999px; background:rgba(168,85,247,.82); box-shadow:0 0 8px rgba(168,85,247,.28); transform:translateY(0); cursor:grab; touch-action:none; user-select:none; } .crossset-scroll-thumb.arrastando { cursor:grabbing; background:rgba(168,85,247,.98); }
       .crossset-scroll-track.oculta { display:none !important; }
       .crossset-scroll-wrapper > .lista-integrantes,
       .crossset-scroll-wrapper > .lista-musicas,
@@ -6219,6 +6219,56 @@ function ativarBarraInternaCrossSet(lista) {
   const track = document.createElement("div"); track.className = "crossset-scroll-track";
   const thumb = document.createElement("div"); thumb.className = "crossset-scroll-thumb";
   track.appendChild(thumb); wrapper.appendChild(track);
+
+  let arrastando = false;
+  let inicioPointerY = 0;
+  let inicioScrollTop = 0;
+
+  thumb.addEventListener("pointerdown", function(evento) {
+    if (evento.pointerType === "mouse" && evento.button !== 0) return;
+    arrastando = true;
+    inicioPointerY = evento.clientY;
+    inicioScrollTop = lista.scrollTop;
+    thumb.classList.add("arrastando");
+    thumb.setPointerCapture?.(evento.pointerId);
+    evento.preventDefault();
+    evento.stopPropagation();
+  });
+
+  thumb.addEventListener("pointermove", function(evento) {
+    if (!arrastando) return;
+    const trackHeight = track.clientHeight;
+    const thumbHeight = thumb.getBoundingClientRect().height;
+    const maxThumbTop = Math.max(1, trackHeight - thumbHeight);
+    const maxScrollTop = Math.max(1, lista.scrollHeight - lista.clientHeight);
+    const deltaY = evento.clientY - inicioPointerY;
+    lista.scrollTop = inicioScrollTop + (deltaY / maxThumbTop) * maxScrollTop;
+    atualizarBarraInternaCrossSet(lista);
+    evento.preventDefault();
+  });
+
+  function encerrarArraste(evento) {
+    if (!arrastando) return;
+    arrastando = false;
+    thumb.classList.remove("arrastando");
+    try { thumb.releasePointerCapture?.(evento.pointerId); } catch (_) {}
+  }
+
+  thumb.addEventListener("pointerup", encerrarArraste);
+  thumb.addEventListener("pointercancel", encerrarArraste);
+
+  track.addEventListener("pointerdown", function(evento) {
+    if (evento.target === thumb) return;
+    const trackRect = track.getBoundingClientRect();
+    const thumbHeight = thumb.getBoundingClientRect().height;
+    const maxThumbTop = Math.max(1, track.clientHeight - thumbHeight);
+    const ponto = Math.min(maxThumbTop, Math.max(0, evento.clientY - trackRect.top - thumbHeight / 2));
+    const maxScrollTop = Math.max(1, lista.scrollHeight - lista.clientHeight);
+    lista.scrollTop = (ponto / maxThumbTop) * maxScrollTop;
+    atualizarBarraInternaCrossSet(lista);
+    evento.preventDefault();
+  });
+
   lista.addEventListener("scroll", () => atualizarBarraInternaCrossSet(lista), { passive:true });
   requestAnimationFrame(() => atualizarBarraInternaCrossSet(lista));
 }
