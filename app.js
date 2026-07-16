@@ -5870,6 +5870,74 @@ function configurarArrastarMusicasCadastradas() {
   }
 
   let musicaArrastadaId = "";
+  let autoScrollFrame = null;
+  let autoScrollVelocidade = 0;
+
+  function pararAutoScrollMusicas() {
+    autoScrollVelocidade = 0;
+    if (autoScrollFrame) {
+      cancelAnimationFrame(autoScrollFrame);
+      autoScrollFrame = null;
+    }
+  }
+
+  function executarAutoScrollMusicas() {
+    if (!autoScrollVelocidade) {
+      autoScrollFrame = null;
+      return;
+    }
+
+    const antes = lista.scrollTop;
+    lista.scrollTop += autoScrollVelocidade;
+    atualizarBarraInternaCrossSet(lista);
+
+    if (lista.scrollTop === antes) {
+      pararAutoScrollMusicas();
+      return;
+    }
+
+    autoScrollFrame = requestAnimationFrame(executarAutoScrollMusicas);
+  }
+
+  function atualizarAutoScrollMusicas(evento) {
+    const retangulo = lista.getBoundingClientRect();
+    const zona = Math.min(70, Math.max(42, retangulo.height * 0.22));
+    let velocidade = 0;
+
+    if (evento.clientY < retangulo.top + zona) {
+      const intensidade = Math.min(1, (retangulo.top + zona - evento.clientY) / zona);
+      velocidade = -Math.max(4, Math.round(16 * intensidade));
+    } else if (evento.clientY > retangulo.bottom - zona) {
+      const intensidade = Math.min(1, (evento.clientY - (retangulo.bottom - zona)) / zona);
+      velocidade = Math.max(4, Math.round(16 * intensidade));
+    }
+
+    autoScrollVelocidade = velocidade;
+
+    if (velocidade && !autoScrollFrame) {
+      autoScrollFrame = requestAnimationFrame(executarAutoScrollMusicas);
+    } else if (!velocidade) {
+      pararAutoScrollMusicas();
+    }
+  }
+
+  lista.addEventListener("dragover", function(evento) {
+    if (!musicaArrastadaId) {
+      return;
+    }
+
+    evento.preventDefault();
+    atualizarAutoScrollMusicas(evento);
+  });
+
+  lista.addEventListener("dragleave", function(evento) {
+    const destino = evento.relatedTarget;
+    if (!destino || !lista.contains(destino)) {
+      pararAutoScrollMusicas();
+    }
+  });
+
+  lista.addEventListener("drop", pararAutoScrollMusicas);
 
   lista.querySelectorAll("[data-musica-arrastavel='true']").forEach(function(item) {
     item.addEventListener("dragstart", function(evento) {
@@ -5880,6 +5948,8 @@ function configurarArrastarMusicasCadastradas() {
     });
 
     item.addEventListener("dragend", function() {
+      pararAutoScrollMusicas();
+      musicaArrastadaId = "";
       item.classList.remove("musica-arrastando");
       lista.querySelectorAll(".musica-alvo-arrastar").forEach(function(alvo) {
         alvo.classList.remove("musica-alvo-arrastar");
