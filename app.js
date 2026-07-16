@@ -761,6 +761,7 @@ async function carregarProjetos() {
     .from(REPERTORIO_FACIL.tabelas.projetos)
     .select("*")
     .eq("usuario_id", usuario.id)
+    .order("ultima_atualizacao", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   if (erroProjetosDono) {
@@ -800,6 +801,7 @@ async function carregarProjetos() {
       .from(REPERTORIO_FACIL.tabelas.projetos)
       .select("*")
       .in("id", idsProjetosComoIntegrante)
+      .order("ultima_atualizacao", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
     if (erroProjetosVinculados) {
@@ -830,7 +832,9 @@ async function carregarProjetos() {
   });
 
   const listaFinal = Array.from(projetosPorId.values()).sort(function(a, b) {
-    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    const dataA = new Date(a.ultima_atualizacao || a.updated_at || a.created_at || 0).getTime();
+    const dataB = new Date(b.ultima_atualizacao || b.updated_at || b.created_at || 0).getTime();
+    return dataB - dataA;
   });
 
   montarListaProjetos(listaFinal);
