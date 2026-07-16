@@ -5146,6 +5146,38 @@ async function carregarMusicas() {
         padding-left: 10px !important;
       }
 
+      .musica-arrastar-personalizada {
+        width: 18px;
+        height: 22px;
+        flex: 0 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #c4b5fd;
+        font-size: 14px;
+        font-weight: 900;
+        line-height: 1;
+        cursor: grab;
+        user-select: none;
+      }
+
+      .musica-arrastar-personalizada:active {
+        cursor: grabbing;
+      }
+
+      .item-musica[data-musica-arrastavel="true"] {
+        cursor: default;
+      }
+
+      .item-musica.musica-arrastando {
+        opacity: .55;
+      }
+
+      .item-musica.musica-alvo-arrastar {
+        background: rgba(168, 85, 247, .14) !important;
+        box-shadow: inset 0 2px 0 rgba(168, 85, 247, .85);
+      }
+
       .card-lista-musicas-smart .lista-musicas {
         scrollbar-color: rgba(168, 85, 247, .68) rgba(255,255,255,.05) !important;
       }
@@ -5385,6 +5417,7 @@ async function carregarMusicas() {
             Ordenar por
             <select id="ordenar-musicas">
               <option value="recentes">Mais recentes</option>
+              <option value="personalizada">Ordem personalizada</option>
               <option value="nome">Nome</option>
               <option value="artista">Artista</option>
               <option value="tom">Tom</option>
@@ -5752,6 +5785,7 @@ async function salvarMusicaSmart(musica) {
     letra_arquivo_url: "",
     letra: "",
     observacoes: observacoesSmart,
+    ordem_personalizada: obterProximaOrdemPersonalizadaMusica(),
     updated_at: new Date().toISOString()
   };
 
@@ -5777,6 +5811,129 @@ async function salvarMusicaSmart(musica) {
 
   await buscarMusicas();
   mostrarToast("Música adicionada pelo CrossSet Smart.");
+}
+
+function obterProximaOrdemPersonalizadaMusica() {
+  const ordens = (appState.musicas || [])
+    .map(function(item) { return Number(item.ordem_personalizada); })
+    .filter(Number.isFinite);
+
+  return ordens.length ? Math.max.apply(null, ordens) + 1 : 1;
+}
+
+function ordenarMusicasPorOrdemPersonalizada(lista) {
+  return (lista || []).slice().sort(function(a, b) {
+    const ordemA = Number.isFinite(Number(a.ordem_personalizada)) ? Number(a.ordem_personalizada) : Number.MAX_SAFE_INTEGER;
+    const ordemB = Number.isFinite(Number(b.ordem_personalizada)) ? Number(b.ordem_personalizada) : Number.MAX_SAFE_INTEGER;
+    return (ordemA - ordemB) || (new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+  });
+}
+
+async function salvarOrdemPersonalizadaMusicas(itensOrdenados) {
+  const cliente = sb();
+  const projetoId = obterProjetoAtualId();
+
+  if (!cliente || !projetoId || !Array.isArray(itensOrdenados)) {
+    return false;
+  }
+
+  const atualizacoes = itensOrdenados.map(function(item, indice) {
+    return cliente
+      .from(REPERTORIO_FACIL.tabelas.musicas)
+      .update({ ordem_personalizada: indice + 1 })
+      .eq("id", item.id)
+      .eq("projeto_id", projetoId);
+  });
+
+  const resultados = await Promise.all(atualizacoes);
+  const erro = resultados.find(function(resultado) { return resultado.error; })?.error;
+
+  if (erro) {
+    alert("Erro ao salvar a ordem das músicas: " + erro.message);
+    return false;
+  }
+
+  itensOrdenados.forEach(function(item, indice) {
+    item.ordem_personalizada = indice + 1;
+  });
+
+  return true;
+}
+
+function configurarArrastarMusicasCadastradas() {
+  const lista = elemento("lista-musicas");
+  const ordem = elemento("ordenar-musicas")?.value || "recentes";
+  const busca = limparTexto(elemento("busca-musicas")?.value);
+
+  if (!lista || ordem !== "personalizada" || busca) {
+    return;
+  }
+
+  let musicaArrastadaId = "";
+
+  lista.querySelectorAll("[data-musica-arrastavel='true']").forEach(function(item) {
+    item.addEventListener("dragstart", function(evento) {
+      musicaArrastadaId = item.dataset.musicaId || "";
+      item.classList.add("musica-arrastando");
+      evento.dataTransfer.effectAllowed = "move";
+      evento.dataTransfer.setData("text/plain", musicaArrastadaId);
+    });
+
+    item.addEventListener("dragend", function() {
+      item.classList.remove("musica-arrastando");
+      lista.querySelectorAll(".musica-alvo-arrastar").forEach(function(alvo) {
+        alvo.classList.remove("musica-alvo-arrastar");
+      });
+    });
+
+    item.addEventListener("dragover", function(evento) {
+      evento.preventDefault();
+      evento.dataTransfer.dropEffect = "move";
+      if ((item.dataset.musicaId || "") !== musicaArrastadaId) {
+        item.classList.add("musica-alvo-arrastar");
+      }
+    });
+
+    item.addEventListener("dragleave", function() {
+      item.classList.remove("musica-alvo-arrastar");
+    });
+
+    item.addEventListener("drop", async function(evento) {
+      evento.preventDefault();
+      item.classList.remove("musica-alvo-arrastar");
+
+      const origemId = musicaArrastadaId || evento.dataTransfer.getData("text/plain");
+      const destinoId = item.dataset.musicaId || "";
+
+      if (!origemId || !destinoId || origemId === destinoId) {
+        return;
+      }
+
+      const itens = ordenarMusicasPorOrdemPersonalizada(
+        filtrarRegistrosDoProjetoAtual(appState.musicas || [], obterProjetoAtualId())
+      );
+      const indiceOrigem = itens.findIndex(function(musica) { return String(musica.id) === String(origemId); });
+      const indiceDestino = itens.findIndex(function(musica) { return String(musica.id) === String(destinoId); });
+
+      if (indiceOrigem < 0 || indiceDestino < 0) {
+        return;
+      }
+
+      const [movida] = itens.splice(indiceOrigem, 1);
+      itens.splice(indiceDestino, 0, movida);
+
+      const posicaoLista = lista.scrollTop;
+      const salvou = await salvarOrdemPersonalizadaMusicas(itens);
+
+      if (salvou) {
+        renderizarListaMusicas();
+        requestAnimationFrame(function() {
+          const novaLista = elemento("lista-musicas");
+          if (novaLista) novaLista.scrollTop = posicaoLista;
+        });
+      }
+    });
+  });
 }
 
 async function buscarMusicas() {
@@ -6351,6 +6508,12 @@ function renderizarListaMusicas() {
   }
 
   itens.sort(function(a, b) {
+    if (ordem === "personalizada") {
+      const ordemA = Number.isFinite(Number(a.ordem_personalizada)) ? Number(a.ordem_personalizada) : Number.MAX_SAFE_INTEGER;
+      const ordemB = Number.isFinite(Number(b.ordem_personalizada)) ? Number(b.ordem_personalizada) : Number.MAX_SAFE_INTEGER;
+      return (ordemA - ordemB) || (new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime());
+    }
+
     if (ordem === "nome") {
       return compararTexto(a.nome, b.nome);
     }
@@ -6375,6 +6538,8 @@ function renderizarListaMusicas() {
     return;
   }
 
+  const permiteArrastar = ordem === "personalizada" && !busca;
+
   lista.innerHTML = itens.map(function(item) {
     const link = obterLinkMusica(item);
     const linkSeguro = escaparHtml(link);
@@ -6393,9 +6558,10 @@ function renderizarListaMusicas() {
     const temLetraCompleta = temLetra || limparTexto(arquivoLetra).length > 0;
 
     return `
-      <div class="item-musica">
+      <div class="item-musica" ${permiteArrastar ? `draggable="true" data-musica-arrastavel="true" data-musica-id="${escaparHtml(item.id)}"` : ""}>
         <div class="musica-linha-principal">
           <div class="musica-identidade">
+            ${permiteArrastar ? `<span class="musica-arrastar-personalizada" title="Arrastar para reorganizar" aria-label="Arrastar para reorganizar">⋮⋮</span>` : ""}
             <span class="musica-icone-mini">♪</span>
             <span class="musica-nome-mini" title="${escaparHtml(item.nome || "Sem nome")}">${escaparHtml(item.nome || "Sem nome")}</span>
             <span class="musica-artista-mini" title="${escaparHtml(item.artista || "Não informado")}">${escaparHtml(item.artista || "Não informado")}</span>
@@ -6426,6 +6592,7 @@ function renderizarListaMusicas() {
   requestAnimationFrame(function() {
     ajustarAlturaListaMusicas();
     ativarBarrasInternasCrossSet();
+    configurarArrastarMusicasCadastradas();
   });
 
   lista.querySelectorAll("[data-editar-musica]").forEach(function(botao) {
@@ -6927,6 +7094,7 @@ async function salvarMusica() {
       .eq("id", appState.musicaEditandoId)
       .eq("projeto_id", projetoId);
   } else {
+    payload.ordem_personalizada = obterProximaOrdemPersonalizadaMusica();
     resultado = await cliente
       .from(REPERTORIO_FACIL.tabelas.musicas)
       .insert(payload);
