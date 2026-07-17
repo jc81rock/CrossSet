@@ -4113,15 +4113,19 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
 
     // 3. Não existe cadastro: cria e exige o retorno da linha inserida.
     if (!integranteConfirmado) {
-      const { data: integranteInserido, error: erroInserir } = await cliente
+      // Faz somente o INSERT primeiro. Não usa .select() no mesmo comando,
+      // porque a policy de SELECT depende de o vínculo já existir em integrantes.
+      // O retorno imediato pode ser bloqueado pela RLS antes de a nova associação
+      // ficar visível para a própria policy de leitura.
+      const { error: erroInserir } = await cliente
         .from(REPERTORIO_FACIL.tabelas.integrantes)
         .insert({
           projeto_id: projetoId,
           administrador: false,
           ...payloadPerfil
-        })
-        .select("*")
-        .single();
+        });
+
+      let integranteInserido = null;
 
       if (erroInserir) {
         // Em concorrência, outro processo pode ter criado o vínculo. Nunca abrir
@@ -4148,6 +4152,32 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
           return;
         }
       } else {
+        // Depois que o INSERT terminou, consulta novamente em uma nova requisição.
+        // Agora a policy de SELECT já reconhece o usuário como integrante do projeto.
+        for (let tentativa = 0; tentativa < 8; tentativa += 1) {
+          const { data: vinculoCriado, error: erroLerCriado } = await cliente
+            .from(REPERTORIO_FACIL.tabelas.integrantes)
+            .select("*")
+            .eq("projeto_id", projetoId)
+            .eq("usuario_id", usuario.id)
+            .limit(1)
+            .maybeSingle();
+
+          if (!erroLerCriado && vinculoCriado) {
+            integranteInserido = vinculoCriado;
+            break;
+          }
+
+          await new Promise(function(resolve) {
+            setTimeout(resolve, 180);
+          });
+        }
+
+        if (!integranteInserido) {
+          alert("O cadastro foi enviado, mas o vínculo ainda não pôde ser confirmado. Aguarde alguns segundos e abra o convite novamente.");
+          return;
+        }
+
         integranteConfirmado = integranteInserido;
       }
     }
