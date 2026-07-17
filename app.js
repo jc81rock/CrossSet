@@ -3976,10 +3976,10 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     return;
   }
 
-  const { data: sessaoAtualConvite } = await cliente.auth.getSession();
-  const usuarioAutenticado = sessaoAtualConvite.session?.user || null;
+  const { data: sessaoAtualConvite, error: erroSessaoConvite } = await cliente.auth.getSession();
+  const usuarioAutenticado = sessaoAtualConvite?.session?.user || null;
 
-  if (!usuarioAutenticado || String(usuarioAutenticado.id) !== String(usuario.id)) {
+  if (erroSessaoConvite || !usuarioAutenticado || String(usuarioAutenticado.id) !== String(usuario.id)) {
     alert("Sua conta foi criada, mas o login não foi confirmado. Entre novamente pelo mesmo link do convite.");
     return;
   }
@@ -4008,7 +4008,7 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
     const conviteBloqueado = statusConvite && !["pendente", "ativo", "aberto", "aceito"].includes(statusConvite);
 
     const nomeUsuario = limparTexto(dadosPerfil.nome);
-    const emailUsuario = limparTexto(dadosPerfil.email) || usuario.email || "";
+    const emailUsuario = (limparTexto(dadosPerfil.email) || usuario.email || "").toLowerCase();
     const funcaoUsuario = limparTexto(dadosPerfil.funcao);
     const instrumentoUsuario = limparTexto(dadosPerfil.instrumento);
     const telefoneUsuario = limparTexto(dadosPerfil.telefone);
@@ -4024,93 +4024,156 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
       return;
     }
 
-    const { data: existentesUsuario, error: erroBuscaUsuario } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .select("id")
-      .eq("projeto_id", projetoId)
-      .eq("usuario_id", usuario.id)
-      .limit(1);
-
-    if (erroBuscaUsuario) {
-      alert("Erro ao verificar integrante: " + erroBuscaUsuario.message);
-      return;
-    }
-
-    let existentesEmail = [];
-    if (emailUsuario) {
-      const resultadoEmail = await cliente
-        .from(REPERTORIO_FACIL.tabelas.integrantes)
-        .select("id")
-        .eq("projeto_id", projetoId)
-        .eq("email", emailUsuario)
-        .limit(1);
-
-      if (resultadoEmail.error) {
-        alert("Erro ao verificar e-mail do integrante: " + resultadoEmail.error.message);
-        return;
-      }
-
-      existentesEmail = resultadoEmail.data || [];
-    }
-
-    // Se já existe qualquer vínculo desse usuário/e-mail no projeto, entra direto sem duplicar.
-    if ((existentesUsuario || []).length > 0 || existentesEmail.length > 0) {
-      await abrirProjetoDoConvite(projetoId, nomeProjeto);
-      return;
-    }
-
     if (conviteBloqueado) {
       alert("Este convite não está mais disponível.");
       return;
     }
 
-    // Conferência final imediatamente antes do INSERT, para evitar duplicação por chamadas repetidas do login/OAuth.
-    const { data: conferenciaFinal, error: erroConferenciaFinal } = await cliente
+    const payloadPerfil = {
+      usuario_id: usuario.id,
+      nome: nomeUsuario,
+      funcao: funcaoUsuario,
+      instrumento: instrumentoUsuario,
+      email: emailUsuario,
+      telefone: telefoneUsuario,
+      chave_pix: chavePixUsuario
+    };
+
+    let integranteConfirmado = null;
+
+    // 1. Procura primeiro pelo vínculo definitivo usuário + projeto.
+    const { data: vinculoUsuario, error: erroVinculoUsuario } = await cliente
       .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .select("id")
+      .select("*")
       .eq("projeto_id", projetoId)
       .eq("usuario_id", usuario.id)
-      .limit(1);
+      .limit(1)
+      .maybeSingle();
 
-    if (erroConferenciaFinal) {
-      console.error("Erro ao confirmar integrante no convite:", erroConferenciaFinal);
-      alert("Não foi possível confirmar sua entrada no projeto agora. Tente novamente.");
+    if (erroVinculoUsuario) {
+      console.error("Erro ao verificar vínculo do integrante:", erroVinculoUsuario);
+      alert("Erro ao verificar integrante: " + erroVinculoUsuario.message);
       return;
     }
 
-    if ((conferenciaFinal || []).length > 0) {
-      await abrirProjetoDoConvite(projetoId, nomeProjeto);
-      return;
-    }
+    if (vinculoUsuario) {
+      // Atualiza os dados preenchidos no convite sem alterar o perfil de administrador.
+      const { data: vinculoAtualizado, error: erroAtualizarVinculo } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.integrantes)
+        .update(payloadPerfil)
+        .eq("id", vinculoUsuario.id)
+        .eq("projeto_id", projetoId)
+        .select("*")
+        .single();
 
-    const { error: erroInserir } = await cliente
-      .from(REPERTORIO_FACIL.tabelas.integrantes)
-      .insert({
-        projeto_id: projetoId,
-        usuario_id: usuario.id,
-        nome: nomeUsuario,
-        funcao: funcaoUsuario,
-        instrumento: instrumentoUsuario,
-        administrador: false,
-        email: emailUsuario,
-        telefone: telefoneUsuario,
-        chave_pix: chavePixUsuario
-      });
-
-    if (erroInserir) {
-      // Se o banco já bloqueou duplicidade, o usuário já está vinculado. Entra no projeto sem erro.
-      if (erroInserir.code === "23505") {
-        await abrirProjetoDoConvite(projetoId, nomeProjeto);
+      if (erroAtualizarVinculo) {
+        console.error("Erro ao atualizar integrante já vinculado:", erroAtualizarVinculo);
+        alert("O usuário foi localizado, mas seus dados não puderam ser confirmados: " + erroAtualizarVinculo.message);
         return;
       }
 
-      console.error("Erro ao aceitar convite:", erroInserir);
-      alert("Não foi possível aceitar o convite agora. Tente novamente.");
+      integranteConfirmado = vinculoAtualizado;
+    }
+
+    // 2. Se existe um cadastro prévio apenas com o e-mail, transforma esse registro
+    // no vínculo definitivo da conta autenticada, em vez de abrir o projeto sem vinculá-la.
+    if (!integranteConfirmado && emailUsuario) {
+      const { data: vinculoEmail, error: erroVinculoEmail } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.integrantes)
+        .select("*")
+        .eq("projeto_id", projetoId)
+        .ilike("email", emailUsuario)
+        .limit(1)
+        .maybeSingle();
+
+      if (erroVinculoEmail) {
+        console.error("Erro ao verificar e-mail do integrante:", erroVinculoEmail);
+        alert("Erro ao verificar e-mail do integrante: " + erroVinculoEmail.message);
+        return;
+      }
+
+      if (vinculoEmail) {
+        const { data: vinculoEmailAtualizado, error: erroAtualizarEmail } = await cliente
+          .from(REPERTORIO_FACIL.tabelas.integrantes)
+          .update(payloadPerfil)
+          .eq("id", vinculoEmail.id)
+          .eq("projeto_id", projetoId)
+          .select("*")
+          .single();
+
+        if (erroAtualizarEmail) {
+          console.error("Erro ao vincular cadastro existente à conta:", erroAtualizarEmail);
+          alert("Seu cadastro foi localizado, mas não pôde ser vinculado à sua conta: " + erroAtualizarEmail.message);
+          return;
+        }
+
+        integranteConfirmado = vinculoEmailAtualizado;
+      }
+    }
+
+    // 3. Não existe cadastro: cria e exige o retorno da linha inserida.
+    if (!integranteConfirmado) {
+      const { data: integranteInserido, error: erroInserir } = await cliente
+        .from(REPERTORIO_FACIL.tabelas.integrantes)
+        .insert({
+          projeto_id: projetoId,
+          administrador: false,
+          ...payloadPerfil
+        })
+        .select("*")
+        .single();
+
+      if (erroInserir) {
+        // Em concorrência, outro processo pode ter criado o vínculo. Nunca abrir
+        // o projeto apenas pelo código 23505: primeiro confirmar a linha real.
+        if (erroInserir.code === "23505") {
+          const { data: vinculoDuplicado, error: erroLerDuplicado } = await cliente
+            .from(REPERTORIO_FACIL.tabelas.integrantes)
+            .select("*")
+            .eq("projeto_id", projetoId)
+            .eq("usuario_id", usuario.id)
+            .limit(1)
+            .maybeSingle();
+
+          if (!erroLerDuplicado && vinculoDuplicado) {
+            integranteConfirmado = vinculoDuplicado;
+          } else {
+            console.error("Duplicidade detectada sem vínculo confirmável:", erroInserir, erroLerDuplicado);
+            alert("Já existe um cadastro relacionado a esta conta, mas o vínculo com o projeto não pôde ser confirmado.");
+            return;
+          }
+        } else {
+          console.error("Erro ao aceitar convite:", erroInserir);
+          alert("Não foi possível cadastrar você como integrante: " + erroInserir.message);
+          return;
+        }
+      } else {
+        integranteConfirmado = integranteInserido;
+      }
+    }
+
+    // 4. Verificação obrigatória: somente abre o projeto se a tabela integrantes
+    // realmente contiver o usuário autenticado neste projeto.
+    const { data: confirmacaoFinal, error: erroConfirmacaoFinal } = await cliente
+      .from(REPERTORIO_FACIL.tabelas.integrantes)
+      .select("*")
+      .eq("projeto_id", projetoId)
+      .eq("usuario_id", usuario.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (erroConfirmacaoFinal || !confirmacaoFinal) {
+      console.error("Vínculo do integrante não confirmado após o convite:", erroConfirmacaoFinal, integranteConfirmado);
+      alert(
+        "Seu acesso não foi concluído porque o cadastro não apareceu em Integrantes." +
+        (erroConfirmacaoFinal?.message ? " Erro: " + erroConfirmacaoFinal.message : "")
+      );
       return;
     }
 
-    // Convite de projeto é reutilizável: não marcar como "aceito" nem encerrar o link.
-    // A proteção contra duplicidade fica por usuário + projeto, não por uso do link.
+    appState.meuIntegranteAtual = confirmacaoFinal;
+
+    // Convite reutilizável: a proteção permanece por usuário + projeto.
     await abrirProjetoDoConvite(projetoId, nomeProjeto);
   } finally {
     delete window.__crosssetConvitesEmProcessamento[chaveAceite];
