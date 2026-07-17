@@ -3769,11 +3769,6 @@ async function criarContaEAceitarConvite() {
     return;
   }
 
-  if (!email) {
-    alert("Informe seu e-mail.");
-    return;
-  }
-
   if (!senha) {
     alert("Informe sua senha.");
     return;
@@ -3790,9 +3785,16 @@ async function criarContaEAceitarConvite() {
   }
 
   const botaoConvite = elemento("btn-criar-conta-aceitar-convite");
+  const restaurarBotao = function() {
+    if (botaoConvite) {
+      botaoConvite.disabled = false;
+      botaoConvite.textContent = "Salvar cadastro e entrar no projeto";
+    }
+  };
+
   if (botaoConvite) {
     botaoConvite.disabled = true;
-    botaoConvite.textContent = "Salvando cadastro...";
+    botaoConvite.textContent = "Criando conta e entrando no projeto...";
   }
 
   const dadosPerfil = {
@@ -3804,60 +3806,85 @@ async function criarContaEAceitarConvite() {
     email: email
   };
 
-  let usuario = null;
+  // Mantém o convite e os dados até o vínculo com o projeto ser concluído.
+  salvarDadosConviteTemporario(convite.codigo, dadosPerfil);
+  salvarCodigoConvitePendente(convite.codigo);
 
-  const { data: sessaoAtual } = await cliente.auth.getSession();
-  if (sessaoAtual.session) {
-    await cliente.auth.signOut();
-  }
+  try {
+    const { data: sessaoAtual } = await cliente.auth.getSession();
 
-  const { data: cadastroData, error: cadastroError } = await cliente.auth.signUp({
-    email: email,
-    password: senha,
-    options: {
-      emailRedirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
-      data: {
-        nome: nome,
-        full_name: nome,
-        telefone: telefone,
-        funcao: funcao,
-        instrumento: instrumento
-      }
+    if (sessaoAtual.session && limparTexto(sessaoAtual.session.user?.email).toLowerCase() !== email.toLowerCase()) {
+      await cliente.auth.signOut();
     }
-  });
 
-  if (cadastroError) {
-    if (botaoConvite) {
-      botaoConvite.disabled = false;
-      botaoConvite.textContent = "Aceitar convite e entrar no projeto";
-    }
-    alert("Erro ao criar conta: " + cadastroError.message);
-    return;
-  }
+    let sessaoValida = null;
+    let usuario = null;
 
-  usuario = cadastroData.user || cadastroData.session?.user || null;
-
-  if (!cadastroData.session) {
-    const { data: loginData, error: loginError } = await cliente.auth.signInWithPassword({
+    const { data: cadastroData, error: cadastroError } = await cliente.auth.signUp({
       email: email,
-      password: senha
+      password: senha,
+      options: {
+        emailRedirectTo: REPERTORIO_FACIL.urlApp + "?convite=" + encodeURIComponent(convite.codigo),
+        data: {
+          nome: nome,
+          full_name: nome,
+          telefone: telefone,
+          funcao: funcao,
+          instrumento: instrumento
+        }
+      }
     });
 
-    if (!loginError && loginData) {
-      usuario = loginData.user || loginData.session?.user || usuario;
+    if (cadastroError) {
+      throw new Error("Erro ao criar conta: " + cadastroError.message);
     }
-  }
 
-  if (!usuario) {
+    sessaoValida = cadastroData.session || null;
+    usuario = sessaoValida?.user || cadastroData.user || null;
+
+    // Alguns cadastros retornam o usuário sem sessão. Nesse caso, faz o login
+    // imediatamente antes de tentar inserir o integrante no projeto.
+    if (!sessaoValida) {
+      const { data: loginData, error: loginError } = await cliente.auth.signInWithPassword({
+        email: email,
+        password: senha
+      });
+
+      if (loginError || !loginData?.session) {
+        const mensagemLogin = limparTexto(loginError?.message).toLowerCase();
+
+        if (mensagemLogin.includes("email not confirmed") || mensagemLogin.includes("email_not_confirmed")) {
+          throw new Error("O Supabase está exigindo confirmação de e-mail. Desative a confirmação de e-mail para que o cadastro entre automaticamente no projeto.");
+        }
+
+        throw new Error("A conta foi localizada, mas não foi possível entrar automaticamente. Confira se este e-mail já possui conta e se a senha informada está correta.");
+      }
+
+      sessaoValida = loginData.session;
+      usuario = loginData.user || loginData.session.user;
+    }
+
+    const { data: sessaoConfirmada } = await cliente.auth.getSession();
+    const usuarioConfirmado = sessaoConfirmada.session?.user || null;
+
+    if (!usuarioConfirmado || !usuario || String(usuarioConfirmado.id) !== String(usuario.id)) {
+      throw new Error("Não foi possível confirmar o login antes de entrar no projeto.");
+    }
+
+    appState.sessao = sessaoConfirmada.session;
+    appState.usuario = usuarioConfirmado;
+    preencherUsuario(usuarioConfirmado);
+
     if (botaoConvite) {
-      botaoConvite.disabled = false;
-      botaoConvite.textContent = "Aceitar convite e entrar no projeto";
+      botaoConvite.textContent = "Entrando no projeto...";
     }
-    alert("Não foi possível criar a conta. Tente novamente.");
-    return;
-  }
 
-  await aceitarConviteComUsuario(usuario, dadosPerfil);
+    await aceitarConviteComUsuario(usuarioConfirmado, dadosPerfil);
+  } catch (erro) {
+    console.error("Erro no cadastro pelo convite:", erro);
+    restaurarBotao();
+    alert(erro?.message || "Não foi possível concluir o cadastro e entrar no projeto.");
+  }
 }
 
 async function aceitarConviteAtual() {
@@ -3948,6 +3975,16 @@ async function aceitarConviteComUsuario(usuario, dadosPerfil = {}) {
   if (!cliente || !convite || !usuario) {
     return;
   }
+
+  const { data: sessaoAtualConvite } = await cliente.auth.getSession();
+  const usuarioAutenticado = sessaoAtualConvite.session?.user || null;
+
+  if (!usuarioAutenticado || String(usuarioAutenticado.id) !== String(usuario.id)) {
+    alert("Sua conta foi criada, mas o login não foi confirmado. Entre novamente pelo mesmo link do convite.");
+    return;
+  }
+
+  usuario = usuarioAutenticado;
 
   const projetoId = convite.projeto_id;
   const nomeProjeto = convite.projeto_nome || "Projeto musical";
