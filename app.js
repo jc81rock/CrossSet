@@ -10616,13 +10616,13 @@ async function gerarPDFDoRepertorio(repertorioId) {
     return `
       <tr>
         <td class="numero">${numero}</td>
-        <td>
+        <td class="musica-coluna">
           <strong>${escaparHtml(musica.nome || "Sem nome")}</strong>
           <span>${escaparHtml(musica.artista || "Artista não informado")}</span>
         </td>
-        <td>${escaparHtml(musica.tom || "-")}</td>
-        <td>${escaparHtml(musica.bpm || "-")}</td>
         <td class="obs-musica">${obterObservacaoMusicaManual(musica) ? escaparHtml(obterObservacaoMusicaManual(musica)) : "-"}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.tom || "-")}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.bpm || "-")}</td>
       </tr>
     `;
   }).join("");
@@ -10713,18 +10713,28 @@ async function gerarPDFDoRepertorio(repertorioId) {
           color: #6b7280;
         }
         .numero {
-          width: 52px;
           font-weight: 800;
           color: #6d28d9;
         }
+        .musica-coluna {
+          width: 56%;
+        }
         .obs-musica {
-          max-width: 280px;
+          width: 24%;
           font-size: 12px;
-          line-height: 1.35;
+          line-height: 1.4;
           color: #4b5563;
           font-style: italic;
           white-space: normal;
           overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+        .dado-centralizado {
+          text-align: center;
+          white-space: nowrap;
+        }
+        th.dado-centralizado {
+          text-align: center;
         }
         .rodape {
           margin-top: 24px;
@@ -10757,13 +10767,20 @@ async function gerarPDFDoRepertorio(repertorioId) {
       ${observacoes ? `<div class="observacoes"><strong>Observações:</strong><br>${observacoes}</div>` : ""}
 
       <table>
+        <colgroup>
+          <col style="width:4%" />
+          <col style="width:56%" />
+          <col style="width:24%" />
+          <col style="width:8%" />
+          <col style="width:8%" />
+        </colgroup>
         <thead>
           <tr>
             <th>Nº</th>
             <th>Música</th>
-            <th>Tom</th>
-            <th>BPM</th>
             <th>OBS</th>
+            <th class="dado-centralizado">Tom</th>
+            <th class="dado-centralizado">BPM</th>
           </tr>
         </thead>
         <tbody>
