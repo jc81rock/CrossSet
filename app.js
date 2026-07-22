@@ -10495,10 +10495,357 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
   return linhas.join("\n");
 }
 
+
+let promessaCarregamentoHtml2Pdf = null;
+
+function carregarHtml2Pdf() {
+  if (typeof window.html2pdf === "function") {
+    return Promise.resolve(window.html2pdf);
+  }
+
+  if (promessaCarregamentoHtml2Pdf) {
+    return promessaCarregamentoHtml2Pdf;
+  }
+
+  promessaCarregamentoHtml2Pdf = new Promise(function(resolve, reject) {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.12.1/html2pdf.bundle.min.js";
+    script.async = true;
+    script.onload = function() {
+      if (typeof window.html2pdf === "function") {
+        resolve(window.html2pdf);
+      } else {
+        reject(new Error("Biblioteca de PDF não carregada."));
+      }
+    };
+    script.onerror = function() {
+      reject(new Error("Não foi possível carregar o gerador de PDF."));
+    };
+    document.head.appendChild(script);
+  }).catch(function(erro) {
+    promessaCarregamentoHtml2Pdf = null;
+    throw erro;
+  });
+
+  return promessaCarregamentoHtml2Pdf;
+}
+
+function normalizarNomeArquivoPdf(valor) {
+  const nome = String(valor || "repertorio")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .toLowerCase();
+
+  return (nome || "repertorio") + ".pdf";
+}
+
+async function gerarBlobPdfRepertorio(html) {
+  await carregarHtml2Pdf();
+
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("aria-hidden", "true");
+  iframe.style.position = "fixed";
+  iframe.style.left = "-10000px";
+  iframe.style.top = "0";
+  iframe.style.width = "794px";
+  iframe.style.height = "1123px";
+  iframe.style.border = "0";
+  iframe.style.opacity = "0";
+  iframe.srcdoc = html;
+  document.body.appendChild(iframe);
+
+  try {
+    await new Promise(function(resolve, reject) {
+      const temporizador = setTimeout(function() {
+        reject(new Error("Tempo excedido ao preparar o PDF."));
+      }, 10000);
+
+      iframe.onload = function() {
+        clearTimeout(temporizador);
+        resolve();
+      };
+    });
+
+    const conteudo = iframe.contentDocument && iframe.contentDocument.body;
+
+    if (!conteudo) {
+      throw new Error("Conteúdo do repertório indisponível para PDF.");
+    }
+
+    const configuracao = {
+      margin: [8, 8, 8, 8],
+      image: { type: "jpeg", quality: 0.96 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: "#ffffff" },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: { mode: ["css", "legacy"] }
+    };
+
+    return await window.html2pdf()
+      .set(configuracao)
+      .from(conteudo)
+      .outputPdf("blob");
+  } finally {
+    iframe.remove();
+  }
+}
+
+async function compartilharArquivoPdfRepertorio(html, nomeArquivo, titulo) {
+  if (!navigator.share || !navigator.canShare) {
+    return false;
+  }
+
+  const blobPdf = await gerarBlobPdfRepertorio(html);
+  const arquivoPdf = new File([blobPdf], nomeArquivo, { type: "application/pdf" });
+  const dados = {
+    title: titulo,
+    text: "Repertório compartilhado pelo CrossSet.",
+    files: [arquivoPdf]
+  };
+
+  if (!navigator.canShare(dados)) {
+    return false;
+  }
+
+  await navigator.share(dados);
+  return true;
+}
+
 async function compartilharRepertorio(repertorioId) {
-  // Mantém o ícone e o botão aprovados. Ao compartilhar, abre a mesma
-  // página de impressão/PDF já usada pelo botão Gerar PDF.
-  await gerarPDFDoRepertorio(repertorioId);
+  const repertorio = (appState.repertorios || []).find(function(item) {
+    return item.id === repertorioId;
+  });
+  const projeto = appState.projetoAtual || {};
+
+  if (!repertorio) {
+    alert("Selecione um repertório salvo antes de compartilhar.");
+    return;
+  }
+
+  const itens = await obterMusicasDoRepertorioParaPDF(repertorioId);
+
+  if (itens.length === 0) {
+    alert("Adicione músicas ao repertório antes de compartilhar.");
+    return;
+  }
+
+  const nomeProjeto = escaparHtml(projeto.nome || "Projeto");
+  const nomeRepertorio = escaparHtml(repertorio.nome || "Repertório");
+  const observacoes = escaparHtml(repertorio.observacoes || "");
+
+  const linhas = itens.map(function(item, indice) {
+    const musica = item.musica || {};
+    const numero = String(indice + 1).padStart(2, "0");
+
+    return `
+      <tr>
+        <td class="numero">${numero}</td>
+        <td class="musica-coluna">
+          <strong>${escaparHtml(musica.nome || "Sem nome")}</strong>
+          <span>${escaparHtml(musica.artista || "Artista não informado")}</span>
+        </td>
+        <td class="obs-musica">${obterObservacaoMusicaManual(musica) ? escaparHtml(obterObservacaoMusicaManual(musica)) : "-"}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.tom || "-")}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.bpm || "-")}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>${nomeProjeto} - ${nomeRepertorio}</title>
+      <style>
+        * { box-sizing: border-box; }
+        body {
+          margin: 0;
+          padding: 24px;
+          font-family: Arial, Helvetica, sans-serif;
+          color: #111827;
+          background: #ffffff;
+        }
+        .pagina {
+          width: 100%;
+          max-width: 960px;
+          margin: 0 auto;
+        }
+        .cabecalho {
+          border-bottom: 3px solid #6d28d9;
+          padding-bottom: 16px;
+          margin-bottom: 22px;
+        }
+        .marca {
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: .08em;
+          text-transform: uppercase;
+          color: #6d28d9;
+          margin-bottom: 8px;
+        }
+        h1 {
+          margin: 0 0 6px;
+          font-size: 28px;
+          color: #111827;
+        }
+        h2 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: #374151;
+        }
+        .info {
+          margin-top: 14px;
+          font-size: 13px;
+          color: #4b5563;
+        }
+        .observacoes {
+          margin: 18px 0;
+          padding: 12px 14px;
+          border-radius: 10px;
+          background: #f3f4f6;
+          font-size: 13px;
+          color: #374151;
+        }
+        .tabela-area {
+          width: 100%;
+          overflow-x: auto;
+        }
+        table {
+          width: 100%;
+          min-width: 680px;
+          border-collapse: collapse;
+          margin-top: 12px;
+        }
+        th {
+          text-align: left;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: .04em;
+          color: #6b7280;
+          border-bottom: 2px solid #e5e7eb;
+          padding: 10px 8px;
+        }
+        td {
+          border-bottom: 1px solid #e5e7eb;
+          padding: 12px 8px;
+          vertical-align: top;
+          font-size: 14px;
+        }
+        td strong {
+          display: block;
+          font-size: 15px;
+          color: #111827;
+          margin-bottom: 3px;
+        }
+        td span {
+          display: block;
+          font-size: 12px;
+          color: #6b7280;
+        }
+        .numero {
+          font-weight: 800;
+          color: #6d28d9;
+        }
+        .musica-coluna { width: 56%; }
+        .obs-musica {
+          width: 24%;
+          font-size: 12px;
+          line-height: 1.4;
+          color: #4b5563;
+          font-style: italic;
+          white-space: normal;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+        }
+        .dado-centralizado {
+          text-align: center;
+          white-space: nowrap;
+        }
+        th.dado-centralizado { text-align: center; }
+        .rodape {
+          margin-top: 24px;
+          padding-top: 12px;
+          border-top: 1px solid #e5e7eb;
+          display: flex;
+          justify-content: space-between;
+          gap: 16px;
+          font-size: 12px;
+          color: #6b7280;
+        }
+        @media (max-width: 640px) {
+          body { padding: 16px; }
+          h1 { font-size: 23px; }
+          h2 { font-size: 17px; }
+          .rodape { flex-direction: column; gap: 4px; }
+        }
+      </style>
+    </head>
+    <body>
+      <main class="pagina">
+        <section class="cabecalho">
+          <div class="marca">CrossSet</div>
+          <h1>${nomeProjeto}</h1>
+          <h2>${nomeRepertorio}</h2>
+          <div class="info"><strong>Total de músicas:</strong> ${itens.length}</div>
+        </section>
+
+        ${observacoes ? `<div class="observacoes"><strong>Observações:</strong><br>${observacoes}</div>` : ""}
+
+        <div class="tabela-area">
+          <table>
+            <colgroup>
+              <col style="width:4%" />
+              <col style="width:56%" />
+              <col style="width:24%" />
+              <col style="width:8%" />
+              <col style="width:8%" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Nº</th>
+                <th>Música</th>
+                <th>OBS</th>
+                <th class="dado-centralizado">Tom</th>
+                <th class="dado-centralizado">BPM</th>
+              </tr>
+            </thead>
+            <tbody>${linhas}</tbody>
+          </table>
+        </div>
+
+        <div class="rodape">
+          <span>CrossSet</span>
+          <span>${nomeRepertorio}</span>
+        </div>
+      </main>
+    </body>
+    </html>
+  `;
+
+  const nomeArquivo = normalizarNomeArquivoPdf(nomeProjeto + "-" + nomeRepertorio);
+
+  try {
+    const compartilhado = await compartilharArquivoPdfRepertorio(
+      html,
+      nomeArquivo,
+      (projeto.nome || "Projeto") + " - " + (repertorio.nome || "Repertório")
+    );
+
+    if (!compartilhado) {
+      abrirJanelaImpressaoRepertorio(html);
+    }
+  } catch (erro) {
+    if (erro && erro.name === "AbortError") {
+      return;
+    }
+
+    console.warn("Não foi possível compartilhar o PDF. Abrindo o repertório como alternativa.", erro);
+    abrirJanelaImpressaoRepertorio(html);
+  }
 }
 
 function montarTextoCompartilhamentoEvento(evento) {
