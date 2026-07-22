@@ -10354,7 +10354,7 @@ function montarUrlCompartilhavel(tipo, id) {
   const codigo = encodeURIComponent(id || "");
 
   if (tipo === "repertorio") {
-    return base.replace(/\/$/, "/") + "?repertorio=" + codigo;
+    return base.replace(/\/$/, "/") + "repertorio.html?id=" + codigo;
   }
 
   if (tipo === "evento") {
@@ -10496,25 +10496,9 @@ async function montarTextoCompartilhamentoRepertorio(repertorioId) {
 }
 
 async function compartilharRepertorio(repertorioId) {
-  const repertorio = (appState.repertorios || []).find(function(item) {
-    return item.id === repertorioId;
-  });
-
-  if (!repertorio) {
-    alert("Repertório não encontrado.");
-    return;
-  }
-
-  const texto = await montarTextoCompartilhamentoRepertorio(repertorioId);
-
-  if (!texto) {
-    return;
-  }
-
-  const titulo = "Repertório - " + (repertorio.nome || "Repertório");
-  const url = montarUrlCompartilhavel("repertorio", repertorioId);
-
-  await compartilharConteudo(titulo, texto, url);
+  // Mantém o ícone e o botão aprovados. Ao compartilhar, abre a mesma
+  // página de impressão/PDF já usada pelo botão Gerar PDF.
+  await gerarPDFDoRepertorio(repertorioId);
 }
 
 function montarTextoCompartilhamentoEvento(evento) {
