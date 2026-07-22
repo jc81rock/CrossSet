@@ -12675,3 +12675,47 @@ document.addEventListener("DOMContentLoaded", async function() {
 
 const crosssetScrollObserver = new MutationObserver(function(){ ativarBarrasInternasCrossSet(); });
 crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:true});
+
+/* CrossSet v1.0.1 - padronização urgente do compartilhamento de repertórios.
+   O clique no ícone sempre abre primeiro o menu próprio do CrossSet,
+   independentemente do navegador ou do suporte a navigator.share(). */
+(function garantirMenuPadraoCompartilhamentoRepertorio() {
+  if (window.__crosssetMenuRepertorioPadraoAtivo) {
+    return;
+  }
+
+  window.__crosssetMenuRepertorioPadraoAtivo = true;
+  window.__crosssetFrontendVersion = "1.0.1-share-menu";
+
+  document.addEventListener("click", function(evento) {
+    const alvo = evento.target instanceof Element
+      ? evento.target.closest("[data-compartilhar-repertorio]")
+      : null;
+
+    if (!alvo) {
+      return;
+    }
+
+    evento.preventDefault();
+    evento.stopPropagation();
+    evento.stopImmediatePropagation();
+
+    const repertorioId = alvo.getAttribute("data-compartilhar-repertorio") || "";
+
+    if (!repertorioId) {
+      return;
+    }
+
+    compartilharRepertorio(repertorioId);
+  }, true);
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then(function(registros) {
+        registros.forEach(function(registro) {
+          registro.update().catch(function() {});
+        });
+      })
+      .catch(function() {});
+  }
+})();
