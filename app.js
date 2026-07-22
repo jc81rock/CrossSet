@@ -216,130 +216,6 @@ function mostrarToast(texto) {
   }, 2600);
 }
 
-
-function fecharMenuCompartilhamentoCrossSet() {
-  const fundo = document.getElementById("crossset-menu-compartilhamento");
-  if (fundo) {
-    fundo.remove();
-  }
-}
-
-async function abrirMenuCompartilhamentoCrossSet(opcoes = {}) {
-  const titulo = limparTexto(opcoes.titulo || "Compartilhar");
-  const texto = limparTexto(opcoes.texto || "");
-  const url = limparTexto(opcoes.url || "");
-  const conteudo = limparTexto(opcoes.conteudo || [texto, url].filter(Boolean).join("\n\n"));
-
-  fecharMenuCompartilhamentoCrossSet();
-
-  const fundo = document.createElement("div");
-  fundo.id = "crossset-menu-compartilhamento";
-  fundo.setAttribute("role", "dialog");
-  fundo.setAttribute("aria-modal", "true");
-  fundo.setAttribute("aria-label", "Opções de compartilhamento");
-  fundo.style.position = "fixed";
-  fundo.style.inset = "0";
-  fundo.style.zIndex = "10000";
-  fundo.style.background = "rgba(0,0,0,.62)";
-  fundo.style.display = "flex";
-  fundo.style.alignItems = "center";
-  fundo.style.justifyContent = "center";
-  fundo.style.padding = "18px";
-
-  const painel = document.createElement("div");
-  painel.style.width = "min(390px, 100%)";
-  painel.style.borderRadius = "18px";
-  painel.style.background = "#0d1b2f";
-  painel.style.border = "1px solid rgba(255,255,255,.16)";
-  painel.style.boxShadow = "0 22px 70px rgba(0,0,0,.55)";
-  painel.style.padding = "18px";
-  painel.style.display = "grid";
-  painel.style.gap = "10px";
-
-  const cabecalho = document.createElement("div");
-  cabecalho.style.display = "flex";
-  cabecalho.style.alignItems = "center";
-  cabecalho.style.justifyContent = "space-between";
-  cabecalho.style.gap = "12px";
-  cabecalho.innerHTML = `<strong style="color:#fff;font-size:18px;">Compartilhar</strong>`;
-
-  const fechar = document.createElement("button");
-  fechar.type = "button";
-  fechar.textContent = "×";
-  fechar.setAttribute("aria-label", "Fechar");
-  fechar.style.border = "0";
-  fechar.style.background = "transparent";
-  fechar.style.color = "#fff";
-  fechar.style.fontSize = "26px";
-  fechar.style.cursor = "pointer";
-  fechar.addEventListener("click", fecharMenuCompartilhamentoCrossSet);
-  cabecalho.appendChild(fechar);
-
-  function criarOpcao(rotulo, acao, destaque) {
-    const botao = document.createElement("button");
-    botao.type = "button";
-    botao.textContent = rotulo;
-    botao.style.width = "100%";
-    botao.style.minHeight = "44px";
-    botao.style.borderRadius = "12px";
-    botao.style.border = "1px solid rgba(255,255,255,.14)";
-    botao.style.background = destaque ? "#16b957" : "rgba(255,255,255,.07)";
-    botao.style.color = "#fff";
-    botao.style.fontSize = "14px";
-    botao.style.fontWeight = "800";
-    botao.style.cursor = "pointer";
-    botao.addEventListener("click", acao);
-    return botao;
-  }
-
-  const whatsapp = criarOpcao("Enviar pelo WhatsApp", function() {
-    fecharMenuCompartilhamentoCrossSet();
-    window.open("https://wa.me/?text=" + encodeURIComponent(conteudo), "_blank");
-  }, true);
-
-  const copiar = criarOpcao(url ? "Copiar link" : "Copiar conteúdo", async function() {
-    const valorCopiar = url || conteudo;
-    const sucesso = await copiarTextoCompartilhamento(valorCopiar);
-    fecharMenuCompartilhamentoCrossSet();
-    if (sucesso) {
-      mostrarToast(url ? "Link copiado com sucesso!" : "Conteúdo copiado com sucesso!");
-    } else {
-      prompt("Copie o conteúdo abaixo:", valorCopiar);
-    }
-  }, false);
-
-  painel.appendChild(cabecalho);
-  painel.appendChild(whatsapp);
-  painel.appendChild(copiar);
-
-  if (navigator.share) {
-    const maisOpcoes = criarOpcao("Mais opções", async function() {
-      try {
-        await navigator.share({
-          title: titulo,
-          text: texto || conteudo,
-          url: url || undefined
-        });
-        fecharMenuCompartilhamentoCrossSet();
-      } catch (erro) {
-        if (erro && erro.name !== "AbortError") {
-          console.warn("Compartilhamento nativo indisponível.", erro);
-        }
-      }
-    }, false);
-    painel.appendChild(maisOpcoes);
-  }
-
-  fundo.appendChild(painel);
-  fundo.addEventListener("click", function(evento) {
-    if (evento.target === fundo) {
-      fecharMenuCompartilhamentoCrossSet();
-    }
-  });
-
-  document.body.appendChild(fundo);
-}
-
 function limparCampos(container) {
   if (!container) {
     return;
@@ -3014,7 +2890,7 @@ function renderizarListaIntegrantes() {
   });
 }
 
-async function compartilharIntegrante(id) {
+function compartilharIntegrante(id) {
   const item = (appState.integrantes || []).find(function(integrante) {
     return integrante.id === id;
   });
@@ -3034,13 +2910,21 @@ async function compartilharIntegrante(id) {
     item.chave_pix ? "Chave Pix: " + item.chave_pix : "",
     "Perfil: " + (item.administrador ? "Administrador" : "Integrante"),
     "Desenvolvimento: " + dados.percentual + "%"
-  ].filter(Boolean).join("\n");
+  ].join("\n");
 
-  await abrirMenuCompartilhamentoCrossSet({
-    titulo: "Integrante CrossSet",
-    texto: mensagem,
-    conteudo: mensagem
-  });
+  try {
+    if (navigator.share) {
+      navigator.share({
+        title: "Integrante CrossSet",
+        text: mensagem
+      });
+      return;
+    }
+  } catch (erroCompartilhar) {
+    console.warn("Compartilhamento cancelado ou indisponível.", erroCompartilhar);
+  }
+
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensagem), "_blank");
 }
 
 function compararTexto(a, b) {
@@ -10470,7 +10354,7 @@ function montarUrlCompartilhavel(tipo, id) {
   const codigo = encodeURIComponent(id || "");
 
   if (tipo === "repertorio") {
-    return base.replace(/\/$/, "/") + "repertorio.html?id=" + codigo;
+    return base.replace(/\/$/, "/") + "?repertorio=" + codigo;
   }
 
   if (tipo === "evento") {
@@ -10516,12 +10400,31 @@ async function copiarTextoCompartilhamento(texto) {
 
 async function compartilharConteudo(titulo, texto, url) {
   const conteudo = texto + (url ? "\n\nLink: " + url : "");
-  await abrirMenuCompartilhamentoCrossSet({
-    titulo: titulo,
-    texto: texto,
-    url: url || "",
-    conteudo: conteudo
-  });
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: titulo,
+        text: texto,
+        url: url || REPERTORIO_FACIL.urlApp
+      });
+      return;
+    } catch (erro) {
+      // usuário cancelou ou navegador não compartilhou; usa fallback abaixo
+    }
+  }
+
+  const copiado = await copiarTextoCompartilhamento(conteudo);
+
+  if (copiado) {
+    const abrirWhatsapp = confirm("Link e texto copiados. Deseja abrir o WhatsApp para compartilhar?");
+
+    if (abrirWhatsapp) {
+      window.open("https://wa.me/?text=" + encodeURIComponent(conteudo), "_blank");
+    }
+  } else {
+    prompt("Copie o texto abaixo para compartilhar:", conteudo);
+  }
 }
 
 async function montarTextoCompartilhamentoRepertorio(repertorioId) {
@@ -10603,20 +10506,15 @@ async function compartilharRepertorio(repertorioId) {
   }
 
   const texto = await montarTextoCompartilhamentoRepertorio(repertorioId);
+
   if (!texto) {
     return;
   }
 
   const titulo = "Repertório - " + (repertorio.nome || "Repertório");
-  const link = REPERTORIO_FACIL.urlApp + "?repertorio=" + encodeURIComponent(repertorioId);
-  const conteudo = texto + "\n\nAcesse o repertório: " + link;
+  const url = montarUrlCompartilhavel("repertorio", repertorioId);
 
-  await abrirMenuCompartilhamentoCrossSet({
-    titulo: titulo,
-    texto: texto,
-    url: link,
-    conteudo: conteudo
-  });
+  await compartilharConteudo(titulo, texto, url);
 }
 
 function montarTextoCompartilhamentoEvento(evento) {
@@ -10667,11 +10565,7 @@ async function compartilharEvento(eventoId) {
   }
 
   const texto = montarTextoCompartilhamentoEvento(evento);
-  await abrirMenuCompartilhamentoCrossSet({
-    titulo: "Evento - " + (evento.nome || "Evento"),
-    texto: texto,
-    conteudo: texto
-  });
+  window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
 }
 
 async function gerarPDFDoRepertorio(repertorioId) {
