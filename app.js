@@ -10612,6 +10612,103 @@ async function compartilharArquivoPdfRepertorio(html, nomeArquivo, titulo, texto
   return true;
 }
 
+
+function abrirMenuCompartilhamentoRepertorio(opcoes) {
+  const menuAnterior = document.getElementById("menu-compartilhar-repertorio-crossset");
+  if (menuAnterior) {
+    menuAnterior.remove();
+  }
+
+  const overlay = document.createElement("div");
+  overlay.id = "menu-compartilhar-repertorio-crossset";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "Opções para compartilhar repertório");
+  overlay.style.position = "fixed";
+  overlay.style.inset = "0";
+  overlay.style.zIndex = "99999";
+  overlay.style.display = "flex";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.padding = "20px";
+  overlay.style.background = "rgba(17, 24, 39, 0.62)";
+
+  const painel = document.createElement("div");
+  painel.style.width = "min(100%, 360px)";
+  painel.style.borderRadius = "16px";
+  painel.style.padding = "18px";
+  painel.style.background = "#5b21b6";
+  painel.style.boxShadow = "0 18px 45px rgba(0,0,0,.28)";
+  painel.style.color = "#ffffff";
+
+  painel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;">
+      <strong style="font-size:17px;">Compartilhar repertório</strong>
+      <button type="button" data-fechar-compartilhamento aria-label="Fechar" style="border:0;background:transparent;color:#fff;padding:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div style="display:grid;gap:10px;">
+      <button type="button" data-opcao-compartilhar="whatsapp" style="width:100%;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.10);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:12px;font:inherit;font-weight:700;cursor:pointer;text-align:left;">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20l1.2-4.7A8.5 8.5 0 1 1 20.5 11.5Z"/><path d="M8.8 8.7c.3 2.7 2.2 5.1 4.9 5.9l1.4-1.3 2.1.6"/></svg>
+        <span>WhatsApp</span>
+      </button>
+      <button type="button" data-opcao-compartilhar="copiar" style="width:100%;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.10);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:12px;font:inherit;font-weight:700;cursor:pointer;text-align:left;">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copiar</span>
+      </button>
+      <button type="button" data-opcao-compartilhar="pdf" style="width:100%;border:1px solid rgba(255,255,255,.22);border-radius:12px;background:rgba(255,255,255,.10);color:#fff;padding:12px 14px;display:flex;align-items:center;gap:12px;font:inherit;font-weight:700;cursor:pointer;text-align:left;">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M9 15h6M9 18h4"/></svg>
+        <span>Gerar PDF</span>
+      </button>
+    </div>
+  `;
+
+  overlay.appendChild(painel);
+  document.body.appendChild(overlay);
+
+  const fechar = function() {
+    document.removeEventListener("keydown", aoTeclado);
+    overlay.remove();
+  };
+
+  const aoTeclado = function(evento) {
+    if (evento.key === "Escape") {
+      fechar();
+    }
+  };
+
+  document.addEventListener("keydown", aoTeclado);
+
+  overlay.addEventListener("click", function(evento) {
+    if (evento.target === overlay || evento.target.closest("[data-fechar-compartilhamento]")) {
+      fechar();
+      return;
+    }
+
+    const botao = evento.target.closest("[data-opcao-compartilhar]");
+    if (!botao) {
+      return;
+    }
+
+    const tipo = botao.dataset.opcaoCompartilhar;
+    fechar();
+
+    if (tipo === "whatsapp") {
+      opcoes.whatsapp();
+    } else if (tipo === "copiar") {
+      opcoes.copiar();
+    } else if (tipo === "pdf") {
+      opcoes.pdf();
+    }
+  });
+
+  const primeiroBotao = painel.querySelector("[data-opcao-compartilhar]");
+  if (primeiroBotao) {
+    primeiroBotao.focus();
+  }
+}
+
 async function compartilharRepertorio(repertorioId) {
   const repertorio = (appState.repertorios || []).find(function(item) {
     return item.id === repertorioId;
@@ -10829,25 +10926,47 @@ async function compartilharRepertorio(repertorioId) {
   const nomeArquivo = normalizarNomeArquivoPdf(nomeProjeto + "-" + nomeRepertorio);
   const textoCompartilhamento = await montarTextoCompartilhamentoRepertorio(repertorioId);
 
-  try {
-    const compartilhado = await compartilharArquivoPdfRepertorio(
-      html,
-      nomeArquivo,
-      (projeto.nome || "Projeto") + " - " + (repertorio.nome || "Repertório"),
-      textoCompartilhamento || "Repertório compartilhado pelo CrossSet."
-    );
+  abrirMenuCompartilhamentoRepertorio({
+    whatsapp: async function() {
+      const texto = textoCompartilhamento || "Repertório compartilhado pelo CrossSet.";
+      const dispositivoMovel = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || "");
 
-    if (!compartilhado) {
-      abrirJanelaImpressaoRepertorio(html);
-    }
-  } catch (erro) {
-    if (erro && erro.name === "AbortError") {
-      return;
-    }
+      if (dispositivoMovel) {
+        try {
+          const compartilhado = await compartilharArquivoPdfRepertorio(
+            html,
+            nomeArquivo,
+            (projeto.nome || "Projeto") + " - " + (repertorio.nome || "Repertório"),
+            texto
+          );
 
-    console.warn("Não foi possível compartilhar o PDF. Abrindo o repertório como alternativa.", erro);
-    abrirJanelaImpressaoRepertorio(html);
-  }
+          if (compartilhado) {
+            return;
+          }
+        } catch (erro) {
+          if (erro && erro.name === "AbortError") {
+            return;
+          }
+          console.warn("Não foi possível anexar o PDF ao compartilhamento.", erro);
+        }
+      }
+
+      window.open("https://wa.me/?text=" + encodeURIComponent(texto), "_blank");
+    },
+    copiar: async function() {
+      const texto = textoCompartilhamento || "Repertório compartilhado pelo CrossSet.";
+      const copiado = await copiarTextoCompartilhamento(texto);
+
+      if (copiado) {
+        alert("Repertório copiado.");
+      } else {
+        prompt("Copie o repertório abaixo:", texto);
+      }
+    },
+    pdf: function() {
+      gerarPDFDoRepertorio(repertorioId);
+    }
+  });
 }
 
 function montarTextoCompartilhamentoEvento(evento) {
