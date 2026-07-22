@@ -10591,7 +10591,7 @@ async function gerarBlobPdfRepertorio(html) {
   }
 }
 
-async function compartilharArquivoPdfRepertorio(html, nomeArquivo, titulo) {
+async function compartilharArquivoPdfRepertorio(html, nomeArquivo, titulo, textoCompartilhamento) {
   if (!navigator.share || !navigator.canShare) {
     return false;
   }
@@ -10600,7 +10600,7 @@ async function compartilharArquivoPdfRepertorio(html, nomeArquivo, titulo) {
   const arquivoPdf = new File([blobPdf], nomeArquivo, { type: "application/pdf" });
   const dados = {
     title: titulo,
-    text: "Repertório compartilhado pelo CrossSet.",
+    text: textoCompartilhamento || "Repertório compartilhado pelo CrossSet.",
     files: [arquivoPdf]
   };
 
@@ -10827,12 +10827,14 @@ async function compartilharRepertorio(repertorioId) {
   `;
 
   const nomeArquivo = normalizarNomeArquivoPdf(nomeProjeto + "-" + nomeRepertorio);
+  const textoCompartilhamento = await montarTextoCompartilhamentoRepertorio(repertorioId);
 
   try {
     const compartilhado = await compartilharArquivoPdfRepertorio(
       html,
       nomeArquivo,
-      (projeto.nome || "Projeto") + " - " + (repertorio.nome || "Repertório")
+      (projeto.nome || "Projeto") + " - " + (repertorio.nome || "Repertório"),
+      textoCompartilhamento || "Repertório compartilhado pelo CrossSet."
     );
 
     if (!compartilhado) {
