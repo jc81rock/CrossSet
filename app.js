@@ -12828,3 +12828,75 @@ crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:
       .catch(function() {});
   }
 })();
+
+
+/* CrossSet v1.0.2 — consistência da montagem de repertório no app.
+   Mantém somente a renderização compacta atual e força a atualização
+   dos arquivos em cache quando esta versão chegar ao dispositivo. */
+(function garantirVersaoCompactaRepertorio() {
+  const VERSAO = "1.0.2-repertorio-compacto";
+  const CHAVE = "crossset_frontend_build";
+
+  window.__crosssetFrontendVersion = VERSAO;
+
+  function reforcarMontagemCompacta() {
+    const lista = document.getElementById("lista-musicas-repertorio");
+
+    if (!lista) {
+      return;
+    }
+
+    lista.classList.add("setlist-lista-final");
+
+    const cabecalho = lista.previousElementSibling;
+    const ajuda = cabecalho?.querySelector?.(".texto-ajuda");
+    if (ajuda) {
+      ajuda.textContent = "Arraste para reorganizar ou use as setas.";
+    }
+
+    if (typeof configurarArrastarMusicasRepertorio === "function") {
+      configurarArrastarMusicasRepertorio();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", reforcarMontagemCompacta);
+
+  const observador = new MutationObserver(function() {
+    reforcarMontagemCompacta();
+  });
+
+  observador.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  let versaoAnterior = "";
+  try {
+    versaoAnterior = localStorage.getItem(CHAVE) || "";
+    localStorage.setItem(CHAVE, VERSAO);
+  } catch (erroStorage) {}
+
+  if (versaoAnterior === VERSAO) {
+    return;
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.getRegistrations()
+      .then(function(registros) {
+        return Promise.all(registros.map(function(registro) {
+          return registro.update().catch(function() {});
+        }));
+      })
+      .catch(function() {});
+  }
+
+  if ("caches" in window) {
+    caches.keys()
+      .then(function(chaves) {
+        return Promise.all(chaves.map(function(chave) {
+          return caches.delete(chave);
+        }));
+      })
+      .catch(function() {});
+  }
+})();
