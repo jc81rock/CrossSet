@@ -2016,3 +2016,64 @@ button#btn-convidar-integrante::after,
     height: 34px !important;
   }
 }
+
+
+/* =========================================================
+   CrossSet v71 — correção exclusiva da barra inferior
+   Mantém exatamente 5 itens visíveis em todos os módulos,
+   inclusive Músicas. Nenhuma outra área é alterada.
+   ========================================================= */
+#tela-painel-projeto .menu-inferior {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: center !important;
+  justify-content: stretch !important;
+  width: calc(100% - 28px) !important;
+  max-width: 670px !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 8px !important;
+  gap: 2px !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+#tela-painel-projeto .menu-inferior a,
+#tela-painel-projeto .menu-inferior button {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 48px !important;
+  padding: 0 3px !important;
+  margin: 0 !important;
+  border-radius: 14px !important;
+  font-size: clamp(9px, 2.8vw, 13px) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 390px) {
+  #tela-painel-projeto .menu-inferior {
+    width: calc(100% - 20px) !important;
+    padding: 7px !important;
+    gap: 1px !important;
+  }
+
+  #tela-painel-projeto .menu-inferior a,
+  #tela-painel-projeto .menu-inferior button {
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 0 2px !important;
+    font-size: 9px !important;
+  }
+}
