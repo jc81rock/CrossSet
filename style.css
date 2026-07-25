@@ -2049,3 +2049,143 @@ button#btn-convidar-integrante::after,
     letter-spacing: -0.15px !important;
   }
 }
+
+
+/* =========================================================
+   CrossSet v73 — rodapé visual único em todos os módulos
+   Ícone acima do texto, cinco itens completos e ativo em degradê.
+   ========================================================= */
+#tela-painel-projeto .menu-inferior.menu-crossset-icones {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: max(12px, env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) !important;
+  z-index: 9998 !important;
+
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+
+  width: calc(100vw - 24px) !important;
+  max-width: 560px !important;
+  height: 82px !important;
+  min-height: 82px !important;
+  max-height: 82px !important;
+
+  padding: 7px !important;
+  gap: 3px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+
+  background: rgba(7, 17, 31, .98) !important;
+  border: 1px solid rgba(255,255,255,.13) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 18px 60px rgba(0,0,0,.48) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 68px !important;
+  min-height: 68px !important;
+  max-height: 68px !important;
+
+  margin: 0 !important;
+  padding: 7px 1px 6px !important;
+  border: 0 !important;
+  border-radius: 18px !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+
+  background: transparent !important;
+  color: #aebbd8 !important;
+  text-decoration: none !important;
+  text-align: center !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  letter-spacing: -0.1px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a .menu-crossset-icone {
+  width: 23px !important;
+  height: 23px !important;
+  min-width: 23px !important;
+  flex: 0 0 23px !important;
+  display: block !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a span {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a:hover {
+  color: #ffffff !important;
+  background: rgba(122,92,255,.14) !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a.ativo {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
+  box-shadow: 0 10px 24px rgba(122,92,255,.28) !important;
+}
+
+/* Reserva espaço para que o conteúdo nunca fique escondido atrás do menu. */
+#tela-painel-projeto .container {
+  padding-bottom: 118px !important;
+}
+
+@media (max-width: 390px) {
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
+    left: 8px !important;
+    right: 8px !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    max-height: 78px !important;
+    padding: 6px 4px !important;
+    gap: 1px !important;
+    border-radius: 21px !important;
+  }
+
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+    height: 66px !important;
+    min-height: 66px !important;
+    max-height: 66px !important;
+    padding: 7px 0 5px !important;
+    gap: 4px !important;
+    border-radius: 16px !important;
+    font-size: 8.8px !important;
+    letter-spacing: -0.25px !important;
+  }
+
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones a .menu-crossset-icone {
+    width: 21px !important;
+    height: 21px !important;
+    min-width: 21px !important;
+    flex-basis: 21px !important;
+  }
+}
