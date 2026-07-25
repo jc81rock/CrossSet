@@ -577,7 +577,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabaseClient.js?v=20"></script>
-  <script src="app.js?v=65"></script>
+  <script src="app.js?v=67"></script>
 
 
 
@@ -1306,7 +1306,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
+        navigator.serviceWorker.register('./service-worker.js?v=67', { updateViaCache: 'none' })
           .then(() => console.log('Service Worker registrado com sucesso.'))
           .catch(err => console.error('Erro ao registrar Service Worker:', err));
       });

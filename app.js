@@ -8238,6 +8238,11 @@ async function carregarRepertorios() {
         color: #8ea4ca;
         font-size: 15px;
         line-height: 1;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
         letter-spacing: -3px;
         user-select: none;
         text-align: center;
@@ -9881,85 +9886,103 @@ function configurarArrastarMusicasRepertorio() {
       await reordenarMusicaRepertorio(origemId, destinoId);
     });
 
-    /* Android/TWA: mantém o drag do desktop e acrescenta suporte por toque. */
-    item.addEventListener("pointerdown", function(evento) {
-      if (evento.pointerType === "mouse" || evento.button !== 0) {
-        return;
-      }
+    /* Android/TWA: arraste por toque iniciado somente na alça ⋮⋮. */
+    const alcaToque = item.querySelector(".setlist-arrastar");
 
-      limparEstadoToque();
-      toqueAtivo = {
-        pointerId: evento.pointerId,
-        item: item,
-        origemId: item.dataset.repertorioItem || "",
-        inicioX: evento.clientX,
-        inicioY: evento.clientY
-      };
-
-      toqueTimer = setTimeout(function() {
-        if (!toqueAtivo) {
+    if (alcaToque) {
+      alcaToque.addEventListener("pointerdown", function(evento) {
+        if (evento.pointerType === "mouse" || evento.button !== 0) {
           return;
         }
 
-        toqueArrastando = true;
-        itemArrastadoId = toqueAtivo.origemId;
-        item.classList.add("arrastando");
+        evento.preventDefault();
+        evento.stopPropagation();
+        limparEstadoToque();
+
+        toqueAtivo = {
+          pointerId: evento.pointerId,
+          item: item,
+          alca: alcaToque,
+          origemId: item.dataset.repertorioItem || "",
+          inicioX: evento.clientX,
+          inicioY: evento.clientY
+        };
+
+        toqueTimer = setTimeout(function() {
+          if (!toqueAtivo) {
+            return;
+          }
+
+          toqueArrastando = true;
+          itemArrastadoId = toqueAtivo.origemId;
+          item.classList.add("arrastando");
+
+          try {
+            alcaToque.setPointerCapture(evento.pointerId);
+          } catch (erroCaptura) {}
+        }, 120);
+      }, { passive: false });
+
+      alcaToque.addEventListener("pointermove", function(evento) {
+        if (!toqueAtivo || evento.pointerId !== toqueAtivo.pointerId) {
+          return;
+        }
+
+        const distanciaX = Math.abs(evento.clientX - toqueAtivo.inicioX);
+        const distanciaY = Math.abs(evento.clientY - toqueAtivo.inicioY);
+
+        /* Antes da ativação, tolera pequenos movimentos naturais do dedo. */
+        if (!toqueArrastando && (distanciaX > 24 || distanciaY > 24)) {
+          limparEstadoToque();
+          return;
+        }
+
+        if (!toqueArrastando) {
+          return;
+        }
+
+        evento.preventDefault();
+        evento.stopPropagation();
+        limparAlvosArrastar();
+
+        const elementoSobToque = document.elementFromPoint(evento.clientX, evento.clientY);
+        const alvo = elementoSobToque?.closest?.("[data-repertorio-item]");
+
+        if (alvo && lista.contains(alvo) && alvo !== toqueAtivo.item) {
+          alvo.classList.add("alvo-arrastar");
+          alvoToqueAtual = alvo;
+        } else {
+          alvoToqueAtual = null;
+        }
+      }, { passive: false });
+
+      alcaToque.addEventListener("pointerup", async function(evento) {
+        if (!toqueAtivo || evento.pointerId !== toqueAtivo.pointerId) {
+          return;
+        }
+
+        const origemId = toqueAtivo.origemId;
+        const destinoId = alvoToqueAtual?.dataset?.repertorioItem || "";
+        const deveReordenar = toqueArrastando && origemId && destinoId && origemId !== destinoId;
 
         try {
-          item.setPointerCapture(evento.pointerId);
-        } catch (erroCaptura) {}
-      }, 180);
-    });
+          alcaToque.releasePointerCapture(evento.pointerId);
+        } catch (erroLiberacao) {}
 
-    item.addEventListener("pointermove", function(evento) {
-      if (!toqueAtivo || evento.pointerId !== toqueAtivo.pointerId) {
-        return;
-      }
-
-      const distanciaX = Math.abs(evento.clientX - toqueAtivo.inicioX);
-      const distanciaY = Math.abs(evento.clientY - toqueAtivo.inicioY);
-
-      if (!toqueArrastando && (distanciaX > 10 || distanciaY > 10)) {
         limparEstadoToque();
-        return;
-      }
 
-      if (!toqueArrastando) {
-        return;
-      }
+        if (deveReordenar) {
+          evento.preventDefault();
+          evento.stopPropagation();
+          await reordenarMusicaRepertorio(origemId, destinoId);
+        }
+      }, { passive: false });
 
-      evento.preventDefault();
-      limparAlvosArrastar();
-
-      const elementoSobToque = document.elementFromPoint(evento.clientX, evento.clientY);
-      const alvo = elementoSobToque?.closest?.("[data-repertorio-item]");
-
-      if (alvo && lista.contains(alvo) && alvo !== toqueAtivo.item) {
-        alvo.classList.add("alvo-arrastar");
-        alvoToqueAtual = alvo;
-      } else {
-        alvoToqueAtual = null;
-      }
-    }, { passive: false });
-
-    item.addEventListener("pointerup", async function(evento) {
-      if (!toqueAtivo || evento.pointerId !== toqueAtivo.pointerId) {
-        return;
-      }
-
-      const origemId = toqueAtivo.origemId;
-      const destinoId = alvoToqueAtual?.dataset?.repertorioItem || "";
-      const deveReordenar = toqueArrastando && origemId && destinoId && origemId !== destinoId;
-
-      limparEstadoToque();
-
-      if (deveReordenar) {
+      alcaToque.addEventListener("pointercancel", limparEstadoToque);
+      alcaToque.addEventListener("contextmenu", function(evento) {
         evento.preventDefault();
-        await reordenarMusicaRepertorio(origemId, destinoId);
-      }
-    }, { passive: false });
-
-    item.addEventListener("pointercancel", limparEstadoToque);
+      });
+    }
   });
 }
 
@@ -12830,11 +12853,11 @@ crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:
 })();
 
 
-/* CrossSet v1.0.2 — consistência da montagem de repertório no app.
+/* CrossSet v1.0.3 — consistência da montagem de repertório no app.
    Mantém somente a renderização compacta atual e força a atualização
    dos arquivos em cache quando esta versão chegar ao dispositivo. */
 (function garantirVersaoCompactaRepertorio() {
-  const VERSAO = "1.0.2-repertorio-compacto";
+  const VERSAO = "1.0.3-repertorio-toque";
   const CHAVE = "crossset_frontend_build";
 
   window.__crosssetFrontendVersion = VERSAO;
