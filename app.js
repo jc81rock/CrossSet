@@ -1510,52 +1510,12 @@ function garantirTelasInternas() {
 
       <section id="area-modulo" class="grid-projetos" style="margin-top:24px;"></section>
 
-      <nav class="menu-inferior menu-crossset-icones" aria-label="Menu do projeto">
-        <a id="menu-projeto-inicio" class="ativo" href="#inicio">
-          <svg class="menu-crossset-icone" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 11.5 12 4l9 7.5"></path>
-            <path d="M5.5 10.5V20h13v-9.5"></path>
-            <path d="M9.5 20v-6h5v6"></path>
-          </svg>
-          <span>Início</span>
-        </a>
-        <a href="#integrantes" data-modulo="integrantes">
-          <svg class="menu-crossset-icone" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="9" cy="8" r="3"></circle>
-            <path d="M3.5 19c.4-4 2.4-6 5.5-6s5.1 2 5.5 6"></path>
-            <circle cx="17.5" cy="9" r="2.5"></circle>
-            <path d="M15.5 14c2.9 0 4.7 1.7 5 5"></path>
-          </svg>
-          <span>Integrantes</span>
-        </a>
-        <a href="#musicas" data-modulo="musicas">
-          <svg class="menu-crossset-icone" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 18V6l10-2v12"></path>
-            <ellipse cx="6.5" cy="18" rx="2.5" ry="2"></ellipse>
-            <ellipse cx="16.5" cy="16" rx="2.5" ry="2"></ellipse>
-          </svg>
-          <span>Músicas</span>
-        </a>
-        <a href="#repertorios" data-modulo="repertorios">
-          <svg class="menu-crossset-icone" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 6h11"></path>
-            <path d="M9 12h11"></path>
-            <path d="M9 18h11"></path>
-            <circle cx="4.5" cy="6" r="1"></circle>
-            <circle cx="4.5" cy="12" r="1"></circle>
-            <circle cx="4.5" cy="18" r="1"></circle>
-          </svg>
-          <span>Repertórios</span>
-        </a>
-        <a href="#eventos" data-modulo="eventos">
-          <svg class="menu-crossset-icone" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-            <path d="M7 3v4"></path>
-            <path d="M17 3v4"></path>
-            <path d="M3 10h18"></path>
-          </svg>
-          <span>Eventos</span>
-        </a>
+      <nav class="menu-inferior" aria-label="Menu do projeto">
+        <a id="menu-projeto-inicio" class="ativo" href="#inicio">Início</a>
+        <a href="#integrantes" data-modulo="integrantes">Integrantes</a>
+        <a href="#musicas" data-modulo="musicas">Músicas</a>
+        <a href="#repertorios" data-modulo="repertorios">Repertórios</a>
+        <a href="#eventos" data-modulo="eventos">Eventos</a>
       </nav>
     </div>
   `;

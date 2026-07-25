@@ -2052,267 +2052,118 @@ button#btn-convidar-integrante::after,
 
 
 /* =========================================================
-   CrossSet v73 — rodapé visual único em todos os módulos
-   Ícone acima do texto, cinco itens completos e ativo em degradê.
+   CrossSet v77 — correção cirúrgica somente no mobile
+   - Cards de músicas responsivos
+   - Rodapé não é empurrado pelo conteúdo de Músicas
+   - Nenhuma regra de desktop é alterada
    ========================================================= */
-#tela-painel-projeto .menu-inferior.menu-crossset-icones {
-  position: fixed !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: max(12px, env(safe-area-inset-bottom)) !important;
-  transform: translateX(-50%) !important;
-  z-index: 9998 !important;
-
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  align-items: stretch !important;
-
-  width: calc(100vw - 24px) !important;
-  max-width: 560px !important;
-  height: 82px !important;
-  min-height: 82px !important;
-  max-height: 82px !important;
-
-  padding: 7px !important;
-  gap: 3px !important;
-  box-sizing: border-box !important;
-  overflow: hidden !important;
-
-  background: rgba(7, 17, 31, .98) !important;
-  border: 1px solid rgba(255,255,255,.13) !important;
-  border-radius: 24px !important;
-  box-shadow: 0 18px 60px rgba(0,0,0,.48) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-}
-
-#tela-painel-projeto .menu-inferior.menu-crossset-icones a {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  height: 68px !important;
-  min-height: 68px !important;
-  max-height: 68px !important;
-
-  margin: 0 !important;
-  padding: 7px 1px 6px !important;
-  border: 0 !important;
-  border-radius: 18px !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 5px !important;
-
-  background: transparent !important;
-  color: #aebbd8 !important;
-  text-decoration: none !important;
-  text-align: center !important;
-  font-size: 10px !important;
-  font-weight: 800 !important;
-  line-height: 1 !important;
-  letter-spacing: -0.1px !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  box-sizing: border-box !important;
-}
-
-#tela-painel-projeto .menu-inferior.menu-crossset-icones a .menu-crossset-icone {
-  width: 23px !important;
-  height: 23px !important;
-  min-width: 23px !important;
-  flex: 0 0 23px !important;
-  display: block !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-width: 2 !important;
-  stroke-linecap: round !important;
-  stroke-linejoin: round !important;
-}
-
-#tela-painel-projeto .menu-inferior.menu-crossset-icones a span {
-  display: block !important;
-  width: 100% !important;
-  min-width: 0 !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-  overflow: visible !important;
-}
-
-#tela-painel-projeto .menu-inferior.menu-crossset-icones a:hover {
-  color: #ffffff !important;
-  background: rgba(122,92,255,.14) !important;
-}
-
-#tela-painel-projeto .menu-inferior.menu-crossset-icones a.ativo {
-  color: #ffffff !important;
-  background: linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff) !important;
-  box-shadow: 0 10px 24px rgba(122,92,255,.28) !important;
-}
-
-/* Reserva espaço para que o conteúdo nunca fique escondido atrás do menu. */
-#tela-painel-projeto .container {
-  padding-bottom: 118px !important;
-}
-
-@media (max-width: 390px) {
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
-    left: 8px !important;
-    right: 8px !important;
-    transform: none !important;
-    width: auto !important;
-    max-width: none !important;
-    height: 78px !important;
-    min-height: 78px !important;
-    max-height: 78px !important;
-    padding: 6px 4px !important;
-    gap: 1px !important;
-    border-radius: 21px !important;
-  }
-
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
-    height: 66px !important;
-    min-height: 66px !important;
-    max-height: 66px !important;
-    padding: 7px 0 5px !important;
-    gap: 4px !important;
-    border-radius: 16px !important;
-    font-size: 8.8px !important;
-    letter-spacing: -0.25px !important;
-  }
-
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones a .menu-crossset-icone {
-    width: 21px !important;
-    height: 21px !important;
-    min-width: 21px !important;
-    flex-basis: 21px !important;
-  }
-}
-
-
-/* =========================================================
-   CrossSet v74 — correção pontual da posição do rodapé
-   Evita deslocamento causado por módulos com conteúdo mais largo,
-   especialmente Músicas. Mantém o visual aprovado com ícones.
-   ========================================================= */
-
-/* O módulo nunca pode deslocar horizontalmente a tela inteira. */
-html,
-body,
-.app,
-#tela-painel-projeto,
-#tela-painel-projeto .container {
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-}
-
-/* Desktop e tablets: centralização estável no viewport. */
-#tela-painel-projeto .menu-inferior.menu-crossset-icones {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Arial,
-    sans-serif !important;
-
-  font-stretch: normal !important;
-  font-kerning: normal !important;
-  text-rendering: optimizeLegibility !important;
-
-  left: 50% !important;
-  right: auto !important;
-  width: min(560px, calc(100vw - 28px)) !important;
-  max-width: 560px !important;
-  transform: translate3d(-50%, 0, 0) !important;
-}
-
-/* Texto equilibrado: não fica esticado no desktop nem apertado no app. */
-#tela-painel-projeto .menu-inferior.menu-crossset-icones a {
-  font-family: inherit !important;
-  font-size: clamp(9.5px, 1.05vw, 11.5px) !important;
-  font-weight: 700 !important;
-  font-stretch: normal !important;
-  letter-spacing: 0 !important;
-  line-height: 1.08 !important;
-}
-
-/* Celular: prende o rodapé diretamente nas duas laterais da tela.
-   Assim o conteúdo largo de Músicas não consegue empurrá-lo. */
 @media (max-width: 600px) {
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
-    left: 12px !important;
-    right: 12px !important;
+  /* Impede qualquer elemento do módulo Músicas de ampliar a página. */
+  #tela-painel-projeto,
+  #tela-painel-projeto .container,
+  #tela-painel-projeto #area-modulo,
+  #tela-painel-projeto .modulo-musicas,
+  #tela-painel-projeto .modulo-musicas > .card-projeto,
+  #tela-painel-projeto .card-lista-musicas-smart,
+  #tela-painel-projeto .lista-musicas,
+  #tela-painel-projeto .item-musica {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  #tela-painel-projeto #area-modulo,
+  #tela-painel-projeto .modulo-musicas,
+  #tela-painel-projeto .card-lista-musicas-smart,
+  #tela-painel-projeto .item-musica {
+    overflow-x: hidden !important;
+  }
+
+  /* A estrutura de Músicas passa para uma coluna sem afetar outros módulos. */
+  #tela-painel-projeto .modulo-musicas {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Linha principal: nome ocupa o espaço disponível e ações permanecem visíveis. */
+  #tela-painel-projeto .musica-linha-principal {
+    width: 100% !important;
+    min-width: 0 !important;
+    gap: 6px !important;
+  }
+
+  #tela-painel-projeto .musica-identidade {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #tela-painel-projeto .musica-nome-mini,
+  #tela-painel-projeto .musica-artista-mini {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  #tela-painel-projeto .acoes-icone-musica {
+    flex: 0 0 auto !important;
+    margin-left: auto !important;
+    padding-left: 4px !important;
+  }
+
+  /* Metadados podem quebrar linha sem alargar o card. */
+  #tela-painel-projeto .musica-linha-meta,
+  #tela-painel-projeto .preparacao-inline-musica,
+  #tela-painel-projeto .musica-campos-rapidos {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    overflow: visible !important;
+  }
+
+  #tela-painel-projeto .musica-linha-meta {
+    margin-left: 0 !important;
+    padding-left: 25px !important;
+    gap: 6px !important;
+    row-gap: 4px !important;
+  }
+
+  #tela-painel-projeto .musica-campo-obs-rapido,
+  #tela-painel-projeto .input-musica-obs-rapido {
+    flex: 1 1 130px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  #tela-painel-projeto .progresso-musica-inline {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  #tela-painel-projeto .barra-fina-musica {
+    width: min(96px, 24vw) !important;
+    max-width: 100% !important;
+  }
+
+  #tela-painel-projeto .musica-url-referencia,
+  #tela-painel-projeto .musica-url-referencia a {
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  /* Somente no mobile: o rodapé se ancora na tela e não no conteúdo largo. */
+  #tela-painel-projeto .menu-inferior {
+    left: 14px !important;
+    right: 14px !important;
     width: auto !important;
     max-width: none !important;
     transform: none !important;
     margin: 0 !important;
-  }
-
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
-    font-size: clamp(8.8px, 2.55vw, 10.5px) !important;
-    letter-spacing: 0 !important;
-  }
-}
-
-@media (max-width: 390px) {
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
-    left: 8px !important;
-    right: 8px !important;
-  }
-
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
-    font-size: 8.8px !important;
-  }
-}
-
-
-/* =========================================================
-   CrossSet v76 — restauração exclusiva dos tamanhos no desktop
-   Mobile/App permanece exatamente como na v74.
-   ========================================================= */
-@media (min-width: 601px) {
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
-    left: 50% !important;
-    right: auto !important;
-    bottom: 16px !important;
-    transform: translateX(-50%) !important;
-
-    width: calc(100vw - 28px) !important;
-    max-width: 520px !important;
-    min-width: 0 !important;
-
-    height: 64px !important;
-    min-height: 64px !important;
-    max-height: 64px !important;
-
-    padding: 8px !important;
-    gap: 2px !important;
-    border-radius: 22px !important;
-  }
-
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
-    height: 48px !important;
-    min-height: 48px !important;
-    max-height: 48px !important;
-
-    margin: 0 !important;
-    padding: 0 2px !important;
-    gap: 3px !important;
-    border-radius: 13px !important;
-
-    font-size: 11px !important;
-    line-height: 1 !important;
-    font-weight: 700 !important;
-    letter-spacing: 0 !important;
-  }
-
-  #tela-painel-projeto .menu-inferior.menu-crossset-icones a .menu-crossset-icone {
-    width: 17px !important;
-    height: 17px !important;
-    min-width: 17px !important;
-    flex-basis: 17px !important;
   }
 }
