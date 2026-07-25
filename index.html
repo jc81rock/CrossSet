@@ -6,7 +6,7 @@
 
   <title>CrossSet</title>
 
-  <link rel="stylesheet" href="style.css?v=22" />
+  <link rel="stylesheet" href="style.css?v=70" />
 
   <style>
     /* Polimento geral da interface - Crosset v1.0 */
@@ -576,8 +576,40 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseClient.js?v=20"></script>
-  <script src="app.js?v=67"></script>
+  <script src="supabaseClient.js?v=70"></script>
+  <script>
+    // CrossSet v70: atualização crítica única.
+    // Limpa versões antigas antes de carregar a interface atual.
+    (function () {
+      const BUILD = "crossset-v70";
+      const KEY = "crossset_build_aplicado";
+      let anterior = "";
+      try { anterior = localStorage.getItem(KEY) || ""; } catch (e) {}
+
+      if (anterior !== BUILD) {
+        try { localStorage.setItem(KEY, BUILD); } catch (e) {}
+
+        if ("caches" in window) {
+          caches.keys().then(function (nomes) {
+            return Promise.all(nomes.map(function (nome) {
+              return caches.delete(nome);
+            }));
+          }).catch(function () {});
+        }
+
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function (registros) {
+            return Promise.all(registros.map(function (registro) {
+              return registro.unregister();
+            }));
+          }).catch(function () {});
+        }
+      }
+
+      window.__crosssetBuild = BUILD;
+    })();
+  </script>
+  <script src="app.js?v=70"></script>
 
 
 
@@ -1306,7 +1338,7 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=67', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('./service-worker.js?v=70', { updateViaCache: 'none' })
           .then(() => console.log('Service Worker registrado com sucesso.'))
           .catch(err => console.error('Erro ao registrar Service Worker:', err));
       });

@@ -12817,7 +12817,7 @@ crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:
   }
 
   window.__crosssetMenuRepertorioPadraoAtivo = true;
-  window.__crosssetFrontendVersion = "1.0.1-share-menu";
+  window.__crosssetFrontendVersion = "1.0.4-repertorio-unico-v70";
 
   document.addEventListener("click", function(evento) {
     const alvo = evento.target instanceof Element
@@ -12857,7 +12857,7 @@ crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:
    Mantém somente a renderização compacta atual e força a atualização
    dos arquivos em cache quando esta versão chegar ao dispositivo. */
 (function garantirVersaoCompactaRepertorio() {
-  const VERSAO = "1.0.3-repertorio-toque";
+  const VERSAO = "1.0.4-repertorio-unico-v70";
   const CHAVE = "crossset_frontend_build";
 
   window.__crosssetFrontendVersion = VERSAO;
@@ -12922,4 +12922,43 @@ crosssetScrollObserver.observe(document.documentElement,{childList:true,subtree:
       })
       .catch(function() {});
   }
+})();
+
+
+/* CrossSet v70 — proteção crítica contra interface antiga do repertório.
+   Toda montagem aberta é normalizada para o componente atual com arraste. */
+(function protegerMontagemAtualRepertorio() {
+  const BUILD = "1.0.4-repertorio-unico-v70";
+  window.__crosssetFrontendVersion = BUILD;
+
+  function aplicar() {
+    const lista = document.getElementById("lista-musicas-repertorio");
+    if (!lista) return;
+
+    lista.classList.add("setlist-lista-final");
+
+    lista.querySelectorAll("[data-repertorio-item]").forEach(function(item) {
+      item.classList.add("setlist-linha");
+      item.setAttribute("draggable", "true");
+
+      if (!item.querySelector(".setlist-arrastar")) {
+        const alca = document.createElement("div");
+        alca.className = "setlist-arrastar";
+        alca.title = "Arrastar para reorganizar";
+        alca.setAttribute("aria-label", "Arrastar para reorganizar");
+        alca.textContent = "⋮⋮";
+        item.insertBefore(alca, item.firstChild);
+      }
+    });
+
+    if (typeof configurarArrastarMusicasRepertorio === "function") {
+      configurarArrastarMusicasRepertorio();
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", aplicar);
+  window.addEventListener("load", aplicar);
+
+  const observer = new MutationObserver(aplicar);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
 })();
