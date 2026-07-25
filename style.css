@@ -1873,3 +1873,56 @@ button#btn-convidar-integrante::after,
     border-radius: 15px !important;
   }
 }
+
+
+/* CrossSet Fix v68 — menu inferior com dimensões idênticas em todos os módulos
+   Correção exclusivamente visual. Não altera HTML, JavaScript, banco ou fluxos. */
+#tela-painel-projeto .menu-inferior {
+  box-sizing: border-box !important;
+  width: calc(100% - 36px) !important;
+  max-width: 670px !important;
+  min-height: 82px !important;
+  height: 82px !important;
+  padding: 10px !important;
+  gap: 2px !important;
+  align-items: center !important;
+  overflow: hidden !important;
+}
+
+#tela-painel-projeto .menu-inferior a,
+#tela-painel-projeto .menu-inferior button {
+  box-sizing: border-box !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  min-height: 60px !important;
+  height: 60px !important;
+  max-height: 60px !important;
+  padding: 0 6px !important;
+  margin: 0 !important;
+  border-radius: 15px !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+@media (max-width: 520px) {
+  #tela-painel-projeto .menu-inferior {
+    width: calc(100% - 28px) !important;
+    max-width: none !important;
+    min-height: 74px !important;
+    height: 74px !important;
+    padding: 8px !important;
+  }
+
+  #tela-painel-projeto .menu-inferior a,
+  #tela-painel-projeto .menu-inferior button {
+    min-height: 56px !important;
+    height: 56px !important;
+    max-height: 56px !important;
+    padding: 0 4px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+  }
+}
