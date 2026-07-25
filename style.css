@@ -2167,3 +2167,35 @@ button#btn-convidar-integrante::after,
     margin: 0 !important;
   }
 }
+
+
+/* =========================================================
+   CrossSet v78 — somente aparência interna do rodapé
+   As dimensões e o posicionamento externos permanecem os da v77.
+   ========================================================= */
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones .menu-crossset-icone {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  flex: 0 0 18px !important;
+  display: block !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2 !important;
+  stroke-linecap: round !important;
+  stroke-linejoin: round !important;
+}
+
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a span {
+  display: block !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+}
