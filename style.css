@@ -2267,3 +2267,68 @@ body,
     font-size: 8.8px !important;
   }
 }
+
+
+/* =========================================================
+   CrossSet v75 — desktop restaurado, app/mobile preservado
+   ========================================================= */
+
+/* Desktop/Web: volta ao rodapé compacto aprovado. */
+@media (min-width: 601px) {
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
+    left: 50% !important;
+    right: auto !important;
+    bottom: 16px !important;
+    transform: translateX(-50%) !important;
+
+    width: min(100%, 390px) !important;
+    max-width: 390px !important;
+    height: 74px !important;
+    min-height: 74px !important;
+    max-height: 74px !important;
+
+    padding: 7px !important;
+    gap: 3px !important;
+    border-radius: 20px !important;
+  }
+
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    padding: 6px 2px 5px !important;
+    gap: 4px !important;
+    border-radius: 14px !important;
+
+    font-size: 9px !important;
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+  }
+
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones a .menu-crossset-icone {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    flex-basis: 18px !important;
+  }
+}
+
+/* Mobile/App: mantém exatamente o padrão aprovado da v74. */
+@media (max-width: 600px) {
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
+    left: 8px !important;
+    right: 8px !important;
+  }
+}
