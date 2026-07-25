@@ -1,4 +1,4 @@
-const CACHE_NAME = "crossset-pwa-v73";
+const CACHE_NAME = "crossset-pwa-v74";
 
 self.addEventListener("install", function(event) {
   self.skipWaiting();

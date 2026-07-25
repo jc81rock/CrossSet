@@ -2189,3 +2189,81 @@ button#btn-convidar-integrante::after,
     flex-basis: 21px !important;
   }
 }
+
+
+/* =========================================================
+   CrossSet v74 — correção pontual da posição do rodapé
+   Evita deslocamento causado por módulos com conteúdo mais largo,
+   especialmente Músicas. Mantém o visual aprovado com ícones.
+   ========================================================= */
+
+/* O módulo nunca pode deslocar horizontalmente a tela inteira. */
+html,
+body,
+.app,
+#tela-painel-projeto,
+#tela-painel-projeto .container {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+/* Desktop e tablets: centralização estável no viewport. */
+#tela-painel-projeto .menu-inferior.menu-crossset-icones {
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif !important;
+
+  font-stretch: normal !important;
+  font-kerning: normal !important;
+  text-rendering: optimizeLegibility !important;
+
+  left: 50% !important;
+  right: auto !important;
+  width: min(560px, calc(100vw - 28px)) !important;
+  max-width: 560px !important;
+  transform: translate3d(-50%, 0, 0) !important;
+}
+
+/* Texto equilibrado: não fica esticado no desktop nem apertado no app. */
+#tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+  font-family: inherit !important;
+  font-size: clamp(9.5px, 1.05vw, 11.5px) !important;
+  font-weight: 700 !important;
+  font-stretch: normal !important;
+  letter-spacing: 0 !important;
+  line-height: 1.08 !important;
+}
+
+/* Celular: prende o rodapé diretamente nas duas laterais da tela.
+   Assim o conteúdo largo de Músicas não consegue empurrá-lo. */
+@media (max-width: 600px) {
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
+    left: 12px !important;
+    right: 12px !important;
+    width: auto !important;
+    max-width: none !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+    font-size: clamp(8.8px, 2.55vw, 10.5px) !important;
+    letter-spacing: 0 !important;
+  }
+}
+
+@media (max-width: 390px) {
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones {
+    left: 8px !important;
+    right: 8px !important;
+  }
+
+  #tela-painel-projeto .menu-inferior.menu-crossset-icones a {
+    font-size: 8.8px !important;
+  }
+}
