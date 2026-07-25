@@ -9770,6 +9770,81 @@ function configurarArrastarMusicasRepertorio() {
   }
 
   let itemArrastadoId = "";
+  let toqueAtivo = null;
+  let toqueArrastando = false;
+  let toqueTimer = null;
+  let alvoToqueAtual = null;
+
+  function limparAlvosArrastar() {
+    lista.querySelectorAll(".alvo-arrastar").forEach(function(alvo) {
+      alvo.classList.remove("alvo-arrastar");
+    });
+  }
+
+  function limparEstadoToque() {
+    if (toqueTimer) {
+      clearTimeout(toqueTimer);
+      toqueTimer = null;
+    }
+
+    if (toqueAtivo?.item) {
+      toqueAtivo.item.classList.remove("arrastando");
+    }
+
+    limparAlvosArrastar();
+    toqueAtivo = null;
+    toqueArrastando = false;
+    alvoToqueAtual = null;
+    itemArrastadoId = "";
+  }
+
+  async function reordenarMusicaRepertorio(origemId, destinoId) {
+    if (!origemId || !destinoId || origemId === destinoId) {
+      return;
+    }
+
+    const itens = ordenarMusicasSelecionadasRepertorio(
+      appState.repertorioMusicas || [],
+      "manual"
+    );
+    const indiceOrigem = itens.findIndex(function(registro) {
+      return String(registro.id) === String(origemId);
+    });
+    const indiceDestino = itens.findIndex(function(registro) {
+      return String(registro.id) === String(destinoId);
+    });
+
+    if (indiceOrigem < 0 || indiceDestino < 0) {
+      return;
+    }
+
+    const [movido] = itens.splice(indiceOrigem, 1);
+    itens.splice(indiceDestino, 0, movido);
+
+    const posicaoLista = lista.scrollTop;
+    const posicaoPagina = window.scrollY;
+
+    appState.repertorioOrdenacaoSelecionadas = "manual";
+    const salvou = await salvarOrdemCompletaRepertorio(itens);
+
+    if (salvou) {
+      renderizarMontagemRepertorio();
+
+      requestAnimationFrame(function() {
+        const novaLista = elemento("lista-musicas-repertorio");
+
+        if (novaLista) {
+          novaLista.scrollTop = posicaoLista;
+        }
+
+        window.scrollTo({
+          top: posicaoPagina,
+          left: 0,
+          behavior: "auto"
+        });
+      });
+    }
+  }
 
   lista.querySelectorAll("[data-repertorio-item]").forEach(function(item) {
     item.addEventListener("dragstart", function(evento) {
@@ -9780,10 +9855,9 @@ function configurarArrastarMusicasRepertorio() {
     });
 
     item.addEventListener("dragend", function() {
+      itemArrastadoId = "";
       item.classList.remove("arrastando");
-      lista.querySelectorAll(".alvo-arrastar").forEach(function(alvo) {
-        alvo.classList.remove("alvo-arrastar");
-      });
+      limparAlvosArrastar();
     });
 
     item.addEventListener("dragover", function(evento) {
@@ -9804,53 +9878,88 @@ function configurarArrastarMusicasRepertorio() {
 
       const origemId = itemArrastadoId || evento.dataTransfer.getData("text/plain");
       const destinoId = item.dataset.repertorioItem || "";
-
-      if (!origemId || !destinoId || origemId === destinoId) {
-        return;
-      }
-
-      const itens = ordenarMusicasSelecionadasRepertorio(
-        appState.repertorioMusicas || [],
-        "manual"
-      );
-      const indiceOrigem = itens.findIndex(function(registro) {
-        return String(registro.id) === String(origemId);
-      });
-      const indiceDestino = itens.findIndex(function(registro) {
-        return String(registro.id) === String(destinoId);
-      });
-
-      if (indiceOrigem < 0 || indiceDestino < 0) {
-        return;
-      }
-
-      const [movido] = itens.splice(indiceOrigem, 1);
-      itens.splice(indiceDestino, 0, movido);
-
-      const posicaoLista = lista.scrollTop;
-      const posicaoPagina = window.scrollY;
-
-      appState.repertorioOrdenacaoSelecionadas = "manual";
-      const salvou = await salvarOrdemCompletaRepertorio(itens);
-
-      if (salvou) {
-        renderizarMontagemRepertorio();
-
-        requestAnimationFrame(function() {
-          const novaLista = elemento("lista-musicas-repertorio");
-
-          if (novaLista) {
-            novaLista.scrollTop = posicaoLista;
-          }
-
-          window.scrollTo({
-            top: posicaoPagina,
-            left: 0,
-            behavior: "auto"
-          });
-        });
-      }
+      await reordenarMusicaRepertorio(origemId, destinoId);
     });
+
+    /* Android/TWA: mantém o drag do desktop e acrescenta suporte por toque. */
+    item.addEventListener("pointerdown", function(evento) {
+      if (evento.pointerType === "mouse" || evento.button !== 0) {
+        return;
+      }
+
+      limparEstadoToque();
+      toqueAtivo = {
+        pointerId: evento.pointerId,
+        item: item,
+        origemId: item.dataset.repertorioItem || "",
+        inicioX: evento.clientX,
+        inicioY: evento.clientY
+      };
+
+      toqueTimer = setTimeout(function() {
+        if (!toqueAtivo) {
+          return;
+        }
+
+        toqueArrastando = true;
+        itemArrastadoId = toqueAtivo.origemId;
+        item.classList.add("arrastando");
+
+        try {
+          item.setPointerCapture(evento.pointerId);
+        } catch (erroCaptura) {}
+      }, 180);
+    });
+
+    item.addEventListener("pointermove", function(evento) {
+      if (!toqueAtivo || evento.pointerId !== toqueAtivo.pointerId) {
+        return;
+      }
+
+      const distanciaX = Math.abs(evento.clientX - toqueAtivo.inicioX);
+      const distanciaY = Math.abs(evento.clientY - toqueAtivo.inicioY);
+
+      if (!toqueArrastando && (distanciaX > 10 || distanciaY > 10)) {
+        limparEstadoToque();
+        return;
+      }
+
+      if (!toqueArrastando) {
+        return;
+      }
+
+      evento.preventDefault();
+      limparAlvosArrastar();
+
+      const elementoSobToque = document.elementFromPoint(evento.clientX, evento.clientY);
+      const alvo = elementoSobToque?.closest?.("[data-repertorio-item]");
+
+      if (alvo && lista.contains(alvo) && alvo !== toqueAtivo.item) {
+        alvo.classList.add("alvo-arrastar");
+        alvoToqueAtual = alvo;
+      } else {
+        alvoToqueAtual = null;
+      }
+    }, { passive: false });
+
+    item.addEventListener("pointerup", async function(evento) {
+      if (!toqueAtivo || evento.pointerId !== toqueAtivo.pointerId) {
+        return;
+      }
+
+      const origemId = toqueAtivo.origemId;
+      const destinoId = alvoToqueAtual?.dataset?.repertorioItem || "";
+      const deveReordenar = toqueArrastando && origemId && destinoId && origemId !== destinoId;
+
+      limparEstadoToque();
+
+      if (deveReordenar) {
+        evento.preventDefault();
+        await reordenarMusicaRepertorio(origemId, destinoId);
+      }
+    }, { passive: false });
+
+    item.addEventListener("pointercancel", limparEstadoToque);
   });
 }
 
