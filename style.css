@@ -1875,59 +1875,6 @@ button#btn-convidar-integrante::after,
 }
 
 
-/* CrossSet Fix v68 — menu inferior com dimensões idênticas em todos os módulos
-   Correção exclusivamente visual. Não altera HTML, JavaScript, banco ou fluxos. */
-#tela-painel-projeto .menu-inferior {
-  box-sizing: border-box !important;
-  width: calc(100% - 36px) !important;
-  max-width: 670px !important;
-  min-height: 82px !important;
-  height: 82px !important;
-  padding: 10px !important;
-  gap: 2px !important;
-  align-items: center !important;
-  overflow: hidden !important;
-}
-
-#tela-painel-projeto .menu-inferior a,
-#tela-painel-projeto .menu-inferior button {
-  box-sizing: border-box !important;
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  min-height: 60px !important;
-  height: 60px !important;
-  max-height: 60px !important;
-  padding: 0 6px !important;
-  margin: 0 !important;
-  border-radius: 15px !important;
-  font-size: 14px !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-@media (max-width: 520px) {
-  #tela-painel-projeto .menu-inferior {
-    width: calc(100% - 28px) !important;
-    max-width: none !important;
-    min-height: 74px !important;
-    height: 74px !important;
-    padding: 8px !important;
-  }
-
-  #tela-painel-projeto .menu-inferior a,
-  #tela-painel-projeto .menu-inferior button {
-    min-height: 56px !important;
-    height: 56px !important;
-    max-height: 56px !important;
-    padding: 0 4px !important;
-    border-radius: 14px !important;
-    font-size: 12px !important;
-  }
-}
-
-
 /* CrossSet v70 — padrão definitivo da montagem de repertório no celular */
 #tela-painel-projeto .setlist-lista-final,
 #tela-painel-projeto .lista-musicas-repertorio {
@@ -2018,21 +1965,32 @@ button#btn-convidar-integrante::after,
 }
 
 
+
+
 /* =========================================================
-   CrossSet v71 — correção exclusiva da barra inferior
-   Mantém exatamente 5 itens visíveis em todos os módulos,
-   inclusive Músicas. Nenhuma outra área é alterada.
+   CrossSet v72 — barra inferior única e padronizada
+   Regra final: cinco itens completos, sem corte e sem variação
+   entre Início, Integrantes, Músicas, Repertórios e Eventos.
    ========================================================= */
 #tela-painel-projeto .menu-inferior {
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: 16px !important;
+  transform: translateX(-50%) !important;
+
+  display: flex !important;
   align-items: center !important;
-  justify-content: stretch !important;
-  width: calc(100% - 28px) !important;
-  max-width: 670px !important;
+  justify-content: space-between !important;
+
+  width: calc(100vw - 28px) !important;
+  max-width: 520px !important;
   min-width: 0 !important;
-  height: auto !important;
-  min-height: 0 !important;
+
+  height: 64px !important;
+  min-height: 64px !important;
+  max-height: 64px !important;
+
   padding: 8px !important;
   gap: 2px !important;
   overflow: hidden !important;
@@ -2041,31 +1999,44 @@ button#btn-convidar-integrante::after,
 
 #tela-painel-projeto .menu-inferior a,
 #tela-painel-projeto .menu-inferior button {
-  width: 100% !important;
+  flex: 1 1 20% !important;
+  width: 20% !important;
   min-width: 0 !important;
-  max-width: 100% !important;
+  max-width: 20% !important;
+
   height: 48px !important;
   min-height: 48px !important;
   max-height: 48px !important;
-  padding: 0 3px !important;
+
   margin: 0 !important;
-  border-radius: 14px !important;
-  font-size: clamp(9px, 2.8vw, 13px) !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: clip !important;
+  padding: 0 2px !important;
+  border-radius: 13px !important;
+
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+
+  font-size: 11px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
   box-sizing: border-box !important;
 }
 
 @media (max-width: 390px) {
   #tela-painel-projeto .menu-inferior {
-    width: calc(100% - 20px) !important;
-    padding: 7px !important;
-    gap: 1px !important;
+    left: 10px !important;
+    right: 10px !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    height: 60px !important;
+    min-height: 60px !important;
+    max-height: 60px !important;
+    padding: 7px 5px !important;
+    gap: 0 !important;
   }
 
   #tela-painel-projeto .menu-inferior a,
@@ -2073,7 +2044,8 @@ button#btn-convidar-integrante::after,
     height: 46px !important;
     min-height: 46px !important;
     max-height: 46px !important;
-    padding: 0 2px !important;
-    font-size: 9px !important;
+    padding: 0 1px !important;
+    font-size: 9.5px !important;
+    letter-spacing: -0.15px !important;
   }
 }
