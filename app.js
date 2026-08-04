@@ -5599,6 +5599,17 @@ async function carregarMusicas() {
         <div id="lista-musicas" class="lista-musicas">
           <p>Carregando músicas...</p>
         </div>
+
+        <div class="acoes-exportacao-spotify">
+          <button id="btn-exportar-links-spotify" class="btn-exportar-links-spotify" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M5 21h14"></path>
+            </svg>
+            <span>Exportar links do Spotify</span>
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -5619,8 +5630,13 @@ function configurarEventosMusicas() {
   const inputLetra = elemento("musica-letra-arquivo");
   const smartBusca = elemento("smart-musica-busca");
   const smartBotaoBuscar = elemento("btn-smart-musica-buscar");
+  const botaoExportarSpotify = elemento("btn-exportar-links-spotify");
 
 
+
+  if (botaoExportarSpotify) {
+    botaoExportarSpotify.addEventListener("click", exportarLinksSpotifyMusicas);
+  }
 
   if (smartBusca) {
     smartBusca.addEventListener("input", function() {
@@ -6174,6 +6190,107 @@ function configurarArrastarMusicasCadastradas() {
       }
     });
   });
+}
+
+
+function obterLinkSpotifyMusica(item) {
+  const candidatos = [
+    item?.spotify_url,
+    item?.link_url,
+    item?.link
+  ];
+
+  return candidatos
+    .map(function(valor) { return limparTexto(valor); })
+    .find(function(valor) {
+      return /^spotify:track:/i.test(valor) ||
+        /^https?:\/\/(open\.)?spotify\.com\/track\//i.test(valor);
+    }) || "";
+}
+
+function criarNomeArquivoSpotify() {
+  const projeto = limparTexto(appState.projetoAtual?.nome || "CrossSet");
+  const nomeSeguro = projeto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\- ]+/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+  return (nomeSeguro || "CrossSet") + "-links-Spotify.txt";
+}
+
+async function exportarLinksSpotifyMusicas() {
+  const projetoId = obterProjetoAtualId();
+  const musicas = filtrarRegistrosDoProjetoAtual(appState.musicas || [], projetoId);
+
+  const itens = musicas
+    .map(function(musica) {
+      return {
+        nome: limparTexto(musica.nome || "Música sem nome"),
+        artista: limparTexto(musica.artista || ""),
+        link: obterLinkSpotifyMusica(musica)
+      };
+    })
+    .filter(function(item) { return Boolean(item.link); });
+
+  if (!itens.length) {
+    alert("Nenhuma música deste projeto possui link do Spotify.");
+    return;
+  }
+
+  const projeto = limparTexto(appState.projetoAtual?.nome || "Projeto musical");
+  const linhas = [
+    "CROSSSET",
+    "Projeto: " + projeto,
+    "Links do Spotify: " + itens.length,
+    ""
+  ];
+
+  itens.forEach(function(item, indice) {
+    linhas.push(
+      String(indice + 1).padStart(2, "0") + ". " +
+      item.nome +
+      (item.artista ? " — " + item.artista : "")
+    );
+    linhas.push(item.link);
+    linhas.push("");
+  });
+
+  const conteudo = linhas.join("\n");
+  const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const linkDownload = document.createElement("a");
+
+  linkDownload.href = url;
+  linkDownload.download = criarNomeArquivoSpotify();
+  linkDownload.style.display = "none";
+  document.body.appendChild(linkDownload);
+  linkDownload.click();
+  linkDownload.remove();
+
+  setTimeout(function() {
+    URL.revokeObjectURL(url);
+  }, 1500);
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(conteudo);
+      mostrarToast(
+        itens.length + " link" + (itens.length === 1 ? "" : "s") +
+        " exportado" + (itens.length === 1 ? "" : "s") +
+        " e copiado" + (itens.length === 1 ? "" : "s") + "."
+      );
+      return;
+    } catch (erroClipboard) {
+      console.warn("Arquivo exportado, mas não foi possível copiar a lista.", erroClipboard);
+    }
+  }
+
+  mostrarToast(
+    itens.length + " link" + (itens.length === 1 ? "" : "s") +
+    " do Spotify exportado" + (itens.length === 1 ? "" : "s") + "."
+  );
 }
 
 async function buscarMusicas() {
