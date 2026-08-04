@@ -2278,3 +2278,36 @@ button#btn-convidar-integrante::after,
   stroke-linejoin: round;
 }
 
+
+
+/* CrossSet v81 — exportação da lista completa de músicas em PDF */
+#tela-painel-projeto .btn-exportar-musicas-pdf {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,.07);
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+#tela-painel-projeto .btn-exportar-musicas-pdf:hover {
+  background: rgba(122,92,255,.16);
+  border-color: rgba(122,92,255,.42);
+}
+#tela-painel-projeto .btn-exportar-musicas-pdf svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

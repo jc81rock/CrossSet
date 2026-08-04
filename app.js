@@ -5601,6 +5601,16 @@ async function carregarMusicas() {
         </div>
 
         <div class="acoes-exportacao-spotify">
+          <button id="btn-exportar-musicas-pdf" class="btn-exportar-musicas-pdf" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path>
+              <path d="M14 2v6h6"></path>
+              <path d="M8 13h8"></path>
+              <path d="M8 17h8"></path>
+            </svg>
+            <span>Exportar músicas em PDF</span>
+          </button>
+
           <button id="btn-exportar-links-spotify" class="btn-exportar-links-spotify" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M12 3v12"></path>
@@ -5639,8 +5649,13 @@ function configurarEventosMusicas() {
   const inputLetra = elemento("musica-letra-arquivo");
   const smartBusca = elemento("smart-musica-busca");
   const smartBotaoBuscar = elemento("btn-smart-musica-buscar");
+  const botaoExportarPdf = elemento("btn-exportar-musicas-pdf");
   const botaoExportarSpotify = elemento("btn-exportar-links-spotify");
   const botaoExportarYoutube = elemento("btn-exportar-links-youtube");
+
+  if (botaoExportarPdf) {
+    botaoExportarPdf.addEventListener("click", exportarMusicasProjetoPDF);
+  }
 
   if (botaoExportarSpotify) {
     botaoExportarSpotify.addEventListener("click", exportarLinksSpotifyMusicas);
@@ -6218,6 +6233,97 @@ function obterLinkSpotifyMusica(item) {
       return /^spotify:track:/i.test(valor) ||
         /^https?:\/\/(open\.)?spotify\.com\/track\//i.test(valor);
     }) || "";
+}
+
+function exportarMusicasProjetoPDF() {
+  const projetoId = obterProjetoAtualId();
+  const projeto = appState.projetoAtual || {};
+  const musicas = filtrarRegistrosDoProjetoAtual(appState.musicas || [], projetoId)
+    .slice()
+    .sort(function(a, b) {
+      return limparTexto(a.nome).localeCompare(limparTexto(b.nome), "pt-BR", { sensitivity: "base" });
+    });
+
+  if (!musicas.length) {
+    alert("Nenhuma música cadastrada neste projeto.");
+    return;
+  }
+
+  const dataGeracao = formatarDataPDF(new Date());
+  const nomeProjeto = escaparHtml(projeto.nome || "Projeto");
+
+  const linhas = musicas.map(function(musica, indice) {
+    const numero = String(indice + 1).padStart(2, "0");
+    const observacao = obterObservacaoMusicaManual(musica);
+
+    return `
+      <tr>
+        <td class="numero">${numero}</td>
+        <td class="musica-coluna">
+          <strong>${escaparHtml(musica.nome || "Sem nome")}</strong>
+          <span>${escaparHtml(musica.artista || "Artista não informado")}</span>
+        </td>
+        <td class="obs-musica">${observacao ? escaparHtml(observacao) : "-"}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.tom || "-")}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.bpm || "-")}</td>
+        <td class="dado-centralizado">${escaparHtml(musica.duracao || "-")}</td>
+      </tr>
+    `;
+  }).join("");
+
+  const documento = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="UTF-8" />
+      <title>${nomeProjeto} - Lista de Músicas</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 32px; font-family: Arial, Helvetica, sans-serif; color: #111827; background: #ffffff; }
+        .cabecalho { border-bottom: 3px solid #6d28d9; padding-bottom: 16px; margin-bottom: 22px; }
+        .marca { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6d28d9; margin-bottom: 8px; }
+        h1 { margin: 0 0 6px; font-size: 28px; color: #111827; }
+        h2 { margin: 0; font-size: 18px; font-weight: 600; color: #374151; }
+        .info { margin-top: 14px; display: grid; gap: 4px; font-size: 13px; color: #4b5563; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; border-bottom: 2px solid #e5e7eb; padding: 10px 7px; }
+        td { border-bottom: 1px solid #e5e7eb; padding: 11px 7px; vertical-align: top; font-size: 13px; }
+        td strong { display: block; font-size: 14px; color: #111827; margin-bottom: 3px; }
+        td span { display: block; font-size: 11px; color: #6b7280; }
+        .numero { font-weight: 800; color: #6d28d9; }
+        .musica-coluna { width: 42%; }
+        .obs-musica { width: 25%; font-size: 11px; line-height: 1.4; color: #4b5563; font-style: italic; white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+        .dado-centralizado { text-align: center; white-space: nowrap; }
+        th.dado-centralizado { text-align: center; }
+        .rodape { margin-top: 24px; padding-top: 12px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: #6b7280; }
+        @media print { body { padding: 22px; } .cabecalho { break-after: avoid; } tr { break-inside: avoid; } }
+      </style>
+    </head>
+    <body>
+      <section class="cabecalho">
+        <div class="marca">CrossSet</div>
+        <h1>${nomeProjeto}</h1>
+        <h2>Lista de Músicas</h2>
+        <div class="info">
+          <div><strong>Data de geração:</strong> ${escaparHtml(dataGeracao)}</div>
+          <div><strong>Total de músicas:</strong> ${musicas.length}</div>
+        </div>
+      </section>
+      <table>
+        <colgroup>
+          <col style="width:4%" /><col style="width:42%" /><col style="width:25%" />
+          <col style="width:8%" /><col style="width:8%" /><col style="width:13%" />
+        </colgroup>
+        <thead><tr><th>Nº</th><th>Música</th><th>OBS</th><th class="dado-centralizado">Tom</th><th class="dado-centralizado">BPM</th><th class="dado-centralizado">Duração</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+      <div class="rodape"><span>Gerado pelo CrossSet</span><span>crossset.app</span></div>
+      <script>window.addEventListener('load', function() { setTimeout(function() { window.print(); }, 300); });<\/script>
+    </body>
+    </html>
+  `;
+
+  abrirJanelaImpressaoRepertorio(documento);
 }
 
 function criarNomeArquivoSpotify() {
