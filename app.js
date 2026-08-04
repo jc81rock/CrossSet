@@ -5609,6 +5609,15 @@ async function carregarMusicas() {
             </svg>
             <span>Exportar links do Spotify</span>
           </button>
+
+          <button id="btn-exportar-links-youtube" class="btn-exportar-links-youtube" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M5 21h14"></path>
+            </svg>
+            <span>Exportar links do YouTube</span>
+          </button>
         </div>
       </div>
     </div>
@@ -5631,11 +5640,14 @@ function configurarEventosMusicas() {
   const smartBusca = elemento("smart-musica-busca");
   const smartBotaoBuscar = elemento("btn-smart-musica-buscar");
   const botaoExportarSpotify = elemento("btn-exportar-links-spotify");
-
-
+  const botaoExportarYoutube = elemento("btn-exportar-links-youtube");
 
   if (botaoExportarSpotify) {
     botaoExportarSpotify.addEventListener("click", exportarLinksSpotifyMusicas);
+  }
+
+  if (botaoExportarYoutube) {
+    botaoExportarYoutube.addEventListener("click", exportarLinksYoutubeMusicas);
   }
 
   if (smartBusca) {
@@ -6290,6 +6302,105 @@ async function exportarLinksSpotifyMusicas() {
   mostrarToast(
     itens.length + " link" + (itens.length === 1 ? "" : "s") +
     " do Spotify exportado" + (itens.length === 1 ? "" : "s") + "."
+  );
+}
+
+function obterLinkYoutubeMusica(item) {
+  const candidatos = [
+    item?.youtube_url,
+    item?.url_youtube,
+    item?.youtube
+  ];
+
+  return candidatos
+    .map(function(valor) { return limparTexto(valor); })
+    .find(function(valor) {
+      return /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(valor);
+    }) || "";
+}
+
+function criarNomeArquivoYoutube() {
+  const projeto = limparTexto(appState.projetoAtual?.nome || "CrossSet");
+  const nomeSeguro = projeto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\- ]+/g, "")
+    .trim()
+    .replace(/\s+/g, "-");
+
+  return (nomeSeguro || "CrossSet") + "-links-YouTube.txt";
+}
+
+async function exportarLinksYoutubeMusicas() {
+  const projetoId = obterProjetoAtualId();
+  const musicas = filtrarRegistrosDoProjetoAtual(appState.musicas || [], projetoId);
+
+  const itens = musicas
+    .map(function(musica) {
+      return {
+        nome: limparTexto(musica.nome || "Música sem nome"),
+        artista: limparTexto(musica.artista || ""),
+        link: obterLinkYoutubeMusica(musica)
+      };
+    })
+    .filter(function(item) { return Boolean(item.link); });
+
+  if (!itens.length) {
+    alert("Nenhuma música deste projeto possui link do YouTube.");
+    return;
+  }
+
+  const projeto = limparTexto(appState.projetoAtual?.nome || "Projeto musical");
+  const linhas = [
+    "CROSSSET",
+    "Projeto: " + projeto,
+    "Links do YouTube: " + itens.length,
+    ""
+  ];
+
+  itens.forEach(function(item, indice) {
+    linhas.push(
+      String(indice + 1).padStart(2, "0") + ". " +
+      item.nome +
+      (item.artista ? " — " + item.artista : "")
+    );
+    linhas.push(item.link);
+    linhas.push("");
+  });
+
+  const conteudo = linhas.join("\n");
+  const blob = new Blob([conteudo], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const linkDownload = document.createElement("a");
+
+  linkDownload.href = url;
+  linkDownload.download = criarNomeArquivoYoutube();
+  linkDownload.style.display = "none";
+  document.body.appendChild(linkDownload);
+  linkDownload.click();
+  linkDownload.remove();
+
+  setTimeout(function() {
+    URL.revokeObjectURL(url);
+  }, 1500);
+
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(conteudo);
+      mostrarToast(
+        itens.length + " link" + (itens.length === 1 ? "" : "s") +
+        " exportado" + (itens.length === 1 ? "" : "s") +
+        " e copiado" + (itens.length === 1 ? "" : "s") + "."
+      );
+      return;
+    } catch (erroClipboard) {
+      console.warn("Arquivo exportado, mas não foi possível copiar a lista.", erroClipboard);
+    }
+  }
+
+  mostrarToast(
+    itens.length + " link" + (itens.length === 1 ? "" : "s") +
+    " do YouTube exportado" + (itens.length === 1 ? "" : "s") + "."
   );
 }
 
