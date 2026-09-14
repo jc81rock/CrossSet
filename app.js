@@ -9293,6 +9293,40 @@ function definirEdicaoRepertorioRecolhida(recolhida) {
   }
 }
 
+function garantirCamposEdicaoRepertorioEditaveis() {
+  const campos = [
+    elemento("repertorio-nome"),
+    elemento("repertorio-observacoes")
+  ].filter(Boolean);
+
+  campos.forEach(function(campo) {
+    campo.disabled = false;
+    campo.readOnly = false;
+    campo.removeAttribute("disabled");
+    campo.removeAttribute("readonly");
+    campo.style.pointerEvents = "auto";
+    campo.style.userSelect = "text";
+    campo.style.webkitUserSelect = "text";
+
+    if (campo.dataset.crosssetEdicaoRepertorioConfigurada === "1") {
+      return;
+    }
+
+    campo.dataset.crosssetEdicaoRepertorioConfigurada = "1";
+
+    // Impede que atalhos/controles globais interfiram na digitação destes campos.
+    campo.addEventListener("keydown", function(evento) {
+      if (evento.key !== "Enter") {
+        evento.stopPropagation();
+      }
+    });
+
+    campo.addEventListener("input", function() {
+      campo.dataset.crosssetValorDigitado = campo.value;
+    });
+  });
+}
+
 function alternarEdicaoRepertorio() {
   const cardForm = elemento("card-form-repertorio");
 
@@ -9304,9 +9338,15 @@ function alternarEdicaoRepertorio() {
   definirEdicaoRepertorioRecolhida(!recolhida);
 
   if (recolhida) {
+    garantirCamposEdicaoRepertorioEditaveis();
+
     const campoNome = elemento("repertorio-nome");
     if (campoNome) {
       campoNome.focus();
+      const fim = campoNome.value.length;
+      try {
+        campoNome.setSelectionRange(fim, fim);
+      } catch (erroSelecao) {}
     }
   }
 }
@@ -9369,6 +9409,7 @@ function preencherFormularioRepertorio(item) {
     cardLista.style.display = "none";
   }
 
+  garantirCamposEdicaoRepertorioEditaveis();
   definirEdicaoRepertorioRecolhida(true);
 
   if (cardForm) {
