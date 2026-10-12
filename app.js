@@ -5501,7 +5501,7 @@ async function carregarMusicas() {
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
 
-        <button id="btn-adicionar-musica-autoral" type="button" class="btn-secundario-musica" style="margin-top:10px;">Adicionar música autoral</button>
+        <button id="btn-adicionar-musica-autoral" type="button" class="btn-secundario-musica" style="margin-top:10px; background:linear-gradient(135deg, #33c4ff, #7a5cff, #b84dff); border:0; color:#ffffff;">Adicionar música autoral</button>
 
         <div id="form-musicas-manual" class="form-musicas" style="display:none; margin-top:10px; border:1px solid rgba(255,255,255,.12); border-radius:13px; padding:10px; background:rgba(7,17,31,.62);">
           <label>
