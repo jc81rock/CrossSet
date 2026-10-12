@@ -5501,6 +5501,8 @@ async function carregarMusicas() {
           <small class="crossset-smart-ajuda">Digite o nome da música, escolha uma sugestão e confirme o cadastro.</small>
         </div>
 
+        <button id="btn-adicionar-musica-autoral" type="button" class="btn-secundario-musica" style="margin-top:10px;">Adicionar música autoral</button>
+
         <div id="form-musicas-manual" class="form-musicas" style="display:none; margin-top:10px; border:1px solid rgba(255,255,255,.12); border-radius:13px; padding:10px; background:rgba(7,17,31,.62);">
           <label>
             Música
@@ -5714,6 +5716,22 @@ function configurarEventosMusicas() {
   if (botaoAnexarLetra && inputLetra) {
     botaoAnexarLetra.addEventListener("click", function() {
       inputLetra.click();
+    });
+  }
+
+  const botaoAutoral = elemento("btn-adicionar-musica-autoral");
+  if (botaoAutoral) {
+    botaoAutoral.addEventListener("click", function() {
+      limparFormularioMusica();
+      const formulario = elemento("form-musicas-manual");
+      if (formulario) formulario.style.display = "block";
+      const titulo = elemento("titulo-form-musica");
+      if (titulo) titulo.textContent = "Adicionar música autoral";
+      const artista = elemento("musica-artista");
+      if (artista && !artista.value) artista.value = appState.projetoAtual?.nome || "";
+      const salvar = elemento("btn-salvar-musica");
+      if (salvar) salvar.innerHTML = `<span>＋</span><span>Adicionar música</span>`;
+      elemento("musica-nome")?.focus();
     });
   }
 
